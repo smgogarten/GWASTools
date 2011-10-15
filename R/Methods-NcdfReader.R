@@ -1,0 +1,115 @@
+# Methods for NcdfReader
+
+# constructor
+NcdfReader <- function(filename) {
+  if (missing(filename)) stop("filename is required")
+  handler <- open.ncdf(filename, readunlim=FALSE)
+  new("NcdfReader", filename=filename, handler=handler)
+}
+
+setValidity("NcdfReader",
+            function(object) {              
+              if (!is.character(object@filename) ||
+                  length(object@filename) != 1 ||
+                  is.na(object@filename))
+                return("'filename' slot must be a single string")
+              TRUE
+            })
+
+setMethod("open",
+    signature(con = "NcdfReader"),
+    function (con, ...) {
+      con@handler <- open.ncdf(con@filename, readunlim=FALSE, ...)
+    })
+
+setMethod("close",
+    signature(con = "NcdfReader"),
+    function (con, ...) {
+      close.ncdf(con@handler, ...)
+    })
+
+setMethod("show", 
+          signature(object="NcdfReader"),
+          function(object) {
+            show(object@handler)
+          })
+
+# get dimension names   
+# if varname is missing, returns dimension names for netcdf object          
+setMethod("getDimensionNames",
+          signature(object="NcdfReader"),
+          function(object, varname) {
+            if (missing(varname)) {
+              names(object@handler$dim)
+            } else {
+              sapply(object@handler$var[[varname]]$dim, function(x) x$name)
+            }
+          })
+
+setMethod("getVariableNames",
+          signature(object="NcdfReader"),
+          function(object) {
+            names(object@handler$var)
+          })
+
+# returns TRUE if varname is a coordinate variable (variable with same
+# name as a dimension)
+setMethod("hasCoordVariable",
+          signature(object="NcdfReader"),
+          function(object, varname) {
+            isDimension <- varname %in% getDimensionNames(object)
+            if (isDimension) {
+              object@handler$dim[[varname]]$create_dimvar
+            } else {
+              isDimension
+            }
+          })
+
+# include both regular and coordinate variables
+setMethod("hasVariable",
+          signature(object="NcdfReader"),
+          function(object, varname) {
+            varname %in% getVariableNames(object) |
+            hasCoordVariable(object, varname)
+          })
+
+# TODO: modify this function to accept indices or logical vectors
+# will require loop over contiguous regions
+setMethod("getVariable",
+          signature(object="NcdfReader"),
+          function(object, varname, start, count, ...) {
+
+            # check that variable exists
+            if (!hasVariable(object, varname)) {
+              warning(paste(varname, "not found"))
+              return(NULL)
+            }
+
+            # if start and count not specified, return all elements
+            if (missing(start)) start <- NA
+            if (missing(count)) count <- NA
+
+            # get variable from netcdf
+            var <- get.var.ncdf(object@handler, varname, start, count)
+
+            # bug in ncdf 1.6.* - sometimes missing values are not converted to NA
+            # convert all missing values to NA
+            missVal <- object@handler$var[[varname]]$missval
+            var[var == missVal] <- NA
+            
+            # 1D variables are returned as arrays - convert to vector
+            if (is(var, "array") & length(dim(var)) == 1) {
+              var <- as.vector(var)
+            }
+            
+            return(var)
+          })
+
+setMethod("getAttribute",
+          signature(object="NcdfReader"),      
+          function(object, attname, varname) {
+            if (missing(varname)) {
+              varname <- 0
+            }
+            att.get.ncdf(object@handler, varname, attname)$value
+          })
