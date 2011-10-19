@@ -1,4 +1,4 @@
-ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, ...) {
+ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...) {
 
   stopifnot(length(k0) == length(k1))
   if (!is.null(relation)) stopifnot(length(relation) == length(k0))
@@ -54,7 +54,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, ...) {
     tp<-t(p1*eg.vec[,1]+p2*eg.vec[,2]+mean.vec2)
     pts<-rbind(pts,tp)
   }
-  points(pts, type="l", col="orange")
+  points(pts, type="l", lwd=rel.lwd, col="orange")
 
   HS<-env[["relationsMeanVar"]]$HalfSibs
   d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
@@ -62,7 +62,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, ...) {
   s2<-sqrt(2)
   y1<-hsm-d;x1<-1-y1
   y0<-hsm+d; x0<-1-y0
-  segments(x0,y0,x1,y1,lwd=2,col="orange")
+  segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
  
   C<-env[["relationsMeanVar"]]$FirstCousins
   d<-sdm*sqrt(C$var)
@@ -70,7 +70,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, ...) {
   s2<-sqrt(2)
   y1<-fcm-d;x1<-1-y1
   y0<-fcm+d; x0<-1-y0
-  segments(x0,y0,x1,y1,lwd=2,col="orange")
+  segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
  
   # legend
   if (!is.null(relation)) {

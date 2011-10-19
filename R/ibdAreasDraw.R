@@ -12,6 +12,7 @@ ibdAreasDraw <- function(
 	dup.h = 0.1,		# height of duplicate rectangle
 	un.w = 0.25,	# width of unrelated rectangle
 	un.h = 0.25,		# height of unrelated rectangle
+        rel.lwd = 2,
 	xcol = c("cyan","red","blue","lightgreen","magenta","black")	# colors for parent-offspring, full-sib, half-sib, first cousin, dup & unrelated areas
 )
 {
@@ -37,7 +38,7 @@ ibdAreasDraw <- function(
         tp<-t(p1*eg.vec[,1]+p2*eg.vec[,2]+mean.vec2)
         pts<-rbind(pts,tp)
       }
-      points(pts, type="l", col=xcol[2])
+      points(pts, type="l", lwd=rel.lwd, col=xcol[2])
 
       # draw rectangle for half-sibs
       HS<-env[["relationsMeanVar"]]$HalfSibs
@@ -48,9 +49,10 @@ ibdAreasDraw <- function(
       y0<-hsm+d; x0<-1-y0
       a<-x0-m/s2;b<-y0-m/s2
       c<-x1-m/s2;d<-y1-m/s2
-      segments(a,b,x0,y0,col=xcol[3]); segments(c,d,x1,y1,col=xcol[3]); segments(a,b,c,d,col=xcol[3]); segments(x0,y0,x1,y1,col=xcol[3])
-      # draw bar for half-sibs
-      segments(x0,y0,x1,y1,lwd=3,col=xcol[3])
+      segments(a,b,x0,y0,col=xcol[3], lwd=rel.lwd)
+      segments(c,d,x1,y1,col=xcol[3], lwd=rel.lwd)
+      segments(a,b,c,d,col=xcol[3], lwd=rel.lwd)
+      segments(x0,y0,x1,y1,col=xcol[3], lwd=rel.lwd)
 
       # draw rectangle for first cousins
       C<-env[["relationsMeanVar"]]$FirstCousins
@@ -61,16 +63,17 @@ ibdAreasDraw <- function(
       y0<-fcm+d; x0<-1-y0
       a<-x0-m/s2;b<-y0-m/s2
       c<-x1-m/s2;d<-y1-m/s2
-      segments(a,b,x0,y0,col=xcol[4]); segments(c,d,x1,y1,col=xcol[4]); segments(a,b,c,d,col=xcol[4]); segments(x0,y0,x1,y1,col=xcol[4])
-      # draw bar for half-sibs
-      segments(x0,y0,x1,y1,lwd=3,col=xcol[4])
+      segments(a,b,x0,y0,col=xcol[4], lwd=rel.lwd)
+      segments(c,d,x1,y1,col=xcol[4], lwd=rel.lwd)
+      segments(a,b,c,d,col=xcol[4], lwd=rel.lwd)
+      segments(x0,y0,x1,y1,col=xcol[4], lwd=rel.lwd)
 
       # draw rectangle for parent-offspring
-      rect(0,1-po.h,po.w,1, border=xcol[1])
+      rect(0,1-po.h,po.w,1, border=xcol[1], lwd=rel.lwd)
       # draw rectangle for duplicates
-      rect(0,0,dup.w,dup.h, border=xcol[5])
+      rect(0,0,dup.w,dup.h, border=xcol[5], lwd=rel.lwd)
       # draw rectangle for unrelated 
-      rect(1-un.w, 0, 1, un.h, border=xcol[6])
+      rect(1-un.w, 0, 1, un.h, border=xcol[6], lwd=rel.lwd)
 }
 
 
