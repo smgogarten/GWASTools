@@ -80,7 +80,7 @@ first cousin intervals are indicated in orange. For full-sibs, 100(1-alpha)\% pr
  ellipse is based on assuming bivariate normal distribution with known
  mean and covariance matrix. For half-sibs and first-cousins, 100(1-alpha)\%
  prediction intervals for k1 are based on assuming normal distribution with known mean and
-variance.
+variance, computed as in Hill and Weir (2011).
 
 \code{ibdAreasDraw} overlays relationship areas on the plot to help
 with analyzing observed relationships. For full-sibs, 100(1-alpha)\% prediction 
@@ -98,6 +98,10 @@ variance.
   values "Dup"=duplicate, "PO"=parent-offspring, "FS"=full sibling,
   "HS"=half-sibling-like, "FC"=first cousin, "U"=unrelated, and
   "Q"=unknown.
+}
+
+\references{
+  Hill, W.G. and B.S. Weir, Variation in actual relationship as a consequence of mendelian sampling and linkage, Genet. Res. Camb. (2011), 93, 47-64.
 }
 
 \author{Cathy Laurie and Cecelia Laurie}

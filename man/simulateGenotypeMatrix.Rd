@@ -39,7 +39,7 @@ Variables:
 The missing rate is 0.05 (constant across all SNPs) and is denoted by -1. 
 }
 \value{
-This function returns a table of genotype calls if the silent variable is set to \code{FALSE}, where 0 indicates an AA genotype, 1 is AB, 2 is BB and -1 corresponds to a missing genotype call.
+This function returns a table of genotype calls if the silent variable is set to \code{FALSE}, where 2 indicates an AA genotype, 1 is AB, 0 is BB and -1 corresponds to a missing genotype call.
 
 A netCDF file is created from this function and written to disk.  This file (and data) can be accessed later by using the command \code{open.ncdf(ncdf.filename)}.
 }

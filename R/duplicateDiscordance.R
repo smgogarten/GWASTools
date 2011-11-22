@@ -45,16 +45,13 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   # for each set of duplicates (which may have >3 members)
   for(k in 1:(length(ids))) 
   {
-    if (verbose)  
-      message("subject ",k, " out of ",length(ids),", ")
-    
     # get the indices of samples in the dup set
     idk <-  ids[[k]]
     n <- length(idk)
     idk <- which(is.element(scanID,idk))
 
     if (verbose)  
-      message(n," replications\n")
+      message("subject ",k, " out of ",length(ids),", ",n," replications")
 
     # get the genotypic data and store in dat
     dat <- matrix(NA, length(snpID), n)

@@ -129,8 +129,6 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   # for each duplicate, calculate pair discordance
   # add to total number of discordances for each snp
   for (k in 1:(length(ids))) {
-    if (verbose) 
-      message("subject ", k, " out of ", length(ids), ", ")
     idk <- ids[[k]] # all scanIDs for the kth dup
 
     n <- nrow(idk)  # total number of scans
@@ -139,6 +137,9 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     scan1 <- idk$scanID[idk$dataset == 1]
     scan2 <- idk$scanID[idk$dataset == 2]
     
+    if (verbose)  
+      message("subject ",k, " out of ",length(ids),", ",n," replications")
+
     frac <- matrix(NA, n1, n2, dimnames=list(scan1, scan2))
     nds <- rep(0, nsnp)
     for (i in 1:n1) {
