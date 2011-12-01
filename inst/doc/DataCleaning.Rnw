@@ -1089,7 +1089,7 @@ rate less than 0.05.}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\clearpage
 \subsection{Calculate Missing Call Rates by Batch} 
 
 \begin{itemize} 
@@ -1164,6 +1164,7 @@ rate per batch regressed on the number of samples per batch.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Chi-Square Test of Allelic Frequency Differences in Batches}
 
 \begin{itemize}
@@ -1294,6 +1295,7 @@ cause for concern that the sample(s) in question were of significantly lower qua
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{BAlleleFreq variance analysis}
 
 The "BAlleleFreq" was previously calculated for each SNP-sample combination. ``BAlleleFreq'' is a standardized version of the polar coordinate angle. It calculates
@@ -1303,7 +1305,7 @@ population of trisomic cells, the true frequencies would be 0, $\frac{1}{3}$, $\
 with very high BAF variance can indicate chromosomal anomalies. 
 
 
-\subsection*{Calculate the sliding window BAF standard deviation}
+\subsubsection*{Calculate the sliding window BAF standard deviation}
 This process identifies chromosome-sample pairs that have windows with very high BAlleleFreq
 standard deviation, with ``very high'' defined as more than 4 standard deviations from the window's
 mean BAlleleFreq standard deviation over all samples. The output is a matrix listing all sample-chromosome 
@@ -1619,6 +1621,7 @@ corresponding to annotated females}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Relatedness and IBD Estimation}
 
 In most studies, there are discrepancies between pedigrees provided and relatedness inferred from the genotype data.  To infer genetic relatedness, we estimate coefficients of identity by descent (IBD). It is important to identify and record unannotated 
@@ -1943,6 +1946,7 @@ ibdPlot(ibd$k0, ibd$k1, relation=ibd$rel,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Population Structure}
 
 \subsubsection*{Principal Component Analysis on all ethnic groups}
@@ -2141,6 +2145,7 @@ summary(aov.p3)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Missing Call Rate Differences}
 
 This step determines whether there are differences in missing call rates between
@@ -2462,6 +2467,7 @@ legend("topleft", unique(dat$pop),
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Mendelian Error Checking}
 
 This step calculates and examines the Mendelian error rates. Mendelian errors are
@@ -2674,6 +2680,7 @@ The black indicates a family with CEU continental ancestry and red indicates a f
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \subsection{Hardy-Weinberg Equilibrium Testing}
 
 This section uses Fisher's exact test to examine each SNP for departure from Hardy-Weinberg Equilibrium.  
@@ -2881,6 +2888,7 @@ qqPlot(pval=assoc$model.1.additive.pvalue.G,
 \end{itemize}
   
 
+\clearpage
 \subsection{``Manhattan'' Plots of the P-Values}
 
 \begin{itemize}
@@ -2909,6 +2917,7 @@ manhattanPlot(assoc$model.1.additive.pvalue.G,
 \end{itemize}
   
 
+\clearpage
 \subsection{SNP Cluster Plots}
 
 \begin{itemize}
