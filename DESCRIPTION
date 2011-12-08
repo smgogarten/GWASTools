@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.1.0
+Version: 1.1.1
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -35,4 +35,5 @@ Collate: utils.R AllGenerics.R AllClasses.R
   ibdAreasDraw.R ibdAssignRelatedness.R ibdPlot.R findRelationsMeanVar.R
   pedigreeCheck.R pedigreeClean.R pedigreeDeleteDuplicates.R 
   pedigreeFindDuplicates.R pedigreePairwiseRelatedness.R
+  plinkUtils.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R test.R

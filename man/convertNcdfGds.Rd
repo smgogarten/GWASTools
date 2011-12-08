@@ -79,3 +79,4 @@ convertGdsNcdf(gdsfile, ncfile2)
 
 file.remove(gdsfile, ncfile2)
 }
+\keyword{manip}
