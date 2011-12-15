@@ -9,13 +9,15 @@ object.
 identical data to a \code{\link{GenotypeData}} object.
 }
 \usage{
-plinkWrite(genoData, pedFile="testPlink", family.col="family",
+plinkWrite(genoData, pedFile="testPlink",
+  scan.chromosome.filter=NULL, family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
   rs.col="rsID", mapdist.col=NULL, scan.exclude=NULL,
   blockSize=100)
 
-plinkCheck(genoData, pedFile, family.col="family",
+plinkCheck(genoData, pedFile,
+  scan.chromosome.filter=NULL, family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
   rs.col="rsID")
@@ -23,6 +25,14 @@ plinkCheck(genoData, pedFile, family.col="family",
 \arguments{
   \item{genoData}{A \code{\link{GenotypeData}} object with scan and SNP annotation.}
   \item{pedFile}{prefix for PLINK files (pedFile.ped, pedFile.map)}
+  
+  \item{scan.chromosome.filter}{a logical matrix that can be used to
+  zero out (set to missing) some chromosomes, some scans, or some specific scan-chromosome
+  pairs. Entries should be \code{TRUE} if that scan-chromosome pair should have
+  data in the PLINK file, \code{FALSE} if not. The number of rows must be
+  equal to the number of scans in \code{genoData}.  The column labels must be
+  in the set ("1":"22", "X", "XY", "M", "U").}
+
   \item{family.col}{name of the column in the scan annotation that contains family ID of the sample}
   \item{individual.col}{name of the column in the scan annotation that contains individual ID of the sample}
   \item{father.col}{name of the column in the scan annotation that contains father ID of the sample}

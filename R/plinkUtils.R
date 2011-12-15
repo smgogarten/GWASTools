@@ -8,8 +8,24 @@
 # genotypes (both alleles e.g. A A for all SNPs ordered according to the map file order
 
 getPlinkGenotype <- function(genoData, scan.start, scan.count,
+                             scan.chromosome.filter = NULL,
                              alleleA.col=NULL, alleleB.col=NULL) {
   geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count))
+  if (length(dim(geno)) < 2) {
+    geno <- matrix(geno, ncol=1)
+  }
+  # apply scan-chromosome filter
+  if (!is.null(scan.chromosome.filter)) {
+    filt <- scan.chromosome.filter[scan.start:(scan.start+scan.count-1),,drop=FALSE]
+    chr <- getChromosome(genoData, char=TRUE)
+    for (c in colnames(scan.chromosome.filter)) {
+      badscans <- which(!filt[,c])
+      if (length(badscans) > 0) {
+        geno[chr == c, badscans] <- NA
+      }
+    }
+  }
+  
   geno[is.na(geno)] <- "0 0"
   if (is.null(alleleA.col) | is.null(alleleB.col)) {
   # maps the -1 0 1 2 genotype coding to 00 BB AB AA coding for ped files
@@ -22,17 +38,14 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
     aa <- paste(alleles$A, alleles$A)
     ab <- paste(alleles$A, alleles$B)
     bb <- paste(alleles$B, alleles$B)
-    if (length(dim(geno)) < 2) {
-      geno <- matrix(geno, ncol=1)
-    }
     for (k in 1:ncol(geno)) {
       geno[geno[,k] == 0, k] <- bb[geno[,k] == 0]
       geno[geno[,k] == 1, k] <- ab[geno[,k] == 1]
       geno[geno[,k] == 2, k] <- aa[geno[,k] == 2]
     }
-    if (ncol(geno) == 1) {
-      geno <- as.vector(geno)
-    }
+  }
+  if (ncol(geno) == 1) {
+    geno <- as.vector(geno)
   }
   return(geno)
 }
@@ -71,7 +84,7 @@ getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
   return(map.df)
 }
 
-plinkWrite <- function(genoData, pedFile="testPlink", 
+plinkWrite <- function(genoData, pedFile="testPlink", scan.chromosome.filter=NULL,
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
 	rs.col="rsID", mapdist.col=NULL, scan.exclude=NULL, blockSize=100){
@@ -106,6 +119,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     rdf <- matrix(nrow=bsize, ncol=6+nsnp)
     rdf[,1:6] <- as.matrix(scan.df[i:(i+bsize-1),])
     geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=i, scan.count=bsize,
+                             scan.chromosome.filter=scan.chromosome.filter,
                              alleleA.col=alleleA.col, alleleB.col=alleleB.col)
     # transpose since PLINK has scans as rows and snps as columns
     rdf[,7:(6+nsnp)] <- t(geno)
@@ -122,7 +136,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 
 
 
-plinkCheck <- function(genoData, pedFile, 
+plinkCheck <- function(genoData, pedFile, scan.chromosome.filter=NULL,
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
 	rs.col="rsID") { 
@@ -194,6 +208,7 @@ plinkCheck <- function(genoData, pedFile,
 
     # compare genotypes
     geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=ind, scan.count=1,
+                             scan.chromosome.filter=scan.chromosome.filter,
                              alleleA.col=alleleA.col, alleleB.col=alleleB.col)
     geno <- geno[snp.match]
 

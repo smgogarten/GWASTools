@@ -1,3 +1,5 @@
+\name{NEWS}
+\title{NEWS for GWASTools}
 \section{Changes in version 1.1.1}{
   \itemize{
     \item Added functions plinkWrite and plinkCheck for writing and
