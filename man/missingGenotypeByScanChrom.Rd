@@ -45,9 +45,8 @@ file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(file)
 
 # need scan annotation with sex
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+data(affyScanADF)
+genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
 
 missingRate <- missingGenotypeByScanChrom(genoData)
 close(genoData)

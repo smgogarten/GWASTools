@@ -277,26 +277,25 @@ Warning messages:
 # desiged to eliminate duplicated individuals
 # and scans with missing values of sex
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-samp.chr.matrix <- matrix(TRUE,nrow(scanAnnot),26)
-dup <- duplicated(scanAnnot$subjectID)
-samp.chr.matrix[dup | is.na(scanAnnot$sex),] <- FALSE
+data(affyScanADF)
+samp.chr.matrix <- matrix(TRUE,nrow(affyScanADF),26)
+dup <- duplicated(affyScanADF$subjectID)
+samp.chr.matrix[dup | is.na(affyScanADF$sex),] <- FALSE
 
 # additionally, exclude YRI subjects
-scan.exclude <- scanAnnot$scanID[scanAnnot$race == "YRI"]
+scan.exclude <- affyScanADF$scanID[affyScanADF$race == "YRI"]
 
 # create some variables for the scans
-scanAnnot$sex <- as.factor(scanAnnot$sex)
-scanAnnot$age <- rnorm(nrow(scanAnnot),mean=40, sd=10)
-scanAnnot$case.cntl.status <- rbinom(nrow(scanAnnot),1,0.4)
-scanAnnot$blood.pressure[scanAnnot$case.cntl.status==1] <- rnorm(sum(scanAnnot$case.cntl.status==1),mean=100,sd=10)
-scanAnnot$blood.pressure[scanAnnot$case.cntl.status==0] <- rnorm(sum(scanAnnot$case.cntl.status==0),mean=90,sd=5)
+affyScanADF$sex <- as.factor(affyScanADF$sex)
+affyScanADF$age <- rnorm(nrow(affyScanADF),mean=40, sd=10)
+affyScanADF$case.cntl.status <- rbinom(nrow(affyScanADF),1,0.4)
+affyScanADF$blood.pressure[affyScanADF$case.cntl.status==1] <- rnorm(sum(affyScanADF$case.cntl.status==1),mean=100,sd=10)
+affyScanADF$blood.pressure[affyScanADF$case.cntl.status==0] <- rnorm(sum(affyScanADF$case.cntl.status==0),mean=90,sd=5)
 
 # create data object
 ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
 
 # set regression variables and models
 outcome <- c("case.cntl.status","blood.pressure")

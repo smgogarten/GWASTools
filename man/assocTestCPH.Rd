@@ -136,25 +136,24 @@ the function.
 # desiged to eliminate duplicated individuals
 # and scans with missing values of sex
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-samp.chr.matrix <- matrix(TRUE,nrow(scanAnnot),26)
-dup <- duplicated(scanAnnot$subjectID)
-samp.chr.matrix[dup | is.na(scanAnnot$sex),] <- FALSE
-samp.chr.matrix[scanAnnot$sex=="F", 25] <- FALSE
+data(affyScanADF)
+samp.chr.matrix <- matrix(TRUE,nrow(affyScanADF),26)
+dup <- duplicated(affyScanADF$subjectID)
+samp.chr.matrix[dup | is.na(affyScanADF$sex),] <- FALSE
+samp.chr.matrix[affyScanADF$sex=="F", 25] <- FALSE
 
 # additionally, exclude YRI subjects
-scan.exclude <- scanAnnot$scanID[scanAnnot$race == "YRI"]
+scan.exclude <- affyScanADF$scanID[affyScanADF$race == "YRI"]
 
 # create some variables for the scans
-scanAnnot$age <- rnorm(nrow(scanAnnot),mean=40, sd=10)
-scanAnnot$event <- rbinom(nrow(scanAnnot),1,0.4)
-scanAnnot$ttoe <- rnorm(nrow(scanAnnot),mean=100,sd=10)
+affyScanADF$age <- rnorm(nrow(affyScanADF),mean=40, sd=10)
+affyScanADF$event <- rbinom(nrow(affyScanADF),1,0.4)
+affyScanADF$ttoe <- rnorm(nrow(affyScanADF),mean=100,sd=10)
 
 # create data object
 ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
 
 # variables
 event <- "event"

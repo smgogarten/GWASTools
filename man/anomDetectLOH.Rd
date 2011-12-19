@@ -257,22 +257,20 @@ See references in \code{\link{segment}} in the package \code{\link{DNAcopy}}.
 }
 \examples{
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
-data(illumina_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
+data(illuminaScanADF)
+data(illuminaSnpADF)
 
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+blData <-  IntensityData(blnc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
-scan.ids <- scanAnnot$scanID[1:2]
-chrom.ids <- unique(snpAnnot$chromosome)
-snp.ids <- snpAnnot$snpID[snpAnnot$missing.n1 < 1]
+scan.ids <- illuminaScanADF$scanID[1:2]
+chrom.ids <- unique(illuminaSnpADF$chromosome)
+snp.ids <- illuminaSnpADF$snpID[illuminaSnpADF$missing.n1 < 1]
 
 # example for known.anoms, would get this from anomDetectBAF
 known.anoms <- data.frame("scanID"=scan.ids[1],"chromosome"=21,

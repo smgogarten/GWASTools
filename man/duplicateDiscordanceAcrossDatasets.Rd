@@ -63,20 +63,16 @@ library(GWASdata)
 # dataset 1
 file1 <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc1 <- NcdfGenotypeReader(file1)
-data(affy_snp_annot)
-snpAnnot1 <- SnpAnnotationDataFrame(affy_snp_annot)
-data(affy_scan_annot)
-scanAnnot1 <- ScanAnnotationDataFrame(affy_scan_annot)
-data1 <-  GenotypeData(nc1, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
+data(affySnpADF)
+data(affyScanADF)
+data1 <-  GenotypeData(nc1, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 # dataset 2
 file2 <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc2 <- NcdfGenotypeReader(file2)
-data(illumina_snp_annot)
-snpAnnot2 <- SnpAnnotationDataFrame(illumina_snp_annot)
-data(illumina_scan_annot)
-scanAnnot2 <- ScanAnnotationDataFrame(illumina_scan_annot)
-data2 <-  GenotypeData(nc2, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
+data(illuminaSnpADF)
+data(illuminaScanADF)
+data2 <-  GenotypeData(nc2, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
 
 discord <- duplicateDiscordanceAcrossDatasets(data1, data2,
              subjName.cols=c("CoriellID", "CoriellID"),

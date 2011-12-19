@@ -219,11 +219,9 @@ nc <- NcdfGenotypeReader(file)
 genoData <- GenotypeData(nc)
 
 # object with annotation
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-genoData <-  GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+data(affySnpADF)
+data(affyScanADF)
+genoData <-  GenotypeData(nc, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 # dimensions
 nsnp(genoData)

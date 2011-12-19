@@ -86,17 +86,10 @@ Please see
 \examples{
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-data(illumina_snp_annot)
-data(illumina_scan_annot)
-
-# family data is required
-illumina_scan_annot$family <- 0
-illumina_scan_annot$father <- 0
-illumina_scan_annot$mother <- 0
-
+data(illuminaSnpADF)
+data(illuminaScanADF)
 genoData <- GenotypeData(NcdfGenotypeReader(ncfile),
-  scanAnnot=ScanAnnotationDataFrame(illumina_scan_annot),
-  snpAnnot=SnpAnnotationDataFrame(illumina_snp_annot))
+  scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 pedfile <- tempfile()
 plinkWrite(genoData, pedfile,

@@ -58,13 +58,12 @@ pseudoautoIntensityPlot(intenData, scan.ids, code=NULL,
 
 \examples{
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
+data(illuminaScanADF)
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
-intenData <-  IntensityData(blnc, scanAnnot=scanAnnot)
+intenData <-  IntensityData(blnc, scanAnnot=illuminaScanADF)
 
-scanID <- getScanID(scanAnnot, index=1)
+scanID <- getScanID(illuminaScanADF, index=1)
 pseudoautoIntensityPlot(intenData=intenData, scan.ids=scanID)
 close(intenData)
 }

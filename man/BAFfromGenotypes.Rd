@@ -38,20 +38,17 @@ BAFfromGenotypes(intenData, genoData,
 \dontrun{
 # create IntensityData and GenotypeData objects from netCDF
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-nsamp <- nrow(scanAnnot)
-
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affySnpADF)
+data(affyScanADF)
+nsamp <- nrow(affyScanADF)
 
 xyfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
 xyNC <- NcdfIntensityReader(xyfile)
-xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+xyData <- IntensityData(xyNC, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 genoNC <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genoData <- GenotypeData(genoNC, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 # create netCDF file to hold BAF/LRR data
 blfile <- tempfile()

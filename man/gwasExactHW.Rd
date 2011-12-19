@@ -108,16 +108,15 @@ the function.
 # The following example would perform exact Hardy-Weinberg equilibrium testing on all chromosomes in this data set.  It would also return genotype counts, minor allele frequencies, and inbreeding coefficients.
 
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(affyScanADF)
 
 # run only on YRI subjects
-scan.exclude <- scanAnnot$scanID[scanAnnot$race != "YRI"]
+scan.exclude <- affyScanADF$scanID[affyScanADF$race != "YRI"]
 
 # create data object
 ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
 
 hwe <- gwasExactHW(genoData, scan.exclude=scan.exclude)
 

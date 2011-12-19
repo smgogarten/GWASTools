@@ -36,14 +36,13 @@ BAFfromClusterMeans(intenData, bl.ncdf.filename,
 library(GWASdata)
 xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 xyNC <- NcdfIntensityReader(xyfile)
-data(illumina_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
-xyData <- IntensityData(xyNC, snpAnnot=snpAnnot)
+data(illuminaSnpADF)
+xyData <- IntensityData(xyNC, snpAnnot=illuminaSnpADF)
 nsamp <- nscan(xyData)
 
 # create netCDF file to hold BAF/LRR data
 blfile <- tempfile()
-ncdfCreate(illumina_snp_annot, blfile, variables=c("BAlleleFreq","LogRRatio"), n.samples=nsamp)
+ncdfCreate(pData(illuminaSnpADF), blfile, variables=c("BAlleleFreq","LogRRatio"), n.samples=nsamp)
 
 # calculate BAF and LRR
 BAFfromClusterMeans(xyData, blfile, verbose=FALSE)

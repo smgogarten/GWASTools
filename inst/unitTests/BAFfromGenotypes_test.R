@@ -1,8 +1,8 @@
 test_BAFfromGenotypes <- function() {
-  data(affy_snp_annot)
-  snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
-  data(affy_scan_annot)
-  scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+  data(affySnpADF)
+  snpAnnot <- affySnpADF
+  data(affyScanADF)
+  scanAnnot <- affyScanADF
   xyfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
   xyNC <- NcdfIntensityReader(xyfile)
   xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)

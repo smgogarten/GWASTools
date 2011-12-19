@@ -49,13 +49,12 @@ library(GWASdata)
 qualfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
 qualnc <- NcdfIntensityReader(qualfile)
 # need scan annotation with sex
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-qualData <- IntensityData(qualnc, scanAnnot=scanAnnot)
+data(affyScanADF)
+qualData <- IntensityData(qualnc, scanAnnot=affyScanADF)
 
 genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genonc, scanAnnot=scanAnnot)
+genoData <- GenotypeData(genonc, scanAnnot=affyScanADF)
 
 quality <- qualityScoreByScan(qualData, genoData)
 close(qualData)

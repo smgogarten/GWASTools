@@ -134,16 +134,15 @@ findBAFvariance(sd.by.chrom.window, sd.by.scan.chrom.window,
 
 \examples{
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
+data(illuminaScanADF)
 
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
-blData <- IntensityData(blnc, scanAnnot=scanAnnot)
+blData <- IntensityData(blnc, scanAnnot=illuminaScanADF)
 
 genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genonc, scanAnnot=scanAnnot)
+genoData <- GenotypeData(genonc, scanAnnot=illuminaScanADF)
 
 nbins <- rep(8, 3) # need bins for chromosomes 21,22,23
 baf.sd <- sdByScanChromWindow(blData, genoData, nbins=nbins)
@@ -152,7 +151,7 @@ close(blData)
 close(genoData)
 med.res <- medianSdOverAutosomes(baf.sd)
 
-sex <- scanAnnot$sex
+sex <- illuminaScanADF$sex
 sd.res <- meanSdByChromWindow(baf.sd, sex)
 
 var.res <- findBAFvariance(sd.res, baf.sd, sex, sd.threshold=2)

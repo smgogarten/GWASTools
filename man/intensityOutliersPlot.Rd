@@ -36,16 +36,15 @@ intensityOutliersPlot(mean.intensities, sex, outliers,
 library(GWASdata)
 file <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
 nc <- NcdfIntensityReader(file)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-intenData <- IntensityData(nc, scanAnnot=scanAnnot)
+data(affyScanADF)
+intenData <- IntensityData(nc, scanAnnot=affyScanADF)
 meanInten <- meanIntensityByScanChrom(intenData)
 intenMatrix <- meanInten$mean.intensity
 
 # find outliers
 outliers <- list()
-sex <- scanAnnot$sex
-id <- scanAnnot$scanID
+sex <- affyScanADF$sex
+id <- affyScanADF$scanID
 allequal(id, rownames(intenMatrix))
 for (i in colnames(intenMatrix)) {
   if (i != "X") {

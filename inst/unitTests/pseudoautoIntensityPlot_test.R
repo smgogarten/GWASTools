@@ -1,6 +1,6 @@
 test_pseudoautoIntensityPlot <- function() {
-  data(illumina_scan_annot)
-  scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
+  data(illuminaScanADF)
+  scanAnnot <- illuminaScanADF
   
   blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
   blnc <- NcdfIntensityReader(blfile)

@@ -721,8 +721,8 @@ SNP and one element that holds the sex counts; we will save these results to be 
 library(GWASTools)
 library(GWASdata)
 # sex is required for this function, so we load the scan annotation
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(affyScanADF) # ScanAnnotationDataFrame
+scanAnnot <- affyScanADF
 # open the netCDF file and create a GenotypeData object
 ncfile <- system.file("extdata", "affy_geno.nc",
   package="GWASdata")
@@ -747,8 +747,8 @@ We add the missing call rates to the SNP annotation table and save a new version
 
 <<>>=
 # get snp annotation
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affySnpADF) # SnpAnnotationDataFrame
+snpAnnot <- affySnpADF
 snpAnnot$missing.n1 <- miss$missing.fraction
 varMetadata(snpAnnot)["missing.n1", "labelDescription"] <- paste(
   "fraction of genotype calls missing over all samples",
@@ -917,6 +917,8 @@ table(scanAnnot$duplicated, exclude=NULL)
 # Save the updated sample annotation
 scanAnnot <- scanAnnot[order(scanAnnot$scanID),]
 allequal(scanAnnot$scanID, sort(scanAnnot$scanID))
+varMetadata(scanAnnot)["duplicated", "labelDescription"] <- 
+  "TRUE for duplicate scan with higher missing.e1"
 @ 
 
 \end{itemize}
@@ -1263,8 +1265,8 @@ This code calculates the mean and median genotype quality score for each sample.
 <<>>=
 library(GWASTools)
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
+data(illuminaScanADF) # ScanAnnotationDataFrame
+scanAnnot <- illuminaScanADF
 qxyfile <- system.file("extdata", "illumina_qxy.nc", 
   package="GWASdata")
 qualNC <- NcdfIntensityReader(qxyfile)
@@ -1548,16 +1550,16 @@ chromosomes; we use these in the plot axis labels.  }
 <<>>=
 mninten <- inten.by.chrom[[1]]  # mean intensities
 dim(mninten)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(affyScanADF) # ScanAnnotationDataFrame
+scanAnnot <- affyScanADF
 # Check to be sure sample ordering is consistent
 allequal(scanAnnot$scanID, rownames(mninten))
 # Assign each gender a color
 xcol <- rep(NA, nrow(scanAnnot))
 xcol[scanAnnot$sex == "M"] <- "blue"
 xcol[scanAnnot$sex == "F"] <- "red"
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affySnpADF)
+snpAnnot <- affySnpADF
 nx <- sum(snpAnnot$chromosome == 23)
 ny <- sum(snpAnnot$chromosome == 25)
 @ 
@@ -2195,10 +2197,10 @@ out during the final analysis.
 <<>>=
 library(GWASTools)
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
-data(illumina_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
+data(illuminaScanADF) # ScanAnnotationDataFrame
+scanAnnot <- illuminaScanADF
+data(illuminaSnpADF) # SnpAnnotationDataFrame
+snpAnnot <- illuminaSnpADF
 
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
@@ -2394,8 +2396,8 @@ is 0.05.}
 <<>>=
 library(GWASTools)
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(affyScanADF) # ScanAnnotationDataFrame
+scanAnnot <- affyScanADF
 scan.excl <- scanAnnot$scanID[scanAnnot$missing.e1 >= 0.05]
 length(scan.excl)
 @ 
@@ -2409,8 +2411,8 @@ We will plot the rates color coded by continental ancestry, since experience has
 group.}
 
 <<>>=
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affySnpADF) # SnpAnnotationDataFrame
+snpAnnot <- affySnpADF
 snp.excl <- snpAnnot$snpID[snpAnnot$missing.n1 == 1]
 length(snp.excl)
 genofile <- system.file("extdata", "affy_geno.nc",
@@ -2841,8 +2843,8 @@ cause some SNPs to return significant p-values for association.}
 <<>>=
 library(GWASTools)
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(affyScanADF) # ScanAnnotationDataFrame
+scanAnnot <- affyScanADF
 genofile <- system.file("extdata", "affy_geno.nc",
   package="GWASdata")
 genoNC <- NcdfGenotypeReader(genofile)
@@ -2897,8 +2899,8 @@ qqPlot(pval=assoc$model.1.additive.pvalue.G,
 transformation of the p-values and plot them for each probe.  See the resulting plot in Figure~\ref{fig:manh_wald}. }
 
 <<>>=
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affySnpADF)
+snpAnnot <- affySnpADF
 chrom <- getChromosome(snpAnnot)
 chrom.sel <- chrom %in% 24:26
 @ 

@@ -49,29 +49,26 @@ genoClusterPlotByBatch(intenData, genoData, plot.type = c("RTheta", "XY"),
 \examples{
 # create data object
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(affyScanADF)
+data(affySnpADF)
 
 xyfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
 xync <- NcdfIntensityReader(xyfile)
-xyData <-  IntensityData(xync, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+xyData <-  IntensityData(xync, scanAnnot=affyScanADF, snpAnnot=affySnpADF)
 
 genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+genoData <-  GenotypeData(genonc, scanAnnot=affyScanADF, snpAnnot=affySnpADF)
 
 # select first 9 snps
-snpID <- snpAnnot$snpID[1:9]
-rsID <- snpAnnot$rsID[1:9]
+snpID <- affySnpADF$snpID[1:9]
+rsID <- affySnpADF$rsID[1:9]
 
 par(mfrow=c(3,3)) # plot 3x3
 genoClusterPlot(xyData, genoData, snpID=snpID, main.txt=rsID)
 
 # select samples
-scan.sel <- scanAnnot$scanID[scanAnnot$race == "CEU"]
+scan.sel <- affyScanADF$scanID[affyScanADF$race == "CEU"]
 genoClusterPlot(xyData, genoData, snpID=snpID, main.txt=rsID,
                 scan.sel=scan.sel, by.sex=TRUE)
 

@@ -35,10 +35,10 @@ check_anomDetectBAF <- function(blData, genoData) {
 }
 
 test_anomDetectBAF <- function() {
-  data(illumina_scan_annot)
-  scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
-  data(illumina_snp_annot)
-  snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
+  data(illuminaScanADF)
+  scanAnnot <- illuminaScanADF
+  data(illuminaSnpADF)
+  snpAnnot <- illuminaSnpADF
   
   blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
   blnc <- NcdfIntensityReader(blfile)

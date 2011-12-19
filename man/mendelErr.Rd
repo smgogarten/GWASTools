@@ -83,16 +83,17 @@ Another file will be saved with the name "outfile.warnings.RData" that contains 
 
 \examples{
 library(GWASdata)
-data(affy_scan_annot)
+data(affyScanADF)
 
 # generate trio list
-men.list <- with(affy_scan_annot, mendelList(family, subjectID, father, mother, sex, scanID))
+men.list <- mendelList(affyScanADF$family, affyScanADF$subjectID,
+  affyScanADF$father, affyScanADF$mother, affyScanADF$sex,
+  affyScanADF$scanID)
 
 # create genoData object
 ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(ncfile)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-genoData <- GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <- GenotypeData(nc, scanAnnot=affyScanADF)
 
 # Run!
 outfile <- tempfile()

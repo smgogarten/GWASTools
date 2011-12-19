@@ -101,18 +101,16 @@ autosomes uses the total number of segments and eligible SNPs across all autosom
 
 \examples{
 library(GWASdata)
-data(illumina_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
-data(illumina_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
+data(illuminaScanADF)
+data(illuminaSnpADF)
 
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+blData <-  IntensityData(blnc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 # initial scan for low quality with median SD
 baf.sd <- sdByScanChromWindow(blData, genoData)
@@ -120,16 +118,16 @@ med.baf.sd <- medianSdOverAutosomes(baf.sd)
 low.qual.ids <- med.baf.sd$scanID[med.baf.sd$med.sd > 0.05]
 
 # segment and filter BAF
-scan.ids <- scanAnnot$scanID[1:2]
-chrom.ids <- unique(snpAnnot$chromosome)
-snp.ids <- snpAnnot$snpID[snpAnnot$missing.n1 < 1]
+scan.ids <- illuminaScanADF$scanID[1:2]
+chrom.ids <- unique(illuminaSnpADF$chromosome)
+snp.ids <- illuminaSnpADF$snpID[illuminaSnpADF$missing.n1 < 1]
 data(centromeres.hg18)
 anom <- anomDetectBAF(blData, genoData, scan.ids=scan.ids, chrom.ids=chrom.ids,
   snp.ids=snp.ids, centromere=centromeres.hg18, low.qual.ids=low.qual.ids)
 
 # further screen for low quality scans
-snpAnnot$eligible <- snpAnnot$missing.n1 < 1
-low.qual <- anomIdentifyLowQuality(snpAnnot, med.baf.sd, anom$seg.info,
+illuminaSnpADF$eligible <- illuminaSnpADF$missing.n1 < 1
+low.qual <- anomIdentifyLowQuality(illuminaSnpADF, med.baf.sd, anom$seg.info,
   sd.thresh=0.1, sng.seg.thresh=0.0008, auto.seg.thresh=0.0001)
 
 close(blData)

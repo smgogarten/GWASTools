@@ -252,11 +252,9 @@ nc <- NcdfIntensityReader(file)
 intenData <- IntensityData(nc)
 
 # object with annotation
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
-intenData <-  IntensityData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+data(affySnpADF)
+data(affyScanADF)
+intenData <-  IntensityData(nc, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 # dimensions
 nsnp(intenData)

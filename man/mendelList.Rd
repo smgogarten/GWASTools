@@ -53,10 +53,12 @@ for certain analyses.
 \examples{
 # get sample annotation
 library(GWASdata)
-data(affy_scan_annot)
+data(affyScanADF)
 
 # generate trio list
-men.list <- with(affy_scan_annot, mendelList(family, subjectID, father, mother, sex, scanID))
+men.list <- mendelList(affyScanADF$family, affyScanADF$subjectID,
+  affyScanADF$father, affyScanADF$mother, affyScanADF$sex,
+  affyScanADF$scanID)
 
 class(men.list)
 # [1] "mendelList"
