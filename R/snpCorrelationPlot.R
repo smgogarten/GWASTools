@@ -29,7 +29,7 @@ snpCorrelationPlot<-function(correlations,
 
         centers <- (x[chromstart]+x[chromend]-(chromend[1]/6))/2
 	centers[length(chrom.labels)] <- x[N]
-        axis(1, at=centers, label=chrom.labels, cex.axis=0.7, las=2)
+        axis(1, at=centers, label=chrom.labels, las=2)
     }
 
 
