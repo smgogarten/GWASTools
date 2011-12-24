@@ -146,7 +146,7 @@ plinkCheck <- function(genoData, pedFile, scan.chromosome.filter=NULL,
   mapfile <- paste(pedFile,"map",sep=".")
 
   # check SNPs
-  map <- read.table(mapfile, as.is=TRUE)
+  map <- read.table(mapfile, as.is=TRUE, comment="")
   if (ncol(map) > 3) map <- map[,c(1,2,4)] # skip map distance
   names(map) <- c("chromosome", "rsID", "position")
   snp.plink <- paste(map$chromosome, map$rsID, map$position)

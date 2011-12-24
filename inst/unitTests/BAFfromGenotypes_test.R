@@ -13,7 +13,7 @@ test_BAFfromGenotypes <- function() {
   
   # fake ncdf file
   blfile <- tempfile()
-  ncdfCreate(affy_snp_annot, blfile, variables=c("BAlleleFreq","LogRRatio"),
+  ncdfCreate(pData(snpAnnot), blfile, variables=c("BAlleleFreq","LogRRatio"),
                   n.samples=nsamp)
 
   BAFfromGenotypes(xyData, genoData, blfile,

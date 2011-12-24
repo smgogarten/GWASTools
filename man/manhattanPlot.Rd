@@ -61,6 +61,8 @@ n <- 1000
 pvals <- sample(-log10((1:n)/n), n, replace=TRUE)
 chromosome <- c(rep(1,500), rep(2,500))
 manhattanPlot(pvals, chromosome, chrom.labels=c(1,2))
+# add a line for genome-wide significance
+abline(h=7, lty=2, col="gray")
 }
 
 
