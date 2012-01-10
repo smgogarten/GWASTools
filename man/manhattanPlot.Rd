@@ -11,7 +11,8 @@ Generates a manhattan plot of the results of a genome wide association test.
 \usage{
 manhattanPlot(p, chromosome, 
               chrom.labels = c(1:22,"X","XY","Y","M"),
-              ylim = NULL, trunc.lines = TRUE, ...)
+              ylim = NULL, trunc.lines = TRUE,
+              signif = 5e-8, ...)
 }
 
 
@@ -26,7 +27,9 @@ manhattanPlot(p, chromosome,
   \item{ylim}{The limits of the y axis.  If NULL, the y axis is \code{(0,
     log10(length(p)) + 4)}.}
   \item{trunc.lines}{Logical value indicating whether to show truncation
-  lines.}
+    lines.}
+  \item{signif}{Genome-wide significance level for plotting horizontal
+  line.  If \code{signif=NULL}, no line will be drawn.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 
 }
@@ -60,9 +63,7 @@ manhattanPlot(p, chromosome,
 n <- 1000
 pvals <- sample(-log10((1:n)/n), n, replace=TRUE)
 chromosome <- c(rep(1,500), rep(2,500))
-manhattanPlot(pvals, chromosome, chrom.labels=c(1,2))
-# add a line for genome-wide significance
-abline(h=7, lty=2, col="gray")
+manhattanPlot(pvals, chromosome, chrom.labels=c(1,2), signif=1e-7)
 }
 
 
