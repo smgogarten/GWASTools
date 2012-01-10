@@ -5,6 +5,8 @@ import(RSQLite)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocTestCPH
 importFrom(sandwich, vcovHC) # used in assocTestRegression
+#importFrom(lmtest, lrtest) # used in assocTestRegression
+import(lmtest)
 
 exportClasses(
     SnpAnnotationDataFrame,

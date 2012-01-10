@@ -2867,9 +2867,9 @@ those probes with significant p-values.
 \begin{itemize}
 
 \item{To create QQ plots of the ordered p-values from the association tests versus the ordered expected p-values, we first load the saved p-values data.
-Then, we will call {\tt qqPlot} to plot the Wald test p-values.
+Then, we will call {\tt qqPlot} to plot the Likelihood Ratio test p-values.
 Given that the samples were split randomly between cases and controls, not surprisingly there are no outliers
-visible in the QQ plot in Figure~\ref{fig:qq_wald}.}
+visible in the QQ plot in Figure~\ref{fig:qq_lr}.}
 
 <<>>=
 assoc <- getobj(paste(assoc.file, 
@@ -2880,11 +2880,11 @@ names(assoc)
 \begin{figure}[ht!]
 \centering
 <<fig=TRUE>>=
-qqPlot(pval=assoc$model.1.additive.pvalue.G,
-  truncate=TRUE, main="QQ Plot of Wald Test p-values")
+qqPlot(pval=assoc$model.1.additive.LR.pval.G,
+  truncate=TRUE, main="QQ Plot of Likelihood Ratio Test p-values")
 @ 
-\caption{QQ plot of Wald statistic p-values for association test.}
-\label{fig:qq_wald}
+\caption{QQ plot of Likelihood Ratio statistic p-values for association test.}
+\label{fig:qq_lr}
 \end{figure}
 
 \end{itemize}
@@ -2896,7 +2896,7 @@ qqPlot(pval=assoc$model.1.additive.pvalue.G,
 \begin{itemize}
   
 \item{To create the `Manhattan' plots, we will call the function {\tt manhattanPlot}.  We take the negative log
-transformation of the p-values and plot them for each probe.  See the resulting plot in Figure~\ref{fig:manh_wald}. }
+transformation of the p-values and plot them for each probe.  See the resulting plot in Figure~\ref{fig:manh_lr}. }
 
 <<>>=
 data(affySnpADF)
@@ -2908,12 +2908,12 @@ chrom.sel <- chrom %in% 24:26
 \begin{figure}[ht!]
 \centering
 <<fig=TRUE>>=
-manhattanPlot(assoc$model.1.additive.pvalue.G,
+manhattanPlot(assoc$model.1.additive.LR.pval.G,
   chromosome=chrom[chrom.sel], 
   chrom.labels=c("XY","Y","M"))
 @ 
-\caption{``Manhattan'' plot of Wald statistic p-values for association test.}
-\label{fig:manh_wald}
+\caption{``Manhattan'' plot of Likelihood Ratio statistic p-values for association test.}
+\label{fig:manh_lr}
 \end{figure}
 
 \end{itemize}
@@ -2934,7 +2934,7 @@ the Likelihood Ratio test. }
 # Identify SNPs with lowest p-values
 snp <- pData(snpAnnot)[chrom.sel, c("snpID", "rsID")]
 allequal(snp$snpID, assoc$snpID)
-snp$pval <- assoc$model.1.additive.pvalue.G
+snp$pval <- assoc$model.1.additive.LR.pval.G
 snp <- snp[order(snp$pval),]
 snp <- snp[1:9,]
 xyfile <- system.file("extdata", "affy_qxy.nc",

@@ -160,6 +160,8 @@ batchFisherTest <- function(genoData,
                 }
                 pval[!is.finite(pval)] <- NA
                 or[!is.finite(or)] <- NA
+                # since or is a ratio, 0 is invalid as well as Inf
+                or[or == 0] <- NA
                 if (conf.int) {
                   ci[!is.finite(ci)] <- NA
                 }
@@ -175,8 +177,11 @@ batchFisherTest <- function(genoData,
                   Exp.Batch[,i] <- GWASTools:::minExpFreq(n1A, n1B, n2A, n2B)
                 }
                 
+                # mean of max(odds ratio, inverse of odds ratio)
+                # The odds ratio is >1 when the plate has a higher allele frequency
+                # than the other plates and <1 for the reverse
+                ave[i] <- mean(pmax(or, 1/or), na.rm=TRUE)
   	        # genomic inflation factor
-                ave[i] <- mean(or, na.rm=TRUE)
 		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / 1.39
 
 		if (verbose)

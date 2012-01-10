@@ -8,6 +8,7 @@ assocTestRegression <- function(genoData,
                                 scan.exclude = NULL,
                                 CI = 0.95,
                                 robust = FALSE,
+                                LRtest = TRUE,
                                 geno.counts = TRUE,
                                 chromosome.set = NULL,
                                 block.set = NULL,
@@ -71,13 +72,13 @@ RunRegression <- function(mdat){
         # odds ratio
         OR <- exp(Est.G);
         # confidence interval
-        LL <- exp(Est.G+qnorm((1-CI)/2)*SE.G);
-        UL <- exp(Est.G+qnorm(1-((1-CI)/2))*SE.G);
+        LL <- exp(Est.G+qnorm((1-CI)*0.5)*SE.G);
+        UL <- exp(Est.G+qnorm(1-((1-CI)*0.5))*SE.G);
         # Wald test - G
-        S <- t(Est.G) %*% solve(Vhat[G.idx,G.idx]) %*% Est.G;
-        pval <- pchisq(S, df=1, lower=F);
+        W <- (Est.G)^2/(Vhat[G.idx,G.idx])
+        pval <- pchisq(W, df=1, lower=F);
         # collect results
-        tmp <- c(NA,Est.G,SE.G,OR,LL,UL,S,pval);
+        tmp <- c(NA,Est.G,SE.G,OR,LL,UL,W,pval);
       # if interaction terms
       }else{
         # index for geno interaction variables
@@ -93,23 +94,19 @@ RunRegression <- function(mdat){
         # odds ratios
         OR <- exp(Est.GxE);
         # confidence intervals
-        LL <- exp(Est.GxE+qnorm((1-CI)/2)*SE.GxE);
-        UL <- exp(Est.GxE+qnorm(1-((1-CI)/2))*SE.GxE);
+        LL <- exp(Est.GxE+qnorm((1-CI)*0.5)*SE.GxE);
+        UL <- exp(Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE);
         # Wald test - GxE
-        S <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
-        pval <- pchisq(S, df=length(GxE.idx), lower=F)
+        W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
+        pval <- pchisq(W, df=length(GxE.idx), lower=F)
         # collect results
-        tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,OR,LL,UL,S,pval);
+        tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,OR,LL,UL,W,pval);
       }
     }
 
-  ###### linear or poisson regression #####
-  }else{
-    if(model.type[md]=="linear"){
+  ###### linear regression #####
+  }else if(model.type[md]=="linear"){
       mod <- tryCatch(lm(model.formula, data = mdat), warning=function(w) TRUE, error=function(e)TRUE);
-    }else if(model.type[md]=="poisson"){
-      mod <- tryCatch(glm(model.formula, data = mdat, family=poisson()),warning=function(w) TRUE, error=function(e)TRUE);
-    }
 
     # if warning or error
     if(is.logical(mod)){
@@ -142,13 +139,13 @@ RunRegression <- function(mdat){
       # if no interaction terms
       if(liv[md] == 0){
         # confidence interval
-        LL <- Est.G+qnorm((1-CI)/2)*SE.G;
-        UL <- Est.G+qnorm(1-((1-CI)/2))*SE.G;
+        LL <- Est.G+qnorm((1-CI)*0.5)*SE.G;
+        UL <- Est.G+qnorm(1-((1-CI)*0.5))*SE.G;
         # Wald test - G
-        S <- t(Est.G) %*% solve(Vhat[G.idx,G.idx]) %*% Est.G;
-        pval <- pchisq(S, df=1, lower=F);
+        W <- (Est.G)^2/(Vhat[G.idx,G.idx])
+        pval <- pchisq(W, df=1, lower=F);
         # collect results
-        tmp <- c(NA,Est.G,SE.G,LL,UL,S,pval);
+        tmp <- c(NA,Est.G,SE.G,LL,UL,W,pval);
       # if interaction terms
       }else{
         # index for genotype interaction variables
@@ -162,16 +159,113 @@ RunRegression <- function(mdat){
           SE.GxE <- sqrt(diag(Vhat[GxE.idx,GxE.idx]));
         }        
         # confidence intervals
-        LL <- Est.GxE+qnorm((1-CI)/2)*SE.GxE;
-        UL <- Est.GxE+qnorm(1-((1-CI)/2))*SE.GxE;
+        LL <- Est.GxE+qnorm((1-CI)*0.5)*SE.GxE;
+        UL <- Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE;
         # Wald test - GxE
-        S <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
-        pval <- pchisq(S, df=length(GxE.idx), lower=F)
+        W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
+        pval <- pchisq(W, df=length(GxE.idx), lower=F)
         # collect results
-        tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,LL,UL,S,pval);
+        tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,LL,UL,W,pval);
+      }
+    }
+
+  ##### poisson regression #####
+  }else if(model.type[md]=="poisson"){
+    mod <- tryCatch(glm(model.formula, data = mdat, family=poisson()),warning=function(w) TRUE, error=function(e)TRUE);
+
+    # if warning or error
+    if(is.logical(mod)){
+      if(liv[md] == 0){
+        tmp <- c(1,rep(NA,7));
+      }else{
+        tmp <- c(1,rep(NA,(4+5*liv[md])));
+      }
+    # if any coef are NA
+    }else if(!all(!is.na(coef(mod)))){
+      if(liv[md] == 0){
+        tmp <- rep(NA,8);
+      }else{
+        tmp <- rep(NA,(5+5*liv[md]));
+      }
+    }else{
+      if(robust==TRUE){
+        # sandwich variance
+        Vhat <- vcovHC(mod, type="HC0");
+      }else{
+        # model based variance
+        Vhat <- vcov(mod)
+      }
+      # index for genotype
+      G.idx <- grep("^genotype$", names(coef(mod)));
+      # coefficient
+      Est.G <- coef(mod)[G.idx];
+      # SE
+      SE.G <- sqrt(Vhat[G.idx,G.idx]);
+      # if no interaction terms
+      if(liv[md] == 0){
+        # odds ratio
+        RR <- exp(Est.G);
+        # confidence interval
+        LL <- exp(Est.G+qnorm((1-CI)*0.5)*SE.G);
+        UL <- exp(Est.G+qnorm(1-((1-CI)*0.5))*SE.G);
+        # Wald test - G
+        W <- (Est.G)^2/(Vhat[G.idx,G.idx])
+        pval <- pchisq(W, df=1, lower=F);
+        # collect results
+        tmp <- c(NA,Est.G,SE.G,RR,LL,UL,W,pval);
+      # if interaction terms
+      }else{
+        # index for geno interaction variables
+        GxE.idx <- grep(":genotype", names(coef(mod)));
+        # coefficients
+        Est.GxE <- coef(mod)[GxE.idx];
+        # SEs
+        if(liv[md]==1){
+          SE.GxE <- sqrt(Vhat[GxE.idx,GxE.idx]);
+        }else{
+          SE.GxE <- sqrt(diag(Vhat[GxE.idx,GxE.idx]));
+        }
+        # odds ratios
+        RR <- exp(Est.GxE);
+        # confidence intervals
+        LL <- exp(Est.GxE+qnorm((1-CI)*0.5)*SE.GxE);
+        UL <- exp(Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE);
+        # Wald test - GxE
+        W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
+        pval <- pchisq(W, df=length(GxE.idx), lower=F)
+        # collect results
+        tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,RR,LL,UL,W,pval);
       }
     }
   }
+
+  if(LRtest){
+    # check if the original model ran
+    if(is.logical(mod)){
+      tmp <- append(tmp, rep(NA,2))
+      
+    # if it did run  
+    }else{
+      # run regression for null model
+      if(model.type[md]=="logistic"){
+        mod0 <- tryCatch(glm(model.formula0, data = mdat, family=binomial()), warning=function(w) TRUE, error=function(e) TRUE);
+      }else if(model.type[md]=="linear"){
+        mod0 <- tryCatch(lm(model.formula0, data = mdat), warning=function(w) TRUE, error=function(e)TRUE);
+      }else if(model.type[md]=="poisson"){
+        mod0 <- tryCatch(glm(model.formula0, data = mdat, family=poisson()),warning=function(w) TRUE, error=function(e)TRUE);
+      }
+      
+      # if warning or error
+      if(is.logical(mod0)){
+        tmp <- append(tmp, rep(NA,2))
+      # if any coef are NA
+      }else if(!all(!is.na(coef(mod0)))){
+        tmp <- append(tmp, rep(NA,2))
+      }else{
+        tmp <- append(tmp, unlist(lrtest(mod, mod0))[c(8,10)])
+      }
+    }
+  } # if LRtest
 
   ### return results ###
   return(tmp)
@@ -293,7 +387,10 @@ RunRegression <- function(mdat){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","OR.G",
                                                                                     paste("OR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
                                                                                     paste("OR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    "Stat.G","pvalue.G"), sep="."));
+                                                                                    "Wald.Stat.G","Wald.pval.G"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
+          }
         }
       }else{
         for(ga in 1:gene.act.num[j]){
@@ -301,7 +398,10 @@ RunRegression <- function(mdat){
                                                                                     paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("OR.G.",ivar.names,sep=""),
                                                                                     paste("OR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
                                                                                     paste("OR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    "Stat.GxE","pvalue.GxE"), sep="."));
+                                                                                    "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
+          }
         }
       }      
       
@@ -315,31 +415,44 @@ RunRegression <- function(mdat){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
                                                                                     paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
                                                                                     paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    "Stat.G","pvalue.G"), sep="."));
+                                                                                    "Wald.Stat.G","Wald.pval.G"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
+          }
         }
       }else{
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),
                                                                                     paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
                                                                                     paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    "Stat.GxE","pvalue.GxE"), sep="."));
+                                                                                    "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
+          }
         }
       }
       
     }else if(model.type[j]=="poisson"){
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
-                                                                                    paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    "Stat.G","pvalue.G"), sep="."));
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","RR.G",
+                                                                                    paste("RR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
+                                                                                    paste("RR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
+                                                                                    "Wald.Stat.G","Wald.pval.G"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
+          }
         }
       }else{
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),
-                                                                                    paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    "Stat.GxE","pvalue.GxE"), sep="."));
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
+                                                                                    paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("RR.G.",ivar.names,sep=""),
+                                                                                    paste("RR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
+                                                                                    paste("RR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
+                                                                                    "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
+          if(LRtest){
+            nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
+          }
         }
       }
       
@@ -458,7 +571,20 @@ RunRegression <- function(mdat){
               annotvars = unique(c(outcome[md],cvnames,ivnames));
               model.dat = as.data.frame(getScanVariable(genoData, annotvars, index=keep));
               names(model.dat)[1] <- outcome[md];
-              
+
+              if(LRtest){
+                # create null model formula for LR tests
+                if(liv[md] > 0){
+                  rhs0 = paste(paste(covar.list[[md]],collapse="+"),"genotype",sep="+");
+                }else if(covar.list[[md]][1]==""){
+                  rhs0 = 1;
+                }else{
+                  rhs0 = paste(covar.list[[md]],collapse="+");
+                }
+                lhs0 = paste(outcome[md], "~");
+                model.formula0 = as.formula(paste(lhs0,rhs0));
+              }
+                            
               # add genotype data to model data
               model.dat$genotype <- genotype;
               model.dat <- na.omit(model.dat);
@@ -494,9 +620,9 @@ RunRegression <- function(mdat){
                 mdat$genotype <- TransformGenotype(ga,mdat$genotype)                      
                 # sample size
                 res <- append(res,dim(mdat)[1]);
-                # Run the Regression & get results
-                res <- append(res,RunRegression(mdat))
-              }                 
+                # Run the Regression & get Estimates & Wald Tests & LR Tests
+                res <- append(res,RunRegression(mdat))                
+              } 
               
             } # models loop
 

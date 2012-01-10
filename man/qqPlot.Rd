@@ -31,7 +31,7 @@ The 95\% confidence interval is shaded in gray.
 If \code{sub=NULL} (the default), the genomic inflation factor lambda is
   calculated from the p-values and printed.
 }
-\author{Cathy Laurie, Matt Conomos
+\author{Cathy Laurie, Matthew P. Conomos
 }
 
 \examples{

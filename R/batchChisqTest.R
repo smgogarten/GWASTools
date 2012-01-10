@@ -168,8 +168,9 @@ batchChisqTest <- function(genoData,
                   Exp.Batch[,i] <- GWASTools:::minExpFreq(n1A, n1B, n2A, n2B)
                 }
 
-  	        # genomic inflation factor
+                # mean chisq
                 ave[i] <- mean(rv, na.rm=TRUE)
+  	        # genomic inflation factor
                 lambda[i] <- median(rv, na.rm=TRUE) / 0.456
 
 		if (verbose)

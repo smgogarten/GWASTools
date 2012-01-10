@@ -40,9 +40,11 @@
 }
 
 \author{
-  Stephanie Gogarten, Cathy Laurie, Tushar Bhangale, Matt Conomos, Cecilia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Rohit Swarnkar
+  Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew
+  P. Conomos, Cecilia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng,
+  Jess Shen, Rohit Swarnkar
   
-  Maintainer: Stephanie Gogarten \email{sdmorris@u.washington.edu}
+  Maintainer: Stephanie M. Gogarten \email{sdmorris@u.washington.edu}
 }
 
 \references{

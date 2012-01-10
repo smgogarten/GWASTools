@@ -8,3 +8,9 @@
     PC-SNP correlation.
   }
 }
+\section{Changes in version 1.1.2}{
+  \itemize{
+    \item Added LR tests to assocTestRegression.
+    \item Bug fix in calculation of mean odds ratio in batchFisherTest.
+  }
+}
