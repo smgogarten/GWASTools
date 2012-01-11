@@ -12,5 +12,7 @@
   \itemize{
     \item Added LR tests to assocTestRegression.
     \item Bug fix in calculation of mean odds ratio in batchFisherTest.
+    \item Bug fix in missingGenotypeByScanChrom for data sets with only
+    one female.
   }
 }

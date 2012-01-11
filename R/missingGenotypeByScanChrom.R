@@ -52,7 +52,7 @@ function(
         # for females, exclude Y chromosome
         female <- sex == "F"
         notY <- uniqChrom != "Y"
-        miss.frac[female] <- rowSums(miss.cnt[female, notY]) / sum(spc[notY])
+        miss.frac[female] <- rowSums(miss.cnt[female, notY, drop=FALSE]) / sum(spc[notY])
         
 	miss <- list(miss.cnt, spc, miss.frac)
         names(miss) <- c("missing.counts", "snps.per.chr", "missing.fraction")
