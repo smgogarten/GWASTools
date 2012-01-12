@@ -33,12 +33,11 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...
   points(k0, k1, col=color, ...)
 
   # delineate the expected values
-  env = new.env(parent=emptyenv())
-  data(relationsMeanVar, envir=env)
+  rmv <- get(data(relationsMeanVar))
   sdm<-abs(qnorm(alpha/2))
   
   # draw full-sib ellipse
-  FS = env[["relationsMeanVar"]]$FullSibs
+  FS = rmv$FullSibs
   mean.vec<-FS$mean  #vector
   sig.inv<-FS$invCov            
   eg.vals<-FS$eigvals  #relates to length of ellipse axes
@@ -56,7 +55,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...
   }
   points(pts, type="l", lwd=rel.lwd, col="orange")
 
-  HS<-env[["relationsMeanVar"]]$HalfSibs
+  HS<-rmv$HalfSibs
   d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
   hsm<-HS$mean[2]
   s2<-sqrt(2)
@@ -64,7 +63,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...
   y0<-hsm+d; x0<-1-y0
   segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
  
-  C<-env[["relationsMeanVar"]]$FirstCousins
+  C<-rmv$FirstCousins
   d<-sdm*sqrt(C$var)
   fcm<-C$mean[2]
   s2<-sqrt(2)
