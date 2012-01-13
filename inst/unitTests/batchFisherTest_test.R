@@ -33,8 +33,7 @@ check2batches <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.or.rs <- pmin(exp.or.rs, 1/exp.or.rs)
+  exp.or.rs <- pmin(exp.or, 1/exp.or)
   checkTrue(all(0 <= exp.or.rs[!is.na(exp.or.rs)] & exp.or.rs[!is.na(exp.or.rs)] <= 1))
   exp.ave <- 1/mean(exp.or.rs, na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
@@ -91,8 +90,7 @@ check4batches <- function(nc) {
   exp.lam <- rep(NA, nbatch)
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
-    exp.or.rs <- exp.or[,i]; exp.or.rs[is.infinite(exp.or[,i])] <- 0
-    exp.ave[i] <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+    exp.ave[i] <- 1/mean(pmin(exp.or[,i], 1/exp.or[,i]), na.rm=TRUE)
     exp.lam[i] <-  median(-2*log(exp.pval[,i]), na.rm=TRUE) / 1.39
   }
 
@@ -185,8 +183,7 @@ checkAuto <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.ave <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
   exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
   names(exp.lam) <- exp.batch[1]
@@ -241,8 +238,7 @@ checkXYM <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.ave <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
   exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
   names(exp.lam) <- exp.batch[1]
@@ -295,8 +291,7 @@ checkXF <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.ave <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
   exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
   names(exp.lam) <- exp.batch[1]
@@ -359,8 +354,7 @@ checkFileOut <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.ave <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
   exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
   names(exp.lam) <- exp.batch[1]
@@ -414,8 +408,7 @@ checkExclude <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.or.rs <- exp.or; exp.or.rs[is.infinite(exp.or)] <- 0
-  exp.ave <- 1/mean(pmin(exp.or.rs, 1/exp.or.rs), na.rm=TRUE)
+  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
   names(exp.ave) <- exp.batch[1]
   exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
   names(exp.lam) <- exp.batch[1]

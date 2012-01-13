@@ -79,7 +79,7 @@ batchFisherTest(genoData, batchVar,
   
   \code{batchFisherTest} returns a list with the following elements:
   \item{mean.or}{a vector of mean odds-ratio values for each
-  batch. \code{mean.or} is computed as \code{mean(pmax(or, 1/or))} since the odds ratio is >1 when the batch has a higher allele frequency than the other batches and <1 for the reverse.}
+  batch. \code{mean.or} is computed as \code{1/mean(pmin(or, 1/or))} since the odds ratio is >1 when the batch has a higher allele frequency than the other batches and <1 for the reverse.}
   \item{lambda}{a vector of genomic inflation factor computed as
     \code{median(-2*log(pval) / 1.39} for each batch.}
   Each of the following is a matrix with SNPs as rows and batches as

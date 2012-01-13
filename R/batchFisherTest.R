@@ -172,12 +172,8 @@ batchFisherTest <- function(genoData,
                 
                 # odds ratio goes from 0 to infinity
                 # rescale so it is between 0 and 1 for computing mean
-                or.rs <- or
-                or.rs[is.infinite(or)] <- 0
-                or.rs <- pmin(or.rs, 1/or.rs)
-                or.ave <- mean(or.rs, na.rm=TRUE)
-                # now take inverse so mean odds ratios are > 1
-                ave[i] <- 1/or.ave
+                # then take inverse so mean odds ratios are > 1
+                ave[i] <- 1/mean(pmin(or, 1/or), na.rm=TRUE)
   	        # genomic inflation factor
 		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / 1.39
 
