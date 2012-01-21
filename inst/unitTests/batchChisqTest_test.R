@@ -21,7 +21,7 @@ check2batches <- function(nc) {
   }
 
   # get chisq
-  exp.chisq <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.chisq <- rep(NA, nsnp(data))
   for (i in 1:nsnp(data)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -31,16 +31,17 @@ check2batches <- function(nc) {
   }
   exp.chisq[!is.finite(exp.chisq)] <- NA
   exp.chisq[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- mean(exp.chisq, na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(exp.chisq, na.rm=TRUE) / 0.456
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(mean(exp.chisq, na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(exp.chisq, na.rm=TRUE) / 0.456, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
   res <- batchChisqTest(data, batchVar="batch", return.by.snp=TRUE)
   checkEquals(exp.ave, res$mean.chisq)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.chisq, res$chisq, tolerance=1e-7)
+  checkEquals(exp.chisq, res$chisq[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.chisq, res$chisq[,2], tolerance=1e-7, checkNames=FALSE)
 }
 
 

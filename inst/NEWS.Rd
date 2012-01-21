@@ -16,3 +16,10 @@
     one female.
   }
 }
+\section{Changes in version 1.1.3}{
+  \itemize{
+    \item batchChisqTest and batchFisherTest now return n results for n
+    batches even if n=2.
+    \item batchFisherTest has return.by.snp=FALSE as default.
+  }
+}

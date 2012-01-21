@@ -15,7 +15,7 @@ batchFisherTest <- function(genoData,
                              chrom.include = 1:22,
                              sex.include = c("M", "F"),
                            scan.exclude = NULL,
-                           return.by.snp = TRUE,
+                           return.by.snp = FALSE,
                              conf.int = FALSE,
                              verbose = TRUE,
                            outfile = NULL)
@@ -47,13 +47,6 @@ batchFisherTest <- function(genoData,
 	if (nBatch < 2)
 		stop("The level of batch should be >= 2!")
 
-         # if nBatch is 2, only compute and store results once
-         if (nBatch == 2) {
-           outBatch <- 1
-         } else {
-           outBatch <- nBatch
-         }
-                
         chrom <- getChromosome(genoData)
         chromIndex <- chrom %in% chrom.include
         xchr <- chrom[chromIndex] == XchromCode(genoData)
@@ -62,18 +55,17 @@ batchFisherTest <- function(genoData,
         nSnp <- length(snpID)
         
 	# prepare data
-
-        ave <- double(outBatch)
-        names(ave) <- id[1:outBatch]
-        lambda <- double(outBatch)
-        names(lambda) <- id[1:outBatch]
+        ave <- double(nBatch)
+        names(ave) <- id
+        lambda <- double(nBatch)
+        names(lambda) <- id
         if (return.by.snp) {
-          Pval.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
-          OR.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
-          Exp.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
+          Pval.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
+          OR.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
+          Exp.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
           if (conf.int) {
-            CI1.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
-            CI2.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
+            CI1.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
+            CI2.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
           }
         }
 
@@ -181,7 +173,18 @@ batchFisherTest <- function(genoData,
 			message(date(), "\t", i, "/", nBatch, "\t", id[i])
 
                 # if there are only 2 batches, no need to repeat calculation twice
-                if (nBatch == 2) {
+                if (nBatch == 2) {               
+                  ave[i+1] <- ave[i]
+                  lambda[i+1] <- lambda[i]
+                  if (return.by.snp) {
+                    Pval.Batch[,i+1] <- Pval.Batch[,i]
+                    OR.Batch[,i+1] <- OR.Batch[,i]
+                    if (conf.int) {
+                      CI1.Batch[,i+1] <- CI1.Batch[,i]
+                      CI2.Batch[,i+1] <- CI2.Batch[,i]
+                    }
+                    Exp.Batch[,i+1] <- Exp.Batch[,i]
+                  }
                   break
                 }
 	}

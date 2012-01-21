@@ -65,13 +65,6 @@ batchChisqTest <- function(genoData,
 	if (nBatch < 2)
 		stop("The level of batch should be >= 2!")
 
-         # if nBatch is 2, only compute and store results once
-         if (nBatch == 2) {
-           outBatch <- 1
-         } else {
-           outBatch <- nBatch
-         }
-                
         chrom <- getChromosome(genoData)
         chromIndex <- chrom %in% chrom.include
         xchr <- chrom[chromIndex] == XchromCode(genoData)
@@ -80,13 +73,13 @@ batchChisqTest <- function(genoData,
         nSnp <- length(snpID)
         
 	# prepare data
-        ave <- double(outBatch)
-        names(ave) <- id[1:outBatch]
-        lambda <- double(outBatch)
-        names(lambda) <- id[1:outBatch]
+        ave <- double(nBatch)
+        names(ave) <- id
+        lambda <- double(nBatch)
+        names(lambda) <- id
         if (return.by.snp) {
-          Chi.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
-          Exp.Batch <- matrix(nrow=nSnp, ncol=outBatch, dimnames=list(snpID, id[1:outBatch]))
+          Chi.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
+          Exp.Batch <- matrix(nrow=nSnp, ncol=nBatch, dimnames=list(snpID, id))
         }
 
 	# the number of A alleles for plates and SNPs
@@ -178,6 +171,12 @@ batchChisqTest <- function(genoData,
                 
                 # if there are only 2 batches, no need to repeat calculation twice
                 if (nBatch == 2) {
+                  ave[i+1] <- ave[i]
+                  lambda[i+1] <- lambda[i]
+                  if (return.by.snp) {
+                    Chi.Batch[,i+1] <- Chi.Batch[,i]
+                    Exp.Batch[,i+1] <- Exp.Batch[,i]
+                  }
                   break
                 }
 	}

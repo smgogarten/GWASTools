@@ -17,7 +17,7 @@ batchChisqTest(genoData, batchVar,
 
 batchFisherTest(genoData, batchVar,
                 chrom.include = 1:22, sex.include = c("M", "F"),
-                scan.exclude = NULL, return.by.snp = TRUE,
+                scan.exclude = NULL, return.by.snp = FALSE,
                 conf.int = FALSE, verbose = TRUE,
                 outfile = NULL)
 }
@@ -61,8 +61,8 @@ batchFisherTest(genoData, batchVar,
   chromosomes (X or Y) are desired, use \code{chrom.include} with values
   23 and/or 25 and \code{sex.include}="M" or "F".
 
-  If there are only two batches, each output
-  matrix will have only one column.
+  If there are only two batches, the calculation is only performed once
+  and the values for each batch will be identical.
 }
 
 \value{
@@ -130,7 +130,7 @@ head(res.chisq$chisq)
 
 # Fisher exact test of "status" on X chromosome for females
 res.fisher <- batchFisherTest(genoData, batchVar="status",
-                              chrom.include=23, sex.include="F")
+  chrom.include=23, sex.include="F", return.by.snp=TRUE)
 qqPlot(res.fisher$pval)
 }
 

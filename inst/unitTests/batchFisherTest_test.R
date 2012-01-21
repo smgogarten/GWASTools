@@ -21,8 +21,8 @@ check2batches <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nsnp(data))
+  exp.or <- rep(NA, nsnp(data))
   for (i in 1:nsnp(data)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -35,17 +35,19 @@ check2batches <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or.rs <- pmin(exp.or, 1/exp.or)
   checkTrue(all(0 <= exp.or.rs[!is.na(exp.or.rs)] & exp.or.rs[!is.na(exp.or.rs)] <= 1))
-  exp.ave <- 1/mean(exp.or.rs, na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(exp.or.rs, na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE)
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE)
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.pval, res$pval[,2], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,2], tolerance=1e-7, checkNames=FALSE)
 }
 
 
@@ -95,7 +97,7 @@ check4batches <- function(nc) {
   }
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE)
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE)
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
   checkEquals(exp.pval, res$pval, tolerance=1e-7)
@@ -125,8 +127,8 @@ checkConfInt <- function(nc) {
   }
 
   # get ci
-  exp.ci1 <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.ci2 <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.ci1 <- rep(NA, nsnp(data))
+  exp.ci2 <- rep(NA, nsnp(data))
   for (i in 1:nsnp(data)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -140,9 +142,9 @@ checkConfInt <- function(nc) {
   exp.ci2[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=TRUE)
-  checkEquals(exp.ci1, res$confint.low, tolerance=1e-7)
-  checkEquals(exp.ci2, res$confint.high, tolerance=1e-7)
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=TRUE)
+  checkEquals(exp.ci1, res$confint.low[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.ci2, res$confint.high[,1], tolerance=1e-7, checkNames=FALSE)
 }
 
 
@@ -171,8 +173,8 @@ checkAuto <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nrow(geno))
+  exp.or <- rep(NA, nrow(geno))
   for (i in 1:nrow(geno)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -183,17 +185,17 @@ checkAuto <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE)
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE)
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
 }
 
 
@@ -226,8 +228,8 @@ checkXYM <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nrow(geno))
+  exp.or <- rep(NA, nrow(geno))
   for (i in 1:nrow(geno)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -238,18 +240,18 @@ checkXYM <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE,
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE,
                          chrom.include=c(23,25), sex.include="M")
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
 }
 
 
@@ -279,8 +281,8 @@ checkXF <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nrow(geno), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nrow(geno))
+  exp.or <- rep(NA, nrow(geno))
   for (i in 1:nrow(geno)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -291,18 +293,18 @@ checkXF <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE,
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE,
                          chrom.include=23, sex.include="F")
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
 }
 
 
@@ -315,7 +317,7 @@ checkXYMF <- function(nc){
   scandf <- data.frame(scanID=scanID, sex=sex, batch=batch)
   scanAnnot <- ScanAnnotationDataFrame(scandf)
   data <- GenotypeData(nc, scanAnnot=scanAnnot)
-  checkException(batchFisherTest(data, batchVar="batch", chrom.include=23))
+  checkException(batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, chrom.include=23))
 }
 
 
@@ -342,8 +344,8 @@ checkFileOut <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nsnp(data))
+  exp.or <- rep(NA, nsnp(data))
   for (i in 1:nsnp(data)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -354,19 +356,19 @@ checkFileOut <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
   resfile <- tempfile()
-  batchFisherTest(data, batchVar="batch", conf.int=FALSE, outfile=resfile)
+  batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE, outfile=resfile)
   res <- getobj(paste(resfile, "RData", sep="."))
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
   unlink(paste(resfile, "*", sep=""))
 }
 
@@ -396,8 +398,8 @@ checkExclude <- function(nc) {
   }
 
   # get pval
-  exp.pval <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
-  exp.or <- matrix(NA, nrow=nsnp(data), ncol=1, dimnames=list(snpID, exp.batch[1]))
+  exp.pval <- rep(NA, nsnp(data))
+  exp.or <- rep(NA, nsnp(data))
   for (i in 1:nsnp(data)) {
     tbl <- matrix(c(nA[i,1], nB[i,1], nA[i,2], nB[i,2]), nrow=2, ncol=2)
     try({
@@ -408,18 +410,18 @@ checkExclude <- function(nc) {
   }
   exp.pval[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
-  exp.ave <- 1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE)
-  names(exp.ave) <- exp.batch[1]
-  exp.lam <- median(-2*log(exp.pval), na.rm=TRUE) / 1.39
-  names(exp.lam) <- exp.batch[1]
+  exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
+  names(exp.ave) <- exp.batch
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  names(exp.lam) <- exp.batch
 
   # test function
-  res <- batchFisherTest(data, batchVar="batch", conf.int=FALSE,
+  res <- batchFisherTest(data, batchVar="batch", return.by.snp=TRUE, conf.int=FALSE,
                          scan.exclude=scan.exclude)
   checkEquals(exp.ave, res$mean.or)
   checkEquals(exp.lam, res$lambda)
-  checkEquals(exp.pval, res$pval, tolerance=1e-7)
-  checkEquals(exp.or, res$oddsratio, tolerance=1e-7)
+  checkEquals(exp.pval, res$pval[,1], tolerance=1e-7, checkNames=FALSE)
+  checkEquals(exp.or, res$oddsratio[,1], tolerance=1e-7, checkNames=FALSE)
 }
 
 checkNoSnp <- function(nc) {
