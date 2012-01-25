@@ -53,7 +53,7 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
   whether to print the scan id currently being processed
 }
 \item{anom.stats}{
-  data.frame of chromosome anomalies with statstics, usually the output
+  data.frame of chromosome anomalies with statistics, usually the output
   of \code{anomSegStats}.  Names must include "anom.id", "scanID", "chromosome",
   "left.index", "right.index", "method", "nmark.all", "nmark.elig", "left.base", "right.base",
   "nbase", "non.anom.baf.med", "non.anom.lrr.med", "anom.baf.dev.med",
@@ -215,12 +215,12 @@ snp.failed <- illuminaSnpADF$snpID[illuminaSnpADF$missing.n1 == 1]
 # example results from anomDetectBAF
 baf.anoms <- data.frame("scanID"=scan.ids[1],"chromosome"=21,
   "left.index"=100,"right.index"=200, sex="M", method="BAF",
-  anom.id=1)
+  anom.id=1, stringsAsFactors=FALSE)
 
 # example results from anomDetectLOH
 loh.anoms <- data.frame("scanID"=scan.ids[2],"chromosome"=22,
   "left.index"=400,"right.index"=500, sex="F", method="LOH",
-  anom.id=2)
+  anom.id=2, stringsAsFactors=FALSE)
 
 anoms <- rbind(baf.anoms, loh.anoms)
 data(centromeres.hg18)
