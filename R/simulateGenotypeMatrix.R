@@ -48,18 +48,18 @@ function(n.snps=10,
 	
 	# now create variables
 	sampleID <- var.def.ncdf("sampleID", "id", sample, 0, prec="integer")
-	genotype <- var.def.ncdf("genotype", "count", list(snp,sample), -1, prec="byte")
 	position <- var.def.ncdf("position", "count", snp, -1, prec="integer")
 	chromosome <- var.def.ncdf("chromosome", "id", snp, -1, prec="integer")
+	genotype <- var.def.ncdf("genotype", "count", list(snp,sample), -1, prec="byte")
 	
 	# then create the netCDF file itself
-	ncgeno <- create.ncdf(ncdf.filename, list(sampleID,genotype, position, chromosome))
+	ncgeno <- create.ncdf(ncdf.filename, list(sampleID, position, chromosome, genotype))
 	
 	# now populate the ncdf variables with the above generated values
 	put.var.ncdf(ncgeno, "sampleID", sampleid)
-	put.var.ncdf(ncgeno, "genotype", geno)
 	put.var.ncdf(ncgeno, "position", pos)
 	put.var.ncdf(ncgeno, "chromosome", chr)
+	put.var.ncdf(ncgeno, "genotype", geno)
 	
 	close.ncdf(ncgeno)
 	

@@ -23,3 +23,8 @@
     \item batchFisherTest has return.by.snp=FALSE as default.
   }
 }
+\section{Changes in version 1.1.4}{
+  \itemize{
+    \item Added ncdfSetMissingGenotypes function.
+  }
+}

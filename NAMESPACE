@@ -81,6 +81,7 @@ export(
     ncdfCheckGenotype,
     ncdfCheckIntensity,
     ncdfCreate,
+    ncdfSetMissingGenotypes,
     ncdfSubset,
     ncdfSubsetCheck,
     pedigreeCheck,

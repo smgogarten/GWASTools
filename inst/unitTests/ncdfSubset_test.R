@@ -11,6 +11,7 @@ test_ncdfSubset <- function() {
   geno <- getGenotype(nc)
   chrom <- getChromosome(nc)
   pos <- getPosition(nc)
+  close(nc)
 
   # check subset
   subfile <- tempfile()
@@ -29,6 +30,7 @@ test_ncdfSubset <- function() {
   checkIdentical(subpos, pos[snpsel])
   ncdfSubsetCheck(parent.ncdf=ncfile, sub.ncdf=subfile,
                   sample.include=sampID[sampsel], snp.include=snpID[snpsel])
+  close(subnc)
   file.remove(subfile)
 
   # check with only sample.include
@@ -48,6 +50,7 @@ test_ncdfSubset <- function() {
   checkIdentical(subpos, pos)
   ncdfSubsetCheck(parent.ncdf=ncfile, sub.ncdf=subfile,
              sample.include=sampID[sampsel])
+  close(subnc)
   file.remove(subfile)
   
   # check with only snp.include
@@ -67,6 +70,7 @@ test_ncdfSubset <- function() {
   checkIdentical(subpos, pos[snpsel])
   ncdfSubsetCheck(parent.ncdf=ncfile, sub.ncdf=subfile,
              snp.include=snpID[snpsel])
+  close(subnc)
   file.remove(subfile)
   
   # check with both snp and sample include=NULL
@@ -84,7 +88,8 @@ test_ncdfSubset <- function() {
   subpos <- getPosition(subnc)
   checkIdentical(subpos, pos)
   ncdfSubsetCheck(parent.ncdf=ncfile, sub.ncdf=subfile)
+  close(subnc)
   file.remove(subfile)
-  
+
   file.remove(ncfile)
 }
