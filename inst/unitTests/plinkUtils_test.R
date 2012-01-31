@@ -24,7 +24,8 @@ test_plinkCheck <- function() {
   
   pedfile <- tempfile()
   plinkWrite(genoData, pedfile, alleleA.col="allele.A", alleleB.col="allele.B")
-  checkTrue(plinkCheck(genoData, pedfile, alleleA.col="allele.A", alleleB.col="allele.B"))
+  logfile <- tempfile()
+  checkTrue(plinkCheck(genoData, pedfile, logfile, alleleA.col="allele.A", alleleB.col="allele.B"))
   close(genoData)
 
   # change ncdf file
@@ -36,8 +37,8 @@ test_plinkCheck <- function() {
   nc.new <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc.new, scanAnnot=ScanAnnotationDataFrame(scandf),
                            snpAnnot=SnpAnnotationDataFrame(snpdf))
-  checkTrue(!plinkCheck(genoData, pedfile, alleleA.col="allele.A", alleleB.col="allele.B"))
+  checkTrue(!plinkCheck(genoData, pedfile, logfile, alleleA.col="allele.A", alleleB.col="allele.B"))
   close(genoData)
   
-  unlink(c(ncfile, paste(pedfile, "*", sep=".")))
+  unlink(c(ncfile, logfile, paste(pedfile, "*", sep=".")))
 }

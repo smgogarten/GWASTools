@@ -26,5 +26,6 @@
 \section{Changes in version 1.1.4}{
   \itemize{
     \item Added ncdfSetMissingGenotypes function.
+    \item plinkCheck now writes a log file with all mismatches found.
   }
 }

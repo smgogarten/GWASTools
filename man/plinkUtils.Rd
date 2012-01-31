@@ -9,30 +9,22 @@ object.
 identical data to a \code{\link{GenotypeData}} object.
 }
 \usage{
-plinkWrite(genoData, pedFile="testPlink",
-  scan.chromosome.filter=NULL, family.col="family",
+plinkWrite(genoData, pedFile="testPlink", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
   rs.col="rsID", mapdist.col=NULL, scan.exclude=NULL,
-  blockSize=100)
+  scan.chromosome.filter=NULL, blockSize=100)
 
-plinkCheck(genoData, pedFile,
-  scan.chromosome.filter=NULL, family.col="family",
+plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
-  rs.col="rsID")
+  rs.col="rsID", scan.chromosome.filter=NULL)
 }
 \arguments{
   \item{genoData}{A \code{\link{GenotypeData}} object with scan and SNP annotation.}
   \item{pedFile}{prefix for PLINK files (pedFile.ped, pedFile.map)}
+  \item{logFile}{Name of the output file to log the results of \code{plinkCheck}}
   
-  \item{scan.chromosome.filter}{a logical matrix that can be used to
-  zero out (set to missing) some chromosomes, some scans, or some specific scan-chromosome
-  pairs. Entries should be \code{TRUE} if that scan-chromosome pair should have
-  data in the PLINK file, \code{FALSE} if not. The number of rows must be
-  equal to the number of scans in \code{genoData}.  The column labels must be
-  in the set ("1":"22", "X", "XY", "M", "U").}
-
   \item{family.col}{name of the column in the scan annotation that contains family ID of the sample}
   \item{individual.col}{name of the column in the scan annotation that contains individual ID of the sample}
   \item{father.col}{name of the column in the scan annotation that contains father ID of the sample}
@@ -47,6 +39,14 @@ plinkCheck(genoData, pedFile,
   \item{mapdist.col}{name of the column in the SNP annotation that
     contains genetic distance in Morgans for the SNP}
   \item{scan.exclude}{vector of scanIDs to exclude from PLINK file}
+
+  \item{scan.chromosome.filter}{a logical matrix that can be used to
+  zero out (set to missing) some chromosomes, some scans, or some specific scan-chromosome
+  pairs. Entries should be \code{TRUE} if that scan-chromosome pair should have
+  data in the PLINK file, \code{FALSE} if not. The number of rows must be
+  equal to the number of scans in \code{genoData}.  The column labels must be
+  in the set ("1":"22", "X", "XY", "M", "U").}
+  
   \item{blockSize}{Number of samples to read from \code{genoData} at a time}
 }
 \details{
@@ -62,10 +62,11 @@ for writing this column in the map file and \code{plinkCheck} will omit checking
 column.
 
 \code{plinkCheck} first reads the map file and checks for SNP
-mismatches (chromosome, rsID, and/or position).  If any mismatches are
-found, a file "snp_mismatch.log" is written.
-If no SNP errors were found, the code reads the ped file line by line and stops at the first
-mismatch.  SNPs and sample order is not required to be the same as in \code{genoData}.
+mismatches (chromosome, rsID, and/or position).  Any mismatches are
+written to \code{logFile}.
+\code{plinkCheck} then reads the ped file line by line, recording all
+mismatches in \code{logFile}.
+SNPs and sample order is not required to be the same as in \code{genoData}.
 
 These utilities convert between chromosome coding in
 \code{\link{GenotypeData}}, which by default is 24=XY, 25=Y, and PLINK
@@ -75,7 +76,7 @@ Larger blockSize will improve speed but will require more RAM.
 }
 \value{
   \code{plinkCheck} returns \code{TRUE} if the PLINK files contain
-  identical data to \code{genoData}, and \code{FALSE} is a mismatch is encountered.
+  identical data to \code{genoData}, and \code{FALSE} if a mismatch is encountered.
 }
 \references{
 Please see
@@ -94,17 +95,19 @@ genoData <- GenotypeData(NcdfGenotypeReader(ncfile),
 pedfile <- tempfile()
 plinkWrite(genoData, pedfile,
   alleleA.col="alleleA", alleleB.col="alleleB")
-plinkCheck(genoData, pedfile,
+logfile <- tempfile()
+plinkCheck(genoData, pedfile, logfile,
   alleleA.col="alleleA", alleleB.col="alleleB")
 
 # use default AB allele coding and exclude samples
 plinkWrite(genoData, pedfile, scan.exclude=c(281, 283),
   blockSize=10)
-plinkCheck(genoData, pedfile)
+plinkCheck(genoData, pedfile, logfile)
+readLines(logfile)
 #samples not found in Ped:
 #281
 #283
 
-unlink(paste(pedfile, "*", sep="."))
+unlink(c(logfile, paste(pedfile, "*", sep=".")))
 }
 \keyword{manip}
