@@ -17,6 +17,13 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   if (length(scanIndex1) == 0) stop("scanID1 not found in genoData1")
   # get genotypes for this index
   geno1 <- getGenotype(genoData1, snp=c(1,-1), scan=c(scanIndex1,1))
+  # discard Y chrom SNPs for females
+  if (hasSex(genoData1)) {
+    sex <- getSex(genoData1, index=scanIndex1)
+    if (sex == "F") {
+      geno1[getChromosome(genoData1, char=TRUE) == "Y"] <- NA
+    }
+  }
   # get matched snps
   snpIndex1 <- match(snpID1, getSnpID(genoData1))
   if (any(is.na(snpIndex1))) stop ("some SNPs not found in genoData1") 
@@ -27,6 +34,7 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   if (length(scanIndex2) == 0) stop("scanID2 not found in genoData2")
   # get genotypes for this index
   geno2 <- getGenotype(genoData2, snp=c(1,-1), scan=c(scanIndex2,1))
+  # only need to set one set of Y genotypes to NA to avoid counting them
   # get matched snps
   snpIndex2 <- match(snpID2, getSnpID(genoData2))
   if (any(is.na(snpIndex2))) stop ("some SNPs not found in genoData2") 
@@ -60,6 +68,12 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
   stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
   stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
+
+  if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
+    if (!hasSex(genoData1)) {
+      stop("sex is required for checking Y chromosome discordance")
+    }
+  }
 
   # find duplicate scans
   scanID1 <- getScanID(genoData1)

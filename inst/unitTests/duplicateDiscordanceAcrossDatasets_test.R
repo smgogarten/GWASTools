@@ -124,6 +124,50 @@ test_discordantPair <- function() {
   checkException(GWASTools:::discordantPair(genoData1, 10, snpID1,
                                  genoData2, a.scanID2, snpID2))
   
+  # check that Y chrom SNPs for females are ignored
+  snpID <- 1:10
+  chrom <- c(rep(1L, 2), rep(25L, 8))
+  pos <- 101:110
+  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos)
+  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  scanID <- 1:5
+  subjID <- c("a","b","c","d","e")
+  scandf <- data.frame(scanID=scanID, subjID=subjID)
+  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot$sex <- "F"
+  close(genoData1)
+  nc <- open.ncdf(ncfile1, write=TRUE)
+  put.var.ncdf(nc, "chromosome", snpAnnot$chromosome)
+  close.ncdf(nc)
+  nc1 <- NcdfGenotypeReader(ncfile1)
+  genoData1 <- GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  
+  # expected output (TRUE for discordance)
+  a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  a.nm <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  b.exp <- c(FALSE, FALSE, FALSE, FALSE, FALSE)
+  b.nm <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  c.exp <- c(FALSE, FALSE, FALSE, FALSE, FALSE)
+  c.nm <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  snpID1 <- c(1,3,5,7,9)
+  snpID2 <- 1:5
+
+  # test
+  a <- GWASTools:::discordantPair(genoData1, a.scanID1, snpID1,
+                       genoData2, a.scanID2, snpID2)
+  checkIdentical(a$discordant, a.exp)
+  checkIdentical(a$nonmissing, a.nm)
+  b <- GWASTools:::discordantPair(genoData1, b.scanID1, snpID1,
+                       genoData2, b.scanID2, snpID2)
+  checkIdentical(b$discordant, b.exp)
+  checkIdentical(b$nonmissing, b.nm)
+  c <- GWASTools:::discordantPair(genoData1, c.scanID1, snpID1,
+                       genoData2, c.scanID2, snpID2)
+  checkIdentical(c$discordant, c.exp)
+  checkIdentical(c$nonmissing, c.nm)
+
+  close(genoData1)
+  close(genoData2)
   file.remove(ncfile1, ncfile2)
 }
 

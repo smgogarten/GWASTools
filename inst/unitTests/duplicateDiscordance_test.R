@@ -72,6 +72,28 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
 
+  # check that Y chrom SNPs for females are ignored
+  snpAnnot$chromosome <- c(rep(1L, 2), rep(25L, 8))
+  scanAnnot$sex <- "F"
+  close(genoData)
+  nc <- open.ncdf(ncfile, write=TRUE)
+  put.var.ncdf(nc, "chromosome", snpAnnot$chromosome)
+  close.ncdf(nc)
+  nc <- NcdfGenotypeReader(ncfile)
+  genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+
+  snp.exclude <- 10
+  a.exp <- c(0,0,0,0,0,0,0,0,0)
+  b.exp <- c(0,2,0,0,0,0,0,0,0)
+  subj.disc.exp <- c(0,1,0,0,0,0,0,0,0)
+  tot.disc.exp <- c(0,2,0,0,0,0,0,0,0)
+  npair.exp <- c(4,4,0,0,0,0,0,0,0)
+  
+  disc <- duplicateDiscordance(genoData, "subjID", snp.exclude=snp.exclude)
+  checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
+  checkIdentical(disc[[1]]$discordant, tot.disc.exp)
+  checkIdentical(disc[[1]]$npair, npair.exp)
+  
   close(genoData)
   file.remove(ncfile)
 }

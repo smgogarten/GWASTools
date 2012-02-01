@@ -11,6 +11,16 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   if (!hasScanVariable(genoData, subjName.col))
     stop(paste(subjName.col, "not found in genoData"))
 
+  # check that sex is included for checking Y chromosome
+  chrom <- getChromosome(genoData, char=TRUE)
+  if ("Y" %in% chrom) {
+    if (!hasSex(genoData)) {
+      stop("sex is required for checking Y chromosome discordance")
+    } else {
+      sex <- getSex(genoData)
+    }
+  }
+
   # get scan and subject IDs
   scanID <- getScanID(genoData)
   subjID <- getScanVariable(genoData, subjName.col)
@@ -56,6 +66,13 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
     # get the genotypic data and store in dat
     dat <- matrix(NA, length(snpID), n)
     for(m in 1:n) dat[,m] <- getGenotype(genoData, snp=c(1,-1), scan=c(idk[m],1))
+
+    # if this is a female, exclude Y chrom
+    if (hasSex(genoData)) {
+      if (sex[idk[1]] == "F") {
+        dat[chrom == "Y",] <- NA
+      }
+    }
 
     # remove snps to be excluded
     dat <- dat[index,]
