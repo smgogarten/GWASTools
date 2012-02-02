@@ -28,5 +28,7 @@
     \item Added ncdfSetMissingGenotypes function.
     \item plinkCheck now writes a log file with all mismatches found.
     \item duplicateDiscordance excludes Y chrom SNPs for females.
+    \item duplicateDiscordance has an option to consider only pairs
+    involving the minor allele.
   }
 }

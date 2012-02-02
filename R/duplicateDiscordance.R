@@ -3,6 +3,8 @@
 
 duplicateDiscordance <- function(genoData, # object of type GenotypeData
                                   subjName.col, 
+                                  minor.allele.only = FALSE,
+                                  allele.freq = NULL,
                                   scan.exclude = NULL,
                                   snp.exclude = NULL,
                                   verbose = TRUE) {
@@ -21,6 +23,15 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
     }
   }
 
+  # check that allele.freq is given if needed
+  if (minor.allele.only) {
+    if (is.null(allele.freq)) {
+      stop("vector of A allele frequency required to determine minor allele")
+    } else {
+      stopifnot(is.numeric(allele.freq) & length(allele.freq) == nsnp(genoData))
+    }
+  }
+  
   # get scan and subject IDs
   scanID <- getScanID(genoData)
   subjID <- getScanVariable(genoData, subjName.col)
@@ -52,9 +63,17 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   fracList <- list(length=length(ids))
   corrList <- list(length=length(ids))
 
+  if (minor.allele.only) {
+    # find the genotype to be ignored (no minor allele) for each SNP
+    major.genotype <- rep(NA,nsnp)
+    # A allele freq < 0.5, so A is minor allele, so BB=0 is ignored
+    major.genotype[allele.freq[index] < 0.5] <- 0
+    # A allele freq > 0.5, so B is minor allele, so AA=2 is ignored
+    major.genotype[allele.freq[index] > 0.5] <- 2
+  }
+
   # for each set of duplicates (which may have >3 members)
-  for(k in 1:(length(ids))) 
-  {
+  for (k in 1:(length(ids))) {
     # get the indices of samples in the dup set
     idk <-  ids[[k]]
     n <- length(idk)
@@ -81,21 +100,28 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
     corr <- matrix(NA, n, n) # correlation
 
     nds <- rep(0,nsnp)
-    for(i in 1:(n-1)){
+    for (i in 1:(n-1)) {
       nai <- !is.na(dat[,i])
-      for(j in (i+1):n){
+      for (j in (i+1):n) {
+        # naij is where both samples are non-missing
 	naij <- nai & !is.na(dat[,j])
-	npair = npair  + (naij)
-	discord = discord + (naij & dat[,i]!=dat[,j])
-	nds = nds | (naij & dat[,i]!=dat[,j])
-	frac[i,j] <- sum(dat[,i][naij]==dat[,j][naij])/sum(naij)
+        if (minor.allele.only) {
+          # naij is also where at least one sample has the minor allele
+          naij <- naij & !is.na(major.genotype) & (dat[,i] != major.genotype | dat[,j] != major.genotype)
+        }
+	npair = npair + (naij)
+        # discij is where both samples are naij AND discordant
+        discij <- naij & dat[,i] != dat[,j]
+	discord = discord + discij
+	nds = nds | discij
+	frac[i,j] <- sum(dat[,i][naij] == dat[,j][naij]) / sum(naij)
 	frac[j,i] <- frac[i,j]
-        corr[i,j] <- cor(dat[,i][naij],dat[,j][naij])
+        corr[i,j] <- cor(dat[,i][naij], dat[,j][naij])
         corr[j,i] <- corr[i,j]
       }
     }
     # discordance by snp
-    nds[nds>1] <- 1
+    nds[nds > 1] <- 1
     ndsubj <- ndsubj + nds
     
     # discordance by subject

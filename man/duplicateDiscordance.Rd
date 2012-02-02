@@ -6,13 +6,19 @@ A function to compute all pair-wise genotype discordances between multiple genot
 }
 \usage{
 duplicateDiscordance(genoData, subjName.col, 
+                     minor.allele.only=FALSE, allele.freq = NULL,
                      scan.exclude = NULL, snp.exclude = NULL,
                      verbose = TRUE)
 }
 \arguments{
 \item{genoData}{\code{\link{GenotypeData}} object} 
-  \item{subjName.col}{A character string indicating the name of the annotation variable
+\item{subjName.col}{A character string indicating the name of the annotation variable
   that will be identical for duplicate scans.}
+\item{minor.allele.only}{If \code{TRUE}, discordance will be calculated
+  only between pairs of scans in which at least one scan has a genotype
+  with the minor allele.}
+\item{allele.freq}{A numeric vector with the frequency of the A allele
+  for each SNP in \code{genoData}.  Required if \code{minor.allele.only=TRUE}.}
 \item{scan.exclude}{An integer vector containing the ids of scans to be
   excluded. }
 \item{snp.exclude}{An integer vector containing the ids of SNPs to be excluded.}
@@ -24,11 +30,12 @@ duplicateDiscordance(genoData, subjName.col,
   \item{discordance.by.subject}{a list of matrices (one for each subject) with the pair-wise discordance between the different genotyping instances of the subject}
   \item{correlation.by.subject}{a list of matrices (one for each subject) with the pair-wise correlation between the different genotyping instances of the subject}
 }
-\author{Tushar Bhangale, Cathy Laurie}
+\author{Tushar Bhangale, Cathy Laurie, Stephanie Gogarten}
 
 \seealso{\code{\link{GenotypeData}},
   \code{\link{duplicateDiscordanceAcrossDatasets}},
-  \code{\link{duplicateDiscordanceProbability}}
+  \code{\link{duplicateDiscordanceProbability}},
+  \code{\link{alleleFrequency}}
 }
   
 \examples{
@@ -39,6 +46,12 @@ data(affyScanADF)
 genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
 
 disc <- duplicateDiscordance(genoData, subjName.col="subjectID")
+
+# minor allele discordance
+afreq <- alleleFrequency(genoData)
+minor.disc <- duplicateDiscordance(genoData, subjName.col="subjectID",
+  minor.allele.only=TRUE, allele.freq=afreq[,"all"])
+
 close(genoData)
 }
 

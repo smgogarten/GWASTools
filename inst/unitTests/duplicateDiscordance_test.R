@@ -15,7 +15,7 @@ test_duplicateDiscordance <- function() {
   # netCDF
   geno <- matrix(c(c(0,0,0,0,0,1,1,1,1,1),
                    c(1,1,1,1,1,2,2,2,2,2),
-                   rep(0,10),
+                   c(0,0,0,0,0,0,0,0,0,0),
                    c(1,0,1,1,1,2,2,2,2,0),
                    c(1,1,0,1,0,2,2,2,2,0),
                    c(0,0,0,0,2,2,1,1,NA,1)), ncol=6)
@@ -43,6 +43,24 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$npair, npair.exp)
   checkEquals(disc[[2]]$b, b.subj.exp)
 
+  
+  # check minor allele discordance
+  afreq <- c(3/12, 2/12, 2/12, 3/12, 4/12, 9/12, 8/12, 8/12, 7/10, 4/12)
+  # minor    A,A,A,A,A,B,B,B,B,A
+  a.npr <- c(0,0,0,0,1,1,1,1,0,1)
+  a.exp <- c(0,0,0,0,1,1,0,0,0,0)
+  b.npr <- c(3,3,3,3,3,0,0,0,0,2)
+  b.exp <- c(0,2,2,0,2,0,0,0,0,2)
+  subj.disc.exp <- as.numeric((a.exp > 0) + (b.exp > 0))
+  tot.disc.exp <- a.exp + b.exp
+  npair.exp <- a.npr + b.npr
+  disc <- duplicateDiscordance(genoData, "subjID", minor.allele.only=TRUE,
+                               allele.freq=afreq)
+  checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
+  checkIdentical(disc[[1]]$discordant, tot.disc.exp)
+  checkIdentical(disc[[1]]$npair, npair.exp)
+  
+  
   # exclude some scans
   scan.exclude <- 5
   a.exp <- c(0,0,0,0,1,1,0,0,0,0)
@@ -59,6 +77,7 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$npair, npair.exp)
   checkEquals(disc[[2]]$b, b.subj.exp)
 
+  
   # exclude some snps
   snp.exclude <- c(2,10)
   a.exp <- c(0,0,0,1,1,0,0,0)
@@ -72,6 +91,7 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
 
+  
   # check that Y chrom SNPs for females are ignored
   snpAnnot$chromosome <- c(rep(1L, 2), rep(25L, 8))
   scanAnnot$sex <- "F"
@@ -93,7 +113,7 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
-  
+
   close(genoData)
   file.remove(ncfile)
 }
