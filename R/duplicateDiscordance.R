@@ -2,12 +2,13 @@
 # returns discordance by snp, discordance by subject, and correlation
 
 duplicateDiscordance <- function(genoData, # object of type GenotypeData
-                                  subjName.col, 
-                                  minor.allele.only = FALSE,
-                                  allele.freq = NULL,
-                                  scan.exclude = NULL,
-                                  snp.exclude = NULL,
-                                  verbose = TRUE) {
+                                 subjName.col, 
+                                 corr.by.snp = FALSE,
+                                 minor.allele.only = FALSE,
+                                 allele.freq = NULL,
+                                 scan.exclude = NULL,
+                                 snp.exclude = NULL,
+                                 verbose = TRUE) {
   
   # check that column with subject IDs is included in genoData
   if (!hasScanVariable(genoData, subjName.col))
@@ -75,9 +76,8 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   # for each set of duplicates (which may have >3 members)
   for (k in 1:(length(ids))) {
     # get the indices of samples in the dup set
-    idk <-  ids[[k]]
-    n <- length(idk)
-    idk <- which(is.element(scanID,idk))
+    n <- length(ids[[k]])
+    idk <- which(is.element(scanID, ids[[k]]))
 
     if (verbose)  
       message("subject ",k, " out of ",length(ids),", ",n," replications")
@@ -144,6 +144,37 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   #n.disc.subj = n.subj.with.at.least.one.discordance
   snp.res <- data.frame(snpID=snpID[index], discordant=discord, npair=npair, n.disc.subj=ndsubj, discord.rate=discord/npair)
   
+  # correlation by SNP
+  if (corr.by.snp) {
+    # make 2 vectors with one sample from each subject
+    scan1 <- rep(NA,length(ids))
+    scan2 <- rep(NA,length(ids))
+    for (k in 1:(length(ids))) {
+      idk <- which(is.element(scanID, ids[[k]]))
+      scan1[k] <- idk[1]
+      scan2[k] <- idk[2]
+    }
+
+    corr.snp <- rep(NA,nsnp)
+    for (s in 1:nsnp) {    
+      # get genotype for all samples for this snp
+      dat <- getGenotype(genoData, snp=c(index[s], 1), scan=c(1,-1))
+      # subset genotype with each sample vector
+      geno1 <- dat[scan1]
+      geno2 <- dat[scan2]
+      # check for minor allele
+      if (minor.allele.only) {
+        ok <- !is.na(major.genotype[s]) & (geno1 != major.genotype[s] | geno2 != major.genotype[s])
+        geno1 <- geno1[ok]
+        geno2 <- geno2[ok]
+      }
+      # get correlation between 2 genotype vectors
+      corr.snp[s] <- cor(geno1, geno2, use="pairwise.complete.obs")
+    }
+
+    snp.res$correlation <- corr.snp
+  }
+
   discord.res <- list()
   discord.res$discordance.by.snp <- snp.res
   discord.res$discordance.by.subject <- fracList

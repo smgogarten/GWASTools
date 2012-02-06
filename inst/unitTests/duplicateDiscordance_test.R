@@ -36,29 +36,54 @@ test_duplicateDiscordance <- function() {
   npair.exp <- c(4,4,4,4,4,4,4,4,3,4)
   b.subj.exp <- matrix(c(0.0,0.2,0.3,0.2,0.0,0.3,0.3,0.3,0.0), ncol=3,
                        dimnames=list(c(2,4,5),c(2,4,5)))
+  snpcor.exp <- c(cor(c(0,1),c(0,1),use="pairwise.complete.obs"),
+                  cor(c(0,1),c(0,0),use="pairwise.complete.obs"),
+                  cor(c(0,1),c(0,1),use="pairwise.complete.obs"),
+                  cor(c(0,1),c(0,1),use="pairwise.complete.obs"),
+                  cor(c(0,1),c(2,1),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(2,2),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(1,2),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(1,2),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(NA,2),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(1,0),use="pairwise.complete.obs"))
   
-  disc <- duplicateDiscordance(genoData, "subjID")
+  disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
+  checkIdentical(disc[[1]]$correlation, snpcor.exp)
   checkEquals(disc[[2]]$b, b.subj.exp)
 
   
   # check minor allele discordance
+  snp.exclude <- 2
   afreq <- c(3/12, 2/12, 2/12, 3/12, 4/12, 9/12, 8/12, 8/12, 7/10, 4/12)
   # minor    A,A,A,A,A,B,B,B,B,A
-  a.npr <- c(0,0,0,0,1,1,1,1,0,1)
-  a.exp <- c(0,0,0,0,1,1,0,0,0,0)
-  b.npr <- c(3,3,3,3,3,0,0,0,0,2)
-  b.exp <- c(0,2,2,0,2,0,0,0,0,2)
+  # major    0,0,0,0,0,2,2,2,2,0
+  a.npr <- c(0,0,0,0,1,1,1,1,0,1)[-2]
+  a.exp <- c(0,0,0,0,1,1,0,0,0,0)[-2]
+  b.npr <- c(3,3,3,3,3,0,0,0,0,2)[-2]
+  b.exp <- c(0,2,2,0,2,0,0,0,0,2)[-2]
   subj.disc.exp <- as.numeric((a.exp > 0) + (b.exp > 0))
   tot.disc.exp <- a.exp + b.exp
   npair.exp <- a.npr + b.npr
-  disc <- duplicateDiscordance(genoData, "subjID", minor.allele.only=TRUE,
-                               allele.freq=afreq)
+  snpcor.exp <- c(cor(c(NA,1),c(NA,1),use="pairwise.complete.obs"),
+#                  cor(c(NA,1),c(NA,0),use="pairwise.complete.obs"),
+                  cor(c(NA,1),c(NA,1),use="pairwise.complete.obs"),
+                  cor(c(NA,1),c(NA,1),use="pairwise.complete.obs"),
+                  cor(c(0,1),c(2,1),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(2,2),use="pairwise.complete.obs"),
+                  cor(c(1,NA),c(1,NA),use="pairwise.complete.obs"),
+                  cor(c(1,NA),c(1,NA),use="pairwise.complete.obs"),
+                  cor(c(1,NA),c(NA,NA),use="pairwise.complete.obs"),
+                  cor(c(1,2),c(1,0),use="pairwise.complete.obs"))
+  disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE,
+                               minor.allele.only=TRUE, allele.freq=afreq,
+                               snp.exclude=snp.exclude)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
+  checkIdentical(disc[[1]]$correlation, snpcor.exp)
   
   
   # exclude some scans

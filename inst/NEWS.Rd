@@ -32,3 +32,8 @@
     involving the minor allele.
   }
 }
+\section{Changes in version 1.1.5}{
+  \itemize{
+    \item duplicateDiscordance has an option to compute correlation by SNP.
+  }
+}
