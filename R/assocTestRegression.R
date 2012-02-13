@@ -367,6 +367,7 @@ RunRegression <- function(mdat){
     if(!(CI > 0 & CI < 1)){
       stop("Confidence Level must be between 0 and 1")
     }
+    CIstr <- unlist(strsplit(as.character(CI), ".", fixed=TRUE))[2]
 
     # determine the number of gene action models
     gene.act.num[j] <- length(gene.action.list[[j]]);
@@ -385,8 +386,8 @@ RunRegression <- function(mdat){
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","OR.G",
-                                                                                    paste("OR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    paste("OR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
+                                                                                    paste("OR_L",CIstr,".G",sep=""),
+                                                                                    paste("OR_U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
@@ -396,8 +397,8 @@ RunRegression <- function(mdat){
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
                                                                                     paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("OR.G.",ivar.names,sep=""),
-                                                                                    paste("OR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    paste("OR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
+                                                                                    paste("OR_L",CIstr,".G.",ivar.names,sep=""),
+                                                                                    paste("OR_U",CIstr,".G.",ivar.names,sep=""),
                                                                                     "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
@@ -413,8 +414,8 @@ RunRegression <- function(mdat){
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
-                                                                                    paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
+                                                                                    paste("L",CIstr,".G",sep=""),
+                                                                                    paste("U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
@@ -423,8 +424,8 @@ RunRegression <- function(mdat){
       }else{
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),
-                                                                                    paste("L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    paste("U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
+                                                                                    paste("L",CIstr,".G.",ivar.names,sep=""),
+                                                                                    paste("U",CIstr,".G.",ivar.names,sep=""),
                                                                                     "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
@@ -436,8 +437,8 @@ RunRegression <- function(mdat){
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","RR.G",
-                                                                                    paste("RR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
-                                                                                    paste("RR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G",sep=""),
+                                                                                    paste("RR_L",CIstr,".G",sep=""),
+                                                                                    paste("RR_U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.G", "LR.pval.G"), sep="."));
@@ -447,8 +448,8 @@ RunRegression <- function(mdat){
         for(ga in 1:gene.act.num[j]){
           nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
                                                                                     paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("RR.G.",ivar.names,sep=""),
-                                                                                    paste("RR_L",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
-                                                                                    paste("RR_U",substr(CI,unlist(gregexpr(".[[:digit:]]{2}",CI))+2,unlist(gregexpr(".[[:digit:]]{2}",CI))+3),".G.",ivar.names,sep=""),
+                                                                                    paste("RR_L",CIstr,".G.",ivar.names,sep=""),
+                                                                                    paste("RR_U",CIstr,".G.",ivar.names,sep=""),
                                                                                     "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
           if(LRtest){
             nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("LR.Stat.GxE", "LR.pval.GxE"), sep="."));
