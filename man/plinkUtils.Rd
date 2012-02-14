@@ -18,7 +18,7 @@ plinkWrite(genoData, pedFile="testPlink", family.col="family",
 plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
-  rs.col="rsID", scan.chromosome.filter=NULL)
+  rs.col="rsID", scan.exclude=NULL, scan.chromosome.filter=NULL)
 }
 \arguments{
   \item{genoData}{A \code{\link{GenotypeData}} object with scan and SNP annotation.}

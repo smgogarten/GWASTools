@@ -140,7 +140,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
-	rs.col="rsID", scan.chromosome.filter=NULL) { 
+	rs.col="rsID", scan.exclude=NULL, scan.chromosome.filter=NULL) { 
 
   # return value - set to FALSE if an error is encountered
   retval <- TRUE
@@ -180,6 +180,9 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 
   # sample data
   scan.df <- GWASTools:::getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
+  # exclude some samples
+  scanID <- getScanID(genoData)
+  keep <- !(scanID %in% scan.exclude)
 
   # read each line of PLINK file and compare with netcdf
   writeLines("Checking sample data and genotypes in each line of ped file...", con)
@@ -193,11 +196,16 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     if (length(x) == 0) break
 
     # find matching sample in genoData
-    ind <- which(scan.df[,"individual"] == x[2])
-    scanlist <- c(scanlist, ind)
+    ind <- which(scan.df[,"individual"] == x[2] & keep)
+    scanlist <- c(scanlist, x[2])
     if (length(ind) == 0) {
       writeLines(paste("sample", x[2], "at line", line, "not found in NetCDF"), con)
       retval <- FALSE
+      next
+    } else if (length(ind) > 1) {
+      writeLines(paste("sample", x[2], "at line", line, "has multiple entries in NetCDF"), con)
+      retval <- FALSE
+      next
     }
     
     # compare sample data
@@ -242,9 +250,10 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 
   # check that all scans were found
   writeLines("Checking that all samples were found in ped file...", con)
-  if (length(scanlist) < length(scan.df[,"individual"])) {
+  missing <- setdiff(scan.df[keep,"individual"], scanlist)
+  if (length(missing > 0)) {
     writeLines("samples not found in Ped:", con)
-    for (i in scan.df[-1*scanlist,"individual"]) {
+    for (i in missing) {
       writeLines(as.character(i), con)
     }
     retval <- FALSE
