@@ -47,12 +47,20 @@ test_duplicateDiscordance <- function() {
                   cor(c(1,2),c(NA,2),use="pairwise.complete.obs"),
                   cor(c(1,2),c(1,0),use="pairwise.complete.obs"))
   
-  disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE)
+  disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE,
+                               one.pair.per.subj=FALSE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
   checkIdentical(disc[[1]]$correlation, snpcor.exp)
   checkEquals(disc[[2]]$b, b.subj.exp)
+
+  
+  # check only one scan per subject
+  disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE,
+                               one.pair.per.subj=TRUE)
+  checkIdentical(disc[[1]]$discordant, disc[[1]]$n.disc.subj)
+  checkEquals(2, max(disc[[1]]$npair))
 
   
   # check minor allele discordance
@@ -79,7 +87,8 @@ test_duplicateDiscordance <- function() {
                   cor(c(1,2),c(1,0),use="pairwise.complete.obs"))
   disc <- duplicateDiscordance(genoData, "subjID", corr.by.snp=TRUE,
                                minor.allele.only=TRUE, allele.freq=afreq,
-                               snp.exclude=snp.exclude)
+                               snp.exclude=snp.exclude,
+                               one.pair.per.subj=FALSE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
@@ -96,7 +105,8 @@ test_duplicateDiscordance <- function() {
   b.subj.exp <- matrix(c(0.0,0.2,0.2,0.0), ncol=2,
                        dimnames=list(c(2,4),c(2,4)))
   
-  disc <- duplicateDiscordance(genoData, "subjID", scan.exclude=scan.exclude)
+  disc <- duplicateDiscordance(genoData, "subjID", scan.exclude=scan.exclude,
+                               one.pair.per.subj=FALSE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
@@ -111,7 +121,8 @@ test_duplicateDiscordance <- function() {
   tot.disc.exp <- c(0,2,0,3,1,0,0,0)
   npair.exp <- c(4,4,4,4,4,4,4,3)
   
-  disc <- duplicateDiscordance(genoData, "subjID", snp.exclude=snp.exclude)
+  disc <- duplicateDiscordance(genoData, "subjID", snp.exclude=snp.exclude,
+                               one.pair.per.subj=FALSE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
@@ -134,7 +145,8 @@ test_duplicateDiscordance <- function() {
   tot.disc.exp <- c(0,2,0,0,0,0,0,0,0)
   npair.exp <- c(4,4,0,0,0,0,0,0,0)
   
-  disc <- duplicateDiscordance(genoData, "subjID", snp.exclude=snp.exclude)
+  disc <- duplicateDiscordance(genoData, "subjID", snp.exclude=snp.exclude,
+                               one.pair.per.subj=FALSE)
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)

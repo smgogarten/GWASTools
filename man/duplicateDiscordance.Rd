@@ -2,18 +2,21 @@
 \alias{duplicateDiscordance}
 \title{Duplicate discordance}
 \description{
-A function to compute all pair-wise genotype discordances between multiple genotyping instances of the same subject.
+A function to compute pair-wise genotype discordances between multiple genotyping instances of the same subject.
 }
 \usage{
-duplicateDiscordance(genoData, subjName.col, corr.by.snp=FALSE,
-                     minor.allele.only=FALSE, allele.freq = NULL,
-                     scan.exclude = NULL, snp.exclude = NULL,
-                     verbose = TRUE)
+duplicateDiscordance(genoData, subjName.col,
+                     one.pair.per.subj=TRUE, corr.by.snp=FALSE,
+                     minor.allele.only=FALSE, allele.freq=NULL,
+                     scan.exclude=NULL, snp.exclude=NULL,
+                     verbose=TRUE)
 }
 \arguments{
 \item{genoData}{\code{\link{GenotypeData}} object} 
 \item{subjName.col}{A character string indicating the name of the annotation variable
   that will be identical for duplicate scans.}
+\item{one.pair.per.subj}{A logical indicating whether a single pair of
+  scans should be randomly selected for each subject with more than 2 scans.}
 \item{corr.by.snp}{A logical indicating whether correlation by SNP
   should be computed (may significantly increase run time).}
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
@@ -25,6 +28,14 @@ duplicateDiscordance(genoData, subjName.col, corr.by.snp=FALSE,
   excluded. }
 \item{snp.exclude}{An integer vector containing the ids of SNPs to be excluded.}
 \item{verbose}{Logical value specifying whether to show progress information.} 
+}
+\details{
+  \code{duplicateDiscordance} calculates discordance metrics both by
+  scan and by SNP.  If \code{one.pair.per.subj=TRUE} (the default), each
+  subject with more than two duplicate genotyping instances will have
+  two scans randomly selected for computing discordance.  If
+  \code{one.pair.per.subj=FALSE}, discordances will be calculated
+  pair-wise for all possible pairs for each subject.
 }
 \value{
   A list with the following components:

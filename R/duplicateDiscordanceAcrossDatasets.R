@@ -61,6 +61,7 @@ discordantPair <- function(genoData1, scanID1, snpID1,
 duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
                                                   subjName.cols,
                                                   snpName.cols,
+                                 one.pair.per.subj = TRUE,
                                                scan.exclude1=NULL,scan.exclude2=NULL,
                                                   snp.include = NULL, verbose=TRUE) {
   # check that both genoData objects have subjName, snpName
@@ -108,6 +109,17 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   for (i in 1:length(dups)) {
     ids[[i]] <- sample.annotation[is.element(sample.annotation[,"subjID"], dups[i]),
                                   c("scanID", "dataset")]
+    # if one pair per subj, randomly select one sample from each dataset
+    if (one.pair.per.subj) {
+      for (ds in 1:2) {
+        if (sum(ids[[i]]$dataset == ds) > 1) {
+          ind <- which(ids[[i]]$dataset == ds)
+          keep <- sample(ind, 1)
+          rm <- setdiff(ind, keep)
+          ids[[i]] <- ids[[i]][-rm,]
+        }
+      }
+    }
   }
   names(ids) <- dups
   

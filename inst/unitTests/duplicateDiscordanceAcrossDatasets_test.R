@@ -291,9 +291,16 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
                    c=matrix(c(3/5, 1/5), 1, 2, dimnames=list(3,c(1,5))))
 
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2))
+    rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
+
+  
+  # check only one scan per subject
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
+    rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=TRUE)
+  checkIdentical(discord$discordance.by.snp$discordant, discord$discordance.by.snp$n.disc.subj)
+  checkEquals(3, max(discord$discordance.by.snp$npair))
 
   
   # select particular snps to include
@@ -305,7 +312,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
                    b=matrix(1/3, 1, 1, dimnames=list(2,3)),
                    c=matrix(c(2/3, 0), 1, 2, dimnames=list(3,c(1,5))))
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include)
+    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
@@ -316,7 +323,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
     n.disc.subj=c(1,2,1), discord.rate=c(1,2,1)/c(4,4,4))
   row.names(snp.exp) <- c("rs103","rs105","rs101")
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include)
+    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
@@ -331,7 +338,8 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
                    c=matrix(3/5, 1, 1, dimnames=list(3,1)))
 
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), scan.exclude1=excl1, scan.exclude2=excl2)
+    rep("subjID", 2), rep("rsID", 2), scan.exclude1=excl1, scan.exclude2=excl2,
+                                                one.pair.per.subj=FALSE)
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
   
@@ -340,7 +348,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   snp.include <- c("rs102", "rs104")
   checkException({
     discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2), snp.include=snp.include)
+      rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
   })
 
   
@@ -372,7 +380,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
   
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2))
+      rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
 
   
@@ -434,7 +442,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
   
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2))
+      rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
 
   close(genoData1)

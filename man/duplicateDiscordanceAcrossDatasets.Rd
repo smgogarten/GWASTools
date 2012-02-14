@@ -9,7 +9,7 @@
 
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-  subjName.cols, snpName.cols,
+  subjName.cols, snpName.cols, one.pair.per.subj=TRUE,
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -25,6 +25,8 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   \item{snpName.cols}{2-element character vector indicating the names of the
     annotation variables that will be identical for the same SNPs in the
     two datasets.}
+\item{one.pair.per.subj}{A logical indicating whether a single pair of
+  scans should be randomly selected for each subject with more than 2 scans.}
 \item{scan.exclude1}{An integer vector containing the ids of scans to be
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be
@@ -35,6 +37,13 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
 }
 
 \details{
+  \code{duplicateDiscordanceAcrossDatasets} calculates discordance metrics both by
+  scan and by SNP.  If \code{one.pair.per.subj=TRUE} (the default), each
+  subject with more than two duplicate genotyping instances will have
+  one scan from each dataset randomly selected for computing discordance.  If
+  \code{one.pair.per.subj=FALSE}, discordances will be calculated
+  pair-wise for all possible cross-dataset pairs for each subject.
+  
   If \code{snp.include = NULL} (the default), discordances will be found
   for all SNPs common to both datasets.
 }

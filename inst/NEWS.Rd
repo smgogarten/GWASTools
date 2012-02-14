@@ -38,3 +38,9 @@
     \item Added scan.exclude argument to plinkCheck.
   }
 }
+\section{Changes in version 1.1.6}{
+  \itemize{
+    \item duplicateDiscordance and duplicateDiscordanceAcrossDatasets
+    use only one pair of scans per subject by default.
+  }
+}

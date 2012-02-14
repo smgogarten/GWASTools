@@ -2,7 +2,8 @@
 # returns discordance by snp, discordance by subject, and correlation
 
 duplicateDiscordance <- function(genoData, # object of type GenotypeData
-                                 subjName.col, 
+                                 subjName.col,
+                                 one.pair.per.subj = TRUE,
                                  corr.by.snp = FALSE,
                                  minor.allele.only = FALSE,
                                  allele.freq = NULL,
@@ -45,11 +46,15 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
 
   # find duplicate scans
   sample.annotation$duplicated = duplicated(sample.annotation[, "subjID"])
-  dups <- unique(sample.annotation[sample.annotation$duplicated, "subjID"])
+  dups <- unique(na.omit(sample.annotation[sample.annotation$duplicated, "subjID"]))
 
   ids <- list()
   for (i in 1:length(dups)) {
     ids[[i]] <- sample.annotation[ is.element(sample.annotation[,"subjID"], dups[i]), "scanID" ]
+    # if one pair per subj, randomly select two samples
+    if (one.pair.per.subj) {
+      ids[[i]] <- sort(sample(ids[[i]], 2))
+    }
   }
   names(ids) <- dups
 
