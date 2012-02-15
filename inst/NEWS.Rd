@@ -42,5 +42,6 @@
   \itemize{
     \item duplicateDiscordance and duplicateDiscordanceAcrossDatasets
     use only one pair of scans per subject by default.
+    \item duplicateDiscordanceProbability sets small negative values to 0.
   }
 }

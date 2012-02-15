@@ -29,6 +29,9 @@ duplicateDiscordanceProbability(npair,
   twice the total error rate.
   This function assumes that a == b, and the argument \code{error.rate}
   is the total error rate a + b.
+
+  Any negative values for the probability (due to precision problems for
+  very small numbers) are set to 0.
 }
 
 \value{

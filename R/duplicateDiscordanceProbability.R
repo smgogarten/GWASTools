@@ -43,5 +43,8 @@ duplicateDiscordanceProbability <- function(npair,
     }
   }
 
+  # negative values should be 0
+  dis[dis < 0] <- 0
+
   return(dis)
 }
