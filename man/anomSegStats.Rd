@@ -103,8 +103,7 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
  terminal anomalies and investigating centromere-spanning anomalies. 
 
 
-\code{anomStatsPlot} produces separate png images of each anomaly stored in
-  the working directory from which the program is called. Each image consists of
+\code{anomStatsPlot} produces separate png images of each anomaly in \code{anom.stats}. Each image consists of
 an upper plot of LogRRatio values and a lower plot of BAlleleFrequency values for 
 a zoomed region around the anomaly or whole chromosome (depending up parameter
 choices). Each plot has vertical lines demarcating the anomaly and horizontal lines

@@ -73,8 +73,13 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...
  
   # legend
   if (!is.null(relation)) {
-    legend("topright", unique(relation), col=unique(color),
-           pch=rep(1, length(unique(relation))))
+    rel <- unique(relation)
+    col <- unique(color)
+    ord <- order(rel)
+    rel <- rel[ord]
+    col <- col[ord]
+    legend("topright", legend=rel, col=col,
+           pch=rep(1, length(rel)))
   }
 
 }
