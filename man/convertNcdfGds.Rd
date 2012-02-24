@@ -75,7 +75,7 @@ convertNcdfGds(ncfile, gdsfile, sample.annot=illumina_scan_annot,
 checkNcdfGds(ncfile, gdsfile)
 
 ncfile2 <- tempfile()
-convertGdsNcdf(gdsfile, ncfile2)
+#convertGdsNcdf(gdsfile, ncfile2)
 
 file.remove(gdsfile, ncfile2)
 }

@@ -17,7 +17,7 @@ chromIntensityPlot(intenData, scan.ids, chrom.ids,
                    abln = NULL,  horizln = c(1/2, 1/3, 2/3), 
                    colorGenotypes = FALSE, genoData = NULL,
                    colorBatch = FALSE, batch.column = NULL,
-                   snp.exclude = NULL, ...)
+                   snp.exclude = NULL, cex=0.5, ...)
 }
 
 
@@ -43,6 +43,7 @@ Use -1 as one pair value for plots that warrant only one line. By default, no li
 	variable in intenData should be used as the batch.}
   \item{snp.exclude}{An integer vector giving the IDs of SNPs to exclude
   from the plot.}
+  \item{cex}{cex value for points on the plots}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 

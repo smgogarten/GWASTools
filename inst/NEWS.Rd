@@ -45,3 +45,12 @@
     \item duplicateDiscordanceProbability sets small negative values to 0.
   }
 }
+\section{Changes in version 1.1.7}{
+  \itemize{
+    \item chromIntensityPlot and pseudoautoIntensityPlot have cex=0.5 by default.
+    \item chromIntensityPlot colors now match anomStatsPlot colors.
+    \item plinkCheck has options to skip checking parents and sex.
+    \item plinkCheck sorts alleles by character to avoid phase mismatches.
+    \item plinkWrite and plinkCheck print progress messages if verbose=TRUE.
+  }
+}

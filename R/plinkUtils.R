@@ -7,6 +7,7 @@
 # phenotype (-9=missing, 0=missing, 1=unaffected, 2=affected) 
 # genotypes (both alleles e.g. A A for all SNPs ordered according to the map file order
 
+# return genotype matrix or vector in plink format
 getPlinkGenotype <- function(genoData, scan.start, scan.count,
                              scan.chromosome.filter = NULL,
                              alleleA.col=NULL, alleleB.col=NULL) {
@@ -36,7 +37,7 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
     alleles <- getSnpVariable(genoData, c(alleleA.col, alleleB.col))
     names(alleles) <- c("A","B")
     aa <- paste(alleles$A, alleles$A)
-    ab <- paste(alleles$A, alleles$B)
+    ab <- paste(pmin(alleles$A, alleles$B), pmax(alleles$A, alleles$B)) # sorted
     bb <- paste(alleles$B, alleles$B)
     for (k in 1:ncol(geno)) {
       geno[geno[,k] == 0, k] <- bb[geno[,k] == 0]
@@ -50,6 +51,8 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
   return(geno)
 }
 
+
+# return sample data frame in plink format
 getPlinkFam <- function(genoData, family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL) {
   scan.df <- getScanVariable(genoData, c(family.col, individual.col, father.col, mother.col))
   names(scan.df) <- c("family", "individual", "father", "mother")
@@ -65,6 +68,8 @@ getPlinkFam <- function(genoData, family.col="family", individual.col="scanID", 
   return(scan.df)
 }
 
+
+# return map data frame in plink format
 getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
   map.df <- getSnpVariable(genoData, c(rs.col, "position"))
   chrom <- getChromosome(genoData, char=TRUE)
@@ -84,11 +89,13 @@ getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
   return(map.df)
 }
 
+
 plinkWrite <- function(genoData, pedFile="testPlink",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
 	rs.col="rsID", mapdist.col=NULL,
-        scan.exclude=NULL, scan.chromosome.filter=NULL, blockSize=100){
+        scan.exclude=NULL, scan.chromosome.filter=NULL, blockSize=100,
+                       verbose=TRUE){
 
   # name of the output_file. This will create two files: output_file.ped and output_file.map
   pedfile <- paste(pedFile,"ped",sep=".")
@@ -117,6 +124,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
   for(j in 1:nBlock){
     bsize <- blockSize
     if(j==nBlock) bsize <- lastB
+    if (verbose) message("writing block ",j," of ",nBlock,": scans ",i,"-",i+bsize-1)
     rdf <- matrix(nrow=bsize, ncol=6+nsnp)
     rdf[,1:6] <- as.matrix(scan.df[i:(i+bsize-1),])
     geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=i, scan.count=bsize,
@@ -136,11 +144,12 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 }
 
 
-
 plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
-	rs.col="rsID", scan.exclude=NULL, scan.chromosome.filter=NULL) { 
+	rs.col="rsID",
+                       check.parents=TRUE, check.sex=TRUE, 
+                       scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE) { 
 
   # return value - set to FALSE if an error is encountered
   retval <- TRUE
@@ -153,6 +162,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   mapfile <- paste(pedFile,"map",sep=".")
 
   # check SNPs
+  if (verbose) message("Checking SNPs against map file")
   writeLines("Checking SNPs against map file...", con)
   map <- read.table(mapfile, as.is=TRUE, comment="")
   if (ncol(map) > 3) map <- map[,c(1,2,4)] # skip map distance
@@ -164,13 +174,13 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   snp.ncdf <- paste(map.df$chromosome, map.df$rsID, map.df$position)
 
   mismatch.plink <- setdiff(snp.plink, snp.ncdf)
-  names(mismatch.plink) = rep("ped", length(mismatch.plink))
   mismatch.ncdf <- setdiff(snp.ncdf, snp.plink)
-  names(mismatch.ncdf) = rep("netcdf", length(mismatch.ncdf))
-  mismatch <- c(mismatch.plink, mismatch.ncdf)
-  if (length(mismatch) > 0 ) {
+  if (length(c(mismatch.plink, mismatch.ncdf)) > 0 ) {
+    p.df <- cbind("file"=rep("ped", length(mismatch.plink)), "snp"=mismatch.plink)
+    n.df <- cbind("file"=rep("netcdf", length(mismatch.ncdf)), "snp"=mismatch.ncdf)    
+    mismatch <- rbind(p.df, n.df)
     writeLines("SNPs are not identical", con)
-    write.table(mismatch, con, quote=FALSE, col.names=FALSE)
+    write.table(mismatch, con, quote=FALSE, col.names=FALSE, row.names=FALSE)
     retval <- FALSE
   } else {
     writeLines("OK", con)
@@ -185,6 +195,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   keep <- !(scanID %in% scan.exclude)
 
   # read each line of PLINK file and compare with netcdf
+  if (verbose) message("Checking sample data and genotypes in each line of ped file")
   writeLines("Checking sample data and genotypes in each line of ped file...", con)
   ped <- file(pedfile, "r")
   on.exit(close(ped))
@@ -194,6 +205,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   while(TRUE) {
     x <- scan(ped, what="", nlines=1, quiet=TRUE)
     if (length(x) == 0) break
+    if (verbose & line%%100 == 0) message("checking line ",line)
 
     # find matching sample in genoData
     ind <- which(scan.df[,"individual"] == x[2] & keep)
@@ -209,11 +221,27 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     }
     
     # compare sample data
-    if (!allequal(scan.df[ind,1:5], x[1:5])) {
-      writeLines(c(paste("sample data mismatch for sample", x[2], "at line", line),
-                   paste("Ped:", paste(x[1:5], collapse=" ")),
-                   paste("NetCDF:", paste(scan.df[ind,1:5], collapse=" "))), con)
+    if (!allequal(scan.df[ind,"family"], x[1])) {
+      writeLines(c(paste("family mismatch for sample", x[2], "at line", line),
+                   paste("Ped:", paste(x[1], collapse=" ")),
+                   paste("NetCDF:", paste(scan.df[ind,"family"], collapse=" "))), con)
       retval <- FALSE
+    }
+    if (check.parents) {
+      if (!allequal(scan.df[ind,c("father","mother")], x[3:4])) {
+        writeLines(c(paste("parent mismatch for sample", x[2], "at line", line),
+                     paste("Ped:", paste(x[3:4], collapse=" ")),
+                     paste("NetCDF:", paste(scan.df[ind,c("father","mother")], collapse=" "))), con)
+        retval <- FALSE
+      }
+    }
+    if (check.sex) {
+      if (!allequal(scan.df[ind,"sex"], x[5])) {
+        writeLines(c(paste("sex mismatch for sample", x[2], "at line", line),
+                     paste("Ped:", paste(x[5], collapse=" ")),
+                     paste("NetCDF:", paste(scan.df[ind,"sex"], collapse=" "))), con)
+        retval <- FALSE
+      }
     }
     if (!is.null(phenotype.col)) {
       if (scan.df[ind,"phenotype"] != x[6]) {
@@ -230,7 +258,12 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
                              alleleA.col=alleleA.col, alleleB.col=alleleB.col)
     geno <- geno[snp.match]
 
-    geno.plink <- paste(x[seq(7,length(x),2)], x[seq(8,length(x),2)])
+    # sort allele by character
+    a <- x[seq(7,length(x),2)]
+    b <- x[seq(8,length(x),2)]
+    geno.plink <- paste(pmin(a,b), pmax(a,b))
+    # only check genotypes with matching SNPs
+    if (length(mismatch.plink > 0)) geno.plink[snp.plink %in% mismatch.plink] <- NA
     if (length(geno.plink) != length(geno)) {
       writeLines(c("numbers of SNPs do not match",
                  paste("Ped:", length(geno.plink)),

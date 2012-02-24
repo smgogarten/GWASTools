@@ -13,12 +13,13 @@ plinkWrite(genoData, pedFile="testPlink", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
   rs.col="rsID", mapdist.col=NULL, scan.exclude=NULL,
-  scan.chromosome.filter=NULL, blockSize=100)
+  scan.chromosome.filter=NULL, blockSize=100, verbose=TRUE)
 
 plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
-  rs.col="rsID", scan.exclude=NULL, scan.chromosome.filter=NULL)
+  rs.col="rsID", check.parents=TRUE, check.sex=TRUE,
+  scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE)
 }
 \arguments{
   \item{genoData}{A \code{\link{GenotypeData}} object with scan and SNP annotation.}
@@ -38,6 +39,9 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   \item{rs.col}{name of the column in the SNP annotation that contains rs ID (or some other ID) for the SNP}
   \item{mapdist.col}{name of the column in the SNP annotation that
     contains genetic distance in Morgans for the SNP}
+  \item{check.parents}{logical for whether to check the father and
+    mother columns}
+  \item{check.sex}{logical for whether to check the sex column}
   \item{scan.exclude}{vector of scanIDs to exclude from PLINK file}
 
   \item{scan.chromosome.filter}{a logical matrix that can be used to
@@ -47,7 +51,9 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   equal to the number of scans in \code{genoData}.  The column labels must be
   in the set ("1":"22", "X", "XY", "M", "U").}
   
-  \item{blockSize}{Number of samples to read from \code{genoData} at a time}
+  \item{blockSize}{Number of samples to read from \code{genoData} at a
+    time}
+  \item{verbose}{logical for whether to show progress information.}
 }
 \details{
 If \code{alleleA.col} or \code{alleleB.col} is NULL, genotypes are

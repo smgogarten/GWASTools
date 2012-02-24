@@ -2,11 +2,12 @@
 
 
 pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
-                        scan.ids,
-                        code = NULL,
-                        plotY = FALSE,
-                                hg.build = c("hg18", "hg19"),
-                        ...)
+                                    scan.ids,
+                                    code = NULL,
+                                    plotY = FALSE,
+                                    hg.build = c("hg18", "hg19"),
+                                    cex=0.5,
+                                    ...)
 {
 # plot BAF/LRR plots for sample nums listed in scan.ids, overlaying the X and XY snps
   
@@ -97,8 +98,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,logrratio[xinds,i],col="magenta", ...)
-        points(pos[xyinds]/1e6,logrratio[xyinds,i],col="darkgreen", ...)
+        points(pos[xinds]/1e6,logrratio[xinds,i],col="magenta", cex=cex, ...)
+        points(pos[xyinds]/1e6,logrratio[xyinds,i],col="darkgreen", cex=cex, ...)
 
         # BAF
         plot(pos[xxyinds]/1e6,bafreq[xxyinds,i],xlab="position (Mb)",ylab="BAlleleFreq",main=txt,col=xcolxxy,type="n", ...)
@@ -110,8 +111,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=0, ytop=1, col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,bafreq[xinds,i],col="magenta", ...)
-        points(pos[xyinds]/1e6,bafreq[xyinds,i],col="darkgreen", ...)
+        points(pos[xinds]/1e6,bafreq[xinds,i],col="magenta", cex=cex, ...)
+        points(pos[xyinds]/1e6,bafreq[xyinds,i],col="darkgreen", cex=cex, ...)
 
         # Y chromosome
         if (plotY) {
@@ -149,8 +150,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ylrr, col="skyblue", ...)
-          points(xypts, xylrr,col="darkgreen", ...)
+          points(ypts, ylrr, col="skyblue", cex=cex, ...)
+          points(xypts, xylrr,col="darkgreen", cex=cex, ...)
 
           # BAF
           plot(c(ypts, xypts), c(ybaf, xybaf),xlab="position (Mb)",ylab="BAlleleFreq",main=txt,col=xcolyxy,type="n", ...)
@@ -162,8 +163,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=0, ytop=1, col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ybaf, col="skyblue", ...)
-          points(xypts, xybaf, col="darkgreen", ...)
+          points(ypts, ybaf, col="skyblue", cex=cex, ...)
+          points(xypts, xybaf, col="darkgreen", cex=cex, ...)
         }
   }
 
