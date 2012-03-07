@@ -99,7 +99,8 @@ anomSegStats <- function(intenData, genoData,
 	if(class(anom)!="data.frame") stop("anom should be a data.frame")
 	if(!all(is.element(c("scanID", "chromosome", "left.index","right.index","sex","method","anom.id"),names(anom)))) stop("anom does not have required variable names")
 	if(!all(is.element(c(anom$left.index,anom$right.index),indices))) stop("left.index and/or right.index are not within range of snp indices")
-	if(!all(anom$chromosome<=24)) stop("chromosome must be <=24")
+        ok.chrom <- c(1:22, XchromCode(intenData), XYchromCode(intenData))
+	if(!all(anom$chromosome %in% ok.chrom)) stop("chromosome must be integer code for autosomes, X, or XY")
 
 	# check eligible and get selection vector
         eligible <- snp.ids
