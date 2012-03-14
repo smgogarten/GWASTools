@@ -76,7 +76,7 @@ RunRegression <- function(mdat){
         UL <- exp(Est.G+qnorm(1-((1-CI)*0.5))*SE.G);
         # Wald test - G
         W <- (Est.G)^2/(Vhat[G.idx,G.idx])
-        pval <- pchisq(W, df=1, lower=F);
+        pval <- pchisq(W, df=1, lower.tail=FALSE);
         # collect results
         tmp <- c(NA,Est.G,SE.G,OR,LL,UL,W,pval);
       # if interaction terms
@@ -98,7 +98,7 @@ RunRegression <- function(mdat){
         UL <- exp(Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE);
         # Wald test - GxE
         W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
-        pval <- pchisq(W, df=length(GxE.idx), lower=F)
+        pval <- pchisq(W, df=length(GxE.idx), lower.tail=FALSE)
         # collect results
         tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,OR,LL,UL,W,pval);
       }
@@ -143,7 +143,7 @@ RunRegression <- function(mdat){
         UL <- Est.G+qnorm(1-((1-CI)*0.5))*SE.G;
         # Wald test - G
         W <- (Est.G)^2/(Vhat[G.idx,G.idx])
-        pval <- pchisq(W, df=1, lower=F);
+        pval <- pchisq(W, df=1, lower.tail=FALSE);
         # collect results
         tmp <- c(NA,Est.G,SE.G,LL,UL,W,pval);
       # if interaction terms
@@ -163,7 +163,7 @@ RunRegression <- function(mdat){
         UL <- Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE;
         # Wald test - GxE
         W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
-        pval <- pchisq(W, df=length(GxE.idx), lower=F)
+        pval <- pchisq(W, df=length(GxE.idx), lower.tail=FALSE)
         # collect results
         tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,LL,UL,W,pval);
       }
@@ -210,7 +210,7 @@ RunRegression <- function(mdat){
         UL <- exp(Est.G+qnorm(1-((1-CI)*0.5))*SE.G);
         # Wald test - G
         W <- (Est.G)^2/(Vhat[G.idx,G.idx])
-        pval <- pchisq(W, df=1, lower=F);
+        pval <- pchisq(W, df=1, lower.tail=FALSE);
         # collect results
         tmp <- c(NA,Est.G,SE.G,RR,LL,UL,W,pval);
       # if interaction terms
@@ -232,7 +232,7 @@ RunRegression <- function(mdat){
         UL <- exp(Est.GxE+qnorm(1-((1-CI)*0.5))*SE.GxE);
         # Wald test - GxE
         W <- t(Est.GxE) %*% solve(Vhat[GxE.idx,GxE.idx]) %*% Est.GxE;
-        pval <- pchisq(W, df=length(GxE.idx), lower=F)
+        pval <- pchisq(W, df=length(GxE.idx), lower.tail=FALSE)
         # collect results
         tmp <- c(NA,Est.G,SE.G,Est.GxE,SE.GxE,RR,LL,UL,W,pval);
       }

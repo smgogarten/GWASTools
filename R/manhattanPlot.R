@@ -38,7 +38,7 @@ manhattanPlot <- function(p,
 
         centers <- (x[chromstart]+x[chromend]-(chromend[1]/6))/2
         centers[nc] <- x[N]  # puts the last tick at the position of last snp
-        axis(1, at=centers, label=chrom.labels, las=2)
+        axis(1, at=centers, labels=chrom.labels, las=2)
 
         # add a line for genome-wide significance
         if (!is.null(signif)) {
