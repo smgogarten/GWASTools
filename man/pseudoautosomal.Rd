@@ -15,11 +15,15 @@ pseudoautosomal.hg19
 \format{
   A data.frame with the following columns.
   \describe{
-    \item{\code{chrom}}{chromsome (X or Y)}2
+    \item{\code{chrom}}{chromosome (X or Y)}2
     \item{\code{region}}{region (XTR, PAR1, or PAR2)}
     \item{\code{start.base}}{starting base position of region}
     \item{\code{end.base}}{ending base position of region}
   }
+}
+\details{
+  The XTR region on X is defined as DXS1217 to DXS3.
+  The XTR region on Y is defined as SY20 to DXYS1.
 }
 \source{
 UCSC genome browser (\url{http://genome.ucsc.edu}).
