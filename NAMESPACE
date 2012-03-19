@@ -89,6 +89,7 @@ export(
     pedigreeFindDuplicates,
     pedigreePairwiseRelatedness,
     plinkCheck,
+    plinkToNcdf,
     plinkWrite,
     pseudoautoIntensityPlot,
     qqPlot,

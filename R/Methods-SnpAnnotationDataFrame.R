@@ -81,7 +81,7 @@ setMethod("getChromosome",
             if (char) {
               # default is unknown code
               chromChar <- rep("U", length(var))
-              autosome <- var <= 22 & !is.na(var)
+              autosome <- var %in% 1:22
               chromChar[autosome] <- as.character(var[autosome])
               xchrom <- var == object@XchromCode & !is.na(var)
               chromChar[xchrom] <- "X"

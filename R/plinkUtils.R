@@ -164,9 +164,14 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   # check SNPs
   if (verbose) message("Checking SNPs against map file")
   writeLines("Checking SNPs against map file...", con)
-  map <- read.table(mapfile, as.is=TRUE, comment="")
+  map <- read.table(mapfile, as.is=TRUE, comment.char="")
   if (ncol(map) > 3) map <- map[,c(1,2,4)] # skip map distance
   names(map) <- c("chromosome", "rsID", "position")
+  # convert chromosome to integer (PLINK coding)
+  map$chromosome[map$chromosome == "X"] <- 23
+  map$chromosome[map$chromosome == "Y"] <- 24
+  map$chromosome[map$chromosome == "XY"] <- 25
+  map$chromosome[map$chromosome == "MT"] <- 26
   snp.plink <- paste(map$chromosome, map$rsID, map$position)
   
   map.df <- GWASTools:::getPlinkMap(genoData, rs.col=rs.col)
@@ -296,4 +301,178 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 
   close(con)
   return(retval)
+}
+
+
+plinkToNcdf <- function(pedFile, mapFile, nSamples,
+                        ncdfFile, snpAnnotFile, scanAnnotFile,
+                        ncdfXchromCode=23, ncdfXYchromCode=24, ncdfYchromCode=25,
+                        ncdfMchromCode=26, ncdfUchromCode=27,
+                        pedMissingCode=0, verbose=TRUE) {
+  # read map file to get SNP annotation
+  map <- read.table(mapFile, as.is=TRUE, comment.char="") 
+  names(map)[1:4] <- c("chromosome", "rsID", "mapdist", "position")
+
+  # are chromosomes in map file characters or integers?
+  if (is.character(map$chromosome)) {
+    map$chromosome[map$chromosome == "X"] <- ncdfXchromCode
+    map$chromosome[map$chromosome == "XY"] <- ncdfXYchromCode
+    map$chromosome[map$chromosome == "Y"] <- ncdfYchromCode
+    map$chromosome[map$chromosome == "MT"] <- ncdfMchromCode
+  } else {
+    # assume PLINK integer coding
+    chrom <- map$chromosome
+    chrom[map$chromosome == 23] <- ncdfXchromCode
+    chrom[map$chromosome == 24] <- ncdfYchromCode
+    chrom[map$chromosome == 25] <- ncdfXYchromCode
+    chrom[map$chromosome == 26] <- ncdfMchromCode
+    map$chromosome <- chrom
+  }
+  known.chroms <- c(1:22, ncdfXchromCode, ncdfXYchromCode, ncdfYchromCode,
+                   ncdfMchromCode, ncdfUchromCode)
+  map$chromosome[!(map$chromosome %in% known.chroms)] <- ncdfUchromCode
+  map$chromosome <- as.integer(map$chromosome)
+  map$position <- as.integer(map$position)
+
+  # save current order of SNPs in plink
+  snpnames <- map$rsID
+  # order by chromosome and position
+  map <- map[order(map$chromosome, map$position),]
+  # map new order to plink order
+  snpord <- match(map$rsID, snpnames)
+ 
+  # allele conversion
+  nsnp <- nrow(map)
+  if (ncol(map) >= 6) {
+    names(map)[5:6] <- c("alleleA", "alleleB")
+    map$alleleA[map$alleleA %in% 0] <- NA
+    map$alleleB[map$alleleB %in% 0] <- NA
+    alleleA <- map$alleleA
+    alleleB <- map$alleleB
+    findAB <- FALSE
+  } else {
+    alleleA <- rep(NA, nsnp)
+    alleleB <- rep(NA, nsnp)
+    findAB <- TRUE
+  }
+  
+  # create integer snpID
+  map$snpID <- 1:nsnp
+  
+  # create netCDF file
+  ncdfCreate(snp.annotation=map, ncdf.filename=ncdfFile,
+             n.samples=nSamples, variables="genotype")
+  
+  # create empty scan annotation vectors
+  family <- rep(NA, nSamples)
+  individ <- rep(NA, nSamples)
+  father <- rep(NA, nSamples)
+  mother <- rep(NA, nSamples)
+  sex <- rep(NA, nSamples)
+  phenotype <- rep(NA, nSamples)
+
+  # open netCDF for writing
+  nc <- open.ncdf(ncdfFile, write=TRUE)
+  
+  # read plink file one line at a time
+  # for each line, store sample data in annotation and genotype in netCDF
+  ped <- file(pedFile, "r")
+  on.exit(close(ped))
+  line <- 0
+  while(TRUE) {
+    x <- scan(ped, what="", nlines=1, quiet=TRUE)
+    if (length(x) == 0) break
+    line <- line + 1
+    if (verbose & line%%100 == 0) message("reading line ",line)
+
+    family[line] <- x[1]
+    individ[line] <- x[2]
+    father[line] <- x[3]
+    mother[line] <- x[4]
+    sex[line] <- x[5]
+    phenotype[line] <- x[6]
+  
+    allele1 <- x[seq(7,length(x),2)]
+    allele2 <- x[seq(8,length(x),2)]
+    stopifnot(length(allele1) == nsnp)
+    stopifnot(length(allele2) == nsnp)
+    allele1[allele1 == pedMissingCode] <- NA
+    allele2[allele2 == pedMissingCode] <- NA
+
+    # match SNP order to annotation
+    allele1 <- allele1[snpord]
+    allele2 <- allele2[snpord]
+
+    # convert to AB format
+    if (findAB) {
+      # if alleleA is not defined, use allele1 for A
+      needAlleleA <- is.na(alleleA)
+      alleleA[needAlleleA] <- allele1[needAlleleA]
+      # if alleleB is not defined and alleleA != allele1, use allele1 for B
+      needAlleleB <- is.na(alleleB)
+      new <- !is.na(alleleA) & !is.na(allele1) & alleleA != allele1
+      alleleB[needAlleleB & new] <- allele1[needAlleleB & new]
+      # if alleleB is not defined and alleleA != allele2, use allele2 for B
+      needAlleleB <- is.na(alleleB)
+      new <- !is.na(alleleA) & !is.na(allele2) & alleleA != allele2
+      alleleB[needAlleleB & new] <- allele2[needAlleleB & new]
+    }
+    geno1 <- rep(NA, nsnp)
+    geno1[allele1 == alleleA] <- "A"
+    geno1[allele1 == alleleB] <- "B"
+    geno2 <- rep(NA, nsnp)
+    geno2[allele2 == alleleA] <- "A"
+    geno2[allele2 == alleleB] <- "B"
+    geno <- paste(geno1, geno2, sep="")
+
+    # convert to number of A alleles
+    nA <- rep(NA, nsnp)
+    nA[geno %in% "AA"] <- 2
+    nA[geno %in% c("AB","BA")] <- 1
+    nA[geno %in% c("BB")] <- 0
+
+    # add genotype to netCDF
+    put.var.ncdf(nc, "genotype", vals=nA, start=c(1,line), count=c(nsnp,1))
+    
+  }
+
+  # check number of samples read
+  if (line != nSamples) {
+    warning("Expected ",nSamples," samples but read ",line," lines in plink file")
+  }
+  # define scanID
+  # is individ column a unique integer?
+  scanID <- 1:line
+  if (allequal(individ, suppressWarnings(as.integer(individ))) &
+      length(individ) == length(unique(individ))) {
+    scanID <- as.integer(individ[1:line])
+  }    
+  # add scanID to netCDF
+  put.var.ncdf(nc, "sampleID", vals=scanID, start=1, count=line)
+  
+  close.ncdf(nc)
+  
+  # save scan annotation as ScanAnnotationDataFrame
+  scan.df <- data.frame(individ, family, father, mother, sex, phenotype, stringsAsFactors=FALSE)
+  if (nrow(scan.df) > line) scan.df <- scan.df[1:line,]
+  scan.df$scanID <- scanID
+  if (allequal(scanID, scan.df$individ)) {
+    scan.df$individ <- NULL
+  }
+  sexmf <- rep(NA, line)
+  sexmf[scan.df$sex == 1] <- "M"
+  sexmf[scan.df$sex == 2] <- "F"
+  scan.df$sex <- sexmf
+  scanAnnot <- ScanAnnotationDataFrame(scan.df)
+  save(scanAnnot, file=scanAnnotFile)
+  
+  # save snp annotation as SnpAnnotationDataFrame
+  if (findAB) {
+    map$alleleA <- alleleA
+    map$alleleB <- alleleB
+  }
+  snpAnnot <- SnpAnnotationDataFrame(map,
+    XchromCode=as.integer(ncdfXchromCode), YchromCode=as.integer(ncdfYchromCode),
+    XYchromCode=as.integer(ncdfXYchromCode), MchromCode=as.integer(ncdfMchromCode))
+  save(snpAnnot, file=snpAnnotFile)
 }

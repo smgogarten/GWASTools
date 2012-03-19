@@ -56,7 +56,7 @@
 }
 \section{Changes in version 1.1.8}{
   \itemize{
-    \item{Updated positions of pseudoautosomal regions.}
-%    \item Added plinkToNcdf to convert PLINK files to NetCDF for use in GWASTools.
+    \item Updated positions of pseudoautosomal regions.
+    \item Added plinkToNcdf to convert PLINK files to NetCDF for use in GWASTools.
   }
 }

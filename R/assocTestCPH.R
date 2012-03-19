@@ -183,7 +183,7 @@ assocTestCPH <- function(
                                 if(maf.filter==TRUE & fit==TRUE) {  # additional maf criterion
                                         fit <- maf*(1-maf) > 75/(2*ne)  # use maf rather than mafx for x chromosome loci here
                                 }
-				#if(chr==23) maf <- mafx  # but record the correct maf in results table	
+				#if(chr==XchromCode(genoData)) maf <- mafx  # but record the correct maf in results table	
 
 				if(!fit) {  
 					res[k,] <- list(index, int.id, chr, maf, mafx, NA, NA, NA, NA, NA, ne)

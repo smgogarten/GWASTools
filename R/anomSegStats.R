@@ -181,8 +181,8 @@ anomSegStats <- function(intenData, genoData,
 			k <- nrow(dat)
 			ai <- NULL	#indices included in anomalies
 			for(j in 1:k) ai <- c(ai, dat$left.index[j]:dat$right.index[j])
-			non.baf <- chrom<23 & is.element(intid, eligible) & !is.element(indices, ai) & is.element(geno, c(1,-1))
-			non.lrr <- chrom<23 & is.element(intid, eligible) & !is.element(indices, ai)
+			non.baf <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai) & is.element(geno, c(1,-1))
+			non.lrr <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai)
 		# calculate median of baf and lrr in non-anomalous regions
 			baf.non.med <- median(baf[non.baf], na.rm=T)
 			lrr.non.med <- median(lrr[non.lrr], na.rm=T)

@@ -49,7 +49,7 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   pairs. Entries should be \code{TRUE} if that scan-chromosome pair should have
   data in the PLINK file, \code{FALSE} if not. The number of rows must be
   equal to the number of scans in \code{genoData}.  The column labels must be
-  in the set ("1":"22", "X", "XY", "M", "U").}
+  in the set ("1":"22", "X", "XY", "Y", "M", "U").}
   
   \item{blockSize}{Number of samples to read from \code{genoData} at a
     time}
@@ -90,6 +90,7 @@ Please see
   more information on the ped and map files. 
 }
 \author{Stephanie Gogarten, Tushar Bhangale}
+\seealso{\code{\link{plinkToNcdf}}}
 \examples{
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
