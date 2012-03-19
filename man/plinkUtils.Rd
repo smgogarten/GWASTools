@@ -73,6 +73,9 @@ written to \code{logFile}.
 \code{plinkCheck} then reads the ped file line by line, recording all
 mismatches in \code{logFile}.
 SNPs and sample order is not required to be the same as in \code{genoData}.
+In the case of genotype mismatches, for each sample the log file output gives the
+position of the first mismatched SNP in the PLINK file, as well as the
+genotypes of the first six mismatched SNPs (which may not be consecutive).
 
 These utilities convert between chromosome coding in
 \code{\link{GenotypeData}}, which by default is 24=XY, 25=Y, and PLINK

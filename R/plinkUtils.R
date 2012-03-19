@@ -36,6 +36,9 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
   } else {
     alleles <- getSnpVariable(genoData, c(alleleA.col, alleleB.col))
     names(alleles) <- c("A","B")
+    # convert to character, as pmin and pmax will not work on factors
+    alleles$A <- as.character(alleles$A)
+    alleles$B <- as.character(alleles$B)
     aa <- paste(alleles$A, alleles$A)
     ab <- paste(pmin(alleles$A, alleles$B), pmax(alleles$A, alleles$B)) # sorted
     bb <- paste(alleles$B, alleles$B)
