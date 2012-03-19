@@ -32,6 +32,8 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   vector of eligible SNP ids.  Usually exclude failed and intensity-only SNPS.
   Also recommended to exclude an HLA region on chromosome 6 and
   XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  If there are SNPs annotated in the centromere gap, exclude these as
+  well (see \code{\link{centromeres}}).
 }
 \item{anom}{data.frame of detected chromosome anomalies.  Names must include "scanID",
   "chromosome", "left.index", "right.index", "sex", "method", "anom.id".
@@ -44,7 +46,8 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
   data.frame with centromere position info.  Names must include
   "chrom", "left.base", "right.base".  Valid values for "chrom" are
   1:22, "X", "Y", "XY".  Here "left.base" and "right.base"
-  are start and end base positions of the centromere location, respectively.
+  are start and end base positions of the centromere location,
+  respectively.  Centromere data tables are provided in \code{\link{centromeres}}.
 }
 \item{lrr.cut}{
   count the number of eligible LRR values less than \code{lrr.cut}

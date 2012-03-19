@@ -36,12 +36,18 @@ anomDetectLOH(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   vector of scan ids (sample numbers) to process
 }
   \item{chrom.ids}{
-  vector of (unique) chromosomes to process
+  vector of (unique) chromosomes to process.  Should correspond to
+  integer chromosome codes in \code{intenData}.  Recommended for use with
+  autosomes, X (males will be ignored), and the
+  pseudoautosomal (XY) region.
 }
   \item{snp.ids}{
   vector of eligible snp ids.  Usually exclude failed and intensity-only snps.
   Also recommended to exclude an HLA region on chromosome 6 and
-  XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  XTR region on X chromosome.  See \code{\link{HLA}} and
+  \code{\link{pseudoautosomal}}.
+  If there are SNPs annotated in the centromere gap, exclude these as
+  well (see \code{\link{centromeres}}).
 }
 \item{known.anoms}{
   data.frame of known anomalies (usually from \code{\link{anomDetectBAF}}); 

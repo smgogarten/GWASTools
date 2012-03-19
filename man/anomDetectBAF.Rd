@@ -48,13 +48,17 @@ anomDetectBAF(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   vector of scan ids (sample numbers) to process
 }
 \item{chrom.ids}{
-  vector of (unique) chromosomes to process.  Recommended to include
-  all autosomes.
+  vector of (unique) chromosomes to process.  Should correspond to
+  integer chromosome codes in \code{intenData}.  Recommended to include
+  all autosomes, and optionally X (males will be ignored) and the
+  pseudoautosomal (XY) region.
 }
 \item{snp.ids}{
   vector of eligible snp ids.  Usually exclude failed and intensity-only SNPs.
   Also recommended to exclude an HLA region on chromosome 6 and
   XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  If there are SNPs annotated in the centromere gap, exclude these as
+  well (see \code{\link{centromeres}}).
 }
 \item{smooth}{
   number of markers for smoothing region.  See \code{\link{smooth.CNA}} 
@@ -88,7 +92,7 @@ refer to start and end of anomaly,respectively, in position order.
   "chrom", "left.base", "right.base".  Valid values for "chrom" are
   1:22, "X", "Y", "XY".  Here "left.base" and "right.base"
   are base positions of start and end of centromere location in position order.
-
+  Centromere data tables are provided in \code{\link{centromeres}}.
 }
 \item{low.qual.ids}{
   scan ids determined to be low quality for which some segments are filtered
