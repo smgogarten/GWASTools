@@ -41,7 +41,7 @@ anomDetectLOH(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   \item{snp.ids}{
   vector of eligible snp ids.  Usually exclude failed and intensity-only snps.
   Also recommended to exclude an HLA region on chromosome 6 and
-  XTR region on chromosome 23 (X).  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
 }
 \item{known.anoms}{
   data.frame of known anomalies (usually from \code{\link{anomDetectBAF}}); 
@@ -124,7 +124,7 @@ number of consecutive heterozygous markers allowed to interrupt a 'homozygous' r
 
 \details{
 Detection of anomalies with loss of heterozygosity accompanied by change in Log R Ratio.
- Male samples for chromosome 23 (X) are not processed.
+ Male samples for X chromosome are not processed.
 
 Circular binary segmentation (CBS) (using the R-package \code{\link{DNAcopy}})
 is applied to LRR values and, in parallel, runs of homozygous or missing genotypes 
@@ -169,7 +169,7 @@ refer to start and end of anomaly, respectively, in position order.
     \item\code{left.base}:  base position of left endpoint of segment
    \item\code{right.base}:  base position of right endpoint of segment
     \item \code{scanID}:  integer id of scan
-    \item \code{chromosome}:  chromosome as integer with 23 representing X
+    \item \code{chromosome}:  chromosome as integer code
   }
 }
 \item{raw.adjusted}{  data.frame of runs after merging and intersecting
@@ -179,7 +179,7 @@ refer to start and end of anomaly, respectively, in position order.
 
   \itemize{
     \item \code{scanID}:  integer id of scan
-    \item \code{chromosome}:  chromosome as integer with 23 representing X
+    \item \code{chromosome}:  chromosome as integer code
     \item\code{left.index}:  row index of intenData indicating left endpoint of segment
     \item\code{right.index}:  row index of intenData indicating right endpoint of segment
     \item\code{left.base}:  base position of left endpoint of segment
@@ -218,14 +218,14 @@ refer to start and end of anomaly, respectively, in position order.
     \item \code{num.runs}: number of original homozygous runs found for given scan/chromosome
     \item \code{num.segs}: number of segments for given scan/chromosome produced by CBS
     \item \code{scanID}: integer id of scan
-    \item \code{chromosome}: chromosome as integer, with 23 representing X
+    \item \code{chromosome}: chromosome as integer code
     \item \code{sex}: sex of the scan id coded as "M" or "F"
   }
 }
 \item{segments}{ data.frame of the segmentation found by CBS with columns:
   \itemize{
     \item \code{scanID}:  integer id of scan
-    \item \code{chromosome}:  chromosome as integer, with 23 representing X
+    \item \code{chromosome}:  chromosome as integer code
     \item\code{left.index}:  row index of intenData indicating left endpoint of segment
     \item\code{right.index}:  row index of intenData indicating right endpoint of segment
     \item\code{left.base}:  base position of left endpoint of segment
@@ -240,7 +240,7 @@ refer to start and end of anomaly, respectively, in position order.
 \item{merge}{data.frame of scan id/chromosome pairs for which merging occurred.
   \itemize{
     \item \code{scanID}:  integer id of scan
-    \item \code{chromosome}:  chromosome as integer, with 23 representing X
+    \item \code{chromosome}:  chromosome as integer code
   }
 }
 }

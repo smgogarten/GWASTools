@@ -92,9 +92,14 @@ anomSegStats <- function(intenData, genoData,
 			 centromere$right.index[i] <- rind[length(rind)]	
 		}
 	}
-	tmp <- !is.na(centromere$left.index) & !is.na(centromere$right.index)
-	if(!all(centromere$right.index[tmp]-centromere$left.index[tmp]==1)) stop("centromere right and left indices are not all adjacent")
-		
+  
+        setw <- which(!is.na(centromere$left.index) & !is.na(centromere$right.index))
+        for(i in setw){
+            tmpind <- indices[indices>centromere$left.index[i] & indices<centromere$right.index[i]]
+            tmpid <- intid[tmpind]
+            if(any(is.element(tmpid,snp.ids))) stop("eligible snps in centromere gap")
+        }
+  
 	# check anom
 	if(class(anom)!="data.frame") stop("anom should be a data.frame")
 	if(!all(is.element(c("scanID", "chromosome", "left.index","right.index","sex","method","anom.id"),names(anom)))) stop("anom does not have required variable names")

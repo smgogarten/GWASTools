@@ -54,7 +54,7 @@ anomDetectBAF(intenData, genoData, scan.ids, chrom.ids, snp.ids,
 \item{snp.ids}{
   vector of eligible snp ids.  Usually exclude failed and intensity-only SNPs.
   Also recommended to exclude an HLA region on chromosome 6 and
-  XTR region on chromosome 23 (X).  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
 }
 \item{smooth}{
   number of markers for smoothing region.  See \code{\link{smooth.CNA}} 
@@ -173,7 +173,7 @@ threshold along with other criteria (such as not spanning the centromere)
  and adjustment for accurate
 break points for possible homozygous deletions (see \code{lrr.cut},
  \code{ct.thresh}, \code{frac.thresh}, \code{run.size}, and \code{inter.size}).
- Male samples for chromosome 23 (X) are not processed.
+ Male samples for X chromosome are not processed.
 
  More stringent criteria are applied to some segments 
 (see \code{low.frac.used},\code{low.frac.used.num.mark}, 
@@ -190,7 +190,7 @@ then runs \code{anomFilterBAF}.  Additional parameters for
 refer to start and end of anomaly, respectively, in position order.
 
 \item{scanID}{integer id of scan}
-\item{chromosome}{chromosome as integer where 23 refers to X chromosome}
+\item{chromosome}{chromosome as integer code}
 \item{left.index}{row index of intenData indicating left endpoint of segment}
 \item{right.index}{row index of intenData indicating right endpoint of segment}
 \item{num.mark}{number of heterozygous or missing SNPs in the segment }

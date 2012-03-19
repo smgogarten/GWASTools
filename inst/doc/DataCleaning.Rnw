@@ -2225,25 +2225,21 @@ low.qual.ids <- med.baf.sd$scanID[med.baf.sd$med.sd > 0.05]
 chrom <- snpAnnot$chromosome
 pos <- snpAnnot$position
 build <- getAttribute(blnc, attname="genome_build")
-if (build == 36) {
-  data(HLA.hg18)
-  hla <- chrom == 6 & pos >= HLA.hg18$start.base & pos <= HLA.hg18$end.base
-  data(pseudoautosomal.hg18)
-  xtr <- chrom == 23 & pos >= pseudoautosomal.hg18["X.XTR", "start.base"] & 
-    pos <= pseudoautosomal.hg18["X.XTR", "end.base"]
-  data(centromeres.hg18)
-  centromeres <- centromeres.hg18
-} else if (build  ==  37) {
-  data(HLA.hg19)
-  hla <- chrom == 6 & pos >= HLA.hg19$start.base & pos <= HLA.hg19$end.base
-  data(pseudoautosomal.hg19)
-  xtr <- chrom == 23 & pos >= pseudoautosomal.hg19["X.XTR", "start.base"] & 
-    pos <= pseudoautosomal.hg19["X.XTR", "end.base"]
-  data(centromeres.hg19)
-  centromeres <- centromeres.hg19
+if (build == 36) build <- "hg18"
+if (build == 37) build <- "hg19"
+hla.df <- get(data(list=paste("HLA", build, sep=".")))
+hla <- chrom == "6" & pos >= hla.df$start.base & pos <= hla.df$end.base
+xtr.df <- get(data(list=paste("pseudoautosomal", build, sep=".")))
+xtr <- chrom == "X" & pos >= xtr.df["X.XTR", "start.base"] & pos <= xtr.df["X.XTR", "end.base"]
+centromeres <- get(data(list=paste("centromeres", build, sep=".")))
+gap <- rep(FALSE, nrow(snpAnnot))
+for (i in 1:nrow(centromeres)) {
+  ingap <- chrom == centromeres$chrom[i] & pos > centromeres$left.base[i] &
+    pos < centromeres$right.base[i]
+  gap <- gap | ingap
 }
 ignore <- snpAnnot$missing.n1 == 1 #ignore includes intensity-only and failed snps
-snp.exclude <- ignore | hla | xtr
+snp.exclude <- ignore | hla | xtr | gap
 snp.ok <- snpAnnot$snpID[!snp.exclude]
 @ 
 

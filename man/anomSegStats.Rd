@@ -31,7 +31,7 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   \item{snp.ids}{
   vector of eligible SNP ids.  Usually exclude failed and intensity-only SNPS.
   Also recommended to exclude an HLA region on chromosome 6 and
-  XTR region on chromosome 23 (X).  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
+  XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
 }
 \item{anom}{data.frame of detected chromosome anomalies.  Names must include "scanID",
   "chromosome", "left.index", "right.index", "sex", "method", "anom.id".

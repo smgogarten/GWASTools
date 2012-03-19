@@ -58,5 +58,6 @@
   \itemize{
     \item Updated positions of pseudoautosomal regions.
     \item Added plinkToNcdf to convert PLINK files to NetCDF for use in GWASTools.
+    \item anomSegStats checks for SNPs in centromere gaps.
   }
 }
