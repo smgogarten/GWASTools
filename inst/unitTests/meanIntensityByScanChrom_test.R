@@ -30,7 +30,7 @@ test_meanIntensityByScanChrom <- function() {
     yc <- y[(chrom == uchr[i]),]
     mn.X[,i] <- colMeans(xc, na.rm=TRUE)
     mn.Y[,i] <- colMeans(yc, na.rm=TRUE)
-    sd.X[,i] <- apply(xc, 2, sd)
+    sd.X[,i] <- apply(xc, 2, function(f) sd(f, na.rm=TRUE))
     sd.Y[,i] <- apply(yc, 2, function(f) sd(f, na.rm=TRUE))
     mn.XY[,i] <- colMeans(xc+yc, na.rm=TRUE)
     sd.XY[,i] <- apply(xc+yc, 2, function(f) sd(f, na.rm=TRUE))
@@ -54,7 +54,7 @@ test_meanIntensityByScanChrom <- function() {
     yc <- y[(chrom == uchr[i] & !(snpID %in% snp.exclude)),]
     mn.X[,i] <- colMeans(xc, na.rm=TRUE)
     mn.Y[,i] <- colMeans(yc, na.rm=TRUE)
-    sd.X[,i] <- apply(xc, 2, sd)
+    sd.X[,i] <- apply(xc, 2, function(f) sd(f, na.rm=TRUE))
     sd.Y[,i] <- apply(yc, 2, function(f) sd(f, na.rm=TRUE))
     mn.XY[,i] <- colMeans(xc+yc, na.rm=TRUE)
     sd.XY[,i] <- apply(xc+yc, 2, function(f) sd(f, na.rm=TRUE))

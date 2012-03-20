@@ -138,7 +138,7 @@ chromIntensityPlot <- function(
         }
         if (type == "LRR" | type == "BAF/LRR") {
             plot((posi/1e+06)[toPlot], logrratio[toPlot], xlab = "position (Mb)", 
-                ylab = "LogRRatio", sub = "horizontal line = mean LogRRatio", 
+                ylab = "LRR", sub = "horizontal line = mean LRR", 
                 main = txt, ylim = c(-2, 2),
                 type = "n", ...)
             for (d in 1:length(vals)) {
@@ -154,7 +154,7 @@ chromIntensityPlot <- function(
         }
         if (type == "BAF" | type == "BAF/LRR") {
             plot((posi/1e+06)[toPlot], bafreq[toPlot], type = "n", 
-                xlab = "position (Mb)", ylab = "BAlleleFreq", 
+                xlab = "position (Mb)", ylab = "BAF", 
                 sub = subnm, main = txt, col = gcol[toPlot], ...)
             if (abst != -1) 
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
