@@ -58,6 +58,11 @@
   \itemize{
     \item Updated positions of pseudoautosomal regions.
     \item Added plinkToNcdf to convert PLINK files to NetCDF for use in GWASTools.
+  }
+}
+\section{Changes in version 1.1.9}{
+  \itemize{
     \item anomSegStats checks for SNPs in centromere gaps.
+    \item anomStatsPlot has option to plot LRR/BAF individually (for greater flexibility in layout).
   }
 }

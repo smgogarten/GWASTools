@@ -91,11 +91,11 @@ chromIntensityPlot <- function(
         # plot title
         if (is.null(main.txt)) {
             txt <- paste("Scan", scan.ids[i], "- Chromosome", chr.label)
-            if (!is.null(code)) {
-              txt <- paste(txt, "-", code[i])
-            }
         } else {
             txt <- main.txt
+        }
+        if (!is.null(code)) {
+          txt <- paste(txt, "-", code[i])
         }
 
         # create genotype color vector if colorGenotypes==TRUE
@@ -149,7 +149,7 @@ chromIntensityPlot <- function(
                 abline(v = abst, col = "red", lty = 2, lwd = 1.2)
             if (aben != -1) 
                 abline(v = aben, col = "red", lty = 2, lwd = 1.2)
-            points((posi/1e+06)[toPlot], logrratio[toPlot], cex=cex, ...)
+            points((posi/1e+06)[toPlot], logrratio[toPlot], cex=cex)
             abline(h = mninten, col = "gray")
         }
         if (type == "BAF" | type == "BAF/LRR") {
@@ -164,7 +164,7 @@ chromIntensityPlot <- function(
                 abline(v = vals[d]/1e+06, col = "royalblue", 
                   lty = 3, lwd = 2)
             }
-            points((posi/1e+06)[toPlot], bafreq[toPlot], col = gcol[toPlot], cex=cex, ...)
+            points((posi/1e+06)[toPlot], bafreq[toPlot], col = gcol[toPlot], cex=cex)
             abline(h = horizln, col = "gray")
         }
         if (type == "R" | type == "R/Theta") {
@@ -178,7 +178,7 @@ chromIntensityPlot <- function(
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
             if (aben != -1) 
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
-            points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex, ...)
+            points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex)
         }
         if (type == "Theta" | type == "R/Theta") {
             plot((posi/1e+06)[toPlot], theta[toPlot], xlab = "position (Mb)", 
@@ -191,7 +191,7 @@ chromIntensityPlot <- function(
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
             if (aben != -1) 
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
-            points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex, ...)
+            points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex)
         }
     }
 }

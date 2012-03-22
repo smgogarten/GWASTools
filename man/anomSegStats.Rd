@@ -15,7 +15,8 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   plot.ineligible = FALSE, centromere = NULL,
   brackets = c("none", "bases", "markers"), brkpt.pct = 10,
   whole.chrom = FALSE, win = 5, win.calc = FALSE, win.fixed = 1,
-  zoom = c("both", "left", "right"), info = NULL, cex = 0.5)
+  zoom = c("both", "left", "right"), info = NULL, main.txt=NULL,
+  type = c("BAF/LRR", "BAF", "LRR"), cex = 0.5)
 }
 
 \arguments{
@@ -95,6 +96,8 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
 \item{info}{
   character vector of extra information to include in the main title of the upper plot
 }
+\item{main.txt}{ Text that will be written in the title of LRR plots. }
+\item{type}{ The type of plot to be created.  'BAF/LRR' creates both 'B Allele Freq' and 'Log R Ratio' plots. }
 \item{cex}{
   cex value for points on the plots
 }

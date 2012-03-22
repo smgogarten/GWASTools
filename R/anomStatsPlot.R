@@ -41,8 +41,10 @@ anomStatsPlot <- function(intenData, genoData,
 	win.calc=FALSE,		# calculate window size from anomaly length; over-rides win and gives window of fixed length given by win.fixed
 	win.fixed = 1,		# number of megabases for window size when win.calc=TRUE
 	zoom=c("both","left","right"), # indicates whether plot includes the whole anomaly ("both") or zooms on just the left or right breakpoint; "both" is default
-	info=NULL,		# character vector of extra information to include in the main title of the upper plot
-	cex=0.5		# cex value for points on the plots
+	info=NULL,		# character vector of extra information to include in the main title of the upper plot                          
+	main.txt = NULL,                          
+	type = c("BAF/LRR", "BAF", "LRR"),
+	cex=0.5		# cex value for points on the plots                       
 ){
 
 	# v3 adds option to plot vertical lines to bracket each breakpoint, width of bracket being a percentage of the length or number of markers 
@@ -124,7 +126,10 @@ anomStatsPlot <- function(intenData, genoData,
 	# bases per megabase
 	mb <- 1000000
 
-	par(mfrow=c(2,1))
+        type <- match.arg(type)
+        if (type == "BAF/LRR") {
+          par(mfrow=c(2,1))
+        }
 	for(i in 1:nrow(anom.stats)) {
 		sind <- which(is.element(sid, anom.stats$scanID[i]))
 		chr <- chrom==anom.stats$chromosome[i]
@@ -166,9 +171,9 @@ anomStatsPlot <- function(intenData, genoData,
 		# anom length
 		if(whole.chrom==TRUE) { xlim <- xlim.all	# set xlim to be the start and end of the chromosome
 		} else {
-			if(zoom=="left")  xlim <- zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zl", z=win)	# zoom2 accessory function defined above
-			if(zoom=="right") xlim <- zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zr", z=win)
-			if(zoom=="both")  xlim <- zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zb", z=win)
+			if(zoom=="left")  xlim <- GWASTools:::zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zl", z=win)	# zoom2 accessory function defined above
+			if(zoom=="right") xlim <- GWASTools:::zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zr", z=win)
+			if(zoom=="both")  xlim <- GWASTools:::zoom2(pos=pos, scdat=anom.stats, j=i, xlim.all=xlim.all, ztype="zb", z=win)
 		}				
 
 
@@ -215,11 +220,16 @@ anomStatsPlot <- function(intenData, genoData,
 		}
 			
 		# plot LRR
+        if (type == "LRR" | type == "BAF/LRR") {
+          if (is.null(main.txt)) {
 		mtxt <- paste("anom",anom.stats$anom.id[i],"-  snum", anom.stats$scanID[i], "- chrom", anom.stats$chrom[i], "-", anom.stats$sex[i], "-", anom.stats$method[i])
+              } else {
+                mtxt <- main.txt
+              }
 		if(brackets!="none") mtxt <- paste(mtxt, "- gray brackets =", brkpt.pct, "% of", brackets)
 		if(!is.null(info)) mtxt <- paste(mtxt, "\n", info[i])
 		stxt <- "red=AA, green=AB, blue=BB, pink=ineligible, black=other missing"
-		plot(pos[sel.lrr]/mb, lrr[sel.lrr], xlab="position (Mb)", ylab="LRR", type="n", ylim=c(lrr.min,2), xlim=xlim, main=mtxt, cex.main=1, sub=stxt) 
+		plot(pos[sel.lrr]/mb, lrr[sel.lrr], xlab="position (Mb)", ylab="LRR", type="n", ylim=c(lrr.min,2), xlim=xlim, main=mtxt) 
 		if(!is.null(centromere)){
 			rect(cent$left.base/mb,lrr.min,cent$right.base/mb,2, col=cent.col, border=cent.col)
 		}
@@ -233,10 +243,14 @@ anomStatsPlot <- function(intenData, genoData,
 		abline(h=anom.stats$non.anom.lrr.med[i], col="red")
 		tmp <- anom.stats$anom.lrr.med[i]
 		segments(pos[left]/mb, tmp, pos[right]/mb, tmp, col="red", lty=2)
+              }
 
 		# plot BAF
-		mtxt <- "horiz solid red = non-anom median, horiz dashed red =anom median"
-		plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n", ylim=c(0,1), xlim=xlim, main=mtxt, cex.main=1) 
+        if (type == "BAF" | type == "BAF/LRR") {
+		mtxt <- paste("red=AA, green=AB, blue=BB, pink=ineligible, black=other missing",
+                              "horiz solid red = non-anom median, horiz dashed red = anom median",
+                              sep="\n")
+		plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n", ylim=c(0,1), xlim=xlim, main=mtxt) 
 		if(!is.null(centromere)){
 			rect(cent$left.base/mb,0,cent$right.base/mb,1, col=cent.col, border=cent.col)
 		}
@@ -251,6 +265,7 @@ anomStatsPlot <- function(intenData, genoData,
 		segments(pos[left]/mb, tmp, pos[right]/mb, tmp, col="red", lty=2)
 		tmp <- anom.stats$non.anom.baf.med[i] - anom.stats$anom.baf.dev.med[i] 
 		segments(pos[left]/mb, tmp, pos[right]/mb, tmp, col="red", lty=2)
+              }
 	
 	}  # end loop over anomalies
 

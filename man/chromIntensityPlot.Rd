@@ -27,8 +27,8 @@ chromIntensityPlot(intenData, scan.ids, chrom.ids,
   \item{scan.ids}{ A vector containing the sample indices of the plots.}
   \item{chrom.ids}{ A vector containing the chromosome indices of the plots.}
   \item{type}{ The type of plot to be created.  'BAF/LRR' creates both 'B Allele Freq' and 'Log R Ratio' plots. 'R/Theta' creates both 'R' and 'Theta' plots. }
-  \item{code}{ A character vector containing the titles to be used for each plot. If \code{NULL} then the title will be the sample number and the chromosome.}
-  \item{main.txt}{ Text that will be written in the title on all plots created. }
+  \item{code}{ A character vector containing extra information to include in the main title. }
+  \item{main.txt}{ Text that will be written in the title on all plots created. If \code{NULL} then the title will be the sample number and the chromosome.}
   \item{abln}{A vector of values that is of length \code{2*length(scan.ids)}.  Each pair of entries specifies where vertical lines will be drawn in each plot.
 This is especially useful when drawing the start \& end breakpoints for anomalies, for example. 
 Use -1 as one pair value for plots that warrant only one line. By default, no lines will be drawn. }
