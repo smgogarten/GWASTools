@@ -12,7 +12,7 @@ This function plots X, Y and pseudoautosomal SNPs on BAF/LRR plots.
 
 
 \usage{
-pseudoautoIntensityPlot(intenData, scan.ids, code=NULL,
+pseudoautoIntensityPlot(intenData, scan.ids, main=NULL,
   plotY=FALSE, hg.build=c("hg18", "hg19"), cex=0.5, ...)
 }
 
@@ -22,7 +22,7 @@ pseudoautoIntensityPlot(intenData, scan.ids, code=NULL,
   \item{scan.ids}{ A vector containing the sample indices of the plots.}
   \item{intenData}{\code{\link{IntensityData}} object, must contain
   'BAlleleFreq' and 'LogRRatio'}
-  \item{code}{ A character vector containing the titles to be used for
+  \item{main}{ A character vector containing the titles to be used for
     each plot. If \code{NULL} then the title will be the sample number and
     the chromosome.}
   \item{plotY}{If \code{plotY} is \code{TRUE}, the Y chromosome will be
@@ -49,6 +49,10 @@ pseudoautoIntensityPlot(intenData, scan.ids, code=NULL,
 \references{
   Ross, Mark. T. et al. (2005), The DNA sequence of the human X chromosome.
   Nature, 434: 325-337.  doi:10.1038/nature03440
+
+Mumm, S., Molini, B., Terrell, J., Srivastava, A., and Schlessinger, D.
+(1997), Evolutionary features of the 4-Mb Xq21.3 XY homology region revealed
+by a map at 60-kb resolution. Genome Res. 7: 307-314.
 }
 
 \author{ Caitlin McHugh  }

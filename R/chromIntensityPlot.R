@@ -103,16 +103,16 @@ chromIntensityPlot <- function(
         # plot title
         if (is.null(main)) {
             if (!is.null(sex)) {
-              txt <- paste("Scan", scan.ids[i], "-", sex[sid], "- Chromosome", chr.label)
+              txt.main <- paste("Scan", scan.ids[i], "-", sex[sid], "- Chromosome", chr.label)
             } else {
-              txt <- paste("Scan", scan.ids[i], "- Chromosome", chr.label)
+              txt.main <- paste("Scan", scan.ids[i], "- Chromosome", chr.label)
             }
         } else {
-            txt <- main[i]
+            txt.main <- main[i]
         }
         if (!is.null(info)) {
-          txt <- paste(txt, "-", info[i])
-        }
+          txt.main <- paste(txt.main, "-", info[i])
+        }       
 
         # create genotype color vector if colorGenotypes==TRUE
         gcol <- rep("black", length(chri))
@@ -121,6 +121,9 @@ chromIntensityPlot <- function(
             gcol[!is.na(genos) & genos == 0] <- "blue"
             gcol[!is.na(genos) & genos == 1] <- "green"
             gcol[!is.na(genos) & genos == 2] <- "red"
+            txt.leg <- "BAF: red=AA, green=AB, blue=BB, black=missing"
+        } else {
+          txt.leg <- ""
         }
 
         # create batch color vector if colorBatch==TRUE
@@ -152,10 +155,11 @@ chromIntensityPlot <- function(
         if (type == "BAF/LRR" | type=="R/Theta") {
             par(mfrow=c(2,1))
         }
+            
         if (type == "LRR" | type == "BAF/LRR") {
             plot((posi/1e+06)[toPlot], logrratio[toPlot], xlab = "position (Mb)", 
                 ylab = "LRR", sub = "horizontal line = mean LRR", 
-                main = txt, ylim = c(-2, 2),
+                main = txt.main, ylim = c(-2, 2),
                 type = "n", ...)
             for (d in 1:length(vals)) {
                 abline(v = vals[d]/1e+06, col = "royalblue", 
@@ -171,7 +175,7 @@ chromIntensityPlot <- function(
         if (type == "BAF" | type == "BAF/LRR") {
             plot((posi/1e+06)[toPlot], bafreq[toPlot], type = "n", 
                 xlab = "position (Mb)", ylab = "BAF", 
-                sub = subnm, main = txt, col = gcol[toPlot], ...)
+                sub = subnm, main = txt.leg, ...)
             if (abst != -1) 
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
             if (aben != -1) 
@@ -185,7 +189,7 @@ chromIntensityPlot <- function(
         }
         if (type == "R" | type == "R/Theta") {
             plot((posi/1e+06)[toPlot], r[toPlot], xlab = "position (Mb)", 
-                ylab = "R", main = txt, type = "n", ...)
+                ylab = "R", main = txt.main, type = "n", ...)
             for (d in 1:length(vals)) {
                 abline(v = vals[d]/1e+06, col = "royalblue", 
                   lty = 3, lwd = 2)
@@ -198,7 +202,7 @@ chromIntensityPlot <- function(
         }
         if (type == "Theta" | type == "R/Theta") {
             plot((posi/1e+06)[toPlot], theta[toPlot], xlab = "position (Mb)", 
-                ylab = "Theta", main = txt, ...)
+                ylab = "Theta", main = txt.leg, ...)
             for (d in 1:length(vals)) {
                 abline(v = vals[d]/1e+06, col = "royalblue", 
                   lty = 3, lwd = 2)

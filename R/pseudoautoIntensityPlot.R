@@ -3,7 +3,7 @@
 
 pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                                     scan.ids,
-                                    code = NULL,
+                                    main = NULL,
                                     plotY = FALSE,
                                     hg.build = c("hg18", "hg19"),
                                     cex=0.5,
@@ -13,7 +13,13 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
   
   if (!hasLogRRatio(intenData) | !hasBAlleleFreq(intenData)) stop("required variables not found")
   
-  if(!is.null(code)) { stopifnot(length(code)==length(scan.ids)) }
+  if (!is.null(main)) {    
+    if (length(main) == 1 & length(scan.ids) > 1) {
+      main <- rep(main, length(scan.ids))
+    } else {
+      stopifnot(length(main) == length(scan.ids))
+    }
+  }
 
   scanID <- getScanID(intenData)
   hasSexLabel <- hasSex(intenData)
@@ -80,14 +86,16 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
   for(i in 1:length(scan.ids)) {
 
         # X chromosome
-        if(!is.null(code)) {
-          txt <- paste(code[i],"\nmagenta=X SNPs, green=XY SNPs",sep="")
+        if(!is.null(main)) {
+          txt.main <- main[i]
         } else {
-          txt <- paste("Sample",scan.ids[i],sexLabel[i],"\n magenta=X SNPs, green=XY SNPs")
+          txt.main <- paste("Scan",scan.ids[i],"-",sexLabel[i])
         }
+        txt.leg <- paste("magenta = X SNPs, green = XY SNPs",
+                         "gray = PAR1/PAR2, yellow=XTR", sep="\n")
 
         # LRR
-        plot(pos[xxyinds]/1e6,logrratio[xxyinds,i],xlab="position (Mb)",ylab="LogRRatio",sub="horizontal line = mean LogRRatio",main=txt,col=xcolxxy,type="n", ylim=c(-2,2), ...)
+        plot(pos[xxyinds]/1e6,logrratio[xxyinds,i],xlab="position (Mb)",ylab="LRR",sub="horizontal line = mean LRR",main=txt.main,col=xcolxxy,type="n", ylim=c(-2,2), ...)
         mninten <- mean(logrratio[xxyinds,i],na.rm=TRUE)
         abline(h=mninten,col="gray")
 
@@ -98,11 +106,11 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,logrratio[xinds,i],col="magenta", cex=cex, ...)
-        points(pos[xyinds]/1e6,logrratio[xyinds,i],col="darkgreen", cex=cex, ...)
+        points(pos[xinds]/1e6,logrratio[xinds,i],col="magenta", cex=cex)
+        points(pos[xyinds]/1e6,logrratio[xyinds,i],col="darkgreen", cex=cex)
 
         # BAF
-        plot(pos[xxyinds]/1e6,bafreq[xxyinds,i],xlab="position (Mb)",ylab="BAlleleFreq",main=txt,col=xcolxxy,type="n", ...)
+        plot(pos[xxyinds]/1e6,bafreq[xxyinds,i],xlab="position (Mb)",ylab="BAF",main=txt.leg,col=xcolxxy,type="n", ...)
 
         # expected XY rectangles
         rect(xleft=c(PAR1start, xPAR2start), xright=c(PAR1end, xPAR2end),
@@ -111,16 +119,13 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=0, ytop=1, col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,bafreq[xinds,i],col="magenta", cex=cex, ...)
-        points(pos[xyinds]/1e6,bafreq[xyinds,i],col="darkgreen", cex=cex, ...)
+        points(pos[xinds]/1e6,bafreq[xinds,i],col="magenta", cex=cex)
+        points(pos[xyinds]/1e6,bafreq[xyinds,i],col="darkgreen", cex=cex)
 
         # Y chromosome
         if (plotY) {
-          if(!is.null(code)) {
-            txt <- paste(code[i],"\nblue=Y SNPs, green=XY SNPs",sep="")
-          } else {
-            txt <- paste("Sample",scan.ids[i],sexLabel[i],"\n blue=Y SNPs, green=XY SNPs")
-          }
+          txt.leg <- paste("blue=Y SNPs, green=XY SNPs",
+                           "gray = PAR1/PAR2, yellow=XTR", sep="\n")
 
           # scale base positions for XY regions to Y chrom
           ypts <- pos[yinds]/1e6
@@ -139,7 +144,7 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
 
   
           # LRR
-          plot(c(ypts, xypts), c(ylrr, xylrr),xlab="position (Mb)",ylab="LogRRatio",sub="horizontal line = mean LogRRatio",main=txt,col=xcolyxy,type="n", ylim=c(-2,2), ...)
+          plot(c(ypts, xypts), c(ylrr, xylrr),xlab="position (Mb)",ylab="LRR",sub="horizontal line = mean LRR",main=txt.main,col=xcolyxy,type="n", ylim=c(-2,2), ...)
           mninten <- mean(logrratio[yxyinds,i],na.rm=TRUE)
           abline(h=mninten,col="gray")
 
@@ -150,11 +155,11 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ylrr, col="skyblue", cex=cex, ...)
-          points(xypts, xylrr,col="darkgreen", cex=cex, ...)
+          points(ypts, ylrr, col="skyblue", cex=cex)
+          points(xypts, xylrr,col="darkgreen", cex=cex)
 
           # BAF
-          plot(c(ypts, xypts), c(ybaf, xybaf),xlab="position (Mb)",ylab="BAlleleFreq",main=txt,col=xcolyxy,type="n", ...)
+          plot(c(ypts, xypts), c(ybaf, xybaf),xlab="position (Mb)",ylab="BAF",main=txt.leg,col=xcolyxy,type="n", ...)
 
           # expected XY rectangles
           rect(xleft=c(PAR1start, yPAR2start), xright=c(PAR1end, yPAR2end),
@@ -163,8 +168,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=0, ytop=1, col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ybaf, col="skyblue", cex=cex, ...)
-          points(xypts, xybaf, col="darkgreen", cex=cex, ...)
+          points(ypts, ybaf, col="skyblue", cex=cex)
+          points(xypts, xybaf, col="darkgreen", cex=cex)
         }
   }
 
