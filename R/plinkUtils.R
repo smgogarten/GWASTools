@@ -150,7 +150,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
         alleleA.col=NULL, alleleB.col=NULL,
-	rs.col="rsID",
+	rs.col="rsID", map.alt=NULL,
                        check.parents=TRUE, check.sex=TRUE, 
                        scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE) { 
 
@@ -176,9 +176,15 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   map$chromosome[map$chromosome == "XY"] <- 25
   map$chromosome[map$chromosome == "MT"] <- 26
   snp.plink <- paste(map$chromosome, map$rsID, map$position)
-  
-  map.df <- GWASTools:::getPlinkMap(genoData, rs.col=rs.col)
-  map.df <- map.df[,c("chromosome", "rsID", "position")]
+
+  if (is.null(map.alt)) {
+    map.df <- GWASTools:::getPlinkMap(genoData, rs.col=rs.col)
+    map.df <- map.df[,c("chromosome", "rsID", "position")]
+  } else {
+    snpID <- getSnpID(genoData)
+    map.df <- map.alt[match(snpID, map.alt$snpID),
+                      c("chromosome", "rsID", "position")]
+  }
   snp.ncdf <- paste(map.df$chromosome, map.df$rsID, map.df$position)
 
   mismatch.plink <- setdiff(snp.plink, snp.ncdf)
@@ -350,6 +356,11 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
     names(map)[5:6] <- c("alleleA", "alleleB")
     map$alleleA[map$alleleA %in% 0] <- NA
     map$alleleB[map$alleleB %in% 0] <- NA
+    bad.mono <- !is.na(map$alleleA) & !is.na(map$alleleB) & map$alleleA == map$alleleB
+    if (any(bad.mono)) {
+      warning("monomorphic SNPs: where alleleA=alleleB, setting alleleB to NA")
+      map$alleleB[bad.mono] <- NA
+    }
     alleleA <- map$alleleA
     alleleB <- map$alleleB
     findAB <- FALSE

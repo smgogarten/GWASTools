@@ -18,7 +18,7 @@ plinkWrite(genoData, pedFile="testPlink", family.col="family",
 plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
   phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
-  rs.col="rsID", check.parents=TRUE, check.sex=TRUE,
+  rs.col="rsID", map.alt=NULL, check.parents=TRUE, check.sex=TRUE,
   scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE)
 }
 \arguments{
@@ -39,6 +39,10 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   \item{rs.col}{name of the column in the SNP annotation that contains rs ID (or some other ID) for the SNP}
   \item{mapdist.col}{name of the column in the SNP annotation that
     contains genetic distance in Morgans for the SNP}
+  \item{map.alt}{data frame with alternate SNP mapping for genoData to
+  PLINK.  If not \code{NULL}, this annotation will be used to compare
+  SNP information to the PLINK file, rather than the default conversion
+  from the SNP annotation embedded in \code{genoData}.}
   \item{check.parents}{logical for whether to check the father and
     mother columns}
   \item{check.sex}{logical for whether to check the sex column}
