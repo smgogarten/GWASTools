@@ -3,8 +3,8 @@ chromIntensityPlot <- function(
                  scan.ids, 
 		 chrom.ids, 
 		 type = c("BAF/LRR", "BAF", "LRR", "R", "Theta", "R/Theta"),
-		 code = NULL, 
-		 main.txt = NULL, 
+		 main = NULL, 
+		 info = NULL, 
 		 abln = NULL, 
 		 horizln = c(1/2, 1/3, 2/3), 
 		 colorGenotypes = FALSE, 
@@ -29,7 +29,14 @@ chromIntensityPlot <- function(
     if (type == "R" | type == "Theta" | type == "R/Theta") {
         if (!hasX(intenData) | !hasY(intenData)) stop("X and Y not found")
       }
-    if(!is.null(code)) { stopifnot(length(code)==length(scan.ids)) }
+    if (!is.null(main)) {    
+      if (length(main) == 1 & length(scan.ids) > 1) {
+        main <- rep(main, length(scan.ids))
+      } else {
+        stopifnot(length(main) == length(scan.ids))
+      }
+    }
+    if (!is.null(info)) { stopifnot(length(info)==length(scan.ids)) }
     if (colorGenotypes & colorBatch) {
         stop("cannot color by Genotype and Batch simultaneously")
       }
@@ -48,6 +55,11 @@ chromIntensityPlot <- function(
     chr.char <- getChromosome(intenData, char=TRUE)
     pos <- getPosition(intenData)
     scanID <- getScanID(intenData)
+    if (hasSex(intenData)) {
+      sex <- getSex(intenData)
+    } else {
+      sex <- NULL
+    }
     
     for (i in 1:length(scan.ids)) {
 	# index for sample to be plotted
@@ -89,13 +101,17 @@ chromIntensityPlot <- function(
         vals <- rep(eighth * c) + bot
 
         # plot title
-        if (is.null(main.txt)) {
-            txt <- paste("Scan", scan.ids[i], "- Chromosome", chr.label)
+        if (is.null(main)) {
+            if (!is.null(sex)) {
+              txt <- paste("Scan", scan.ids[i], "-", sex[sid], "- Chromosome", chr.label)
+            } else {
+              txt <- paste("Scan", scan.ids[i], "- Chromosome", chr.label)
+            }
         } else {
-            txt <- main.txt
+            txt <- main[i]
         }
-        if (!is.null(code)) {
-          txt <- paste(txt, "-", code[i])
+        if (!is.null(info)) {
+          txt <- paste(txt, "-", info[i])
         }
 
         # create genotype color vector if colorGenotypes==TRUE

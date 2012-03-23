@@ -63,6 +63,11 @@
 \section{Changes in version 1.1.9}{
   \itemize{
     \item anomSegStats checks for SNPs in centromere gaps.
-    \item anomStatsPlot has option to plot LRR/BAF individually (for greater flexibility in layout).
+    \item anomStatsPlot has option to plot LRR/BAF individually (for
+    greater flexibility in layout).
+    \item Updates to arguments for plot titles in chromIntensityPlot and
+    anomStatsPlot for consistency.
+    \item plinkCheck has map.alt argument to override default
+    GenotypeData -> PLINK annotation conversion.
   }
 }

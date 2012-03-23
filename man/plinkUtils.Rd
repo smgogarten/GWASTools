@@ -42,7 +42,8 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   \item{map.alt}{data frame with alternate SNP mapping for genoData to
   PLINK.  If not \code{NULL}, this annotation will be used to compare
   SNP information to the PLINK file, rather than the default conversion
-  from the SNP annotation embedded in \code{genoData}.}
+  from the SNP annotation embedded in \code{genoData}.  Columns should
+  include "snpID", "rsID", "chromosome", "position".}
   \item{check.parents}{logical for whether to check the father and
     mother columns}
   \item{check.sex}{logical for whether to check the sex column}

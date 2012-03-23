@@ -40,9 +40,9 @@ anomStatsPlot <- function(intenData, genoData,
 	win=5,			# size of the window surrounding the anomaly to plot = a multiple of anomaly length
 	win.calc=FALSE,		# calculate window size from anomaly length; over-rides win and gives window of fixed length given by win.fixed
 	win.fixed = 1,		# number of megabases for window size when win.calc=TRUE
-	zoom=c("both","left","right"), # indicates whether plot includes the whole anomaly ("both") or zooms on just the left or right breakpoint; "both" is default
-	info=NULL,		# character vector of extra information to include in the main title of the upper plot                          
-	main.txt = NULL,                          
+	zoom=c("both","left","right"), # indicates whether plot includes the whole anomaly ("both") or zooms on just the left or right breakpoint; "both" is default                      
+	main = NULL,   
+	info=NULL,		# character vector of extra information to include in the main title of the upper plot                           
 	type = c("BAF/LRR", "BAF", "LRR"),
 	cex=0.5		# cex value for points on the plots                       
 ){
@@ -116,6 +116,13 @@ anomStatsPlot <- function(intenData, genoData,
 	if(!(brkpt.pct>0 & brkpt.pct<50)) stop("brkpt.pct must be >0 and <50")
 
 	# check info
+        if (!is.null(main)) {
+          if (length(main) == 1 & nrow(anom.stats) > 1) {
+            main <- rep(main, nrow(anom.stats))
+          } else {
+            stopifnot(length(main) == nrow(anom.stats))
+          }
+        }
 	if(!is.null(info)) {
 		if(!(length(info)==nrow(anom.stats) & is.character(info))) stop("info should be a character vector of length equal to rows of anom.stats")
 	}
@@ -221,14 +228,13 @@ anomStatsPlot <- function(intenData, genoData,
 			
 		# plot LRR
         if (type == "LRR" | type == "BAF/LRR") {
-          if (is.null(main.txt)) {
-		mtxt <- paste("anom",anom.stats$anom.id[i],"-  snum", anom.stats$scanID[i], "- chrom", anom.stats$chrom[i], "-", anom.stats$sex[i], "-", anom.stats$method[i])
+          if (is.null(main)) {
+		mtxt <- paste("anom",anom.stats$anom.id[i],"-  scan", anom.stats$scanID[i], "-", anom.stats$sex[i], "- chrom", anom.stats$chrom[i], "-", anom.stats$method[i])
               } else {
-                mtxt <- main.txt
+                mtxt <- main[i]
               }
 		if(brackets!="none") mtxt <- paste(mtxt, "- gray brackets =", brkpt.pct, "% of", brackets)
 		if(!is.null(info)) mtxt <- paste(mtxt, "\n", info[i])
-		stxt <- "red=AA, green=AB, blue=BB, pink=ineligible, black=other missing"
 		plot(pos[sel.lrr]/mb, lrr[sel.lrr], xlab="position (Mb)", ylab="LRR", type="n", ylim=c(lrr.min,2), xlim=xlim, main=mtxt) 
 		if(!is.null(centromere)){
 			rect(cent$left.base/mb,lrr.min,cent$right.base/mb,2, col=cent.col, border=cent.col)

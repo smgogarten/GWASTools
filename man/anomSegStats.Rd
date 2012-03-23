@@ -15,7 +15,7 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   plot.ineligible = FALSE, centromere = NULL,
   brackets = c("none", "bases", "markers"), brkpt.pct = 10,
   whole.chrom = FALSE, win = 5, win.calc = FALSE, win.fixed = 1,
-  zoom = c("both", "left", "right"), info = NULL, main.txt=NULL,
+  zoom = c("both", "left", "right"), main = NULL, info = NULL,
   type = c("BAF/LRR", "BAF", "LRR"), cex = 0.5)
 }
 
@@ -93,10 +93,12 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
 \item{zoom}{
   indicates whether plot includes the whole anomaly ("both") or zooms on just the left or right breakpoint; "both" is default
 }
+\item{main}{ Vector of titles for upper (LRR) plots. If \code{NULL}, titles will
+  include anom.id, scanID, sex, chromosome, and detection method. }
 \item{info}{
-  character vector of extra information to include in the main title of the upper plot
+  character vector of extra information to include in the main title of
+  the upper (LRR) plot
 }
-\item{main.txt}{ Text that will be written in the title of LRR plots. }
 \item{type}{ The type of plot to be created.  'BAF/LRR' creates both 'B Allele Freq' and 'Log R Ratio' plots. }
 \item{cex}{
   cex value for points on the plots
@@ -234,6 +236,9 @@ stats <- anomSegStats(blData, genoData, snp.ids=snp.ids, anom=anoms,
 
 anomStatsPlot(blData, genoData, anom.stats=stats,
   snp.ineligible=snp.failed, centromere=centromeres.hg18)
+
+close(blData)
+close(genoData)
 }
 
 \keyword{manip}
