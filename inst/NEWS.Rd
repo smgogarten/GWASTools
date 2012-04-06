@@ -71,3 +71,8 @@
     GenotypeData -> PLINK annotation conversion.
   }
 }
+\section{Changes in version 1.3.1}{
+  \itemize{
+    \item close method of NcdfReader returns invisibly.
+  }
+}

@@ -78,7 +78,8 @@ ncdfCreate <- function(snp.annotation,
 	# Add attributes
         if (!is.null(array.name)) att.put.ncdf( genofile, 0, "array_name", array.name ) 
         if (!is.null(genome.build)) att.put.ncdf( genofile, 0, "genome_build", genome.build ) 
-        
-	close.ncdf(genofile)
+
+        close.ncdf(genofile)
+        return(invisible(NULL))
 }
 

@@ -51,4 +51,5 @@ ncdfSetMissingGenotypes <- function(
   
   close.ncdf(nc.new)
   close(nc.old)
+  return(invisible(NULL))
 }

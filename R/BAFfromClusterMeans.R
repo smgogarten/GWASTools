@@ -76,5 +76,6 @@ BAFfromClusterMeans <- function(intenData,
     put.var.ncdf(ncbl, "BAlleleFreq", baf, start=c(1,i), count=c(-1,1))
     put.var.ncdf(ncbl, "LogRRatio", lrr, start=c(1,i), count=c(-1,1))
   }
-  close.ncdf(ncbl)
+  x <- close.ncdf(ncbl)
+  return(invisible(NULL))
 }

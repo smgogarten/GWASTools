@@ -135,6 +135,7 @@ ncdfSubset <- function(
 	# close and finish
         close.ncdf(nc)
         close.ncdf(subnc)
+        return(invisible(NULL))
 }
 
 

@@ -44,7 +44,8 @@ anomStatsPlot <- function(intenData, genoData,
 	main = NULL,   
 	info=NULL,		# character vector of extra information to include in the main title of the upper plot                           
 	type = c("BAF/LRR", "BAF", "LRR"),
-	cex=0.5		# cex value for points on the plots                       
+	cex=0.5,		# cex value for points on the plots
+        ...
 ){
 
 	# v3 adds option to plot vertical lines to bracket each breakpoint, width of bracket being a percentage of the length or number of markers 
@@ -235,7 +236,7 @@ anomStatsPlot <- function(intenData, genoData,
               }
 		if(brackets!="none") mtxt <- paste(mtxt, "- gray brackets =", brkpt.pct, "% of", brackets)
 		if(!is.null(info)) mtxt <- paste(mtxt, "\n", info[i])
-		plot(pos[sel.lrr]/mb, lrr[sel.lrr], xlab="position (Mb)", ylab="LRR", type="n", ylim=c(lrr.min,2), xlim=xlim, main=mtxt) 
+		plot(pos[sel.lrr]/mb, lrr[sel.lrr], xlab="position (Mb)", ylab="LRR", type="n", ylim=c(lrr.min,2), xlim=xlim, main=mtxt, ...) 
 		if(!is.null(centromere)){
 			rect(cent$left.base/mb,lrr.min,cent$right.base/mb,2, col=cent.col, border=cent.col)
 		}
@@ -256,7 +257,7 @@ anomStatsPlot <- function(intenData, genoData,
 		mtxt <- paste("red=AA, green=AB, blue=BB, pink=ineligible, black=other missing",
                               "horiz solid red = non-anom median, horiz dashed red = anom median",
                               sep="\n")
-		plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n", ylim=c(0,1), xlim=xlim, main=mtxt) 
+		plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n", ylim=c(0,1), xlim=xlim, main=mtxt, ...) 
 		if(!is.null(centromere)){
 			rect(cent$left.base/mb,0,cent$right.base/mb,1, col=cent.col, border=cent.col)
 		}

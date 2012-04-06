@@ -158,6 +158,7 @@ function(
       } # end for loop through number of block.sizes
 
   close.ncdf(ncbl)
+  return(invisible(NULL))
 }
 			
 

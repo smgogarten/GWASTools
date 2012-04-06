@@ -75,6 +75,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, verbose = TRUE)
         closefn.gds(gdsobj)
 
 	if (verbose) message(date(), "\tend convertGdsNcdf.\n")
+        return(invisible(NULL))
 }
 
 

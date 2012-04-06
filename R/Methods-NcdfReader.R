@@ -25,7 +25,9 @@ setMethod("open",
 setMethod("close",
     signature(con = "NcdfReader"),
     function (con, ...) {
-      close.ncdf(con@handler, ...)
+      x <- close.ncdf(con@handler, ...)
+      # override printing of integer file id by close.ncdf
+      return(invisible(x))
     })
 
 setMethod("show", 

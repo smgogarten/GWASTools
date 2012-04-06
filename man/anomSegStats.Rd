@@ -16,7 +16,7 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   brackets = c("none", "bases", "markers"), brkpt.pct = 10,
   whole.chrom = FALSE, win = 5, win.calc = FALSE, win.fixed = 1,
   zoom = c("both", "left", "right"), main = NULL, info = NULL,
-  type = c("BAF/LRR", "BAF", "LRR"), cex = 0.5)
+  type = c("BAF/LRR", "BAF", "LRR"), cex = 0.5, ...)
 }
 
 \arguments{
@@ -103,6 +103,7 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
 \item{cex}{
   cex value for points on the plots
 }
+  \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 
 \details{ \code{anomSegStats} computes various statistics of the input anomalies.
