@@ -16,12 +16,10 @@ ibdAreasDraw <- function(
 	xcol = c("cyan","red","blue","lightgreen","magenta","black")	# colors for parent-offspring, full-sib, half-sib, first cousin, dup & unrelated areas
 )
 {
-      # mean and variance/covariance info
-      rmv <- get(data(relationsMeanVar))
       sdm<-abs(qnorm(alpha/2)) #sd multiplier for rectangles for 100(1-alpha)% prediction interval
 
       # draw full-sib ellipse
-      FS<-rmv$FullSibs
+      FS<-relationsMeanVar$FullSibs
       mean.vec<-FS$mean  #vector
       sig.inv<-FS$invCov            
       eg.vals<-FS$eigvals  #relates to length of ellipse axes
@@ -40,7 +38,7 @@ ibdAreasDraw <- function(
       points(pts, type="l", lwd=rel.lwd, col=xcol[2])
 
       # draw rectangle for half-sibs
-      HS<-rmv$HalfSibs
+      HS<-relationsMeanVar$HalfSibs
       d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
       hsm<-HS$mean[2]
       s2<-sqrt(2)
@@ -54,7 +52,7 @@ ibdAreasDraw <- function(
       segments(x0,y0,x1,y1,col=xcol[3], lwd=rel.lwd)
 
       # draw rectangle for first cousins
-      C<-rmv$FirstCousins
+      C<-relationsMeanVar$FirstCousins
       d<-sdm*sqrt(C$var)
       fcm<-C$mean[2]
       s2<-sqrt(2)

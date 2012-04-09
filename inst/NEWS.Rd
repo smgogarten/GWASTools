@@ -76,3 +76,10 @@
     \item close method of NcdfReader returns invisibly.
   }
 }
+\section{Changes in version 1.3.2}{
+  \itemize{
+    \item Use lazy loading of data.
+    \item manhattanPlot and snpCorrelationPlot accept character vectors
+    of chromosome; chrom.labels argument no longer used.
+  }
+}

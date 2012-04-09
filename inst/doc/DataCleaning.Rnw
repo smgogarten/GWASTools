@@ -2721,16 +2721,15 @@ To create the `Manhattan' plots, we will call the function {\tt manhattanPlot}. 
 transformation of the p-values and plot them for each probe.  See the resulting plot in Figure~\ref{fig:manh_lr}.
 
 <<>>=
-chrom <- getChromosome(snpAnnot)
-chrom.sel <- chrom %in% 24:26
+chrom <- getChromosome(snpAnnot, char=TRUE)
+chrom.sel <- chrom %in% c("XY", "Y", "M")
 @ 
 
 \begin{figure}[ht!]
 \centering
 <<fig=TRUE>>=
 manhattanPlot(assoc$model.1.additive.LR.pval.G,
-  chromosome=chrom[chrom.sel], 
-  chrom.labels=c("XY","Y","M"))
+  chromosome=chrom[chrom.sel])
 @ 
 \caption{``Manhattan'' plot of Likelihood Ratio statistic p-values for association test.}
 \label{fig:manh_lr}
