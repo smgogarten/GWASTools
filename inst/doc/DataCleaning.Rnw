@@ -712,17 +712,11 @@ We plot the missing call rates so we can easily identify any outliers.
 We also find the number of SNPs with 100\% missing, and the fraction of SNPs with missing call rate less than
 0.05 for each chromosome type. 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 hist(snpAnnot$missing.n1, ylim=c(0,100),
      xlab="SNP missing call rate", 
      main="Missing Call Rate for All Probes")
 @ 
-\caption{Histogram of overall missing call rate per SNP.  Note the y-axis has been truncated in order to show the higher 
-values of the missing call rate on the x-axis.}
-\label{fig:Miss_call_rate_snps}
-\end{figure}
 
 <<>>=
 # Find the number of SNPs with every call missing
@@ -795,17 +789,11 @@ greater than 0.05.  In this case, there are no such samples but in other data th
 If any samples have a high missing rate, we recommend further investigation of what may be causing the missing calls;
 the samples with a missing call rate greater than 0.05 should be filtered out due to low sample quality. 
 
-
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 hist(scanAnnot$missing.e1, 
      xlab="Fraction of missing calls over all probes", 
      main="Histogram of Sample Missing Call Rate for all Samples")
 @ 
-\caption{Histogram of missing call rate for all samples over all probes.}
-\label{fig:Miss_calls_over_probes}
-\end{figure}
 
 <<>>=
 # Look at missing.e1 for males
@@ -898,22 +886,16 @@ summary(scanAnnot$missing.e2)
 We will create a histogram of the overall missing call rate per sample in order to identify any samples with
 a relatively larger missing call rate.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=> 
 hist(scanAnnot$missing.e2, xlab="Fraction of missing calls over all probes 
      with missing call rate < 0.05", 
      main="Histogram of Sample Missing Call Rate for all Samples")
 @ 
-\caption{Histogram of missing call rate for all samples over all probes with missing call rate less than 0.05.}
-\label{fig:missing_e2}
-\end{figure}
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\clearpage
 \subsection{Calculate Missing Call Rates by Batch} 
 
 Next, the missing call rate by batch is calculated to check that there are no batches with comparatively lower
@@ -927,17 +909,12 @@ length(unique(scanAnnot$batch))
 table(scanAnnot$batch, useNA="ifany")
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 # Plot the distribution of the number of samples per batch.
 barplot(table(scanAnnot$batch), 
         ylab="Number of Samples", xlab="Batch", 
         main="Distribution of Samples per Batch")
 @ 
-\caption{The distribution of the samples among the batches.}
-\label{fig:samples_per_batch}
-\end{figure}
 
 <<>>=
 # Examine the mean missing call rate per batch for all SNPs
@@ -964,25 +941,17 @@ y <- lm(bmiss ~ bn)
 anova(y)
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 plot(bn, bmiss, 
  xlab="Number of samples per batch", ylab="Mean missing call rate", 
  main="Mean Missing Call Rate vs\nSamples per Batch")
 abline(y$coefficients)
 @ 
-\caption{The number of samples per batch plotted against the mean missing call rate.  The 
-regression line has a nominal slope taken from the ANOVA results for the mean missing call 
-rate per batch regressed on the number of samples per batch.}
-\label{fig:samples_by_miss_rate}
-\end{figure}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Chi-Square Test of Allelic Frequency Differences in Batches}
 
 
@@ -1031,8 +1000,6 @@ for(i in 1:length(batches)){
 allequal(names(eth), names(res$mean.chisq))
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 # Plot the average Chi-Square test statistic against the 
 #     fraction of samples that are CEU
@@ -1042,11 +1009,6 @@ plot(eth, res$mean.chisq, xlab="Fraction of CEU Samples per Batch",
   vs Average Chi-square Test Statistic")
 abline(v=mean(eth), lty=2, col="red")
 @ 
-\caption{A plot of the fraction of samples in each batch from the CEU population group versus the average chi-square statistic
-for the particular batch.  The red line is the average fraction of samples that are of European ancestry in a batch.}
-\label{fig:eth_vs_chi_sq}
-\end{figure}
-
 
 
 
@@ -1082,25 +1044,18 @@ qual.results <- qualityScoreByScan(qualData, genoData)
 close(qualData)
 @ 
 
-\begin{figure}[ht!] 
-\centering
+We plot the distribution of median quality scores; it is unsurprising that these are all 
+good, given that some quality checking happens at the genotyping centers. Clear outliers in this plot would be
+cause for concern that the sample(s) in question were of significantly lower quality than the other samples.
+
 <<fig=TRUE>>=
 hist(qual.results[,"median.quality"], main="Median Genotype Quality Scores 
   of Samples", xlab="Median Quality")
 @ 
-\caption{Median quality scores for each sample.}
-\label{fig:medQualScore}
-\end{figure}
-
-
-Figure~\ref{fig:medQualScore} shows the distribution of median quality scores; it is unsurprising that these are all 
-good, given that some quality checking happens at the genotyping centers. Clear outliers in this plot would be
-cause for concern that the sample(s) in question were of significantly lower quality than the other samples.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{B Allele Frequency variance analysis}
 
 BAF is a standardized version of the polar coordinate angle (Section \ref{sec:baf_lrr}). It calculates
@@ -1161,8 +1116,6 @@ Call {\tt chromIntensityPlot} to plot the BAF of all SNPs on the indicated chrom
 pair against position.  This yields many plots that must be individually examined
 to distinguish noisy data from chromosomal abnormalities.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>= 
 scanID <- as.integer(res12bin4sd[, "scanID"])
 chrom <- as.integer(res12bin4sd[, "chromosome"])
@@ -1172,9 +1125,6 @@ sexcode <- paste("Sex", res12bin4sd[, "sex"], sep = " ")
 code <- paste(bincode, sexcode, sep = ", ")
 chromIntensityPlot(blData, scanID[1], chrom[1], info=code[1])
 @
-\caption{BAF/LRR plot for a sample with high BAF variance.}
-\label{fig:bafcheck}
-\end{figure}
 
 <<>>=
 close(blData)
@@ -1184,8 +1134,6 @@ At this stage, we have generated plots of those chromosomes (over all chromosome
 high BAF standard deviation. The next step in the process is to
 examine each of these plots to look for evidence of sample
 contamination or other quality issues.
-
-\clearpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1202,6 +1150,8 @@ We will call the function {\tt missingGenotypeByScanChrom} to
     calculate the missing call rate.  Since the function returns
     missing counts per chromosome as well as snps per chromosome, we
     divide to find the missing call rate per chromosome.
+We then make a boxplot of missingness in the autosomes, the X chromosome, 
+and the pseudoautosomal region, and a boxplot of X chromosome missingness for each sex.
   
 <<>>=
 miss <- missingGenotypeByScanChrom(genoData)
@@ -1210,31 +1160,18 @@ miss.rate <- t(apply(miss$missing.counts, 1, function(x) {
 miss.rate <- as.data.frame(miss.rate)
 @ 
 
-First, Figure~\ref{fig:missByChrom} shows a boxplot of missingness in the autosomes, the X chromosome, 
-and the pseudoautosomal region.
-Second, Figure~\ref{fig:XChromMissSex} shows a boxplot of X chromosome missingness for each sex.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 cols <- names(miss.rate) %in% c(1:22, "X", "XY")
 boxplot(miss.rate[,cols], main="Missingness by Chromosome", 
   ylab="Proportion Missing", xlab="Chromosome")
 @
-\caption{Boxplot of missingness by chromosome.}
-\label{fig:missByChrom}
-\end{figure}
 
-\begin{figure}[ht!]
 <<fig=TRUE>>=
 boxplot(miss.rate$X ~ scanAnnot$sex, 
   main="X Chromosome Missingness by Sex", 
   ylab="Proportion Missing")
 @ 
-\centering
-\caption{Boxplot of X chromosome missingness by sex.}
-\label{fig:XChromMissSex}
-\end{figure}
  
 We will call the function {\tt hetByScanChrom} to calculate the heterozygosity.
   We store the heterozygosity 
@@ -1255,32 +1192,21 @@ varMetadata(scanAnnot)["het.X", "labelDescription"] <-
   "fraction of heterozygotes for X chromosome SNPs"
 @ 
 
-There are two plots for heterozygosity. Figure~\ref{fig:autoMiss} shows a boxplot of heterozygosity over the 
+There are two plots for heterozygosity. First is a boxplot of heterozygosity over the 
 autosomes, subsetted by population. We recommend examining BAF plots for high heterozygosity outliers, to look for evidence of sample contamination (more than 3 bands on all chromosomes).  Examination of low heterozygosity samples may also identify chromosomal anomalies with wide splits in the intermediate BAF band.
-Figure~\ref{fig:XChromMissPop} shows a boxplot of female heterozygosity on the X chromosome, subsetted by 
+Second is a boxplot of female heterozygosity on the X chromosome, subsetted by 
 population.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 boxplot(scanAnnot$het.A ~ scanAnnot$race, 
   main="Autosomal Heterozygosity")
 @ 
-\caption{Boxplot of autosomal heterozygosity by continental ancestry.}
-\label{fig:autoMiss}
-\end{figure}
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 male <- scanAnnot$sex == "M"
 boxplot(scanAnnot$het.A[male] ~ scanAnnot$race[male], 
   main="X Chromosome Heterozygosity in Females")
 @
-\caption{Boxplot of X chromosome heterozygosity by population.}
-\label{fig:XChromMissPop}
-\end{figure}
-
 
  
 
@@ -1383,13 +1309,8 @@ plot(x4,y4, col="red", xlab="Autosomal heterozygosity",
   ylab="X heterozygosity", main=main4, cex.main=0.8)
 dev.off()
 @ 
-
-\begin{figure}[ht!]
-\centering
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-sex}
-\caption{Intensity plots for all samples, with blue=annotated males and red=annotated females}
-\label{fig:inten_plots}
-\end{figure}
+
 
 
 
@@ -1397,7 +1318,6 @@ dev.off()
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Relatedness and IBD Estimation}
 
 In most studies, there are discrepancies between pedigrees provided and relatedness inferred from the genotype data.  To infer genetic relatedness, we estimate coefficients of identity by descent (IBD). It is important to identify and record unannotated 
@@ -1564,18 +1484,13 @@ table(ibd$obs.rel, useNA="ifany")
 @ 
 
  Now the pedigree information is in the proper format for the 
-IBD estimates to be plotted for each pair of samples, color coded by expected relationship, see Figure~\ref{fig:ibd_ceu}. 
+IBD estimates to be plotted for each pair of samples, color coded by expected relationship. 
 The orange line segments span the values for the expected {\tt k0}, {\tt k1} values, $\pm$2 standard deviations.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
   main="HapMap CEU IBD Estimates \nEM Algorithm")
 @ 
-\caption{IBD estimates for the CEU samples.}
-\label{fig:ibd_ceu}
-\end{figure}
 
 
 
@@ -1716,27 +1631,21 @@ table(ibd$obs.rel, useNA="ifany")
 @ 
 
  Now the pedigree information is in the proper format for the 
-IBD estimates to be plotted for each pair of samples, color coded by expected relationship, see Figure~\ref{fig:ibd_yri}. 
+IBD estimates to be plotted for each pair of samples, color coded by expected relationship. 
 Several samples in the YRI population show higher than expected relatedness.\footnote{A 
 second generation human haplotype map of over 3.1 million SNPs, supplementary information. The International HapMap
 Consortium, \textit{Nature} \textbf{449}, 851-861 (18 October 2007).}
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
   main="HapMap YRI IBD Estimates \nPLINK MOM Approach")
 @ 
-\caption{Method of Moment (MoM) estimates for the YRI samples. The yellow bars are the expected positions (+/- 2 SD) for full siblings, half siblings and first cousins.}
-\label{fig:ibd_yri}
-\end{figure}
 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Population Structure}
 
 \subsubsection*{Principal Component Analysis on all ethnic groups}
@@ -1807,28 +1716,19 @@ cols[samp$race == "CEU"] <- "blue"
 cols[samp$race == "YRI"] <- "red"
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 pairs(pca$eigenvect[,1:4], col=cols, labels=lbls,
   main = "CEU: blue, YRI: red")
 @ 
-\caption{First four eigenvectors calculated from the principal components analysis.}
-\label{fig:pca_plot}
-\end{figure}
 
 
 \subsubsection*{Parallel Coordinates Plot}
 
 A handy method of visualizing the effects of eigenvectors on clusters 
 for a principal components analysis is the parallel coordinates plot. 
-Figure~\ref{fig:par_coord_plot} shows this plot for all samples,
-colored by population group. 
 The genetic diversity in the YRI group is apparent in the later eigenvectors, while
 the remaining groups remain in clusters throughout.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 par.coord <- pca$eigenvect
 rangel <- apply(par.coord, 2, function(x) range(x)[1])
@@ -1844,17 +1744,13 @@ for (j in 1:13)
     lines(c(j,j+1), std.coord[i,c(j,j+1)], col=cols[i], lwd=0.25)
 axis(1, at = 1:14, labels = paste("PC",1:14, sep = "."))
 @ 
-\caption{Parallel coordinates plot of first 14 eigenvectors, colored by race.}
-\label{fig:par_coord_plot}
-\end{figure}
 
 \subsubsection*{SNP-PC correlation}
 
-We confirm that there are no correlations between SNPs regions and
+We confirm that there are no correlations between SNP regions and
 specific eigenvectors by examining plots of SNP correlation
 vs. position on the chromosome.  
-Figure~\ref{fig:snp_corr} shows correlation plots for eigenvectors 1--4.
-Usually we check the first 8-12 eigenvectors.
+Usually we check the first 8--12 eigenvectors, but here we plot only 1--4.
 
 <<results=hide>>=
 corr <- snpgdsPCACorr(pca, gdsobj, eig.which=1:4)
@@ -1868,14 +1764,8 @@ for (i in 1:4) {
                      main=paste("Eigenvector",i), ylim=c(0,1))
 }
 dev.off()
-@ 
-
-\begin{figure}[ht!]
-\centering
+@
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-corr}
-\caption{Correlation between SNP genotype and each of the first 4 eigenvectors.}
-\label{fig:snp_corr}
-\end{figure}
 
 <<echo=FALSE, results=hide>>=
 file.remove(gdsfile)
@@ -1895,7 +1785,6 @@ components and the missing call rate for a relationship with case status.
 \label{sec:pca_case_cntrl}
 
 This step examines differences in principal components according to case-control status.
-
 
 Collate PCA information with sample number, case-control status, and population group.
 
@@ -1927,48 +1816,25 @@ a two-factor ANOVA accounting for case-control status and population group. Sinc
 randomized case-control status, we do not expect to see a significant difference in principal 
 components between cases and controls, when considering population group. 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 pairs(pca$eigenvect[,1:3], col=cols, labels=lbls,
   main = "First Three EVs by Case-Control Status")
 @ 
-\caption{The values from the first three eigenvectors plotted for each sample, color coded by case-control status.  
-Green denotes case status and red indicates a control.}
-\end{figure}
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 boxplot(princomp[, 1] ~ princomp$case.ctrl.status, 
   ylab = "PC1", main = "PC1 vs. Case-control Status")
 @ 
-\caption{A boxplot of the values of the first eigenvector stratified by case-control status, where 0 indicates a 
-control and 1 indicates a case.}
-\label{fig:pca1_casectrl}
-\end{figure}
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 boxplot(princomp[, 2] ~ princomp$case.ctrl.status, 
   ylab = "PC2", main = "PC2 vs. Case-control Status")
 @ 
-\caption{A boxplot of the values of the second eigenvector stratified by case-control status, where 0 indicates a 
-control and 1 indicates a case.}
-\label{fig:pca2_casectrl}
-\end{figure}
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 boxplot(princomp[, 3] ~ princomp$case.ctrl.status, 
   ylab = "PC3", main = "PC3 vs. Case-control Status")
 @ 
-\caption{A boxplot of the values of the third eigenvector stratified by case-control status, where 0 indicates a 
-control and 1 indicates a case.}
-\label{fig:pca3_casectrl}
-\end{figure}
 
 <<>>=
 aov.p1 <- aov(princomp[,1] ~ princomp$race * 
@@ -1987,7 +1853,6 @@ summary(aov.p3)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Missing Call Rate Differences}
 
 This step determines whether there are differences in missing call rates between
@@ -2005,19 +1870,10 @@ lm.all <- lm(scanAnnot$missing.e1 ~ scanAnnot$status)
 summary(aov(lm.all))
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 boxplot(scanAnnot$missing.e1 ~ scanAnnot$status, ylab = 
   "Mean missing call rate", main="Mean missing call rate by case status")
 @ 
-\caption{A boxplot showing the mean missing call rate stratified by case-control status, where 0 indicates a 
-control and 1 indicates a case.}
-\label{fig:miss_call_rate_vs_case_status}
-\end{figure}
-
-
-
 
 
 \clearpage
@@ -2280,8 +2136,6 @@ dat <- dat[order(dat$disc),]
 dat$rank <- 1:npair
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 # Plot the sample discordance rates color coded by race.
 plot(dat$disc, dat$rank, col=dat$col, ylab="rank",
@@ -2289,9 +2143,6 @@ plot(dat$disc, dat$rank, col=dat$col, ylab="rank",
   main="Duplicate Sample Discordance by Continental Ancestry")
 legend("bottomright", unique(dat$pop), pch=rep(1,2), col=unique(dat$col))
 @ 
-\caption{The discordance for duplicate samples plotted in increasing values, color coded by population group.}
-\label{fig:disc_ethn}
-\end{figure}
 
 Genotyping error rates can be estimated from duplicate discordance
 rates.  The genotype at any SNP may be called correctly, or miscalled as
@@ -2323,7 +2174,6 @@ duplicateDiscordanceProbability(npair)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Mendelian Error Checking}
 
 This step calculates and examines the Mendelian error rates. Mendelian errors are
@@ -2367,14 +2217,10 @@ err <- mend$snp$error.cnt / mend$snp$check.cnt
 table(err == 0, useNA="ifany")
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 plot(err, rank(err), xlab="Error Rate (fraction)",
   ylab="rank", main="Mendelian Error Rate per SNP, ranked")
 @ 
-\caption{A plot of the Mendelian error rate per SNP, ranked in increasing order.}
-\end{figure}
 
 Next we will look at the Mendelian error rates among the trios we have in the HapMap data. Looking at the summary of the number of families with at least one 
 error over all SNPs, we can see the maximum number of errors per SNP. Next, we can look at subsets of SNPs with 
@@ -2418,7 +2264,11 @@ varMetadata(snpAnnot)["mendel.err.sampsize", "labelDescription"] <-
 
 To further investigate SNPs with a high Mendelian error rate, we will
 make genotyple cluster plots for the 9 SNPs
-with the highest Mendelian error rate. We expect the 
+with the highest Mendelian error rate. 
+Blue indicates a sample
+with a ``BB'' genotype, green is an ``AB'' genotype and red is an ``AA'' genotype. The black X marks indicate
+a sample with a missing genotype for that SNP.
+We expect the 
 plots to lack defined genotype clusters, leading to a poor call rate.
 
 <<results=hide>>=
@@ -2440,14 +2290,7 @@ genoClusterPlot(xyData, genoData, snpID=snp$snpID, main.txt=mtxt,
 dev.off()
 close(xyData)
 @ 
-
-\begin{figure}[ht!]
-\centering
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-mendel}
-\caption{Cluster plots of the 3 SNPs with the highest Mendelian error rate.  Blue indicates a sample
-with a ``BB'' genotype, green is an ``AB'' genotype and red is an ``AA'' genotype. The black X marks indicate
-a sample with a missing genotype for that SNP.}
-\end{figure}
 
 
 
@@ -2497,8 +2340,6 @@ pcol[fams$race == "CEU"] <- "blue"
 pcol[fams$race == "YRI"] <- "red"
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 plot(fams$mend.err.rate.fam*100, rank(fams$mend.err.rate.fam), 
   main="Mendelian Error rate per Family, ranked",
@@ -2506,14 +2347,11 @@ plot(fams$mend.err.rate.fam*100, rank(fams$mend.err.rate.fam),
   ylab="rank", col=pcol)
 legend("bottomright", c("CEU", "YRI"), pch=c(1,1), col=c("blue", "red"))
 @ 
-\caption{A plot of the Mendelian error rate for families, ranked in order of increasing rate.}
-\end{figure}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\clearpage
 \subsection{Hardy-Weinberg Equilibrium Testing}
 
 This section uses Fisher's exact test to examine each SNP for departure from Hardy-Weinberg Equilibrium.  
@@ -2564,15 +2402,10 @@ there is most likely no significant population substructure.
 summary(hwe$f)
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 hist(hwe$f, main="Histogram of the Inbreeding Coefficient 
   For CEU Samples", xlab="Inbreeding Coefficient")
 @ 
-\caption{A histogram of the inbreeding coefficient values
-from running the Hardy-Weinberg analysis for the unrelated CEU samples.}
-\end{figure}
 
 <<>>=
 # Check the MAF of those SNPs with f=1
@@ -2606,27 +2439,15 @@ qqPlot(pval=pval.x, truncate = FALSE, main="X chromosome, all")
 qqPlot(pval=pval.x, truncate = TRUE, main="X chromosome, truncated")
 dev.off()
 @ 
-
-\begin{figure}[ht!]
-\centering
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-hwe}
-\caption{Four QQ-plots showing the deviation of Hardy-Weinberg p-values for each SNP for the samples from the 
-CEU population group.} 
-\end{figure}
 
 We plot the p-values against MAF for all SNPs with MAF greater than zero.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 plot(hwe.0$MAF, -log10(hwe.0$p.value), 
   xlab="Minor Allele Frequency", ylab="-log(p-value)", 
   main="Minor Allele Frequency vs\nP-value")
 @ 
-\caption{A plot of the p-value as a function of the minor allele frequency for SNPs for the CEU samples,
-excluding the SNPs with a minor allele frequency equal to 0.}
-\end{figure}
-
 
 
 
@@ -2677,50 +2498,31 @@ those probes with significant p-values.
 
 We create QQ plots of the ordered Likelihood Ratio test p-values versus the ordered expected p-values.
 Given that the samples were split randomly between cases and controls, not surprisingly there are no outliers
-visible in the QQ plot in Figure~\ref{fig:qq_lr}.
+visible in the QQ plot.
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 qqPlot(pval=assoc$model.1.additive.LR.pval.G,
   truncate=TRUE, main="QQ Plot of Likelihood Ratio Test p-values")
 @ 
-\caption{QQ plot of Likelihood Ratio statistic p-values for association test.}
-\label{fig:qq_lr}
-\end{figure}
 
-
-  
-
-\clearpage
 \subsection{``Manhattan'' Plots of the P-Values}
 
 To create the `Manhattan' plots, we will call the function {\tt manhattanPlot}.  We take the negative log
-transformation of the p-values and plot them for each probe.  See the resulting plot in Figure~\ref{fig:manh_lr}.
+transformation of the p-values and plot them for each probe.
 
 <<>>=
 chrom <- getChromosome(snpAnnot, char=TRUE)
 chrom.sel <- chrom %in% c("XY", "Y", "M")
 @ 
 
-\begin{figure}[ht!]
-\centering
 <<fig=TRUE>>=
 manhattanPlot(assoc$model.1.additive.LR.pval.G,
   chromosome=chrom[chrom.sel])
 @ 
-\caption{``Manhattan'' plot of Likelihood Ratio statistic p-values for association test.}
-\label{fig:manh_lr}
-\end{figure}
 
 
-  
-
-\clearpage
 \subsection{SNP Cluster Plots}
 
-
-  
 Next, we will create SNP cluster plots for the probes with significant p-values.
 It is important to examine cluster plots of all top hits, as poor clusters not picked up by other quality
 checking steps may still show up as having low p-values.
@@ -2748,17 +2550,9 @@ dev.off()
 close(xyData)
 close(genoData)
 @ 
-
-\begin{figure}[ht!]
-\centering
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-cluster}
-\caption{Cluster plots of the 9 SNPs with smallest p-values.}
-\label{fig:snp_cluster}
-\end{figure}
 
-
-
-The cluster plots in Figure~\ref{fig:snp_cluster} show that some of the SNPs have poor cluster plots, indicating genotyping artifacts.   In a real association study, the evidence from such SNPs would be discounted.
+The cluster plots show that some of the SNPs have poor cluster plots, indicating genotyping artifacts.   In a real association study, the evidence from such SNPs would be discounted.
 
 <<echo=FALSE, results=hide>>=
 unlink(subj.filt.ncdf)
