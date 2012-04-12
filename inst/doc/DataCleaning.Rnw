@@ -28,7 +28,7 @@
 This vignette takes a user through the data cleaning steps developed and used for genome wide association data as part of the Gene Environment Association
  studies (GENEVA) project. This project (\href{http://www.genevastudy.org}{http://www.genevastudy.org}) is a collection of whole-genome studies supported by the NIH-wide 
  Gene-Environment Initiative.  
-The methods used in these vignettes have been published in 
+The methods used in this vignette have been published in 
 Laurie et al.\ (2010).\footnote{Laurie, Cathy C., et
   al. Quality Control and Quality Assurance in Genotypic Data for
   Genome-Wide Association Studies. \textit{Genetic Epidemiology} \textbf{34}, 591-602 (August 2010).}
@@ -94,7 +94,13 @@ All of the functions in GWASTools require a minimum set of variables in the SNP 
 
 \begin{itemize}
 \item{{\tt snpID}, a unique integer identifier for each SNP}
-\item{{\tt chromosome}, an integer mapping for each chromosome, with values 1-27, mapped in order from 1-22, 23=X, 24=XY (the pseudoautosomal region), 25=Y, 26=M (the mitochondrial probes), and 27=U (probes with unknown positions)}
+\item{{\tt chromosome}, an integer mapping for each chromosome, with
+    values 1-27, mapped in order from 1-22, 23=X, 24=XY (the
+    pseudoautosomal region), 25=Y, 26=M (the mitochondrial probes),
+    and 27=U (probes with unknown positions)}.  (It is possible to
+  change the default integer mapping, e.g., to match the codes used by
+  PLINK, but this should be done
+  with caution.  See the manual pages for more details.)
 \item{{\tt position}, the base position of each SNP on the chromosome.}
 \end{itemize}
 
@@ -153,10 +159,11 @@ varMetadata(snpAnnot) <- meta
 
 The scan annotation file holds attributes for each genotyping scan that are relevant to genotypic data
 cleaning.  These data include processing variables such as tissue type, DNA extraction method, and genotype processing
-batch.  They also include individual characteristics such as gender and race.  The initial sample
+batch.  They also include individual characteristics such as sex,
+race, ethnicity, and case status.  The initial sample
 annotation file is created from the raw data supplied by the genotyping center and/or study investigator, providing a 
 mapping from the raw data file(s) for each sample scan to other sample information such as sex,
-coded as {\tt M} and {\tt F}, ethnicity,  
+coded as {\tt M} and {\tt F}, race,
 unique scan identifier, called {\tt scanID}, and unique subject identifier.  
 Since a single subject may have been genotyped multiple times as a
 quality control measure, it is important to distinguish between the
@@ -200,17 +207,15 @@ varMetadata(scanAnnot) <- meta
 \subsection{Creating the NetCDF Files}
 
 
-The data for genotype calls, allelic intensities and other variables such as BAlleleFrequency are stored as NetCDF files. 
-More information on the NetCDF file format in general can be found at \\ \href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}.
-The GWASTools package depends on the ncdf library.
-Documentation for the ncdf R library can be found at \\
-\href{http://cran.r-project.org/web/packages/ncdf/ncdf.pdf}{http://cran.r-project.org/web/packages/ncdf/ncdf.pdf}.
-The ncdf library provides a convenient R interface to create, populate and extract data from NetCDF files. 
+The data for genotype calls, allelic intensities and other variables
+such as B Allele Frequency are stored as NetCDF\footnote{\href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}} files. 
+This format is used for the ease with which extremely large
+multi-dimensional arrays of data can be stored and accessed, as many
+GWAS datasets are too large to be stored in memory at one time.
+The GWASTools package depends on the ncdf library, which provides a convenient R interface to create, populate and extract data from NetCDF files. 
 
 For each study, three different NetCDF files are  
 created to be used in subsequent cleaning and analysis steps.   
-This format is used for the ease with which multi-dimensional arrays of data can be stored and accessed.
-
 All NetCDF files created have two dimensions, one called {\tt snp} and one titled {\tt sample}.  The {\tt snp}
 dimension is of the same length as the number of probes that were released from the genotyping center and listed in the
 SNP annotation file.  The 
@@ -218,9 +223,9 @@ SNP annotation file.  The
 Further, all NetCDF files have three variables in common: {\tt sampleID, chromosome} and {\tt position}.
 The {\tt sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
 (genotype calls, for example).  The {\tt sampleID} ordering must match the {\tt scanID} values as listed
-in the sample annotation file, see Section~\ref{create_sampann}.
+in the sample annotation file (Section~\ref{create_sampann}).
 The index to the SNP probes in the NetCDF file is the {\tt snpID}, which is stored as values of the SNP dimension.  Since {\tt snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the {\tt snpID} values listed
-in the SNP annotation file, see \ref{create_snpann}.
+in the SNP annotation file (Section~\ref{create_snpann}).
 To prevent errors in ordering samples or SNPs, the functions in the GWASTools package take as arguments R objects
 which will return an error on creation if the sample and SNP
 annotation does not match the NetCDF file.
@@ -266,9 +271,9 @@ ncdfCreate(ncdf.filename = geno.nc.file,
 @ 
 
  Now the shell has been created so we can call the {\tt ncdfAddData} function to 
-populate the NetCDF with the genotype data stored in the raw data files.  The data are written to the NetCDF file one sample at a time and, simultaneously, the corresponding sample identifier {\tt scanID} is written to the {\tt sampleID} variable. The {\tt chpFile}
-variable from the sample annotation file
-holds the name of the raw data file for each sample scan; 
+populate the NetCDF with the genotype data stored in the raw data files.  The data are written to the NetCDF file one sample at a time and, simultaneously, the corresponding sample identifier {\tt scanID} is written to the {\tt sampleID} variable. The {\tt file}
+variable from the scan annotation
+holds the name of the raw data file for each sample/scan; 
 these are the files we must read in to get genotype data for each sample.
 
 <<>>=
@@ -289,8 +294,7 @@ col.nums <- as.integer(c(1,2,12,13))
 names(col.nums) <- c("snp", "sample", "a1", "a2")
 # Define a path to the raw data files which are read by 
 #   ncdfAddData to access the raw genotypic data
-path <- system.file("extdata", "illumina_raw_data",
-  package="GWASdata")
+path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
 @ 
 
 All required arguments have been defined so we are ready to call {\tt ncdfAddData}.
@@ -386,7 +390,8 @@ table(check.geno$geno.chk)
 
 The intensity NetCDF files store quality scores and allelic intensity data for each SNP. 
 The normalized X and Y intensities as well as the confidence scores are written to the NetCDF for all
-samples, for all SNPs. (A separate NetCDF file will store the BAlleleFreq and LogRRatio data.)
+samples, for all SNPs. (To keep file sizes manageable, a separate NetCDF file will store the B Allele
+Frequency and Log R Ratio data.)
 
 Aside from the three variables held in common with all NetCDF files ({\tt sampleID, chromosome} and {\tt position}),
 the intensity and quality data are written to the intensity NetCDF in a two dimensional format, with SNPs corresponding
@@ -497,10 +502,10 @@ check.qxy <- ncdfCheckIntensity(path = path,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsubsection*{BAlleleFrequency and LogRRatio NetCDF Files}
+\subsubsection*{B Allele Frequency and Log R Ratio NetCDF Files}\label{sec:baf_lrr}
 
 
-The BAlleleFrequency and LogRRatio NetCDF file stores these values for every sample by SNP.
+The B Allele Frequency (BAF) and Log R Ratio (LRR) NetCDF file stores these values for every sample by SNP.
 For Illumina data, these values are 
 calculated by the BeadStudio software and may be provided by the genotyping center.  
 For a thorough explanation and presentation of an application of these values, please refer to 
@@ -517,25 +522,25 @@ R=X+Y
 \end{equation*}
 $\theta$ corresponds to the polar coordinate angle and R is the sum of the normalized X and Y intensities (not, as one might assume, the magnitude of the polar coordinate vector).
 
-The LogRRatio is given below.  The expected value of R is derived from a plot of $\theta$ versus R for a given SNP.  
+The LRR is given below.  The expected value of R is derived from a plot of $\theta$ versus R for a given SNP.  
 It is the predicted value of R derived from a line connecting the centers of the two nearest genotype clusters.  
 \begin{equation}
- {\rm LogRRatio} =\log \left( \frac{R_{\text{observed values}}}{R_{\text{expected values}}}\right)
+ {\rm LRR} =\log \left( \frac{R_{\text{observed values}}}{R_{\text{expected values}}}\right)
 \end{equation} 
-Variation in the LogRRatio across a single chromosome indicates possible duplication or deletion, and is an indication
+Variation in the LRR across a single chromosome indicates possible duplication or deletion, and is an indication
 of overall sample quality. 
  
-The BAlleleFrequency is the frequency of the B allele in the population of cells from which the DNA is extracted.  
-Each sample and SNP combination has a BAlleleFrequency value.  Note the BAlleleFrequency values vary for a subject
+The BAF is the frequency of the B allele in the population of cells from which the DNA is extracted.  
+Each sample and SNP combination has a BAF value.  Note the BAF values vary for a subject
 with each DNA extraction and tissue used. 
 After all SNPs have been read and all samples have been clustered for a probe, 
 the mean $\theta$ ``cluster'' value is calculated for each probe, for each of the three genotype clusters, 
 resulting in $\theta_{AA}, \theta_{AB} \text{ and }\theta_{BB}$ for every probe.  
 Then the $\theta$ value for each sample, call it $\theta_{n}$, 
 is compared to $\theta_{AA}, \theta_{AB}\text{ and }\theta_{BB}$.
-The BAlleleFrequency is calculated
+The BAF is calculated
 \begin{equation*}
- \text{BAlleleFrequency}= 
+ \text{BAF}= 
 \begin{cases}
 0 & \text{if } \theta_{n} < \theta_{AA}\\
  \mbox{}\\
@@ -549,25 +554,25 @@ The BAlleleFrequency is calculated
 \end{equation*}
 A $\theta_{n}$ value of 0 or 1 corresponds to a homozygote genotype for sample $n$ at that
 particular probe, and a $\theta_{n}$ value of 1/2 indicates a heterozygote genotype.
-Thus, $BAlleleFrequency \in[0,1]$ for each probe.  Across a chromosome, three bands are expected, 
+Thus, $BAF \in[0,1]$ for each probe.  Across a chromosome, three bands are expected, 
 one hovering around 0, one around 1 and one around 0.5, and any deviation from this is considered aberrant.
 
-We use the BAlleleFrequency and LogRRatio values to detect mixed samples or samples of low quality, 
+We use the BAF and LRR values to detect mixed samples or samples of low quality, 
 as well as chromosomal duplications and deletions.  Samples that have a significantly large 
-(partial or full chromosome) aberration for a particular chromosome as detected from the BAlleleFrequency 
+(partial or full chromosome) aberration for a particular chromosome as detected from the BAF 
 values are recommended to be filtered out, for the genotype data are not reliable in these situations.  
-Because of these applications, the BAlleleFrequency and LogRRatio values are a salient part of the data cleaning steps.
+Because of these applications, the BAF and LRR values are a salient part of the data cleaning steps.
 
 In addition to the three variables held in common with all NetCDF files ({\tt sampleID, chromosome} and {\tt position}),
-the BAlleleFrequency and LogRRatio values are written to this NetCDF in a two dimensional format, 
+the BAF and LRR values are written to this NetCDF in a two dimensional format, 
 with SNPs corresponding to rows and samples corresponding to columns.
 
-\subsubsection*{Creating the BAlleleFrequency and LogRRatio NetCDF file}
+\subsubsection*{Creating the BAF and LRR NetCDF file}
 
-The first step in creating the BAlleleFrequency NetCDF is to create a `shell' NetCDF
+The first step in creating the BAF/LRR NetCDF is to create a `shell' NetCDF
 file to which the data will be written.  We can use the same function used for creating the other shell
 NetCDF files, {\tt ncdfCreate}.  The two dimensions and three common variables will be created
-along with the BAlleleFrequency and LogRRatio variables.
+along with the BAF and LRR variables.
 In order to allow for a reasonable computation time, we will create the file to hold data for 3 samples only.
 
 <<>>=
@@ -584,7 +589,7 @@ ncdfCreate(ncdf.filename = bl.nc.file,
 @ 
 		
 We next call the {\tt ncdfAddData} function to populate the intensity NetCDF with the 
-BAlleleFrequency and LogRRatio values. The sample identifier {\tt scanID} is also populated at the same time.
+BAF and LRR values. The sample identifier {\tt scanID} is also populated at the same time.
 
 <<>>=
 # first 3 samples only
@@ -614,7 +619,7 @@ diag.bl <- ncdfAddData(path = path,
 <<>>=
 # Open the NetCDF file we just created
 (blfile <- NcdfIntensityReader(bl.nc.file))
-# Look at the BAlleleFrequency values for the first 5 SNPs
+# Look at the BAF values for the first 5 SNPs
 (baf <- getBAlleleFreq(blfile, snp=c(1,5), scan=c(1,3)))
 # Close the NetCDF file
 close(blfile)
@@ -667,18 +672,18 @@ requires that the scan annotation of this object contains a ``sex''
 column.
 There is also an option to send a vector of SNPs to exclude from the
 calculation, which is what we will use later to find {\tt missing.n2}.  For now, we will use all SNPs for each sample, 
-being sure to calculate by gender.  The function returns a list, with one element that holds the missing counts for each
-SNP and one element that holds the sex counts; we will save these results to be used later.
+being sure to calculate by sex.  The function returns a list, with one element that holds the missing counts for each
+SNP, one element that holds the sex counts, and one element that holds
+the fraction of missing calls.
 
 <<>>=
 # open the netCDF file and create a GenotypeData object
-ncfile <- system.file("extdata", "illumina_geno.nc",
-  package="GWASdata")
+ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(ncfile)
 # sex is required for this function, so we need the scan annotation
 genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
 # Calculate the number of missing calls for each snp over all samples 
-#     for each gender separately
+#     for each sex separately
 miss <- missingGenotypeBySnpSex(genoData)
 # Examine the results
 names(miss)
@@ -690,10 +695,12 @@ head(miss$missing.fraction)
 The Y chromosome should be missing for all females, but an occasional probe on the Y chromosome is called in 
 a female. \texttt{missingGenotypeBySnpSex} excludes females when
 calculating the missing rate for Y chromosome SNPs. Note this may need to be changed 
-later if there are some gender mis-annotations because the Y chromosome SNP missing call rates may change.
-We add the missing call rates to the SNP annotation table and save a new version. 
+later if there are some sex mis-annotations because the Y chromosome SNP missing call rates may change.
+We add the missing call rates to the SNP annotation. 
 
 <<>>=
+# Make sure ordering matches snp annotation
+allequal(snpAnnot$snpID, as.numeric(names(miss$missing.fraction)))
 snpAnnot$missing.n1 <- miss$missing.fraction
 varMetadata(snpAnnot)["missing.n1", "labelDescription"] <- paste(
   "fraction of genotype calls missing over all samples",
@@ -701,24 +708,9 @@ varMetadata(snpAnnot)["missing.n1", "labelDescription"] <- paste(
 summary(snpAnnot$missing.n1)
 @ 
 
-We will create some plots of the missing call rates so we can easily identify any outliers.
-Plots will be shown of Y chromosome SNP missing call rates for males, and overall SNP missing call rates.
+We plot the missing call rates so we can easily identify any outliers.
 We also find the number of SNPs with 100\% missing, and the fraction of SNPs with missing call rate less than
 0.05 for each chromosome type. 
-
-\begin{figure}[ht!]
-\centering
-<<fig=TRUE>>=
-hist(snpAnnot$missing.n1[snpAnnot$chromosome == 25],
-     xlab="Fraction of Y chr SNP missing calls", 
-     main="Y Chromosome SNP Missing Call Rate for Males")
-@ 
-\caption{Missing call rate over all probes on the Y chromosome for the male samples only.  The missing call 
-rate for all females over the Y chromosome is identically 1. Although it may seem as if three samples have a higher missing
-call rate, one must note the small scale on the x-axis.  There are no samples here that have an unacceptable missing call rate.}
-\label{fig:Miss_call_rate_Y}
-\end{figure}
-
 
 \begin{figure}[ht!]
 \centering
@@ -757,8 +749,9 @@ This step calculates {\tt missing.e1}, which is the missing call rate per sample
 We read in the new SNP annotation file which holds the {\tt missing.n1} variable.  
 For those SNPs with a {\tt missing.n1}
 value less than one, we call the {\tt missingGenotypeByScanChrom} function that returns a list with one element holding
-the missing counts per sample by chromosome and one element holding the number of SNPs per chromosome.  We check these values
-to ensure they are as expected.
+the missing counts per sample by chromosome, one element holding the
+number of SNPs per chromosome, and one element holding the fraction of
+missing calls over all chromosomes.
 
 <<>>=
 # Want to exclude all SNP probes with 100% missing call rate
@@ -767,7 +760,7 @@ sum(snpAnnot$missing.n1 == 1)
 # Create a variable that contains the IDs of these SNPs to exclude
 snpexcl <- snpAnnot$snpID[snpAnnot$missing.n1 == 1]
 length(snpexcl)
-# Use the missingGenotypeByScanChrom function
+# Calculate the missing call rate per sample
 miss <- missingGenotypeByScanChrom(genoData, snp.exclude=snpexcl)
 names(miss)
 head(miss$missing.counts)
@@ -797,7 +790,7 @@ We will create a histogram of the overall missing call rate per sample in order 
 a relatively larger missing call rate.  It is known that genotype data taken from DNA that has been through whole-genome
 amplification (WGA) has an overall higher missing call rate; this is something that we would see at this step if any 
 samples are of WGA origin. We also look at the summary of the missing call rate for females and males separately to 
-ensure there are no large gender differences. Finally, we calculate the number of samples with a missing call rate 
+ensure there are no large sex differences. Finally, we calculate the number of samples with a missing call rate 
 greater than 0.05.  In this case, there are no such samples but in other data this may not be the case.
 If any samples have a high missing rate, we recommend further investigation of what may be causing the missing calls;
 the samples with a missing call rate greater than 0.05 should be filtered out due to low sample quality. 
@@ -829,7 +822,6 @@ We calculate these values here and add them to the sample annotation file.
 Also, we will create a logical {\tt duplicated} variable.  We can identify the duplicated scans in the sample
 annotation file by identifying the subject ids that occur more than once.  Among samples with the same subject id, the 
 one with the lowest {\tt missing.e1} value will have the variable {\tt duplicated} set to {\tt FALSE}.
-We then write a new version of the sample annotation with these added variables. 
 
 <<>>=
 auto <- colnames(miss$missing.counts) %in% 1:22
@@ -862,9 +854,8 @@ varMetadata(scanAnnot)["duplicated", "labelDescription"] <-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection*{Calculate {\tt missing.n2} }
 
-This step calculates {\tt missing.n2}, which is the missing call rate per SNPs with {\tt missing.e1} less 
-than 0.05 over all samples.  This calculation is done separately for each sex as in {\tt missing.n1} in 
-Section~\ref{sec:missing.n1}. We read in the sample annotation file which holds the {\tt missing.e1} variable.  
+This step calculates {\tt missing.n2}, which is the missing call rate per SNP with {\tt missing.e1} less 
+than 0.05 over all samples.
 In some cases, there will be samples with missing call rate greater than 0.05.  However, because of the high 
 quality of the HapMap data, there are no such samples in this case.  We will continue with the steps as if there are 
 samples we must exclude from the {\tt missing.n2} calculation. We call the {\tt missingGenotypeBySnpSex} 
@@ -872,19 +863,11 @@ function just as we did to calculate for {\tt missing.n1}, but this time we incl
 exclude from the calculation (although here that list is empty).
 
 <<>>=
-sum(scanAnnot$missing.e1 > 0.05)
 # Find the samples with missing.e1 > .05 and make a vector of 
 # scanID to exclude from the calculation
 scan.exclude <- scanAnnot$scanID[scanAnnot$missing.e1 > 0.05]
 # Call missingGenotypeBySnpSex and save the output
 miss <- missingGenotypeBySnpSex(genoData, scan.exclude=scan.exclude)
-length(miss)
-names(miss) # Check that all SNPs are listed
-dim(miss$missing.counts)
-miss$scans.per.sex
-dim(miss$missing.fraction)
-# Make sure ordering matches snp annotation
-allequal(snpAnnot$snpID, as.numeric(names(miss$missing.fraction)))
 snpAnnot$missing.n2 <- miss$missing.fraction
 varMetadata(snpAnnot)["missing.n2", "labelDescription"] <- paste(
   "fraction of genotype calls missing over all samples with missing.e1<0.05",
@@ -897,27 +880,13 @@ summary(snpAnnot$missing.n2)
 \subsubsection*{Calculate {\tt missing.e2} }
 
 This step calculates {\tt missing.e2}, which is the missing call rate per sample over all SNPs 
-with {\tt missing.n2} less than 0.05. We read in the new SNP annotation file which holds the {\tt missing.n2} variable.  
-Because we must exclude those SNPs with a sufficiently high missing call rate, we will create a vector of SNPs that 
-have {\tt missing.n2} greater than 0.05.  Then, for the non-excluded SNPs we call the {\tt missingGenotypeByScanChrom}
-function, which returns a list with one element holding the missing counts per sample by chromosome and one element 
-holding the number of SNPs per chromosome.  We check these values to ensure they are as expected.
+with {\tt missing.n2} less than 0.05.  
 
 <<>>=
 # Create a vector of the SNPs to exclude.
 snpexcl <- snpAnnot$snpID[snpAnnot$missing.n2 >= 0.05]
 length(snpexcl)
-# Use the missingGenotypeByScanChrom function
 miss <- missingGenotypeByScanChrom(genoData, snp.exclude=snpexcl)
-names(miss)
-head(miss$missing.counts)
-head(miss$snps.per.chr)
-# Check to make sure that the correct number of SNPs were excluded 
-sum(miss$snps.per.chr)
-nrow(snpAnnot) - sum(miss$snps.per.chr)
-head(miss$missing.fraction)
-# Check the ordering matches the sample annotation file
-allequal(names(miss$missing.fraction), scanAnnot$scanID)
 # Add the missing call rates vector to the sample annotation file
 scanAnnot$missing.e2 <- miss$missing.fraction
 varMetadata(scanAnnot)["missing.e2", "labelDescription"] <- paste(
@@ -927,7 +896,7 @@ summary(scanAnnot$missing.e2)
 @ 
 
 We will create a histogram of the overall missing call rate per sample in order to identify any samples with
-a relatively larger missing call rate.  Finally, we plot the samples sorted by missing call rate.
+a relatively larger missing call rate.
 
 \begin{figure}[ht!]
 \centering
@@ -940,18 +909,6 @@ hist(scanAnnot$missing.e2, xlab="Fraction of missing calls over all probes
 \label{fig:missing_e2}
 \end{figure}
 
-\begin{figure}[ht!]
-\centering
-<<fig=TRUE>>=> 
-plot(sort(scanAnnot$missing.e2), rank(sort(scanAnnot$missing.e2)), 
-     xlab="Fraction of missing calls over probes with MCR < 0.05",
-     ylab="rank", cex.lab=0.75,
-     main="Sorted Fraction of Missing Call Rate \nOver All Probes with MCR < 0.05")
-@ 
-\caption{In increasing order, a plot of the fraction of missing calls for each sample over all probes with missing call
-rate less than 0.05.}
-\label{fig:missing_e2_sort}\end{figure}
-
 
 
 
@@ -961,9 +918,7 @@ rate less than 0.05.}
 
 Next, the missing call rate by batch is calculated to check that there are no batches with comparatively lower
 call rates.  Usually a ``batch'' is a plate containing samples that were processed together through the genotyping chemistry.  In this case all samples were run on different plates (as controls for another dataset), so we use the simulated variable ``batch.''
-We calculate the mean missing call rate for all samples in each of the batches by simply taking the mean 
-of all samples in a given batch of the 
-missing call rate per sample value, stored in the sample annotation file as {\tt missing.all}. 
+We calculate the mean missing call rate for all samples in each of the batches. 
 
 <<>>=
 varLabels(scanAnnot)
@@ -978,8 +933,7 @@ table(scanAnnot$batch, useNA="ifany")
 # Plot the distribution of the number of samples per batch.
 barplot(table(scanAnnot$batch), 
         ylab="Number of Samples", xlab="Batch", 
-        main="Distribution of Samples per Batch", 
-        cex.axis=0.85, cex.names=0.75, cex.lab=0.9)
+        main="Distribution of Samples per Batch")
 @ 
 \caption{The distribution of the samples among the batches.}
 \label{fig:samples_per_batch}
@@ -1015,7 +969,7 @@ anova(y)
 <<fig=TRUE>>=
 plot(bn, bmiss, 
  xlab="Number of samples per batch", ylab="Mean missing call rate", 
- main="Mean Missing Call Rate vs\nSamples per Batch", cex.main=0.8)
+ main="Mean Missing Call Rate vs\nSamples per Batch")
 abline(y$coefficients)
 @ 
 \caption{The number of samples per batch plotted against the mean missing call rate.  The 
@@ -1038,24 +992,23 @@ individually and a pool of all the other batches in the study.  We then look at 
 in the scan annotation  to identify the samples in each batch,
 so we must include the scan annotation in the {\tt GenotypeData} object.
 Then we call the function {\tt batchChisqTest} 
-which calculates the $\chi^2$ values from 2x2 tables for each SNP,
+which calculates the $\chi^2$ values from $2 \times 2$ tables for each SNP,
 comparing each batch with the other batches.  This function returns the
 genomic inflation factors for each batch, as well as matrix of $\chi^2$ values for
 each SNP.
 
 <<>>=
-# Perform the Chi-square test using the batchChisqTest function
 res <- batchChisqTest(genoData, batchVar="batch", return.by.snp=TRUE)
 close(genoData)
 # chi-square values for each SNP
 dim(res$chisq)
 # genomic inflation factor
 res$lambda
-# Examine the average chi-square test statistics for each of the batches
+# average chi-square test statistic for each of the batches
 res$mean.chisq
 @ 
 
-Next we test for association between batches and population groups, using a $\chi^2$ contingency test.  Then we look at the relationship between the ethnic composition of each batch and the previously calculated $\chi^2$ test of allelic frequency between each batch and a pool of the other batches.  The point is to look for batches that differ from others of similar ethnic composition, which might indicate a batch effect due to genotyping artifact.  In this experiment, there are only a few batches and wide variations in ethnicity among batches, so it is difficult to interpret the results.  In larger GWAS experiments, we generally observe a U-shaped curve of allelic frequency test statistic as a function of ethnic composition.
+Next we test for association between batches and population groups, using a $\chi^2$ contingency test.  Then we look at the relationship between the ethnic composition of each batch and the previously calculated $\chi^2$ test of allelic frequency between each batch and a pool of the other batches.  The point is to look for batches that differ from others of similar ethnic composition, which might indicate a batch effect due to genotyping artifact.  In this experiment, there are only a few batches and wide variations in race among batches, so it is difficult to interpret the results.  In larger GWAS experiments, we generally observe a U-shaped curve of allelic frequency test statistic as a function of ethnic composition.
 
 <<>>=
 x <- table(scanAnnot$race, useNA="ifany")
@@ -1067,8 +1020,7 @@ x
 # Run an approximate chi-square test to see if there are ethnic effects
 chisq <- chisq.test(x)
 chisq$p.value
-# Check if ethnicity CEU has a batch effect
-# Calculate the fraction of samples in each batch that are CEU ethnicity
+# Calculate the fraction of samples in each batch that are CEU
 batches <- unique(scanAnnot$batch)
 eth <- rep(NA,length(batches)); names(eth) <- sort(batches)
 for(i in 1:length(batches)){
@@ -1105,9 +1057,8 @@ for the particular batch.  The red line is the average fraction of samples that 
 \section{Sample Quality Checks}
 
 In this step we examine sample quality using three methods.  We check for outliers in genotype quality score;
-we check for anomalous sample-chromosome pairs using BAlleleFreq variance analysis; lastly, we check 
-sample missingness and heterozygosities.  We use Illumina data, since
-the B Allele Frequency and Log R Ratio are included in the dataset.
+we check for anomalous sample-chromosome pairs using BAF variance analysis; lastly, we check 
+sample missingness and heterozygosities. 
 
 \subsection{Sample genotype quality scores}
 
@@ -1121,12 +1072,10 @@ Calculate quality scores by sample.  The {\tt
     genotypes and should be omitted from the calculation.
   
 <<>>=
-qxyfile <- system.file("extdata", "illumina_qxy.nc", 
-  package="GWASdata")
+qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 qualNC <- NcdfIntensityReader(qxyfile)
 qualData <- IntensityData(qualNC, scanAnnot=scanAnnot)
-genofile <- system.file("extdata", "illumina_geno.nc", 
-  package="GWASdata")
+genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genoNC <- NcdfGenotypeReader(genofile)
 genoData <- GenotypeData(genoNC, scanAnnot=scanAnnot)
 qual.results <- qualityScoreByScan(qualData, genoData)
@@ -1152,66 +1101,63 @@ cause for concern that the sample(s) in question were of significantly lower qua
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \clearpage
-\subsection{BAlleleFreq variance analysis}
+\subsection{B Allele Frequency variance analysis}
 
-The "BAlleleFreq" was previously calculated for each SNP-sample combination. ``BAlleleFreq'' is a standardized version of the polar coordinate angle. It calculates
-the frequency of the B allele within a single sample. Under normal circumstances, the true frequency
+BAF is a standardized version of the polar coordinate angle (Section \ref{sec:baf_lrr}). It calculates
+the frequency of the B allele within a single sample. 
+Under normal circumstances, the true frequency
 is 0, $\frac{1}{2}$, or 1. In cases of allelic imbalance the true frequencies may vary. For example, in a 
 population of trisomic cells, the true frequencies would be 0, $\frac{1}{3}$, $\frac{2}{3}$, or 1. Here we calculate the variance of BAF (for SNPs called as heterozygotes) within a sliding window along each chromosome for each sample.  Each chromosome is divided into 12 sections with equal numbers of SNPs and the variance is calculated in a window of two adjacent sections (one-sixth of the chromosome), which slides along the chromosome in increments of one section. Regions (windows)
 with very high BAF variance can indicate chromosomal anomalies. 
 
 
 \subsubsection*{Calculate the sliding window BAF standard deviation}
-This process identifies chromosome-sample pairs that have windows with very high BAlleleFreq
+This process identifies chromosome-sample pairs that have windows with very high BAF
 standard deviation, with ``very high'' defined as more than 4 standard deviations from the window's
-mean BAlleleFreq standard deviation over all samples. The output is a matrix listing all sample-chromosome 
-pairs with high BAlleleFreq standard deviations, the number of windows with high SDs in 
-each pair, and the sample's sex. We examine plots of BAlleleFreq by
+mean BAF standard deviation over all samples. The output is a matrix listing all sample-chromosome 
+pairs with high BAF standard deviations, the number of windows with high SDs in 
+each pair, and the sample's sex. We examine plots of BAF by
 position for each identified chromosome-sample pair (though only a
 subset of plots are shown here).
 
 First, run the {\tt meanBAFbyScanChromWindow} function. This
-    requires both an {\tt IntensityData} object with BAlleleFreq
+    requires both an {\tt IntensityData} object with BAF
     and a {\tt GenotypeData} object. Its output is a list of matrices, with
 one matrix for each chromosome containing the standard
-deviation of BAlleleFreq at each window in each scan.
+deviation of BAF at each window in each scan.
   
 <<>>=
-blfile <- system.file("extdata", "illumina_bl.nc", 
-  package="GWASdata")
+blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blNC <- NcdfIntensityReader(blfile)
 blData <- IntensityData(blNC)
 nbins <- rep(12, 3)
 slidingBAF12 <- sdByScanChromWindow(blData, genoData, nbins=nbins)
-length(slidingBAF12)
-dim(slidingBAF12[[1]])
-dim(slidingBAF12[[2]])
+names(slidingBAF12)
+dim(slidingBAF12[["21"]])
 @ 
 
 The function {\tt meanBAFSDbyChromWindow} calculates the mean and standard 
-deviation of the BAlleleFreq standard deviations in each window in each chromosome over
+deviation of the BAF standard deviations in each window in each chromosome over
 all samples. For the X chromosome, males and females are calculated separately, and we
 save the results split by sex.
 
 <<>>=
-sds.chr <- meanSdByChromWindow(slidingBAF12, 
-                               scanAnnot$sex)
+sds.chr <- meanSdByChromWindow(slidingBAF12, scanAnnot$sex)
 sds.chr[["21"]]
 sds.chr[["X"]]     
 @ 
 
-Next, identify windows within sample-chromosome pairs that have very high BAlleleFreq
+Next, identify windows within sample-chromosome pairs that have very high BAF
 standard deviations compared to the same window in other samples. 
 
 <<>>=
-res12bin4sd <- findBAFvariance(sds.chr, slidingBAF12, 
-                               scanAnnot$sex, sd.threshold=4)
-nrow(res12bin4sd)
+res12bin4sd <- findBAFvariance(sds.chr, slidingBAF12, scanAnnot$sex, 
+                               sd.threshold=4)
 head(res12bin4sd)
 table(res12bin4sd[, "chromosome"])
 @ 
 
-Call {\tt chromIntensityPlot} to plot the BAlleleFreq of all SNPs on the indicated chromosome-sample
+Call {\tt chromIntensityPlot} to plot the BAF of all SNPs on the indicated chromosome-sample
 pair against position.  This yields many plots that must be individually examined
 to distinguish noisy data from chromosomal abnormalities.
 
@@ -1224,10 +1170,9 @@ chrom[res12bin4sd[, "chromosome"] == "X"] <- 23
 bincode <- paste("Bin", res12bin4sd[, "bin"], sep = " ")
 sexcode <- paste("Sex", res12bin4sd[, "sex"], sep = " ")
 code <- paste(bincode, sexcode, sep = ", ")
-plotind <- 1
-chromIntensityPlot(blData, scanID[plotind], chrom[plotind],
-                   info=code[plotind])
+chromIntensityPlot(blData, scanID[1], chrom[1], info=code[1])
 @
+\caption{BAF/LRR plot for a sample with high BAF variance.}
 \label{fig:bafcheck}
 \end{figure}
 
@@ -1345,7 +1290,7 @@ boxplot(scanAnnot$het.A[male] ~ scanAnnot$race[male],
 \section{Sample Identity Checks}
 
 This step performs a series of identity checks on the samples. First, samples are analyzed to determine if 
-there exist any gender discrepancies between the annotated and genetic genders in the sample. 
+there exist any discrepancies between the annotated sex and genetic sex in the sample. 
 Next, the relatedness among samples is investigated through IBD estimation. Finally, the samples are checked 
 for potential population substructure, which if unidentified can threaten the validity of subsequent analyses.  
 
@@ -1353,13 +1298,14 @@ for potential population substructure, which if unidentified can threaten the va
 
 
 
-\subsection{Mis-annotated Gender Check}
+\subsection{Mis-annotated Sex Check}
 
-This section looks for discrepancies between the annotated and genetic genders. Gender identity is usually inferred 
+This section looks for discrepancies between the annotated sex and
+genetic sex.  Sex is usually inferred 
 from X chromosome heterozygosity, but our experience is that this variable can give ambiguous results when used 
-alone (for example, in XXY males or due to genotyping artifacts). Plots of the mean allelic intensities of SNPs on the X and Y chromosomes can identify mis-annotated gender as well as sex chromosome aneuploidies. It is important to have accurate 
-gender annotation not only for completeness but also for analyses which treat male and female samples separately. 
-Any found gender mis-annotations are presented to the investigators in order to resolve discrepancies. If a genetic and recorded gender do not match, 
+alone (for example, in XXY males or due to genotyping artifacts). Plots of the mean allelic intensities of SNPs on the X and Y chromosomes can identify mis-annotated sex as well as sex chromosome aneuploidies. It is important to have accurate 
+sex annotation not only for completeness but also for analyses which treat male and female samples separately. 
+Any found sex mis-annotations are presented to the investigators in order to resolve discrepancies. If a genetic and recorded sex do not match, 
 a collective decision must be made regarding the inclusion of those genetic data. In some cases a recording error explains the discrepancy, but more often the discrepancy is unexplained. These cases are assumed to be a sample mis-identification and these samples are excluded from subsequent analyses.
 
 In order to compare the mean X and Y chromosome intensities for all samples, we must calculate the mean intensity
@@ -1367,21 +1313,20 @@ for each sample by chromosome. The function {\tt meanIntensityByScanChrom} calcu
 and standard deviation of the sum of the two allelic intensities for each probe on a given chromosome.  
 A matrix with one row per sample and one column per chromosome with entries $[i,j]$ corresponding to either the mean or 
 standard deviation of all probe intensities for the $i^{\text th}$ sample and the $j^{\text th}$ chromosome is returned 
-from the function.
+from the function.  Note that ``X'' and ``Y'' in the list names refer
+to the X and Y intensity values and not to the chromosomes.
 
 <<>>=
-qxyfile <- system.file("extdata", "illumina_qxy.nc",
-  package="GWASdata")
+qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 intenNC <- NcdfIntensityReader(qxyfile)
 inten.by.chrom <- meanIntensityByScanChrom(intenNC)
 close(intenNC)
-length(inten.by.chrom)
 names(inten.by.chrom)
 @ 
 
-Now we will use the calculated mean intensities by sample to identify any gender mis-annotation or sex 
-chromosome aneuploidies. For the plots, we will create a color coding corresponding to the annotated gender, with blue 
-for males and red for females. We will also load in the SNP annotation file to find the probe counts for the X and Y 
+Now we will use the calculated mean intensities by sample to identify any sex mis-annotation or sex 
+chromosome aneuploidies. For the plots, we will create a color coding corresponding to the annotated sex, with blue 
+for males and red for females. We also use the SNP annotation to find the probe counts for the X and Y 
 chromosomes; we use these in the plot axis labels.
 
 <<>>=
@@ -1389,7 +1334,7 @@ mninten <- inten.by.chrom[[1]]  # mean intensities
 dim(mninten)
 # Check to be sure sample ordering is consistent
 allequal(scanAnnot$scanID, rownames(mninten))
-# Assign each gender a color
+# Assign each sex a color
 xcol <- rep(NA, nrow(scanAnnot))
 xcol[scanAnnot$sex == "M"] <- "blue"
 xcol[scanAnnot$sex == "F"] <- "red"
@@ -1398,8 +1343,8 @@ ny <- sum(snpAnnot$chromosome == 25)
 @ 
 
 For two of the plots we will create next, we use the autosome and X chromosome heterozygosity values calculated
-in an earlier step and stored in the sample annotation file. It is assumed the sample 
-annotation file holds these values. Four plots will now be created: mean X chromosome intensity versus mean Y chromosome 
+in an earlier step and stored in the sample annotation. 
+Four plots will now be created: mean X chromosome intensity versus mean Y chromosome 
 intensity, mean X chromosome intensity versus X chromosome heterozygosity, mean X chromosome heterozygosity versus 
 mean Y chromosome intensity and mean autosomal heterozygosity versus mean X chromosome heterozygosity. The fourth plot 
 applies to annotated females only, since males are expected to have zero heterozygosity on the X chromosome.
@@ -1410,7 +1355,7 @@ x1 <-mninten[,"X"]; y1 <- mninten[,"Y"]
 main1 <- "Mean X vs \nMean Y Chromosome Intensity"
 #Het on X vs X intensity
 x2 <- mninten[,"X"]; y2 <- scanAnnot$het.X
-main2 <- "Mean X Chromosome vs
+main2 <- "Mean X Chromosome Intensity vs
   Mean X Chromosome Heterozygosity"
 # Het on X vs Y intensity
 y3 <- mninten[,"Y"]; x3 <- scanAnnot$het.X
@@ -1425,7 +1370,7 @@ cols <- c("blue","red")
 mf <- c("male", "female")
 xintenlab <- paste("X intensity (n=", nx, ")", sep="")
 yintenlab <- paste("Y intensity (n=", ny, ")", sep="")
-pdf("DataCleaning-gender.pdf")
+pdf("DataCleaning-sex.pdf")
 par(mfrow=c(2,2))
 plot(x1, y1, xlab=xintenlab, ylab=yintenlab, 
   main=main1, col=xcol, cex.main=0.8)
@@ -1441,9 +1386,8 @@ dev.off()
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-gender}
-\caption{Intensity plots for all samples, with blue indicating an annotated male and red
-corresponding to annotated females}
+\includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-sex}
+\caption{Intensity plots for all samples, with blue=annotated males and red=annotated females}
 \label{fig:inten_plots}
 \end{figure}
 
@@ -1466,23 +1410,20 @@ estimation (MLE) of the IBD probabilities {\tt k1} and {\tt k0}
 \footnote{Weir, B. S., Anderson, A. D. \& Hepler, A. B. Genetic relatedness analysis: modern data and new challenges.
 \textit{Nature Reviews Genetics} \textbf{7}, 771-780 (October 2006).}, 
 and then graphs {\tt k1} versus {\tt k0}. The calculations are done
-using the {\tt gdsfmt} and {\tt SNPRelate} packages developed as part 
-of the GENEVA project.   {\tt gdsfmt} is a library that uses a file
-format similar to the NetCDF files, and {\tt SNPRelate} performs the
+using the gdsfmt and SNPRelate packages developed as part 
+of the GENEVA project.   gdsfmt is a library that uses a file
+format similar to the NetCDF files, and SNPRelate performs the
 IBD calculations using this data format.
                              
 
 \subsubsection*{IBD Using Maximum Likelihood Estimation (MLE)}                             
       
-
-We assume the sample annotation file has the {\tt duplicated} variable, while the SNP file needs to have 
-{\tt chromosome} and {\tt missing.n1} variables. We will convert the genotype NetCDF file to the {\tt gds} format with the function {\tt convertNcdfGds}.
+We will convert the genotype NetCDF file to the {\tt gds} format with the function {\tt convertNcdfGds}.
 
 <<>>=
 library(gdsfmt)
 library(SNPRelate)
-ncfile <- system.file("extdata", "illumina_geno.nc",
-  package="GWASdata")
+ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 gdsfile <- "tmp_geno.gds"
 convertNcdfGds(ncfile, gdsfile)
 @ 
@@ -1509,8 +1450,7 @@ considered.
 sample.sel <- scanAnnot$scanID[scanAnnot$race == "CEU"]
 length(sample.sel)
 gdsobj <- openfn.gds(gdsfile)
-ibdobj <- snpgdsIBDMLE(gdsobj, sample.id=sample.sel,
-                       snp.id=snp.sel, method="EM")
+ibdobj <- snpgdsIBDMLE(gdsobj, sample.id=sample.sel, snp.id=snp.sel, method="EM")
 closefn.gds(gdsobj)
 names(ibdobj)
 dim(ibdobj$k0)
@@ -1577,10 +1517,9 @@ pedigreeCheck(uni.ped)
 
  Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
 among the samples by calling the function {\tt pedigreePairwiseRelatedness}. The relationships looked for as annotated are:
-UN = unrelated, PO = parent/offspring, FS = full siblings, HS = half siblings, and FC = first cousins.
+U = unrelated, PO = parent/offspring, FS = full siblings, HS =
+half-sibling-like (including avuncular and grandparent-grandchild), and FC = first cousins.
 Families where mothers and fathers are related are also looked for among the family annotations.
-It is this function output with annotated expected relationships that we will compare with the relationship estimates
-calculated earlier and saved in the R object {\tt ibd}. 
 
 <<>>=
 rels <- pedigreePairwiseRelatedness(uni.ped)
@@ -1594,7 +1533,7 @@ In order to plot the IBD coefficient estimates color coded by expected
 relationships, we retrieve a data.frame of sample pairs with $KC > 1/32$. 
 The samples must be coded in terms of subject id and each pair of samples must be annotated with the expected 
 relationship.
-We can also assigned observed relationships based on the values of $k0$
+We can also assign observed relationships based on the values of $k0$
 and $k1$.
 
 <<>>=
@@ -1660,8 +1599,7 @@ threshold; we choose 15 kb here.
 nc <- NcdfGenotypeReader(ncfile)
 genoData <-  GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 # sample selection - unduplicated YRI samples
-sample.excl <- scanAnnot$scanID[scanAnnot$race != "YRI" |
-                                scanAnnot$duplicated]
+sample.excl <- scanAnnot$scanID[scanAnnot$race != "YRI" | scanAnnot$duplicated]
 length(sample.excl)
 afreq <- alleleFrequency(genoData, scan.exclude=sample.excl)
 close(genoData)
@@ -1694,8 +1632,7 @@ We now use the function {\tt snpgdsIBDMoM} to perform IBD
 sample.sel <- scanAnnot$scanID[scanAnnot$race == "YRI"]
 snp.sel <- snpAnnot$snpID[snpAnnot$r15kb]
 gdsobj <- openfn.gds(gdsfile)
-ibdobj <- snpgdsIBDMoM(gdsobj, sample.id=sample.sel,
-                    snp.id=snp.sel)
+ibdobj <- snpgdsIBDMoM(gdsobj, sample.id=sample.sel, snp.id=snp.sel)
 closefn.gds(gdsobj)
 dim(ibdobj$k0)
 ibdobj$k0[1:5,1:5]
@@ -1806,8 +1743,9 @@ ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
 
 In this section, we perform principal component analysis (PCA) in order to detect any population substructure that 
 may exist among samples in a study. After calculating the eigenvectors for the samples, we plot the values for each of the first 4 
-eigenvectors in a pairwise fashion for each individual. By color coding the plots by annotated ethnicity, we can 
-identify any individuals whose recorded self-identified ethnicity differs from their inferred genetic ancestry. Further, we can use the PCA-identified continental ancestry when stratifying 
+eigenvectors in a pairwise fashion for each individual. By color
+coding the plots by annotated race and/or ethnicity, we can 
+identify any individuals whose recorded self-identified race/ethnicity differs from their inferred genetic ancestry. Further, we can use the PCA-identified continental ancestry when stratifying 
 samples by population group. It may also be useful to include the values of some eigenvectors as covariates in 
 association tests.
 
@@ -1850,7 +1788,6 @@ eigenvectors.
  
 <<>>=
 pca <- snpgdsPCA(gdsobj, sample.id=sample.sel, snp.id=snp.pruned)
-closefn.gds(gdsobj)
 names(pca)
 length(pca$eigenval)
 dim(pca$eigenvect)
@@ -1866,7 +1803,7 @@ pc.frac <- pca$eigenval/sum(pca$eigenval)
 lbls <- paste("EV", 1:4, "\n", format(pc.frac[1:4], digits=2), sep="")
 samp <- pData(scanAnnot)[match(pca$sample.id, scanAnnot$scanID),]
 cols <- rep(NA, nrow(samp))
-cols[samp$race == "CEU"] <- "black"
+cols[samp$race == "CEU"] <- "blue"
 cols[samp$race == "YRI"] <- "red"
 @ 
 
@@ -1874,7 +1811,7 @@ cols[samp$race == "YRI"] <- "red"
 \centering
 <<fig=TRUE>>=
 pairs(pca$eigenvect[,1:4], col=cols, labels=lbls,
-  main = "CEU: black, YRI: red")
+  main = "CEU: blue, YRI: red")
 @ 
 \caption{First four eigenvectors calculated from the principal components analysis.}
 \label{fig:pca_plot}
@@ -1885,7 +1822,8 @@ pairs(pca$eigenvect[,1:4], col=cols, labels=lbls,
 
 A handy method of visualizing the effects of eigenvectors on clusters 
 for a principal components analysis is the parallel coordinates plot. 
-Figure~\ref{fig:par_coord_plot} shows this plot for all samples, colored by ethnicity. 
+Figure~\ref{fig:par_coord_plot} shows this plot for all samples,
+colored by population group. 
 The genetic diversity in the YRI group is apparent in the later eigenvectors, while
 the remaining groups remain in clusters throughout.
 
@@ -1900,14 +1838,43 @@ for (i in 1:14)
   std.coord[,i] <- (par.coord[,i] - rangel[i])/(rangeh[i]-rangel[i]) 
 plot(c(0,15), c(0,1), type = 'n', axes = FALSE, ylab = "", xlab = "", 
  main = "Parallel Coordinates Plot
- CEU: black, YRI: red")
+ CEU: blue, YRI: red")
 for (j in 1:13)
   for (i in sample(1:nrow(std.coord)) )
     lines(c(j,j+1), std.coord[i,c(j,j+1)], col=cols[i], lwd=0.25)
 axis(1, at = 1:14, labels = paste("PC",1:14, sep = "."))
 @ 
-\caption{Parallel coordinates plot of first 14 eigenvectors, colored by ethnicity.}
+\caption{Parallel coordinates plot of first 14 eigenvectors, colored by race.}
 \label{fig:par_coord_plot}
+\end{figure}
+
+\subsubsection*{SNP-PC correlation}
+
+We confirm that there are no correlations between SNPs regions and
+specific eigenvectors by examining plots of SNP correlation
+vs. position on the chromosome.  
+Figure~\ref{fig:snp_corr} shows correlation plots for eigenvectors 1--4.
+Usually we check the first 8-12 eigenvectors.
+
+<<results=hide>>=
+corr <- snpgdsPCACorr(pca, gdsobj, eig.which=1:4)
+closefn.gds(gdsobj)
+snp <- snpAnnot[match(corr$snp.id, snpID),]
+chrom <- getChromosome(snp, char=TRUE)
+pdf("DataCleaning-corr.pdf")
+par(mfrow=c(4,1))
+for (i in 1:4) {
+  snpCorrelationPlot(abs(corr$snpcorr[i,]), chrom,
+                     main=paste("Eigenvector",i), ylim=c(0,1))
+}
+dev.off()
+@ 
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-corr}
+\caption{Correlation between SNP genotype and each of the first 4 eigenvectors.}
+\label{fig:snp_corr}
 \end{figure}
 
 <<echo=FALSE, results=hide>>=
@@ -1950,11 +1917,15 @@ lbls <- paste("EV", 1:3, "\n", format(pc.percent[1:3], digits=2), "%", sep="")
 table(samples.nodup$status)
 cols <- rep(NA, nrow(samples.nodup))
 cols[samples.nodup$status == 1] <- "green"
-cols[samples.nodup$status == 0] <- "red"
+cols[samples.nodup$status == 0] <- "magenta"
 @ 
 
-Plot the principal component pairs for the first three PCs, by
-case-control status. 
+We plot the principal component pairs for the first three PCs by
+case-control status.  
+We then make boxplots for the first few PCs to show differences between cases and controls, along with
+a two-factor ANOVA accounting for case-control status and population group. Since we are using
+randomized case-control status, we do not expect to see a significant difference in principal 
+components between cases and controls, when considering population group. 
 
 \begin{figure}[ht!]
 \centering
@@ -1965,11 +1936,6 @@ pairs(pca$eigenvect[,1:3], col=cols, labels=lbls,
 \caption{The values from the first three eigenvectors plotted for each sample, color coded by case-control status.  
 Green denotes case status and red indicates a control.}
 \end{figure}
-
-Do boxplots for the first few PCs to show differences between cases and controls, along with
-a two-factor ANOVA accounting for case-control status and population group. Since we are using
-randomized case-control status, we do not expect to see a significant difference in principal 
-components between cases and controls, when considering population group. 
 
 \begin{figure}[ht!]
 \centering
@@ -2064,8 +2030,6 @@ out during the final analysis.
 
 \subsection{B Allele Frequency filtering}
 
-
-
 Create an \texttt{IntensityData} object and a \texttt{GenotypeData} object.
 
 <<>>=
@@ -2094,7 +2058,8 @@ pos <- snpAnnot$position
 hla.df <- get(data(HLA.hg18))
 hla <- chrom == "6" & pos >= hla.df$start.base & pos <= hla.df$end.base
 xtr.df <- get(data(pseudoautosomal.hg18))
-xtr <- chrom == "X" & pos >= xtr.df["X.XTR", "start.base"] & pos <= xtr.df["X.XTR", "end.base"]
+xtr <- chrom == "X" & pos >= xtr.df["X.XTR", "start.base"] &
+  pos <= xtr.df["X.XTR", "end.base"]
 centromeres <- get(data(centromeres.hg18))
 gap <- rep(FALSE, nrow(snpAnnot))
 for (i in 1:nrow(centromeres)) {
@@ -2107,8 +2072,7 @@ snp.exclude <- ignore | hla | xtr | gap
 snp.ok <- snpAnnot$snpID[!snp.exclude]
 @ 
 
-We use circular binary segmentation to find change points in B Allele
-Frequency (BAF).
+We use circular binary segmentation to find change points in BAF.
 
 <<>>=
 scan.ids <- scanAnnot$scanID[1:10]
@@ -2130,14 +2094,11 @@ head(baf.filt)
 @ 
 
 
-
 \subsection{Loss of Heterozygosity}
 
-
-
 We look for Loss of Heterozygosity (LOH) anomalies by identifying 
-homozygous runs with change in LogRRatio.
-Change points in LogRRatio are found by circular binary segmentation.
+homozygous runs with change in LRR.
+Change points in LRR are found by circular binary segmentation.
 Known anomalies from the BAF detection are excluded. 
 
 
@@ -2152,8 +2113,6 @@ head(loh.filt)
 
 
 \subsection{Statistics}
-
-
 
 Calculate statistics for the anomalous segments found with the BAF
 and LOH methods.
@@ -2185,11 +2144,8 @@ anomStatsPlot(blData, genoData, anom.stats=stats[1,],
 @ 
 
 
-
 \subsection{Identify low quality samples}
 
-
-  
 To identify low quality samples, one measure we use is the standard deviation
 of BAF and LRR.  BAF results were found previously, now we find
 results for LRR.  Unlike for BAF, all genotypes are included.
@@ -2229,6 +2185,32 @@ close(blData)
 close(genoData)
 @ 
 
+\subsection{Filter anomalies}\label{sec:filt_anom}
+
+We can set genotypes in anomaly regions to missing for future analyses
+(such as Hardy-Weinberg equilibrium and association tests).  We use
+the function {\tt ncdfSetMissingGenotypes} to create a new NetCDF file
+with anomaly regions set to {\tt NA}.  We recommend inspecting the
+plots from {\tt anomStatsPlot} for large anomalies (e.g., $>5$ Mb) to
+identify those anomalies that case genotyping errors.  
+We can also exclude certain
+samples, such as duplicates, low quality samples, and samples with
+unresolved identity issues.
+
+<<>>=
+# anomalies to filter
+anom.filt <- stats[,c("scanID", "chromosome", "left.base", "right.base")]
+# whole.chrom column is required and can be used for sex chromosome
+#   anomalies such as XXX
+anom.filt$whole.chrom <- FALSE 
+# select unique subjects
+subj <- scanAnnot$scanID[!scanAnnot$duplicated]
+subj.filt.ncdf <- "subj_filt.ncdf"
+ncdfSetMissingGenotypes(genofile, subj.filt.ncdf, anom.filt, sample.include=subj)
+(nc <- NcdfGenotypeReader(subj.filt.ncdf))
+close(nc)
+@ 
+
 
 
 \clearpage
@@ -2244,11 +2226,9 @@ error rates and deviation from Hardy-Weinberg equilibrium.
 
 This step calculates the discordance of genotype calls between samples that are duplicates.
 Genotype discordance is evaluated by comparing the genotypes of samples that were genotyped more than once. 
-We can examine the discordance rate with respect to samples or with regard to SNPs.
+We can examine the discordance rate with respect to samples or SNPs.
 The discordance rate for a pair of samples is the fraction of genotype calls that differ over all
 SNPs for which both calls are non-missing. The discordance rate for a SNP is the number of calls that differ divided by the number of duplicate pairs in which both calls are non-missing.
-
-
 
 Keep the samples with a low enough value for the missing call rate, {\tt missing.e1}.  The threshold chosen here
 is 0.05.
@@ -2269,8 +2249,7 @@ group.
 <<>>=
 snp.excl <- snpAnnot$snpID[snpAnnot$missing.n1 == 1]
 length(snp.excl)
-genofile <- system.file("extdata", "illumina_geno.nc",
-  package="GWASdata")
+genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genoNC <- NcdfGenotypeReader(genofile)
 genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 dupdisc <- duplicateDiscordance(genoData, subjName.col="subjectID",
@@ -2295,7 +2274,7 @@ dat <- data.frame(subjID=subjID, disc=disc.subj, pop=race,
 summary(dat$disc)
 # Assign colors for the duplicate samples based on population group.
 dat$col <- NA
-dat$col[dat$pop == "CEU"] <- "black"
+dat$col[dat$pop == "CEU"] <- "blue"
 dat$col[dat$pop == "YRI"] <- "red"
 dat <- dat[order(dat$disc),]
 dat$rank <- 1:npair
@@ -2304,18 +2283,40 @@ dat$rank <- 1:npair
 \begin{figure}[ht!]
 \centering
 <<fig=TRUE>>=
-# Plot the sample discordance rates color coded by ethnicity.
-plot(dat$disc, dat$rank, 
+# Plot the sample discordance rates color coded by race.
+plot(dat$disc, dat$rank, col=dat$col, ylab="rank",
   xlab="Discordance rate between duplicate samples", 
-  ylab="rank", col=dat$col, 
   main="Duplicate Sample Discordance by Continental Ancestry")
-legend("bottomright", unique(dat$pop), 
-  pch=rep(1,2), col=unique(dat$col))
+legend("bottomright", unique(dat$pop), pch=rep(1,2), col=unique(dat$col))
 @ 
 \caption{The discordance for duplicate samples plotted in increasing values, color coded by population group.}
 \label{fig:disc_ethn}
 \end{figure}
 
+Genotyping error rates can be estimated from duplicate discordance
+rates.  The genotype at any SNP may be called correctly, or miscalled as
+either of the other two genotypes.  If $\alpha$ and $\beta$ are the
+two error rates, the probability that duplicate genotyping instances
+of the same participant will give a discordant genotype is
+$2[(1-\alpha - \beta )(\alpha + \beta ) + \alpha \beta ]$. 
+When $\alpha$ and $\beta$ are very small, this is approximately
+$2(\alpha + \beta)$ or twice the total error rate. 
+Potentially, each true genotype has different error rates (i.e. three
+$\alpha$ and three $\beta$ parameters), but here we assume they are
+the same.  A rough estimate of the mean error rate is
+half the median discordance rate over all sample pairs.
+
+Duplicate discordance estimates for individual SNPs can be used as a
+SNP quality filter.  The challenge here is to find a level of
+discordance that would eliminate a large fraction of SNPs with high
+error rates, while retaining a large fraction with low error rates.
+The probability of observing $> x$ discordant genotypes in a total of
+$n$ pairs of duplicates can be calculated using the binomial
+distribution.
+
+<<>>=
+duplicateDiscordanceProbability(npair)
+@ 
 
 
 
@@ -2333,7 +2334,7 @@ Lastly some checks are done on Mendelian error rates per family.
 
 
 To call the Mendelian error checking function, we first must
-    create a {\tt mendelList} object.  We will call {\tt mendelList} that creates a list of trios, checking for any gender 
+    create a {\tt mendelList} object.  We will call {\tt mendelList} that creates a list of trios, checking for any sex 
 inconsistencies among annotated father and mother samples. Then, {\tt
   mendelListAsDataFrame} puts this list into a data frame for easier checking. Finally, we can call the {\tt mendelErr} function to find the 
 Mendelian errors for SNPs with {\tt missing.n1} less than 0.05.
@@ -2366,8 +2367,6 @@ err <- mend$snp$error.cnt / mend$snp$check.cnt
 table(err == 0, useNA="ifany")
 @ 
 
-We will plot the error rate per SNP as calculated above, sorting the values by increasing rate. 
-
 \begin{figure}[ht!]
 \centering
 <<fig=TRUE>>=
@@ -2378,8 +2377,8 @@ plot(err, rank(err), xlab="Error Rate (fraction)",
 \end{figure}
 
 Next we will look at the Mendelian error rates among the trios we have in the HapMap data. Looking at the summary of the number of families with at least one 
-error over all SNPs, we can see that the maximum number of errors per SNP. Next, we can look at subsets of SNPs with 
-greater than 0, 1 and 2 errors per SNP. Finally, for those SNPs that have valid trios to detect errors, we get the 
+error over all SNPs, we can see the maximum number of errors per SNP. Next, we can look at subsets of SNPs with 
+greater than 0 and 1 errors per SNP. Finally, for those SNPs that have valid trios to detect errors, we get the 
 fraction of SNPs with no errors.
 
 <<>>=
@@ -2402,7 +2401,6 @@ The number of families with at least one error per SNP, {\tt mend\$snp\$error.cn
 The number of valid families for checking, {\tt mend\$snp\$check.cnt}, gets saved as {\tt mendel.err.sampsize}.
 
 <<>>=
-# Write the error rates to the SNP table
 snp.sel <- match(names(mend$snp$error.cnt), snpAnnot$snpID)
 snpAnnot$mendel.err.count[snp.sel] <- mend$snp$error.cnt
 snpAnnot$mendel.err.sampsize[snp.sel] <- mend$snp$check.cnt
@@ -2411,8 +2409,6 @@ allequal(snpAnnot$snpID, sort(snpAnnot$snpID))
 #    before the Mendelian error rate calculation
 sum(is.na(snpAnnot$mendel.err.count))
 sum(is.na(snpAnnot$mendel.err.sampsize))
-# Save the updated SNP annotation table with 
-#   the new Mendelian error data
 varMetadata(snpAnnot)["mendel.err.count", "labelDescription"] <- 
   paste("number of Mendelian errors detected in trios averaged over",
         "multiple combinations of replicate genotyping instances")
@@ -2420,10 +2416,10 @@ varMetadata(snpAnnot)["mendel.err.sampsize", "labelDescription"] <-
   "number of opportunities to detect Mendelian error in trios"
 @ 
 
-To further investigate SNPs with a high Mendelian error rate, we will make a cluster plot for 9 SNPs
+To further investigate SNPs with a high Mendelian error rate, we will
+make genotyple cluster plots for the 9 SNPs
 with the highest Mendelian error rate. We expect the 
-plots to lack defined genotype clusters, leading to a poor call rate. For this example, we will plot the top 9 SNPs  
-using the function {\tt genoClusterPlot}.
+plots to lack defined genotype clusters, leading to a poor call rate.
 
 <<results=hide>>=
 # Get a vector of SNPs to check
@@ -2432,8 +2428,7 @@ snp$err.rate <- snp$mendel.err.count /
   snp$mendel.err.sampsize
 snp <- snp[order(snp$err.rate, decreasing=TRUE),]
 snp <- snp[1:9,]
-xyfile <- system.file("extdata", "illumina_qxy.nc",
-  package="GWASdata")
+xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 xyNC <- NcdfIntensityReader(xyfile)
 xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 pdf(file="DataCleaning-mendel.pdf")
@@ -2451,8 +2446,7 @@ close(xyData)
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-mendel}
 \caption{Cluster plots of the 3 SNPs with the highest Mendelian error rate.  Blue indicates a sample
 with a ``BB'' genotype, green is an ``AB'' genotype and red is an ``AA'' genotype. The black X marks indicate
-a sample with a missing genotype for that SNP.
-All of these cluster plots are clearly problematic with regard to the genotype clusters and the called genotypes.  }
+a sample with a missing genotype for that SNP.}
 \end{figure}
 
 
@@ -2499,7 +2493,7 @@ dim(fams)
 table(fams$race, useNA="ifany")
 # Assign colors for the different ethnicities in these families
 pcol <- rep(NA, nrow(fams))
-pcol[fams$race == "CEU"] <- "black"
+pcol[fams$race == "CEU"] <- "blue"
 pcol[fams$race == "YRI"] <- "red"
 @ 
 
@@ -2510,11 +2504,9 @@ plot(fams$mend.err.rate.fam*100, rank(fams$mend.err.rate.fam),
   main="Mendelian Error rate per Family, ranked",
   xlab="Mendelian error rate per family (percent)", 
   ylab="rank", col=pcol)
-legend("bottomright", c("CEU", "YRI"), 
-  pch=c(1,1), col=c("black", "red"))
+legend("bottomright", c("CEU", "YRI"), pch=c(1,1), col=c("blue", "red"))
 @ 
-\caption{A plot of the Mendelian error rate for families, ranked in order of increasing rate.
-The black indicates a family with CEU continental ancestry and red indicates a family with YRI ancestry.}
+\caption{A plot of the Mendelian error rate for families, ranked in order of increasing rate.}
 \end{figure}
 
 
@@ -2544,8 +2536,6 @@ length(scan.excl)
 hwe <- gwasExactHW(genoData, scan.exclude=scan.excl)
 close(genoData)
 @ 
-
- We will examine the CEU population data here; the remaining population groups and their results are analyzed in exactly the same manner.
 
 We will look at the values calculated from the function call to {\tt gwasExactHW}, which include p-values, minor allele frequency, and genotype counts for each SNP on each of the chromosome 
 types.  All the p-values are missing for the Y and M chromosomes. There are minor allele frequencies on the same chromosome types; we look at the first 50 
@@ -2591,14 +2581,11 @@ summary(chkf$MAF)
 @ 
 
 To see at what value the SNPs begin to deviate from the Hardy-Weinberg expected values, we will make QQ-plots 
-that exclude SNPs where MAF = 0. Make a plot of the observed p-values vs. the expected p-values for the autosomes and 
+that exclude SNPs where MAF = 0.  We plot of the observed p-values vs. the expected p-values for the autosomes and 
 X chromosome separately by calling the function {\tt qqPlot}. 
 
 <<>>=
-idx <- which(hwe$MAF == 0); length(idx)
-hwe.0 <- hwe[-idx,]; dim(hwe.0)
-# Check to makes sure that the correct number of SNPs were removed
-length(hwe$p.value) - length(hwe.0$p.value)
+hwe.0 <- hwe[hwe$MAF > 0,]; dim(hwe.0)
 # Only keep the autosomal SNPs for first plot
 pval <- hwe.0$p.value[is.element(hwe.0$chromosome, 1:22)]
 length(pval)
@@ -2613,14 +2600,10 @@ length(pval.x)
 <<results=hide>>=
 pdf(file = "DataCleaning-hwe.pdf")
 par(mfrow=c(2,2))
-qqPlot(pval=pval, truncate = FALSE, 
-  main="Autosomes, all")
-qqPlot(pval=pval, truncate = TRUE, 
-  main="Autosomes, truncated")
-qqPlot(pval=pval.x, truncate = FALSE, 
-  main="X chromosome, all")
-qqPlot(pval=pval.x, truncate = TRUE, 
-  main="X chromosome, truncated")
+qqPlot(pval=pval, truncate = FALSE, main="Autosomes, all")
+qqPlot(pval=pval, truncate = TRUE, main="Autosomes, truncated")
+qqPlot(pval=pval.x, truncate = FALSE, main="X chromosome, all")
+qqPlot(pval=pval.x, truncate = TRUE, main="X chromosome, truncated")
 dev.off()
 @ 
 
@@ -2653,7 +2636,7 @@ excluding the SNPs with a minor allele frequency equal to 0.}
 \section{Preliminary Association Tests}
 
 The final step in the data cleaning process is to perform preliminary association tests.
-This step creates and examines QQ, `Manhattan' signal, regional association and genotype cluster plots.
+This step creates and examines QQ, `Manhattan' signal, and genotype cluster plots.
 If significant SNPs appear as a result of the association test, SNP cluster plots must be examined
 to determine if the association is driven from a poorly clustering SNP.
 Note that HapMap data do not come with phenotypic outcomes, thus, for purposes of the tutorial
@@ -2667,20 +2650,22 @@ covariates with significant effects are then included in the final model.
 
 \subsection{Association Test}
 
-To run the association test, we call the function {\tt
-      assocTestRegression}.  For the tutorial, all samples will be
-    kept, but we would use the argument {\tt scan.exclude} for those samples we wish to filter out for the association test. Typically, we do not filter out SNPs for the association test -- we run all SNPs and then filter the results.  The omission of filters may 
+To run the association test, we call the function {\tt assocTestRegression}.  
+We will use the filtered NetCDF file with unique subjects only that we
+made in section~\ref{sec:filt_anom}.
+Here we use all unique subjects, but we would use the argument {\tt scan.exclude} for those samples we wish
+to filter out for the association test (such as low-quality or related
+samples). Typically, we do not filter out SNPs for the association test -- we run all SNPs and then filter the results.  The omission of filters may 
 cause some SNPs to return significant p-values for association.
 
 <<>>=
-genofile <- system.file("extdata", "illumina_geno.nc",
-  package="GWASdata")
-genoNC <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genoNC, scanAnnot=scanAnnot)
-assoc.file <- "assoc"
-assocTestRegression(genoData, outcome="status", covar.list=c(""),
+genoNC <- NcdfGenotypeReader(subj.filt.ncdf)
+subjAnnot <- scanAnnot[scanAnnot$scanID %in% getScanID(genoNC),]
+genoData <- GenotypeData(genoNC, scanAnnot=subjAnnot)
+assoc <- assocTestRegression(genoData, outcome="status", covar.list=c(""),
   ivar.list=c(""), model.type="logistic", robust=TRUE,
-  chromosome.set=c(24:26), outfile=assoc.file,)
+  chromosome.set=c(24:26))
+close(genoData)
 @ 
 
 After running the association test on the selected subset of SNPs and samples we must analyze
@@ -2690,16 +2675,9 @@ those probes with significant p-values.
 
 \subsection{QQ Plots}
 
-To create QQ plots of the ordered p-values from the association tests versus the ordered expected p-values, we first load the saved p-values data.
-Then, we will call {\tt qqPlot} to plot the Likelihood Ratio test p-values.
+We create QQ plots of the ordered Likelihood Ratio test p-values versus the ordered expected p-values.
 Given that the samples were split randomly between cases and controls, not surprisingly there are no outliers
 visible in the QQ plot in Figure~\ref{fig:qq_lr}.
-
-<<>>=
-assoc <- getobj(paste(assoc.file, 
-  ".model.1.additive.chr.24_26.RData", sep=""))
-names(assoc)
-@ 
 
 \begin{figure}[ht!]
 \centering
@@ -2756,10 +2734,12 @@ allequal(snp$snpID, assoc$snpID)
 snp$pval <- assoc$model.1.additive.LR.pval.G
 snp <- snp[order(snp$pval),]
 snp <- snp[1:9,]
-xyfile <- system.file("extdata", "illumina_qxy.nc",
-  package="GWASdata")
+xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 xyNC <- NcdfIntensityReader(xyfile)
 xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
+genoNC <- NcdfGenotypeReader(genofile)
+genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 pdf(file="DataCleaning-cluster.pdf")
 par(mfrow = c(3,3))
 mtxt <- paste("SNP", snp$rsID, "\np =", format(snp$pval, digits=4))
@@ -2778,11 +2758,12 @@ close(genoData)
 
 
 
-The cluster plots in Figure~\ref{fig:snp_cluster} show that some of the SNPs have poor cluster plots, indcating genotyping artifact.   In a real association study, the evidence from such SNPs would be discounted.
+The cluster plots in Figure~\ref{fig:snp_cluster} show that some of the SNPs have poor cluster plots, indicating genotyping artifacts.   In a real association study, the evidence from such SNPs would be discounted.
 
 <<echo=FALSE, results=hide>>=
-unlink(paste(assoc.file, "*.RData", sep=""))
+unlink(subj.filt.ncdf)
 @ 
+
 
 
 \clearpage
