@@ -9,8 +9,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[pdftex,plainpages=false, letterpaper, bookmarks, bookmarksnumbered, colorlinks, linkcolor=blue, citecolor=blue, filecolor=blue, urlcolor=blue]{hyperref}
 
-% Different font in captions
-\newcommand{\captionfonts}{\footnotesize}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
 
 \begin{document}
 
@@ -46,9 +47,9 @@ Laurie et al.\ (2010).\footnote{Laurie, Cathy C., et
 
 \subsection{Data formats used in GWASTools}
 
-The GWASTools package provides containers for storing annotation data
-called {\tt SNPAnnotationDataFrame} and {\tt ScanAnnotationDataFrame} (derived
-from the {\tt AnnotatedDataFrame} class in the Biobase package).  The name
+The \Rpackage{GWASTools} package provides containers for storing annotation data
+called \Rcode{SnpAnnotationDataFrame} and \Rcode{ScanAnnotationDataFrame} (derived
+from the \Rcode{AnnotatedDataFrame} class in the \Rpackage{Biobase} package).  The name
 ``scan'' refers to a single genotyping instance.  Some subjects in a
 study are usually genotyped multiple times for quality control
 purposes, so these subjects will have duplicate scans.  Throughout
@@ -69,19 +70,19 @@ at the University Corporation for Atmospheric Research} (UCAR).
 This portable binary file format is convenient since it allows for efficient multi-dimensional arrayed data
 (although we only use up to two dimensions). 
 
-In the GWASTools package, access to the NetCDF files is provided by
-the {\tt NcdfGenotypeReader} and {\tt NcdfIntensityReader} classes.
-These classes are built on top of the ncdf package and provide access
+In the \Rpackage{GWASTools} package, access to the NetCDF files is provided by
+the \Rcode{NcdfGenotypeReader} and \Rcode{NcdfIntensityReader} classes.
+These classes are built on top of the \Rpackage{ncdf} package and provide access
 to a standard set of variables defined for GWAS data.  Additionally,
 the NetCDF files and SNP and scan annotation can be linked through
-the {\tt GenotypeData} and {\tt IntensityData} classes, which have
-slots for a {\tt NcdfGenotypeReader} (or {\tt NcdfIntensityReader})
-object, a {\tt SnpAnnotationDataFrame} object, and a {\tt
-  ScanAnnotationDataFrame} object.  When an object of one of these classes is
+the \Rcode{GenotypeData} and \Rcode{IntensityData} classes, which have
+slots for a \Rcode{NcdfGenotypeReader} (or \Rcode{NcdfIntensityReader})
+object, a \Rcode{SnpAnnotationDataFrame} object, and a
+  \Rcode{ScanAnnotationDataFrame} object.  When an object of one of these classes is
 created, it performs checks to ensure that the annotation matches the
 data stored in the NetCDF file and all required information is
-present.  The majority of the functions in the GWASTools package take
-{\tt GenotypeData} or {\tt IntensityData} objects as arguments.
+present.  The majority of the functions in the \Rpackage{GWASTools} package take
+\Rcode{GenotypeData} or \Rcode{IntensityData} objects as arguments.
 
   
 
@@ -90,30 +91,30 @@ present.  The majority of the functions in the GWASTools package take
 \subsection{Creating the SNP Annotation Data Object}
 \label{create_snpann}
 
-All of the functions in GWASTools require a minimum set of variables in the SNP annotation data object.  The minimum required variables are
+All of the functions in \Rpackage{GWASTools} require a minimum set of variables in the SNP annotation data object.  The minimum required variables are
 
 \begin{itemize}
-\item{{\tt snpID}, a unique integer identifier for each SNP}
-\item{{\tt chromosome}, an integer mapping for each chromosome, with
+\item{\Rcode{snpID}, a unique integer identifier for each SNP.}
+\item{\Rcode{chromosome}, an integer mapping for each chromosome, with
     values 1-27, mapped in order from 1-22, 23=X, 24=XY (the
     pseudoautosomal region), 25=Y, 26=M (the mitochondrial probes),
     and 27=U (probes with unknown positions)}.  (It is possible to
   change the default integer mapping, e.g., to match the codes used by
   PLINK, but this should be done
   with caution.  See the manual pages for more details.)
-\item{{\tt position}, the base position of each SNP on the chromosome.}
+\item{\Rcode{position}, the base position of each SNP on the chromosome.}
 \end{itemize}
 
 We create the integer chromosome mapping for a few reasons.  The
 chromosome is stored as an integer in the NetCDF files, so in order to
 link the SNP annotation with the NetCDF file, we use the integer
 values in the annotation as well.
-For convenience when using GWASTools functions,
+For convenience when using \Rpackage{GWASTools} functions,
 the chromosome variable is most times assumed to be an integer value.  Thus, for the sex chromosomes, we can simply
-use the {\tt chromosome} values.  For presentation of results, it is important to have the mapping of the
+use the \Rcode{chromosome} values.  For presentation of results, it is important to have the mapping of the
 integer values back to the standard designations for the chromosome
-names, thus the {\tt getChromosome()} functions in the GWASTools
-objects have a {\tt char=TRUE} option to return the characters 1-22,
+names, thus the \Rcode{getChromosome()} functions in the \Rpackage{GWASTools}
+objects have a \Rcode{char=TRUE} option to return the characters 1-22,
 X, XY, Y, M, U.
 The position variable should hold all numeric values of the physical position of a probe.  {\em The SNP annotation file is assumed to list the probes in order of chromosome and 
 position within chromosome.}
@@ -150,6 +151,55 @@ meta[c("snpID", "chromosome", "position", "rsID", "alleleA", "alleleB",
 varMetadata(snpAnnot) <- meta
 @ 
 
+Variables in the SNP annotation data frame can be accessed either with
+the data frame operators \Rcode{\$} and \Rcode{[[} or with ``get'' methods.
+
+<<>>=
+snpID <- snpAnnot$snpID
+snpID <- getSnpID(snpAnnot)
+chrom <- snpAnnot[["chromosome"]]
+chrom <- getChromosome(snpAnnot)
+table(chrom)
+chrom <- getChromosome(snpAnnot, char=TRUE)
+table(chrom)
+position <- getPosition(snpAnnot)
+rsID <- getVariable(snpAnnot, "rsID")
+@ 
+
+The following methods are equivalent and can all be used on
+\Rcode{SnpAnnotationDataFrame} objects:
+
+\vspace{5mm}
+\begin{tabular}{ll}
+  \hline
+  \Rcode{AnnotatedDataFrame} method & \Rpackage{GWASTools} method \\
+  \hline
+  pData & getAnnotation \\
+  varMetadata & getMetadata \\
+  varLabels & getVariableNames \\
+  \hline
+\end{tabular}
+\vspace{5mm}
+
+However, only the \Rcode{AnnotatedDataFrame} methods have corresponding
+``set'' methods.
+New variables can be added with  \Rcode{\$} or \Rcode{[[}.
+\Rcode{[} also behaves as expected for standard data frames.
+
+<<>>=
+tmp <- snpAnnot[,c("snpID", "chromosome", "position")]
+snp <- getAnnotation(tmp)
+snp$flag <- sample(c(TRUE, FALSE), nrow(snp), replace=TRUE)
+pData(tmp) <- snp
+meta <- getMetadata(tmp)
+meta["flag", "labelDescription"] <- "flag"
+varMetadata(tmp) <- meta
+getVariableNames(tmp)
+varLabels(tmp)[4] <- "FLAG"
+rm(tmp)
+@ 
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,15 +210,19 @@ varMetadata(snpAnnot) <- meta
 The scan annotation file holds attributes for each genotyping scan that are relevant to genotypic data
 cleaning.  These data include processing variables such as tissue type, DNA extraction method, and genotype processing
 batch.  They also include individual characteristics such as sex,
-race, ethnicity, and case status.  The initial sample
-annotation file is created from the raw data supplied by the genotyping center and/or study investigator, providing a 
-mapping from the raw data file(s) for each sample scan to other sample information such as sex,
-coded as {\tt M} and {\tt F}, race,
-unique scan identifier, called {\tt scanID}, and unique subject identifier.  
+race, ethnicity, and case status.
 Since a single subject may have been genotyped multiple times as a
 quality control measure, it is important to distinguish between the
 scanID (unique genotyping instance) and subjectID (person
 providing a DNA sample).
+The miniumum required variables for the scan annotation data object are
+
+\begin{itemize}
+\item{\Rcode{scanID}, a unique integer identifier for each scan}.
+\item{\Rcode{sex}, coded as ``M''/``F''.  (Note that a
+      \Rcode{ScanAnnotationDataFrame} object may be valid without a sex
+    variable, but it is required for many \Rpackage{GWASTools} functions.)}
+\end{itemize}
 
 <<>>=
 # Load the scan annotation (simple data frame)
@@ -200,6 +254,24 @@ meta[c("scanID", "subjectID", "family", "father", "mother",
 varMetadata(scanAnnot) <- meta
 @ 
 
+As for \Rcode{SnpAnnotationDataFrame}, 
+variables in the scan annotation data frame can be accessed either with
+the data frame operators \Rcode{\$} and \Rcode{[[} or with ``get'' methods.
+
+<<>>=
+scanID <- scanAnnot$scanID
+scanID <- getScanID(scanAnnot)
+sex <- scanAnnot[["sex"]]
+sex <- getSex(scanAnnot)
+subjectID <- getVariable(scanAnnot, "subjectID")
+@ 
+
+The \Rcode{AnnotatedDataFrame} methods and their \Rpackage{GWASTools} equivalents
+described in Section~\ref{create_snpann} apply
+to \Rcode{ScanAnnotationDataFrame} as well.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -212,25 +284,24 @@ such as B Allele Frequency are stored as NetCDF\footnote{\href{http://www.unidat
 This format is used for the ease with which extremely large
 multi-dimensional arrays of data can be stored and accessed, as many
 GWAS datasets are too large to be stored in memory at one time.
-The GWASTools package depends on the ncdf library, which provides a convenient R interface to create, populate and extract data from NetCDF files. 
+The \Rpackage{GWASTools} package depends on the \Rpackage{ncdf} library, which provides a convenient R interface to create, populate and extract data from NetCDF files. 
 
 For each study, three different NetCDF files are  
 created to be used in subsequent cleaning and analysis steps.   
-All NetCDF files created have two dimensions, one called {\tt snp} and one titled {\tt sample}.  The {\tt snp}
+All NetCDF files created have two dimensions, one called \Rcode{snp} and one titled \Rcode{sample}.  The \Rcode{snp}
 dimension is of the same length as the number of probes that were released from the genotyping center and listed in the
 SNP annotation file.  The 
-{\tt sample} dimension is of length equal to the number of genotyping scans released as listed in the sample annotation file.
-Further, all NetCDF files have three variables in common: {\tt sampleID, chromosome} and {\tt position}.
-The {\tt sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
-(genotype calls, for example).  The {\tt sampleID} ordering must match the {\tt scanID} values as listed
-in the sample annotation file (Section~\ref{create_sampann}).
-The index to the SNP probes in the NetCDF file is the {\tt snpID}, which is stored as values of the SNP dimension.  Since {\tt snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the {\tt snpID} values listed
-in the SNP annotation file (Section~\ref{create_snpann}).
-To prevent errors in ordering samples or SNPs, the functions in the GWASTools package take as arguments R objects
+\Rcode{sample} dimension is of length equal to the number of genotyping scans released as listed in the sample annotation file.
+Further, all NetCDF files have three variables in common: \Rcode{sampleID, chromosome} and \Rcode{position}.
+The \Rcode{sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
+(genotype calls, for example).  The \Rcode{sampleID} ordering must match the \Rcode{scanID} values as listed
+in the sample annotation object (Section~\ref{create_sampann}).
+The index to the SNP probes in the NetCDF file is the \Rcode{snpID}, which is stored as values of the SNP dimension.  Since \Rcode{snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the \Rcode{snpID} values listed
+in the SNP annotation object (Section~\ref{create_snpann}).
+To prevent errors in ordering samples or SNPs, the functions in the \Rpackage{GWASTools} package take as arguments R objects
 which will return an error on creation if the sample and SNP
 annotation does not match the NetCDF file.
-We recommend always checking the ordering of these variables before writing new versions of the SNP or sample annotation
-data files.
+We recommend always checking the ordering of these variables before saving new versions of the SNP or sample annotation.
 
 \subsubsection*{Genotype NetCDF Files}
 
@@ -248,14 +319,12 @@ data are written one can ensure the function performed as expected.
 
 \subsubsection*{Creating the Genotype NetCDF file}
                                      
-
-  
 The first step in creating a NetCDF file is to create a `shell' NetCDF file to which the 
-data will be written.  The function {\tt ncdfCreate} creates the two dimensions and 
-three common variables as described above. It also assigns values of the SNP dimension as {\tt snpID} values and populates the {\tt chromosome} and {\tt position} variables.
+data will be written.  The function \Rcode{ncdfCreate} creates the two dimensions and 
+three common variables as described above. It also assigns values of the SNP dimension as \Rcode{snpID} values and populates the \Rcode{chromosome} and \Rcode{position} variables.
 
-In this case, we also want the {\tt genotype} variable to be created, so the {\tt vars} argument must be set to 
-{\tt "genotype"}. In the interest of computational feasibility, only 3 samples will be written in this step.
+In this case, we also want the \Rcode{genotype} variable to be created, so the \Rcode{vars} argument must be set to 
+\Rcode{"genotype"}. In the interest of computational feasibility, only 3 samples will be written in this step.
 
 <<>>=
 geno.nc.file <- "tmp.geno.nc"
@@ -270,8 +339,8 @@ ncdfCreate(ncdf.filename = geno.nc.file,
        precision = "single")
 @ 
 
- Now the shell has been created so we can call the {\tt ncdfAddData} function to 
-populate the NetCDF with the genotype data stored in the raw data files.  The data are written to the NetCDF file one sample at a time and, simultaneously, the corresponding sample identifier {\tt scanID} is written to the {\tt sampleID} variable. The {\tt file}
+ Now the shell has been created so we can call the \Rcode{ncdfAddData} function to 
+populate the NetCDF with the genotype data stored in the raw data files.  The data are written to the NetCDF file one sample at a time and, simultaneously, the corresponding sample identifier \Rcode{scanID} is written to the \Rcode{sampleID} variable. The \Rcode{file}
 variable from the scan annotation
 holds the name of the raw data file for each sample/scan; 
 these are the files we must read in to get genotype data for each sample.
@@ -285,8 +354,8 @@ snp.annotation <- illumina_snp_annot[,c("snpID", "rsID")]
 names(snp.annotation) <- c("snpID", "snpName")
 @ 
 
-The arguments to {\tt ncdfAddData} must be created. We need {\tt
-      col.nums}, which is an integer vector indicating which columns
+The arguments to \Rcode{ncdfAddData} must be created. We need
+      \Rcode{col.nums}, which is an integer vector indicating which columns
     of the raw text file contain variables for input.
 
 <<>>=
@@ -297,10 +366,10 @@ names(col.nums) <- c("snp", "sample", "a1", "a2")
 path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
 @ 
 
-All required arguments have been defined so we are ready to call {\tt ncdfAddData}.
+All required arguments have been defined so we are ready to call \Rcode{ncdfAddData}.
 This function will take the previously created genotype NetCDF file and populate it with the genotype
-data from the raw text files and with the sample identifier {\tt scanID} corresponding to that file in the sample annotation data.frame.
-A set of diagnostic values are written and stored in {\tt diag.geno}, so we must look at those to
+data from the raw text files and with the sample identifier \Rcode{scanID} corresponding to that file in the sample annotation data.frame.
+A set of diagnostic values are written and stored in \Rcode{diag.geno}, so we must look at those to
 ensure no errors occurred.
 
 <<>>=
@@ -337,22 +406,7 @@ table(diag.geno$snp.chk)
 table(diag.geno$chk)
 @ 
 
-Although the diagnostic values indicated no issues, we will open
-    the NetCDF file and extract a small sampling of data.  This
-    illustrates the use of the {\tt NcdfGenotypeReader} class for
-    retrieving data from a NetCDF file.
-
-  
-<<>>=
-(genofile <- NcdfGenotypeReader(geno.nc.file))
-# Take out genotype data for the first 3 samples and 
-#   the first 5 SNPs
-(genos <- getGenotype(genofile, snp=c(1,5), scan=c(1,3)))
-# Close the NetCDF file
-close(genofile)
-@ 
-
-Run the function {\tt ncdfCheckGenotype} to check that the
+Run the function \Rcode{ncdfCheckGenotype} to check that the
     NetCDF file contains the same data as the raw data files.
 
 <<>>=
@@ -381,19 +435,38 @@ table(check.geno$snp.order)
 table(check.geno$geno.chk)
 @ 
 
+\subsubsection*{Reading the Genotype NetCDF file}
+          
+The \Rcode{NcdfGenotypeReader} class provides a convenient interface for
+    retrieving data from a genotype NetCDF file.  Some of the same
+    ``get'' methods that applied to SNP and scan annotation data
+    objects can be used for \Rcode{NcdfGenotypeReader} objects.
+
+<<>>=
+(nc <- NcdfGenotypeReader(geno.nc.file))
+nscan(nc)
+nsnp(nc)
+head(getScanID(nc))
+head(getSnpID(nc))
+head(getChromosome(nc))
+head(getPosition(nc))
+# genotypes for the first 3 samples and  the first 5 SNPs
+getGenotype(nc, snp=c(1,5), scan=c(1,3))
+close(nc)
+@ 
+              
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection*{Intensity NetCDF Files}
 
-
 The intensity NetCDF files store quality scores and allelic intensity data for each SNP. 
 The normalized X and Y intensities as well as the confidence scores are written to the NetCDF for all
 samples, for all SNPs. (To keep file sizes manageable, a separate NetCDF file will store the B Allele
 Frequency and Log R Ratio data.)
 
-Aside from the three variables held in common with all NetCDF files ({\tt sampleID, chromosome} and {\tt position}),
+Aside from the three variables held in common with all NetCDF files (\Rcode{sampleID, chromosome} and \Rcode{position}),
 the intensity and quality data are written to the intensity NetCDF in a two dimensional format, with SNPs corresponding
 to rows and samples corresponding to columns.
 To write the intensity data, the raw data files are opened and the intensities and quality score
@@ -402,11 +475,10 @@ and the annotation files, the data are populated in the NetCDF and diagnostics a
 
 \subsubsection*{Creating the Intensity NetCDF file}
                        
-
 The first step in creating the intensity NetCDF is to create a `shell' NetCDF
 file to which the data will be written.  We can use the same function used for creating the shell
-genotype NetCDF, {\tt ncdfCreate}.  The two dimensions and three common variables will be created
-along with the X, Y and quality variables; the {\tt vars} argument is set to write these.
+genotype NetCDF, \Rcode{ncdfCreate}.  The two dimensions and three common variables will be created
+along with the X, Y and quality variables; the \Rcode{vars} argument is set to write these.
 For a reasonable computation time, we will create the file to hold data for 3 samples only.
 
 <<>>=
@@ -423,8 +495,8 @@ ncdfCreate(ncdf.filename = qxy.nc.file,
 @ 
 
 		
-We next call the {\tt ncdfAddData} function to populate the intensity NetCDF with the 
-X and Y intensities and the quality score. The sample identifier {\tt scanID} is also populated at the same time.
+We next call the \Rcode{ncdfAddData} function to populate the intensity NetCDF with the 
+X and Y intensities and the quality score. The sample identifier \Rcode{scanID} is also populated at the same time.
 
 <<>>=
 # first 3 samples only
@@ -437,10 +509,10 @@ col.nums <- as.integer(c(1,2,5,16,17))
 names(col.nums) <- c("snp", "sample", "qs", "x", "y")
 @ 
 
-All required arguments have been defined so we are ready to call {\tt ncdfAddData}.
+All required arguments have been defined so we are ready to call \Rcode{ncdfAddData}.
 This function will take the previously created intensity NetCDF file and populate it with 
 the quality score and normalized X and Y intensities.
-A set of diagnostic values are written and stored in {\tt diag.qxy}.
+A set of diagnostic values are written and stored in \Rcode{diag.qxy}.
 
 <<>>=
 diag.qxy.file <- "diag.qxy.RData"
@@ -458,21 +530,7 @@ diag.qxy <- ncdfAddData(path = path,
   verbose = FALSE)
 @ 
 
-We will open
-    the NetCDF file and extract a small sampling of data.  In this
-    case we use the {\tt NcdfIntensityReader} class.
- 
-<<>>=
-# Open the NetCDF file we just created
-(intenfile <- NcdfIntensityReader(qxy.nc.file))
-# Take out the normalized X intensity values for the first 
-#     5 SNPs for the first 3 samples
-(xinten <- getX(intenfile, snp=c(1,5), scan=c(1,3)))
-# Close the NetCDF file
-close(intenfile)
-@
-
-Run the function {\tt ncdfCheckIntensity} to check that the
+Run the function \Rcode{ncdfCheckIntensity} to check that the
     NetCDF file contains the same data as the raw data files.
 
 <<>>=
@@ -496,14 +554,35 @@ check.qxy <- ncdfCheckIntensity(path = path,
   verbose = FALSE)
 @ 
 
+\subsubsection*{Reading the Intensity NetCDF file}
+          
+The \Rcode{NcdfIntensityReader} class provides a convenient interface for
+    retrieving data from an intensity NetCDF file.  Its methods are
+    similar to \Rcode{NcdfGenotypeReader}.
 
+<<>>=
+(nc <- NcdfIntensityReader(qxy.nc.file))
+nscan(nc)
+nsnp(nc)
+head(getScanID(nc))
+head(getSnpID(nc))
+head(getChromosome(nc))
+head(getPosition(nc))
+# quality score for the first 3 samples and  the first 5 SNPs
+getQuality(nc, snp=c(1,5), scan=c(1,3))
+# X intensity for the first 3 samples and  the first 5 SNPs
+getX(nc, snp=c(1,5), scan=c(1,3))
+# Y intensity for the first 3 samples and  the first 5 SNPs
+getY(nc, snp=c(1,5), scan=c(1,3))
+close(nc)
+@ 
+ 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \subsubsection*{B Allele Frequency and Log R Ratio NetCDF Files}\label{sec:baf_lrr}
-
 
 The B Allele Frequency (BAF) and Log R Ratio (LRR) NetCDF file stores these values for every sample by SNP.
 For Illumina data, these values are 
@@ -563,7 +642,7 @@ as well as chromosomal duplications and deletions.  Samples that have a signific
 values are recommended to be filtered out, for the genotype data are not reliable in these situations.  
 Because of these applications, the BAF and LRR values are a salient part of the data cleaning steps.
 
-In addition to the three variables held in common with all NetCDF files ({\tt sampleID, chromosome} and {\tt position}),
+In addition to the three variables held in common with all NetCDF files (\Rcode{sampleID, chromosome} and \Rcode{position}),
 the BAF and LRR values are written to this NetCDF in a two dimensional format, 
 with SNPs corresponding to rows and samples corresponding to columns.
 
@@ -571,7 +650,7 @@ with SNPs corresponding to rows and samples corresponding to columns.
 
 The first step in creating the BAF/LRR NetCDF is to create a `shell' NetCDF
 file to which the data will be written.  We can use the same function used for creating the other shell
-NetCDF files, {\tt ncdfCreate}.  The two dimensions and three common variables will be created
+NetCDF files, \Rcode{ncdfCreate}.  The two dimensions and three common variables will be created
 along with the BAF and LRR variables.
 In order to allow for a reasonable computation time, we will create the file to hold data for 3 samples only.
 
@@ -588,8 +667,8 @@ ncdfCreate(ncdf.filename = bl.nc.file,
        precision = "single")
 @ 
 		
-We next call the {\tt ncdfAddData} function to populate the intensity NetCDF with the 
-BAF and LRR values. The sample identifier {\tt scanID} is also populated at the same time.
+We next call the \Rcode{ncdfAddData} function to populate the intensity NetCDF with the 
+BAF and LRR values. The sample identifier \Rcode{scanID} is also populated at the same time.
 
 <<>>=
 # first 3 samples only
@@ -616,13 +695,15 @@ diag.bl <- ncdfAddData(path = path,
   verbose = FALSE)
 @ 
 
+\subsubsection*{Reading the BAF and LRR NetCDF file}
+          
+We also use the \Rcode{NcdfIntensityReader} class for BAF/LRR data.
+
 <<>>=
-# Open the NetCDF file we just created
-(blfile <- NcdfIntensityReader(bl.nc.file))
-# Look at the BAF values for the first 5 SNPs
-(baf <- getBAlleleFreq(blfile, snp=c(1,5), scan=c(1,3)))
-# Close the NetCDF file
-close(blfile)
+(nc <- NcdfIntensityReader(bl.nc.file))
+getBAlleleFreq(nc, snp=c(1,5), scan=c(1,3))
+getLogRRatio(nc, snp=c(1,5), scan=c(1,3))
+close(nc)
 @ 
 
 
@@ -630,6 +711,83 @@ close(blfile)
 file.remove(geno.nc.file, qxy.nc.file, bl.nc.file)
 file.remove(diag.geno.file, diag.qxy.file, diag.bl.file)
 file.remove(check.geno.file, check.qxy.file)
+@ 
+
+\subsection{Combining NetCDF files with SNP and Scan annotation}
+
+The \Rcode{GenotypeData} and \Rcode{IntensityData} objects combine SNP
+and scan annotation with NetCDF files, ensuring that scanID, snpID,
+chromosome, and position are consistent.  
+The constructor for a \Rcode{GenotypeData} object takes a
+\Rcode{NcdfGenotypeReader} object as its first argument.
+Either or both of the
+\Rcode{scanAnnot} and \Rcode{snpAnnot} slots may be empty
+(\Rcode{NULL}), but if annotation objects are provided to the
+constructor, the relevant columns will be checked against the NetCDF
+file during object creation.
+
+<<>>=
+genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
+nc <- NcdfGenotypeReader(genofile)
+# only NetCDF file
+genoData <- GenotypeData(nc)
+# with scan annotation
+genoData <- GenotypeData(nc, scanAnnot=scanAnnot)
+# with scan and SNP annotation
+genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genoData
+@ 
+
+\Rcode{GenotypeData} objects have methods in common with
+\Rcode{NcdfGenotypeReader}, \Rcode{SnpAnnotationDataFrame}, and \Rcode{ScanAnnotationDataFrame},
+along with methods to access variables in the annotation slots.
+
+<<>>=
+nsnp(genoData)
+nscan(genoData)
+# scan annotation
+range(getScanID(genoData))
+hasSex(genoData)
+table(getSex(genoData))
+hasScanVariable(genoData, "subjectID")
+head(getScanVariable(genoData, "subjectID"))
+getScanVariableNames(genoData)
+# snp annotation
+range(getSnpID(genoData))
+table(getChromosome(genoData, char=TRUE))
+head(getPosition(genoData))
+hasSnpVariable(genoData, "rsID")
+head(getSnpVariable(genoData, "rsID"))
+getSnpVariableNames(genoData)
+# genotypes
+getGenotype(genoData, snp=c(1,5), scan=c(1,5))
+close(genoData)
+@ 
+
+\Rcode{IntensityData} objects behave in the same way as
+\Rcode{GenotypeData} objects, but take a \Rcode{NcdfIntensityReader}
+object as the first argument.
+
+<<>>=
+# quality score, X and X intensity
+qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
+nc <- NcdfIntensityReader(qxyfile)
+qxyData <- IntensityData(NcdfIntensityReader(qxyfile), 
+                         snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+qxyData
+getQuality(qxyData, snp=c(1,5), scan=c(1,5))
+getX(qxyData, snp=c(1,5), scan=c(1,5))
+getY(qxyData, snp=c(1,5), scan=c(1,5))
+close(qxyData)
+# BAF/LRR
+blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
+nc <- NcdfIntensityReader(blfile)
+blData <- IntensityData(NcdfIntensityReader(blfile), 
+                        snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+blData
+getBAlleleFreq(blData, snp=c(1,5), scan=c(1,5))
+getLogRRatio(blData, snp=c(1,5), scan=c(1,5))
+close(blData)
 @ 
 
 \clearpage
@@ -654,24 +812,24 @@ SNPs from which genotype calls are more difficult to make than others.
 We calculate the missing call rates in a two step process: first the missing call rates over all samples and SNPs 
 are calculated, then the missing call rates are calculated again, filtering out SNPs and samples that have an 
 initial missing call rate greater than 0.05. The initial SNP missing call rate over all samples is saved in the 
-SNP annotation data file as {\tt missing.n1}.  The analogous idea is applied to the samples: {\tt missing.e1} 
+SNP annotation data file as \Rcode{missing.n1}.  The analogous idea is applied to the samples: \Rcode{missing.e1} 
 is saved in the sample annotation file and corresponds to the missing call rate per sample over all SNPs, 
-excluding those SNPs with all calls missing. The {\tt missing.n2} is calculated as the call rate per SNP over 
-all samples whose {\tt missing.e1} is less than 0.05. Again, similarly for the samples, {\tt missing.e2} is calculated 
-for each sample over all SNPs with {\tt missing.n2} values less than 0.05. It is important to remember that the Y 
+excluding those SNPs with all calls missing. The \Rcode{missing.n2} is calculated as the call rate per SNP over 
+all samples whose \Rcode{missing.e1} is less than 0.05. Again, similarly for the samples, \Rcode{missing.e2} is calculated 
+for each sample over all SNPs with \Rcode{missing.n2} values less than 0.05. It is important to remember that the Y 
 chromosome values should be calculated for males only, since we expect females to have no genotype values for the 
 Y chromosome.
 
-\subsubsection*{Calculate {\tt missing.n1} }
+\subsubsection*{Calculate \Rcode{missing.n1} }
 \label{sec:missing.n1}
 
-This step calculates and examines {\tt missing.n1}, the missing call rate per SNP over all samples by calling the 
-function {\tt missingGenotypeBySnpSex}.  
-This function takes a {\tt GenotypeData} object as an argument, and
+This step calculates and examines \Rcode{missing.n1}, the missing call rate per SNP over all samples by calling the 
+function \Rcode{missingGenotypeBySnpSex}.  
+This function takes a \Rcode{GenotypeData} object as an argument, and
 requires that the scan annotation of this object contains a ``sex''
 column.
 There is also an option to send a vector of SNPs to exclude from the
-calculation, which is what we will use later to find {\tt missing.n2}.  For now, we will use all SNPs for each sample, 
+calculation, which is what we will use later to find \Rcode{missing.n2}.  For now, we will use all SNPs for each sample, 
 being sure to calculate by sex.  The function returns a list, with one element that holds the missing counts for each
 SNP, one element that holds the sex counts, and one element that holds
 the fraction of missing calls.
@@ -737,12 +895,12 @@ length(x[x < 0.05]) / length(x)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection*{Calculate {\tt missing.e1} }
+\subsubsection*{Calculate \Rcode{missing.e1} }
  
-This step calculates {\tt missing.e1}, which is the missing call rate per sample over all SNPs, by chromosome.
-We read in the new SNP annotation file which holds the {\tt missing.n1} variable.  
-For those SNPs with a {\tt missing.n1}
-value less than one, we call the {\tt missingGenotypeByScanChrom} function that returns a list with one element holding
+This step calculates \Rcode{missing.e1}, which is the missing call rate per sample over all SNPs, by chromosome.
+We read in the new SNP annotation file which holds the \Rcode{missing.n1} variable.  
+For those SNPs with a \Rcode{missing.n1}
+value less than one, we call the \Rcode{missingGenotypeByScanChrom} function that returns a list with one element holding
 the missing counts per sample by chromosome, one element holding the
 number of SNPs per chromosome, and one element holding the fraction of
 missing calls over all chromosomes.
@@ -764,9 +922,9 @@ sum(miss$snps.per.chr)
 nrow(snpAnnot) - sum(miss$snps.per.chr)
 @ 
 
-{\tt missingGenotypeByScanChrom} calculates the missing call
+\Rcode{missingGenotypeByScanChrom} calculates the missing call
     rate for each sample over all SNPs.  For females, the missing call rate does not include the probes on the Y chromosome.
-The values for {\tt missing.e1} are added to the sample annotation file.
+The values for \Rcode{missing.e1} are added to the sample annotation file.
 
 <<>>=
 head(miss$missing.fraction)
@@ -807,9 +965,9 @@ sum(scanAnnot$missing.e1 > 0.05)
 
 For some analyses we require the missing call rate for autosomes and the X chromosome to be separated.
 We calculate these values here and add them to the sample annotation file.  
-Also, we will create a logical {\tt duplicated} variable.  We can identify the duplicated scans in the sample
+Also, we will create a logical \Rcode{duplicated} variable.  We can identify the duplicated scans in the sample
 annotation file by identifying the subject ids that occur more than once.  Among samples with the same subject id, the 
-one with the lowest {\tt missing.e1} value will have the variable {\tt duplicated} set to {\tt FALSE}.
+one with the lowest \Rcode{missing.e1} value will have the variable \Rcode{duplicated} set to \Rcode{FALSE}.
 
 <<>>=
 auto <- colnames(miss$missing.counts) %in% 1:22
@@ -840,14 +998,14 @@ varMetadata(scanAnnot)["duplicated", "labelDescription"] <-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Calculate {\tt missing.n2} }
+\subsubsection*{Calculate \Rcode{missing.n2} }
 
-This step calculates {\tt missing.n2}, which is the missing call rate per SNP with {\tt missing.e1} less 
+This step calculates \Rcode{missing.n2}, which is the missing call rate per SNP with \Rcode{missing.e1} less 
 than 0.05 over all samples.
 In some cases, there will be samples with missing call rate greater than 0.05.  However, because of the high 
 quality of the HapMap data, there are no such samples in this case.  We will continue with the steps as if there are 
-samples we must exclude from the {\tt missing.n2} calculation. We call the {\tt missingGenotypeBySnpSex} 
-function just as we did to calculate for {\tt missing.n1}, but this time we include the list of sample numbers to 
+samples we must exclude from the \Rcode{missing.n2} calculation. We call the \Rcode{missingGenotypeBySnpSex} 
+function just as we did to calculate for \Rcode{missing.n1}, but this time we include the list of sample numbers to 
 exclude from the calculation (although here that list is empty).
 
 <<>>=
@@ -865,10 +1023,10 @@ summary(snpAnnot$missing.n2)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection*{Calculate {\tt missing.e2} }
+\subsubsection*{Calculate \Rcode{missing.e2} }
 
-This step calculates {\tt missing.e2}, which is the missing call rate per sample over all SNPs 
-with {\tt missing.n2} less than 0.05.  
+This step calculates \Rcode{missing.e2}, which is the missing call rate per sample over all SNPs 
+with \Rcode{missing.n2} less than 0.05.  
 
 <<>>=
 # Create a vector of the SNPs to exclude.
@@ -933,7 +1091,7 @@ of samples per batch, we will take the results from ANOVA.  Then we can plot the
 number of samples in the batch with the regression line.  For studies with more batches, this test can identify any
 batch outliers with regard to missing call rate for samples in a given batch.
 We can do the same analysis using the mean missing call rate for autosomal SNPs, or SNPs on the X chromosome in the exact
-same way, substituting {\tt missing.e1} with either {\tt miss.e1.auto} or {\tt miss.e1.xchr}.  Because the results are nearly
+same way, substituting \Rcode{missing.e1} with either \Rcode{miss.e1.auto} or \Rcode{miss.e1.xchr}.  Because the results are nearly
 identical, we will not show them here.
 
 <<>>=
@@ -957,10 +1115,10 @@ abline(y$coefficients)
 
 
 In this step, the chi-square test for differences in allelic frequency is performed between each batch 
-individually and a pool of all the other batches in the study.  We then look at the mean $\chi^2$ statistic over all SNPs for each batch as a function of the ethnic composition of samples in a batch. We use the {\tt batch} variable 
+individually and a pool of all the other batches in the study.  We then look at the mean $\chi^2$ statistic over all SNPs for each batch as a function of the ethnic composition of samples in a batch. We use the \Rcode{batch} variable 
 in the scan annotation  to identify the samples in each batch,
-so we must include the scan annotation in the {\tt GenotypeData} object.
-Then we call the function {\tt batchChisqTest} 
+so we must include the scan annotation in the \Rcode{GenotypeData} object.
+Then we call the function \Rcode{batchChisqTest} 
 which calculates the $\chi^2$ values from $2 \times 2$ tables for each SNP,
 comparing each batch with the other batches.  This function returns the
 genomic inflation factors for each batch, as well as matrix of $\chi^2$ values for
@@ -1010,6 +1168,12 @@ plot(eth, res$mean.chisq, xlab="Fraction of CEU Samples per Batch",
 abline(v=mean(eth), lty=2, col="red")
 @ 
 
+The $\chi^2$ test is not suitable when the $2 \times 2$ tables for
+each SNP have very small values.  For arrays in which many SNPs have
+very low minor allele frequency, Fisher's exact
+test is more appropriate.  The function \Rcode{batchFisherTest} can be
+used in a very similar way to \Rcode{batchChisqTest}, but the run time
+is significantly longer, as it iterates over each SNP.
 
 
 \clearpage
@@ -1027,11 +1191,10 @@ sample missingness and heterozygosities.
 Genotype calling algorithms report quality scores and classify genotypes with insufficient confidence as missing.  
 This code calculates the mean and median genotype quality score for each sample.
 
-Calculate quality scores by sample.  The {\tt
-      qualityScoreByScan} function requires both an {\tt
-      IntensityData} object, to read the quality scores, and a {\tt
-      GenotypeData} object, to determine which scans have missing
-    genotypes and should be omitted from the calculation.
+Calculate quality scores by sample.  The \Rcode{qualityScoreByScan}
+function requires both an \Rcode{IntensityData} object, to read the
+quality scores, and a \Rcode{GenotypeData} object, to determine which
+scans have missing genotypes and should be omitted from the calculation.
   
 <<>>=
 qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
@@ -1075,9 +1238,9 @@ each pair, and the sample's sex. We examine plots of BAF by
 position for each identified chromosome-sample pair (though only a
 subset of plots are shown here).
 
-First, run the {\tt meanBAFbyScanChromWindow} function. This
-    requires both an {\tt IntensityData} object with BAF
-    and a {\tt GenotypeData} object. Its output is a list of matrices, with
+First, run the \Rcode{meanBAFbyScanChromWindow} function. This
+    requires both an \Rcode{IntensityData} object with BAF
+    and a \Rcode{GenotypeData} object. Its output is a list of matrices, with
 one matrix for each chromosome containing the standard
 deviation of BAF at each window in each scan.
   
@@ -1091,7 +1254,7 @@ names(slidingBAF12)
 dim(slidingBAF12[["21"]])
 @ 
 
-The function {\tt meanBAFSDbyChromWindow} calculates the mean and standard 
+The function \Rcode{meanBAFSDbyChromWindow} calculates the mean and standard 
 deviation of the BAF standard deviations in each window in each chromosome over
 all samples. For the X chromosome, males and females are calculated separately, and we
 save the results split by sex.
@@ -1112,7 +1275,7 @@ head(res12bin4sd)
 table(res12bin4sd[, "chromosome"])
 @ 
 
-Call {\tt chromIntensityPlot} to plot the BAF of all SNPs on the indicated chromosome-sample
+Call \Rcode{chromIntensityPlot} to plot the BAF of all SNPs on the indicated chromosome-sample
 pair against position.  This yields many plots that must be individually examined
 to distinguish noisy data from chromosomal abnormalities.
 
@@ -1146,7 +1309,7 @@ Further, we are able to identify any outliers with regard to missingness.
 Plotting by chromosome enables visualization of chromosomal artifacts on a particular subset of 
 SNPs that lie on a chromosome.
 
-We will call the function {\tt missingGenotypeByScanChrom} to
+We will call the function \Rcode{missingGenotypeByScanChrom} to
     calculate the missing call rate.  Since the function returns
     missing counts per chromosome as well as snps per chromosome, we
     divide to find the missing call rate per chromosome.
@@ -1173,7 +1336,7 @@ boxplot(miss.rate$X ~ scanAnnot$sex,
   ylab="Proportion Missing")
 @ 
  
-We will call the function {\tt hetByScanChrom} to calculate the heterozygosity.
+We will call the function \Rcode{hetByScanChrom} to calculate the heterozygosity.
   We store the heterozygosity 
 calculations in the sample annotation.
  
@@ -1235,7 +1398,7 @@ Any found sex mis-annotations are presented to the investigators in order to res
 a collective decision must be made regarding the inclusion of those genetic data. In some cases a recording error explains the discrepancy, but more often the discrepancy is unexplained. These cases are assumed to be a sample mis-identification and these samples are excluded from subsequent analyses.
 
 In order to compare the mean X and Y chromosome intensities for all samples, we must calculate the mean intensity
-for each sample by chromosome. The function {\tt meanIntensityByScanChrom} calculates for each sample the mean
+for each sample by chromosome. The function \Rcode{meanIntensityByScanChrom} calculates for each sample the mean
 and standard deviation of the sum of the two allelic intensities for each probe on a given chromosome.  
 A matrix with one row per sample and one column per chromosome with entries $[i,j]$ corresponding to either the mean or 
 standard deviation of all probe intensities for the $i^{\text th}$ sample and the $j^{\text th}$ chromosome is returned 
@@ -1326,19 +1489,19 @@ From our experience, it is difficult to accurately estimate low levels of relate
 reliably determined. Users are encouraged to employ analyses which take into accounts the IBD estimates themselves
 rather than discrete relationship coefficients for any relationships. This step calculates identity by descent (IBD) 
 estimates for each population group using an expectation-maximization (EM) approach for maximum likelihood 
-estimation (MLE) of the IBD probabilities {\tt k1} and {\tt k0} 
+estimation (MLE) of the IBD probabilities \Rcode{k1} and \Rcode{k0} 
 \footnote{Weir, B. S., Anderson, A. D. \& Hepler, A. B. Genetic relatedness analysis: modern data and new challenges.
 \textit{Nature Reviews Genetics} \textbf{7}, 771-780 (October 2006).}, 
-and then graphs {\tt k1} versus {\tt k0}. The calculations are done
-using the gdsfmt and SNPRelate packages developed as part 
-of the GENEVA project.   gdsfmt is a library that uses a file
-format similar to the NetCDF files, and SNPRelate performs the
+and then graphs \Rcode{k1} versus \Rcode{k0}. The calculations are done
+using the \Rpackage{gdsfmt} and \Rpackage{SNPRelate} packages developed as part 
+of the GENEVA project.   \Rpackage{gdsfmt} is a library that uses a file
+format similar to the NetCDF files, and \Rpackage{SNPRelate} performs the
 IBD calculations using this data format.
                              
 
 \subsubsection*{IBD Using Maximum Likelihood Estimation (MLE)}                             
       
-We will convert the genotype NetCDF file to the {\tt gds} format with the function {\tt convertNcdfGds}.
+We will convert the genotype NetCDF file to the \Rcode{gds} format with the function \Rcode{convertNcdfGds}.
 
 <<>>=
 library(gdsfmt)
@@ -1361,8 +1524,8 @@ length(snp.sel)
 @ 
 
 Next, we perform the IBD estimation for the CEU population group.
-The {\tt snpgdsIBDMLE} function gives square matrices with rows and columns equal to the number of
-samples where entries are the {\tt k0} and {\tt k1} coefficient estimates, respectively, for each pairwise combination 
+The \Rcode{snpgdsIBDMLE} function gives square matrices with rows and columns equal to the number of
+samples where entries are the \Rcode{k0} and \Rcode{k1} coefficient estimates, respectively, for each pairwise combination 
 of samples. Note for larger studies this is a significant analysis since every possible pair of samples must be 
 considered.
 
@@ -1379,8 +1542,8 @@ ibdobj$k0[1:5,1:5]
 
 We can now find the expected relationships between samples in the CEU group based on the pedigree data
 that is stored in the sample annotation file. We will create a subset of the sample annotation that has one line per 
-sample and columns that hold family, father and mother ids, where an entry of {\tt 0} indicates no familial data.  
-Then the function {\tt pedigreeClean} is called, which checks for basic pedigree errors such as not all mothers annotated as 
+sample and columns that hold family, father and mother ids, where an entry of \Rcode{0} indicates no familial data.  
+Then the function \Rcode{pedigreeClean} is called, which checks for basic pedigree errors such as not all mothers annotated as 
 female or not all fathers as male, or that there exist no individual ids that appear in both the mother and father columns.
 
 <<>>=
@@ -1393,7 +1556,7 @@ pedigreeClean(ped)
 @ 
 
 The functions that determine expected relationships require no duplicates in the pedigree. This will be verified by a
-function call to {\tt pedigreeFindDuplicates}. We will also call {\tt pedigreeCheck} which determines if there are any 
+function call to \Rcode{pedigreeFindDuplicates}. We will also call \Rcode{pedigreeCheck} which determines if there are any 
 singleton families, mothers/fathers whose sex does not match,
 impossible relationships, or subfamilies.
 
@@ -1406,13 +1569,13 @@ fc <- pedigreeCheck(uni.ped)
 @ 
 
 The output is a list consisting of  vectors and a matrix: 
-{\tt one.person} is vector of family ids for one-person families. 
-{\tt mismatch.sex} consists of family ids where sex of mother and/or father is incorrect.
-{\tt impossible.related} consists of family ids where either child is mother of self or 
-an individual is both child and mother of same person subfamilies. {\tt ident} is a matrix
+\Rcode{one.person} is vector of family ids for one-person families. 
+\Rcode{mismatch.sex} consists of family ids where sex of mother and/or father is incorrect.
+\Rcode{impossible.related} consists of family ids where either child is mother of self or 
+an individual is both child and mother of same person subfamilies. \Rcode{ident} is a matrix
 with family id (families with subfamilies), subfamily identifier, individual ids of
-persons in the subfamily. (In {\tt subfamilies.ident} the individual id's include 
-individuals identified as mother or father who may not be in {\tt individ}.) 
+persons in the subfamily. (In \Rcode{subfamilies.ident} the individual id's include 
+individuals identified as mother or father who may not be in \Rcode{individ}.) 
  
 <<>>=
 length(fc$one.person)
@@ -1436,7 +1599,7 @@ pedigreeCheck(uni.ped)
 @ 
 
  Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
-among the samples by calling the function {\tt pedigreePairwiseRelatedness}. The relationships looked for as annotated are:
+among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}. The relationships looked for as annotated are:
 U = unrelated, PO = parent/offspring, FS = full siblings, HS =
 half-sibling-like (including avuncular and grandparent-grandchild), and FC = first cousins.
 Families where mothers and fathers are related are also looked for among the family annotations.
@@ -1485,7 +1648,7 @@ table(ibd$obs.rel, useNA="ifany")
 
  Now the pedigree information is in the proper format for the 
 IBD estimates to be plotted for each pair of samples, color coded by expected relationship. 
-The orange line segments span the values for the expected {\tt k0}, {\tt k1} values, $\pm$2 standard deviations.
+The orange line segments span the values for the expected \Rcode{k0}, \Rcode{k1} values, $\pm$2 standard deviations.
 
 <<fig=TRUE>>=
 ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
@@ -1505,14 +1668,14 @@ percent and minor allele frequency $>0$ that are spaced at least 15 kb apart.
 
 We calculate the allele frequency in the set of samples that will be
 analyzed (in this case, YRI samples).
-The function {\tt apartSnpSelection} randomly selects SNPs for which no pair of SNPs is closer than a user specified
+The function \Rcode{apartSnpSelection} randomly selects SNPs for which no pair of SNPs is closer than a user specified
 threshold; we choose 15 kb here.
 
 <<>>=
 # Allele frequency calculation in YRI samples
 # open the NetCDF file and create a GenotypeData object
 nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+genoData <-  GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 # sample selection - unduplicated YRI samples
 sample.excl <- scanAnnot$scanID[scanAnnot$race != "YRI" | scanAnnot$duplicated]
 length(sample.excl)
@@ -1540,7 +1703,7 @@ varMetadata(snpAnnot)["r15kb", "labelDescription"] <- paste(
   "and YRI MAF>0, at least 15 kb apart")
 @ 
 
-We now use the function {\tt snpgdsIBDMoM} to perform IBD
+We now use the function \Rcode{snpgdsIBDMoM} to perform IBD
     for the YRI samples using the PLINK MoM approach.
   
 <<>>=
@@ -1556,8 +1719,8 @@ ibdobj$k0[1:5,1:5]
 We can now find the expected relationships between samples in the YRI group based on the pedigree data
 that is stored in the sample annotation file. 
 We will create a subset of the sample annotation that has one line per sample and columns that hold family, father
-and mother ids, where an entry of {\tt 0} indicates no familial data.
-As before, we use the function {\tt pedigreeClean} to check for
+and mother ids, where an entry of \Rcode{0} indicates no familial data.
+As before, we use the function \Rcode{pedigreeClean} to check for
 pedigree errors.
 
 <<>>=
@@ -1569,8 +1732,8 @@ ped[1:5, ]
 pedigreeClean(ped)
 @ 
 
-As with the Europeans, we use {\tt pedigreeFindDuplicates} to
-    identify duplicates and and {\tt pedigreeCheck} to look for
+As with the Europeans, we use \Rcode{pedigreeFindDuplicates} to
+    identify duplicates and and \Rcode{pedigreeCheck} to look for
 singleton families, mothers/fathers whose sex does not match,
 impossible relationships, or subfamilies.
 In studies with family data, sorting pedigree inconsistencies
@@ -1595,7 +1758,7 @@ pedigreeCheck(uni.ped)
 @ 
 
 Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
-among the samples by calling the function {\tt pedigreePairwiseRelatedness}.
+among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}.
 
 <<>>=
 rels <- pedigreePairwiseRelatedness(uni.ped)
@@ -1658,10 +1821,10 @@ identify any individuals whose recorded self-identified race/ethnicity differs f
 samples by population group. It may also be useful to include the values of some eigenvectors as covariates in 
 association tests.
 
-For PCA, we use linkage disequilibrium (LD) pruning ({\tt snpgdsLDpruning}) to select a set of
+For PCA, we use linkage disequilibrium (LD) pruning (\Rcode{snpgdsLDpruning}) to select a set of
 SNPs within which each pair has a low level of LD (e.g.\ $r^2<0.1$ in a
 sliding 10 Mb window),
-from a starting pool of autosomal SNPs with {\tt missing.n1} $<0.05$
+from a starting pool of autosomal SNPs with \Rcode{missing.n1} $<0.05$
 and MAF $<0.05$.
 We also remove SNPs in regions with known correlation (2q21 (LCT), HLA, 8p23, and 17q21.31).
 We must also ensure no duplicate samples are used for the principal component calculations.
@@ -1692,7 +1855,7 @@ snp.pruned <- unlist(snpset, use.names=FALSE)
 length(snp.pruned)
 @ 
 
-The {\tt snpgdsPCA} function is called with the SNP and sample subsets to calculate the first 32 
+The \Rcode{snpgdsPCA} function is called with the SNP and sample subsets to calculate the first 32 
 eigenvectors.
  
 <<>>=
@@ -1862,7 +2025,7 @@ on cases and controls.
 
 
 Investigate the difference in mean missing call rate by case-control status, using the sample annotation variable
-{\tt missing.e1}. Here, since the case-control status was randomly assigned, we do not expect to see a difference
+\Rcode{missing.e1}. Here, since the case-control status was randomly assigned, we do not expect to see a difference
 in any of the missing call rates with respect to case-control status. 
 
 <<>>=
@@ -1891,11 +2054,11 @@ Create an \texttt{IntensityData} object and a \texttt{GenotypeData} object.
 <<>>=
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+blData <-  IntensityData(blnc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 
 genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+genoData <-  GenotypeData(genonc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 @ 
 
 Identify some low quality samples by looking at the standard deviation of BAF.
@@ -2045,9 +2208,9 @@ close(genoData)
 
 We can set genotypes in anomaly regions to missing for future analyses
 (such as Hardy-Weinberg equilibrium and association tests).  We use
-the function {\tt ncdfSetMissingGenotypes} to create a new NetCDF file
-with anomaly regions set to {\tt NA}.  We recommend inspecting the
-plots from {\tt anomStatsPlot} for large anomalies (e.g., $>5$ Mb) to
+the function \Rcode{ncdfSetMissingGenotypes} to create a new NetCDF file
+with anomaly regions set to \Rcode{NA}.  We recommend inspecting the
+plots from \Rcode{anomStatsPlot} for large anomalies (e.g., $>5$ Mb) to
 identify those anomalies that case genotyping errors.  
 We can also exclude certain
 samples, such as duplicates, low quality samples, and samples with
@@ -2086,7 +2249,7 @@ We can examine the discordance rate with respect to samples or SNPs.
 The discordance rate for a pair of samples is the fraction of genotype calls that differ over all
 SNPs for which both calls are non-missing. The discordance rate for a SNP is the number of calls that differ divided by the number of duplicate pairs in which both calls are non-missing.
 
-Keep the samples with a low enough value for the missing call rate, {\tt missing.e1}.  The threshold chosen here
+Keep the samples with a low enough value for the missing call rate, \Rcode{missing.e1}.  The threshold chosen here
 is 0.05.
 
 <<>>=
@@ -2094,8 +2257,8 @@ scan.excl <- scanAnnot$scanID[scanAnnot$missing.e1 >= 0.05]
 length(scan.excl)
 @ 
 
-We make a vector of SNP {\tt snpIDs} with {\tt missing.n1} = 1 to exclude from the comparison.
-We then call the {\tt duplicateDiscordance} function and save the output file.
+We make a vector of SNP \Rcode{snpIDs} with \Rcode{missing.n1} = 1 to exclude from the comparison.
+We then call the \Rcode{duplicateDiscordance} function and save the output file.
 This function finds subjectIDs for which there is more than one scanID.
 To look at the discordance results, we will calculate the percentage value and look at the summary of the values for 
 each of the duplicate pairs.
@@ -2178,16 +2341,14 @@ duplicateDiscordanceProbability(npair)
 
 This step calculates and examines the Mendelian error rates. Mendelian errors are
 detected in parent-offspring trios or pairs as offspring genotypes that are inconsistent with Mendelian inheritance.
-We use the {\tt
-  mendelErr} function to calculate a Mendelian error rate per SNP.
+We use the \Rcode{mendelErr} function to calculate a Mendelian error rate per SNP.
 Lastly some checks are done on Mendelian error rates per family. 
 
 
 To call the Mendelian error checking function, we first must
-    create a {\tt mendelList} object.  We will call {\tt mendelList} that creates a list of trios, checking for any sex 
-inconsistencies among annotated father and mother samples. Then, {\tt
-  mendelListAsDataFrame} puts this list into a data frame for easier checking. Finally, we can call the {\tt mendelErr} function to find the 
-Mendelian errors for SNPs with {\tt missing.n1} less than 0.05.
+    create a \Rcode{mendelList} object.  We will call \Rcode{mendelList} that creates a list of trios, checking for any sex 
+inconsistencies among annotated father and mother samples. Then, \Rcode{mendelListAsDataFrame} puts this list into a data frame for easier checking. Finally, we can call the \Rcode{mendelErr} function to find the 
+Mendelian errors for SNPs with \Rcode{missing.n1} less than 0.05.
 
 <<>>=
 men.list <- with(pData(scanAnnot), mendelList(family, subjectID, 
@@ -2243,8 +2404,8 @@ noerr / val
 @ 
 
 We add the Mendelian error values to the SNP annotation. 
-The number of families with at least one error per SNP, {\tt mend\$snp\$error.cnt}, gets saved as {\tt mendel.err.count}. 
-The number of valid families for checking, {\tt mend\$snp\$check.cnt}, gets saved as {\tt mendel.err.sampsize}.
+The number of families with at least one error per SNP, \Rcode{mend\$snp\$error.cnt}, gets saved as \Rcode{mendel.err.count}. 
+The number of valid families for checking, \Rcode{mend\$snp\$check.cnt}, gets saved as \Rcode{mendel.err.sampsize}.
 
 <<>>=
 snp.sel <- match(names(mend$snp$error.cnt), snpAnnot$snpID)
@@ -2297,9 +2458,9 @@ close(xyData)
 
 \subsection*{Mendelian Errors per Family}
 
-This section does some analyses on the Mendelian Errors for each family (trio). The variable {\tt all.trios} contains 
-results of all combinations of duplicate samples. The variable {\tt trios} contains the averages of unique trios 
-(averages of duplicates from {\tt all.trios}).
+This section does some analyses on the Mendelian Errors for each family (trio). The variable \Rcode{all.trios} contains 
+results of all combinations of duplicate samples. The variable \Rcode{trios} contains the averages of unique trios 
+(averages of duplicates from \Rcode{all.trios}).
 
 <<>>=
 # Calculate the fraction of SNPs with an error for each trio
@@ -2358,7 +2519,7 @@ This section uses Fisher's exact test to examine each SNP for departure from Har
 For each SNP, p-values are obtained; those SNPs with extremely low values will be considered for filtering. 
 QQ-plots of the p-values are made for both the autosomes and X chromosome. 
 
-To run the Hardy-Weinberg test, we will filter out duplicates and non-founders. We will run {\tt gwasExactHW} for the samples with European continental ancestry only,
+To run the Hardy-Weinberg test, we will filter out duplicates and non-founders. We will run \Rcode{gwasExactHW} for the samples with European continental ancestry only,
 although the process is just the same for all population groups.  This
 function filters out the males for the X chromosome and all samples for the
 Y and mitochondrial probes.  
@@ -2375,10 +2536,10 @@ hwe <- gwasExactHW(genoData, scan.exclude=scan.excl)
 close(genoData)
 @ 
 
-We will look at the values calculated from the function call to {\tt gwasExactHW}, which include p-values, minor allele frequency, and genotype counts for each SNP on each of the chromosome 
+We will look at the values calculated from the function call to \Rcode{gwasExactHW}, which include p-values, minor allele frequency, and genotype counts for each SNP on each of the chromosome 
 types.  All the p-values are missing for the Y and M chromosomes. There are minor allele frequencies on the same chromosome types; we look at the first 50 
-values. Finally, there are genotype counts for all chromosome types, which are stored as {\tt nAA, nAB} 
-and {\tt nBB}.
+values. Finally, there are genotype counts for all chromosome types, which are stored as \Rcode{nAA, nAB} 
+and \Rcode{nBB}.
 
 <<>>=
 names(hwe)
@@ -2415,7 +2576,7 @@ summary(chkf$MAF)
 
 To see at what value the SNPs begin to deviate from the Hardy-Weinberg expected values, we will make QQ-plots 
 that exclude SNPs where MAF = 0.  We plot of the observed p-values vs. the expected p-values for the autosomes and 
-X chromosome separately by calling the function {\tt qqPlot}. 
+X chromosome separately by calling the function \Rcode{qqPlot}. 
 
 <<>>=
 hwe.0 <- hwe[hwe$MAF > 0,]; dim(hwe.0)
@@ -2461,7 +2622,8 @@ This step creates and examines QQ, `Manhattan' signal, and genotype cluster plot
 If significant SNPs appear as a result of the association test, SNP cluster plots must be examined
 to determine if the association is driven from a poorly clustering SNP.
 Note that HapMap data do not come with phenotypic outcomes, thus, for purposes of the tutorial
-we use simulated binary outcomes instead. The tests conducted are logistic regression based tests;
+we use simulated binary outcomes instead. The tests conducted are
+usually logistic regression based tests;
 the samples are filtered by quality criteria and only unrelated subjects are included.
 In the code below we do not include any covariates in the logistic regression as these data are not part of a case
 control study. For data in the GENEVA project and other GWA studies we discuss which variables should be considered for inclusion as covariates in the
@@ -2471,10 +2633,12 @@ covariates with significant effects are then included in the final model.
 
 \subsection{Association Test}
 
-To run the association test, we call the function {\tt assocTestRegression}.  
+To run the association test, we call the function
+  \Rcode{assocTestRegression}.  (For survival analysis, the function
+\Rcode{assocTestCPH} may be used.)
 We will use the filtered NetCDF file with unique subjects only that we
 made in section~\ref{sec:filt_anom}.
-Here we use all unique subjects, but we would use the argument {\tt scan.exclude} for those samples we wish
+Here we use all unique subjects, but we would use the argument \Rcode{scan.exclude} for those samples we wish
 to filter out for the association test (such as low-quality or related
 samples). Typically, we do not filter out SNPs for the association test -- we run all SNPs and then filter the results.  The omission of filters may 
 cause some SNPs to return significant p-values for association.
@@ -2507,7 +2671,7 @@ qqPlot(pval=assoc$model.1.additive.LR.pval.G,
 
 \subsection{``Manhattan'' Plots of the P-Values}
 
-To create the `Manhattan' plots, we will call the function {\tt manhattanPlot}.  We take the negative log
+To create the `Manhattan' plots, we will call the function \Rcode{manhattanPlot}.  We take the negative log
 transformation of the p-values and plot them for each probe.
 
 <<>>=
