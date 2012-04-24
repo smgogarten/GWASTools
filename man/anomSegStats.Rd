@@ -16,7 +16,8 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   brackets = c("none", "bases", "markers"), brkpt.pct = 10,
   whole.chrom = FALSE, win = 5, win.calc = FALSE, win.fixed = 1,
   zoom = c("both", "left", "right"), main = NULL, info = NULL,
-  type = c("BAF/LRR", "BAF", "LRR"), cex = 0.5, ...)
+  ideogram = TRUE, ideo.zoom = FALSE, ideo.rect = TRUE,
+  mult.anom = FALSE, cex = 0.5, cex.leg = 1.5, ...)
 }
 
 \arguments{
@@ -35,7 +36,7 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   XTR region on X chromosome.  See \code{\link{HLA}} and \code{\link{pseudoautosomal}}.
   If there are SNPs annotated in the centromere gap, exclude these as
   well (see \code{\link{centromeres}}).
-}
+x}
 \item{anom}{data.frame of detected chromosome anomalies.  Names must include "scanID",
   "chromosome", "left.index", "right.index", "sex", "method", "anom.id".
   Valid values for "method" are "BAF" or "LOH" referring to whether the anomaly
@@ -99,10 +100,19 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
   character vector of extra information to include in the main title of
   the upper (LRR) plot
 }
-\item{type}{ The type of plot to be created.  'BAF/LRR' creates both 'B Allele Freq' and 'Log R Ratio' plots. }
+\item{ideogram}{logical for whether to plot a chromosome ideogram under
+  the BAF and LRR plots.}
+  \item{ideo.zoom}{logical for whether to zoom in on the ideogram to
+    match the range of the BAF/LRR plots}
+  \item{ideo.rect}{logical for whether to draw a rectangle on the
+    ideogram indicating the range of the BAF/LRR plots}
+  \item{mult.anom}{logical for whether to plot multiple anomalies from
+  the same scan-chromosome pair on a single plot.  If \code{FALSE}
+  (default), each anomaly is shown on a separate plot.}
 \item{cex}{
   cex value for points on the plots
 }
+  \item{cex.leg}{cex value for the ideogram legend}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 
@@ -221,14 +231,14 @@ snp.ids <- illuminaSnpADF$snpID[illuminaSnpADF$missing.n1 < 1]
 snp.failed <- illuminaSnpADF$snpID[illuminaSnpADF$missing.n1 == 1]
 
 # example results from anomDetectBAF
-baf.anoms <- data.frame("scanID"=scan.ids[1],"chromosome"=21,
-  "left.index"=100,"right.index"=200, sex="M", method="BAF",
-  anom.id=1, stringsAsFactors=FALSE)
+baf.anoms <- data.frame("scanID"=rep(scan.ids[1],2), "chromosome"=rep(21,2),
+  "left.index"=c(100,300), "right.index"=c(200,400), sex=rep("M",2),
+  method=rep("BAF",2), anom.id=1:2, stringsAsFactors=FALSE)
 
 # example results from anomDetectLOH
 loh.anoms <- data.frame("scanID"=scan.ids[2],"chromosome"=22,
   "left.index"=400,"right.index"=500, sex="F", method="LOH",
-  anom.id=2, stringsAsFactors=FALSE)
+  anom.id=3, stringsAsFactors=FALSE)
 
 anoms <- rbind(baf.anoms, loh.anoms)
 data(centromeres.hg18)

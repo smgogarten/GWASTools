@@ -88,3 +88,11 @@
     \item Updated vignette.
   }
 }
+\section{Changes in version 1.3.4}{
+  \itemize{
+    \item Added chromosome ideograms to chromIntensityPlot and
+    anomStatsPlot.  anomStatsPlot has an option to put multiple
+    anomalies on the same plot.    
+  }
+}
+

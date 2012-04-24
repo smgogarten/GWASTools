@@ -12,12 +12,14 @@ This function creates plots for one or more of the 'B AlleleFreq', 'Log R Ratio'
 
 \usage{
 chromIntensityPlot(intenData, scan.ids, chrom.ids, 
-                   type = c("BAF/LRR", "BAF", "LRR", "R", "Theta", "R/Theta"), 
-                   main = NULL, info = NULL, 
-                   abln = NULL,  horizln = c(1/2, 1/3, 2/3), 
-                   colorGenotypes = FALSE, genoData = NULL,
-                   colorBatch = FALSE, batch.column = NULL,
-                   snp.exclude = NULL, cex=0.5, ...)
+  type = c("BAF/LRR", "BAF", "LRR", "R", "Theta", "R/Theta"), 
+  main = NULL, info = NULL, abln = NULL,
+  horizln = c(1/2, 1/3, 2/3), 
+  colorGenotypes = FALSE, genoData = NULL,
+  colorBatch = FALSE, batch.column = NULL,
+  snp.exclude = NULL,
+  ideogram=TRUE, ideo.zoom=TRUE, ideo.rect=FALSE,
+  cex=0.5, cex.leg=1.5, ...)
 }
 
 
@@ -44,7 +46,14 @@ Use -1 as one pair value for plots that warrant only one line. By default, no li
 	variable in intenData should be used as the batch.}
   \item{snp.exclude}{An integer vector giving the IDs of SNPs to exclude
   from the plot.}
-  \item{cex}{cex value for points on the plots}
+\item{ideogram}{logical for whether to plot a chromosome ideogram under
+  the BAF and LRR plots.}
+  \item{ideo.zoom}{logical for whether to zoom in on the ideogram to
+    match the range of the BAF/LRR plots.}
+  \item{ideo.rect}{logical for whether to draw a rectangle on the
+    ideogram indicating the range of the BAF/LRR plots.}
+  \item{cex}{cex value for points on the plots.}
+  \item{cex.leg}{cex value for the ideogram legend.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 

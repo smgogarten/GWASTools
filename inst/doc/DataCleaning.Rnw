@@ -1247,7 +1247,7 @@ deviation of BAF at each window in each scan.
 <<>>=
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blNC <- NcdfIntensityReader(blfile)
-blData <- IntensityData(blNC)
+blData <- IntensityData(blNC, scanAnnot=scanAnnot)
 nbins <- rep(12, 3)
 slidingBAF12 <- sdByScanChromWindow(blData, genoData, nbins=nbins)
 names(slidingBAF12)
@@ -1284,9 +1284,7 @@ scanID <- as.integer(res12bin4sd[, "scanID"])
 chrom <- as.integer(res12bin4sd[, "chromosome"])
 chrom[res12bin4sd[, "chromosome"] == "X"] <- 23
 bincode <- paste("Bin", res12bin4sd[, "bin"], sep = " ")
-sexcode <- paste("Sex", res12bin4sd[, "sex"], sep = " ")
-code <- paste(bincode, sexcode, sep = ", ")
-chromIntensityPlot(blData, scanID[1], chrom[1], info=code[1])
+chromIntensityPlot(blData, scanID[1], chrom[1], info=bincode[1], ideogram=FALSE)
 @
 
 <<>>=
@@ -2159,7 +2157,7 @@ two parts: upper part is a graph of LRR and lower part is a graph of BAF.
 <<fig=TRUE>>=
 snp.not.ok <- snpAnnot$snpID[snp.exclude]
 anomStatsPlot(blData, genoData, anom.stats=stats[1,],
-  snp.ineligible=snp.not.ok, centromere=centromeres, cex.main=0.8)
+  snp.ineligible=snp.not.ok, centromere=centromeres, cex.leg=1)
 @ 
 
 

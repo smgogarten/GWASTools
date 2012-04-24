@@ -12,7 +12,9 @@ chromIntensityPlot <- function(
                  colorBatch = FALSE,
                  batch.column = NULL,
 		 snp.exclude = NULL,
+                 ideogram=TRUE, ideo.zoom=TRUE, ideo.rect=FALSE,
                  cex=0.5,
+                 cex.leg=1.5,
 		 ...) 
 {
     # check arguments
@@ -59,6 +61,17 @@ chromIntensityPlot <- function(
       sex <- getSex(intenData)
     } else {
       sex <- NULL
+    }
+    
+    chrom.char <- chrom.ids
+    chrom.char[chrom.ids == XchromCode(intenData)] <- "X"
+    chrom.char[chrom.ids == YchromCode(intenData)] <- "Y"
+  
+    # layout
+    if (ideogram & type %in% c("BAF/LRR", "R/Theta")) {
+      layout(matrix(c(1,2,3), nrow=3, ncol=1), heights=c(0.4, 0.4, 0.2))
+    } else if (ideogram | type %in% c("BAF/LRR", "R/Theta")) {
+      layout(matrix(c(1,2), nrow=2, ncol=1), heights=c(0.5, 0.5))
     }
     
     for (i in 1:length(scan.ids)) {
@@ -121,11 +134,18 @@ chromIntensityPlot <- function(
             gcol[!is.na(genos) & genos == 0] <- "blue"
             gcol[!is.na(genos) & genos == 1] <- "green"
             gcol[!is.na(genos) & genos == 2] <- "red"
-            txt.leg <- "BAF: red=AA, green=AB, blue=BB, black=missing"
+            txt.leg <- "red=AA, green=AB, blue=BB, black=missing"
         } else {
           txt.leg <- ""
         }
 
+        # combine plot titles for single plot
+        if (type %in% c("BAF", "LRR", "R", "Theta")) {
+          tmp <- paste(txt.main, txt.leg, sep="\n")
+          txt.main <- tmp
+          txt.leg <- tmp
+        }
+        
         # create batch color vector if colorBatch==TRUE
         if (colorBatch) {
           batch <- getSnpVariable(intenData, batch.column, index=chri)
@@ -152,10 +172,8 @@ chromIntensityPlot <- function(
             }
             subnm <- paste("horizontal line =", hv)
         }
-        if (type == "BAF/LRR" | type=="R/Theta") {
-            par(mfrow=c(2,1))
-        }
             
+        par(mar=c(5,4,4,2)+0.1, mgp=c(2.5,0.75,0))
         if (type == "LRR" | type == "BAF/LRR") {
             plot((posi/1e+06)[toPlot], logrratio[toPlot], xlab = "position (Mb)", 
                 ylab = "LRR", sub = "horizontal line = mean LRR", 
@@ -202,7 +220,7 @@ chromIntensityPlot <- function(
         }
         if (type == "Theta" | type == "R/Theta") {
             plot((posi/1e+06)[toPlot], theta[toPlot], xlab = "position (Mb)", 
-                ylab = "Theta", main = txt.leg, ...)
+                ylab = "Theta", main = txt.leg, type = "n", ...)
             for (d in 1:length(vals)) {
                 abline(v = vals[d]/1e+06, col = "royalblue", 
                   lty = 3, lwd = 2)
@@ -212,6 +230,19 @@ chromIntensityPlot <- function(
             if (aben != -1) 
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
             points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex)
+        }
+
+        if (ideogram) {
+            par(mar=c(1,4,1,2)+0.1)
+            if (ideo.zoom) {
+                ideo.x <- c(min(posi), max(posi))
+            } else {
+                ideo.x <- c(0, lengthChromosome(chrom.char[i], "bases"))
+            }
+            plot(ideo.x, c(-2,2),
+                 type="n", xaxt="n", yaxt="n", xlab="", ylab="", bty="n")
+            paintCytobands(chrom.char[i], units="bases", width=1, cex.leg=cex.leg)
+            if (ideo.rect) rect(min(posi), -1.2, max(posi), 0.2, border="red", lwd=2)
         }
     }
 }
