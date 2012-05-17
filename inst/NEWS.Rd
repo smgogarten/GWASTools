@@ -95,4 +95,10 @@
     anomalies on the same plot.    
   }
 }
+\section{Changes in version 1.3.5}{
+  \itemize{
+    \item Added function asSnpMatrix to convert a GenotypeData object
+    to a SnpMatrix object for use with snpStats.
+  }
+}
 
