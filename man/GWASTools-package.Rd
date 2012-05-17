@@ -17,7 +17,7 @@
   Genotype and intensity data are stored in NetCDF files, so it is
   possible to analyze data sets that are too large to be contained in
   memory.  The \code{\link{NcdfReader}} class provides a generic
-  interface to the NetCDF files (utilizing the \code{\link{ncdf}} package), and the
+  interface to the NetCDF files (utilizing the \pkg{\link{ncdf}} package), and the
   \code{\link{NcdfGenotypeReader}} and \code{\link{NcdfIntensityReader}}
   classes provide specific methods to access genotype and intensity
   data.

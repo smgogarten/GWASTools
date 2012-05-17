@@ -7,8 +7,8 @@
 
 \description{
   \code{convertNcdfGds} converts a genotype NetCDF file to the GDS
-  format used by the R packages \code{gdsfmt} and
-  \code{SNPRelate}.
+  format used by the R packages \pkg{\link[gdsfmt]{gdsfmt}} and
+  \pkg{\link[SNPRelate]{SNPRelate}}.
 
   \code{convertGdsNcdf} converts a GDS file to NetCDF format.
 
@@ -41,10 +41,10 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 }
 
 \details{
-  These functions require that the package \code{gdsfmt} be
+  These functions require that the package \pkg{\link[gdsfmt]{gdsfmt}} be
   installed.  \code{convertNcdfGds} is needed to convert the NetCDF
   genotype files used in this package to the format required by
-  \code{SNPRelate} for Principal Component Analysis,
+  \pkg{\link[SNPRelate]{SNPRelate}} for Principal Component Analysis,
   Identity-by-Descent, and Linkage Disequlibrium calculations.
 }
 
@@ -56,7 +56,7 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 
 \author{Xiuwen Zheng}
 
-\seealso{\code{gdsfmt}, \code{SNPRelate}, \code{\link{ncdf}},
+\seealso{\pkg{\link[gdsfmt]{gdsfmt}}, \pkg{\link[SNPRelate]{SNPRelate}}, \pkg{\link{ncdf}},
   \code{\link{NcdfGenotypeReader}},
 }
 

@@ -57,19 +57,19 @@ refer to start and end of anomaly, respectively, in position order.
 }
 \item{smooth}{
   number of markers for smoothing region.  See \code{\link{smooth.CNA}} 
-  in the \code{\link{DNAcopy}} package.
+  in the \pkg{\link{DNAcopy}} package.
 }
 \item{min.width}{
   minimum number of markers for segmenting.  See \code{\link{segment}}
-  in the \code{\link{DNAcopy}} package.
+  in the \pkg{\link{DNAcopy}} package.
 }
 \item{nperm}{
   number of permutations.
-See \code{\link{segment}} in the \code{\link{DNAcopy}} package.
+See \code{\link{segment}} in the \pkg{\link{DNAcopy}} package.
 }
 \item{alpha}{
   significance level. See \code{\link{segment}} in the
-  \code{\link{DNAcopy}} package.
+  \pkg{\link{DNAcopy}} package.
 }
 
 \item{run.size}{
@@ -132,7 +132,7 @@ number of consecutive heterozygous markers allowed to interrupt a 'homozygous' r
 Detection of anomalies with loss of heterozygosity accompanied by change in Log R Ratio.
  Male samples for X chromosome are not processed.
 
-Circular binary segmentation (CBS) (using the R-package \code{\link{DNAcopy}})
+Circular binary segmentation (CBS) (using the R-package \pkg{\link{DNAcopy}})
 is applied to LRR values and, in parallel, runs of homozygous or missing genotypes 
 of a certain minimal size (\code{run.size}) (and allowing for some interruptions 
 by no more than \code{inter.size} heterozygous SNPs ) are identified.  Intervals from
@@ -251,14 +251,14 @@ refer to start and end of anomaly, respectively, in position order.
 }
 }
 \references{
-See references in \code{\link{segment}} in the package \code{\link{DNAcopy}}.
+See references in \code{\link{segment}} in the package \pkg{\link{DNAcopy}}.
 }
 \author{
   Cecelia Laurie
 }
 
 \seealso{
- \code{\link{segment}} and \code{\link{smooth.CNA}} in the package \code{\link{DNAcopy}}, 
+ \code{\link{segment}} and \code{\link{smooth.CNA}} in the package \pkg{\link{DNAcopy}}, 
   also \code{\link{findBAFvariance}}, \code{\link{anomDetectLOH}}
 }
 \examples{

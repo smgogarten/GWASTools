@@ -138,7 +138,7 @@ The "ALLELE_SUMMARY" files have two rows per SNP, one for X (A allele) and one f
 \code{ncdfCheckGenotype} and \code{ncdfCheckIntensity} check the
 contents of netCDF files against raw text files.
 
-These functions use the \code{\link{ncdf}} library, which provides an interface between R and netCDF.
+These functions use the \pkg{\link{ncdf}} library, which provides an interface between R and netCDF.
 
 
 }
@@ -193,7 +193,7 @@ A list of diagnostics with the following components is returned. Each vector has
 }
 
 
-\seealso{\code{\link{ncdf}}, \code{\link{ncdfCreate}}, \code{\link{ncdfSubset}}
+\seealso{\pkg{\link{ncdf}}, \code{\link{ncdfCreate}}, \code{\link{ncdfSubset}}
 }
 
 

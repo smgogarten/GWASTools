@@ -59,7 +59,7 @@ that call to the function.  "chr.i_k." will be
 
 \details{
 HWE calculations are performed with the \code{\link{HWExact}}
-function in the \code{\link{GWASExactHW}} package.
+function in the \pkg{\link{GWASExactHW}} package.
   
 For the X chromosome, only female samples will be used in all calculations (since males are excluded from HWE testing on this chromosome). 
 Hence if chromosome.set includes 23, the scan annotation of genoData should provide the sex of the sample ("M" or "F") i.e. there should be a column named "sex" with "F" for females and "M" for males.

@@ -44,7 +44,7 @@ This function returns a table of genotype calls if the silent variable is set to
 A netCDF file is created from this function and written to disk.  This file (and data) can be accessed later by using the command \code{open.ncdf(ncdf.filename)}.
 }
 \author{ Caitlin McHugh }
-\seealso{\code{\link{ncdf}}, \code{\link{missingGenotypeBySnpSex}}, \code{\link{missingGenotypeByScanChrom}}, \code{\link{simulateIntensityMatrix}} }
+\seealso{\pkg{\link{ncdf}}, \code{\link{missingGenotypeBySnpSex}}, \code{\link{missingGenotypeByScanChrom}}, \code{\link{simulateIntensityMatrix}} }
 \examples{
 filenm <- tempfile()
 

@@ -52,7 +52,7 @@ which includes:
 A netCDF file is created from this function and written to disk.  This file (and data) can be accessed later by using the command 'open.ncdf(ncdf.filename)'.
 }
 \author{ Caitlin McHugh }
-\seealso{\code{\link{ncdf}}, \code{\link{meanIntensityByScanChrom}}, \code{\link{simulateGenotypeMatrix}} }
+\seealso{\pkg{\link{ncdf}}, \code{\link{meanIntensityByScanChrom}}, \code{\link{simulateGenotypeMatrix}} }
 \examples{
 filenm <- tempfile()
 

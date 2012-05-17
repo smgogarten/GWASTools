@@ -62,19 +62,19 @@ anomDetectBAF(intenData, genoData, scan.ids, chrom.ids, snp.ids,
 }
 \item{smooth}{
   number of markers for smoothing region.  See \code{\link{smooth.CNA}} 
-  in the \code{\link{DNAcopy}} package.
+  in the \pkg{\link{DNAcopy}} package.
 }
 \item{min.width}{
   minimum number of markers for a segment.  See \code{\link{segment}}
-  in the \code{\link{DNAcopy}} package.
+  in the \pkg{\link{DNAcopy}} package.
 }
 \item{nperm}{
   number of permutations for deciding significance in segmentation.
-   See \code{\link{segment}} in the \code{\link{DNAcopy}} package.
+   See \code{\link{segment}} in the \pkg{\link{DNAcopy}} package.
 }
 \item{alpha}{
   significance level.  See \code{\link{segment}} in the
-  \code{\link{DNAcopy}} package.
+  \pkg{\link{DNAcopy}} package.
 }
 \item{verbose}{
    logical indicator whether to print information about the scan id currently being processed.
@@ -250,7 +250,7 @@ following elements:
 }
 \references{
 %% ~put references to the literature/web site here ~
-See references in \code{\link{segment}} in the package \code{\link{DNAcopy}}.
+See references in \code{\link{segment}} in the package \pkg{\link{DNAcopy}}.
  The BAF metric used is modified from Itsara,A., \emph{et.al} (2009) Population
 Analysis of Large Copy Number Variants and Hotspots of Human Genetic Disease.
 \emph{American Journal of Human Genetics}, \bold{84}, 148--161.
@@ -265,7 +265,7 @@ accurate determination of baseline information.
 }
 
 \seealso{
-  \code{\link{segment}} and \code{\link{smooth.CNA}} in the package \code{\link{DNAcopy}}, 
+  \code{\link{segment}} and \code{\link{smooth.CNA}} in the package \pkg{\link{DNAcopy}}, 
   also \code{\link{findBAFvariance}}, \code{\link{anomDetectLOH}}
 }
 \examples{

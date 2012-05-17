@@ -20,7 +20,7 @@
 \title{Class NcdfReader}
 
 \description{
-  The NcdfReader class is a wrapper for the \code{\link{ncdf}} library
+  The NcdfReader class is a wrapper for the \pkg{\link{ncdf}} library
   that provides an interface for reading NetCDF files.
 }
 
@@ -111,7 +111,7 @@
 
 \author{Stephanie Gogarten}
 
-\seealso{\code{\link{ncdf}}, \code{\link{NcdfGenotypeReader}},
+\seealso{\pkg{\link{ncdf}}, \code{\link{NcdfGenotypeReader}},
   \code{\link{NcdfIntensityReader}}
 }
 

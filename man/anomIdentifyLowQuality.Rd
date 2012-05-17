@@ -63,7 +63,7 @@ these computations. In addition, for BAF, homozygous SNPS are excluded.
   B Allele Frequency (BAF) or Log R Ratio values (LRR) that are not always captured
   by high variance.  Here segmentation information is determined by
   \code{\link{anomDetectBAF}} or  \code{\link{anomDetectLOH}} which use
- circular binary segmentation implemented by the R-package \code{\link{DNAcopy}}.
+ circular binary segmentation implemented by the R-package \pkg{\link{DNAcopy}}.
   The measure for high segmentation is a "segmentation factor" =
    (number of segments)/(number of eligible SNPS).  A single chromosome segmentation
 factor uses information for one chromosome.  A segmentation factor across 

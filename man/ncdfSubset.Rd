@@ -36,7 +36,7 @@ ncdfSubsetCheck(parent.ncdf, sub.ncdf,
 
 \author{Cathy Laurie, Stephanie Gogarten}
 
-\seealso{\code{\link{ncdf}}, \code{\link{ncdfCreate}}, \code{\link{ncdfAddData}}
+\seealso{\pkg{\link{ncdf}}, \code{\link{ncdfCreate}}, \code{\link{ncdfAddData}}
 }
 
 \examples{

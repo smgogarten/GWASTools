@@ -6,12 +6,12 @@ This function performs regression based association tests.  It also performs gen
 }
 \usage{
 assocTestRegression(genoData, outcome, model.type,
-					covar.list = NULL, ivar.list = NULL,
+		    covar.list = NULL, ivar.list = NULL,
                     gene.action.list = NULL,
                     scan.chromosome.filter = NULL, 
                     scan.exclude = NULL, CI = 0.95,
                     robust = FALSE, LRtest = TRUE,
-					geno.counts = TRUE,
+		    geno.counts = TRUE,
                     chromosome.set = NULL, block.set = NULL, 
                     block.size = 5000, verbose = TRUE,
                     outfile = NULL)
