@@ -41,7 +41,7 @@
 
 \author{
   Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew
-  P. Conomos, Cecilia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng,
+  P. Conomos, Cecelia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng,
   Jess Shen, Rohit Swarnkar
   
   Maintainer: Stephanie M. Gogarten \email{sdmorris@u.washington.edu}

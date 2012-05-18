@@ -56,7 +56,7 @@ identical to \code{pedigree}, but with duplicates removed.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\author{Cecilia Laurie
+\author{Cecelia Laurie
 }
 
 

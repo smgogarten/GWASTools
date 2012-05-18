@@ -47,7 +47,7 @@ A list with the following components:
 }
 
 
-\author{Cecilia Laurie
+\author{Cecelia Laurie
 
 }
 

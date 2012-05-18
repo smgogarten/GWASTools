@@ -59,7 +59,7 @@ The output for \code{pedigreeCheck} is a list with the following elements:
 
 
 }
-\author{Cecilia Laurie
+\author{Cecelia Laurie
 }
 \note{Subfamilies are not identified for any families already identified with problems, and individual id's in subfamilies may include individual ids listed for a mother or father who may not be listed as individuals in the pedigree.
 }
