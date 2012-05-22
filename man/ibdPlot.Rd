@@ -20,7 +20,8 @@ Plot theoretical and observed identity by descent values and assign relationship
 
 
 \usage{
-ibdPlot(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2, ...)
+ibdPlot(k0, k1, alpha=0.05, relation=NULL, color=NULL,
+        rel.lwd=2, rel.draw=c("FS", "HS", "FC"), ...)
 
 ibdAreasDraw(alpha=.05, m=0.04, po.w=0.1, po.h=0.1,
              dup.w=0.1, dup.h=0.1, un.w=0.25, un.h=0.25, rel.lwd=2,
@@ -48,7 +49,11 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
   \item{color}{A vector of colors for (k0,k1) points.}
 
   \item{rel.lwd}{Line width for theoretical full-sib, half-sib, and
-  first-cousin boundaries.}
+    first-cousin boundaries.}
+
+  \item{rel.draw}{Which theoretical boundaries to plot: one or more of
+  "FS" (full-sib), "HS" (half-sib), "FC" (first cousins).  If
+  \code{NULL}, no boundaries are drawn.}
   
   \item{\dots}{Other graphical parameters to pass to \code{\link{plot}} and
   \code{\link{points}}.}

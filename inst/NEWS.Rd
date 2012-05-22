@@ -104,6 +104,7 @@
 \section{Changes in version 1.3.6}{
   \itemize{
     \item Removed automatic subtitle from qqPlot.
+    \item Allow selection of theoretical boundaries to draw in ibdPlot.
   }
 }
 

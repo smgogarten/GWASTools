@@ -1,8 +1,10 @@
-ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...) {
+ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
+                    rel.draw=c("FS", "HS", "FC"), ...) {
 
   stopifnot(length(k0) == length(k1))
   if (!is.null(relation)) stopifnot(length(relation) == length(k0))
   if (!is.null(color)) stopifnot(length(color) == length(k0))
+  stopifnot(is.null(rel.draw) | all(rel.draw %in% c("FS", "HS", "FC")))
   
   n <- length(k0)
   if (is.null(color) & is.null(relation)) {
@@ -36,39 +38,45 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2, ...
   sdm<-abs(qnorm(alpha/2))
   
   # draw full-sib ellipse
-  FS = relationsMeanVar$FullSibs
-  mean.vec<-FS$mean  #vector
-  sig.inv<-FS$invCov            
-  eg.vals<-FS$eigvals  #relates to length of ellipse axes
-  eg.vec<-FS$eigvectors  #gives direction of ellipse axes
-  c2<-qchisq(1-alpha,2)
-  h<-sqrt(c2/eg.vals)   # gives lengths of ellipse axes
-  ang <- seq(0, 2 * pi, by=.01) # angles for parameterization of ellipse
-  
-  mean.vec2<-matrix(mean.vec,2,1) # make column vector
-  pts<-NULL
-  for(a in ang){
-    p1<-h[1]*cos(a) ;p2<-h[2]*sin(a)
-    tp<-t(p1*eg.vec[,1]+p2*eg.vec[,2]+mean.vec2)
-    pts<-rbind(pts,tp)
+  if ("FS" %in% rel.draw) {
+    FS = relationsMeanVar$FullSibs
+    mean.vec<-FS$mean  #vector
+    sig.inv<-FS$invCov            
+    eg.vals<-FS$eigvals  #relates to length of ellipse axes
+    eg.vec<-FS$eigvectors  #gives direction of ellipse axes
+    c2<-qchisq(1-alpha,2)
+    h<-sqrt(c2/eg.vals)   # gives lengths of ellipse axes
+    ang <- seq(0, 2 * pi, by=.01) # angles for parameterization of ellipse
+    
+    mean.vec2<-matrix(mean.vec,2,1) # make column vector
+    pts<-NULL
+    for(a in ang){
+      p1<-h[1]*cos(a) ;p2<-h[2]*sin(a)
+      tp<-t(p1*eg.vec[,1]+p2*eg.vec[,2]+mean.vec2)
+      pts<-rbind(pts,tp)
+    }
+    points(pts, type="l", lwd=rel.lwd, col="orange")
   }
-  points(pts, type="l", lwd=rel.lwd, col="orange")
 
-  HS<-relationsMeanVar$HalfSibs
-  d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
-  hsm<-HS$mean[2]
-  s2<-sqrt(2)
-  y1<-hsm-d;x1<-1-y1
-  y0<-hsm+d; x0<-1-y0
-  segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
- 
-  C<-relationsMeanVar$FirstCousins
-  d<-sdm*sqrt(C$var)
-  fcm<-C$mean[2]
-  s2<-sqrt(2)
-  y1<-fcm-d;x1<-1-y1
-  y0<-fcm+d; x0<-1-y0
-  segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
+  if ("HS" %in% rel.draw) {
+    HS<-relationsMeanVar$HalfSibs
+    d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
+    hsm<-HS$mean[2]
+    s2<-sqrt(2)
+    y1<-hsm-d;x1<-1-y1
+    y0<-hsm+d; x0<-1-y0
+    segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
+  }
+
+  if ("FC" %in% rel.draw) {
+    C<-relationsMeanVar$FirstCousins
+    d<-sdm*sqrt(C$var)
+    fcm<-C$mean[2]
+    s2<-sqrt(2)
+    y1<-fcm-d;x1<-1-y1
+    y0<-fcm+d; x0<-1-y0
+    segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
+  }
  
   # legend
   if (!is.null(relation)) {
