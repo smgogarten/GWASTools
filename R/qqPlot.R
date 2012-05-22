@@ -1,13 +1,8 @@
-qqPlot <- function(pval, truncate = FALSE, sub=NULL, ...) 
+qqPlot <- function(pval, truncate = FALSE, ...) 
 {
 	# pvalue is a vector of p-values
 	# truncate is T/F whether to truncate the y-axis (observed) to the same limits as the x-axis (expected)
 
-        if (is.null(sub)) {
-          lambda <- median(-2*log(pval), na.rm=TRUE) / 1.39
-          sub <- paste("lambda =", format(lambda, digits=4))
-        }
-          
 	pval <- -log10(sort(pval)) # sort() removes NAs
 	n <- length(pval)
         a <- 1:n
@@ -31,7 +26,7 @@ qqPlot <- function(pval, truncate = FALSE, sub=NULL, ...)
             char[1:nx] <- 2
           }
         }
-        plot(x, pval, sub = sub, type = "n", ylim = ylm, ylab = ylb,
+        plot(x, pval, type = "n", ylim = ylm, ylab = ylb,
              xlab = substitute(paste(-log[10], "(expected P)")), ...)
         polygon(-log10(c(b,rev(b))), -log10(c(upper, rev(lower))), density=NA, col="gray")
         points(x, pval, pch = char, ...)	

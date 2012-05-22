@@ -101,4 +101,9 @@
     to a SnpMatrix object for use with snpStats.
   }
 }
+\section{Changes in version 1.3.6}{
+  \itemize{
+    \item Removed automatic subtitle from qqPlot.
+  }
+}
 
