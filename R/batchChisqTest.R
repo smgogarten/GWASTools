@@ -144,7 +144,8 @@ batchChisqTest <- function(genoData,
 		# don't forget "1.0" to avoid integer overflow
                 ntot <- (n1A + n1B + n2A + n2B)
                 if (correct) {
-                  rv <- 1.0 * ntot * (abs(n1A*n2B - n1B*n2A) - 0.5*ntot)^2 /
+                  yates <- pmax(0, abs(n1A*n2B - n1B*n2A) - 0.5*ntot)
+                  rv <- 1.0 * ntot * (yates)^2 /
                     (1.0 * (n1A+n1B) * (n1A+n2A) * (n2B+n1B) * (n2B+n2A) )
                 } else {
                   rv <- 1.0 * ntot * (n1A*n2B - n1B*n2A)^2 /
