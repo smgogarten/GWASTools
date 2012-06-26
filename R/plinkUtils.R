@@ -179,7 +179,8 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 
   if (is.null(map.alt)) {
     map.df <- GWASTools:::getPlinkMap(genoData, rs.col=rs.col)
-    map.df <- map.df[,c("chromosome", "rsID", "position")]
+    map.df <- map.df[,c("chromosome", rs.col, "position")]
+    names(map.df) <- c("chromosome", "rsID", "position")
   } else {
     snpID <- getSnpID(genoData)
     map.df <- map.alt[match(snpID, map.alt$snpID),
