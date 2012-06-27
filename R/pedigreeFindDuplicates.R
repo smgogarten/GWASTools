@@ -9,26 +9,9 @@
 
 pedigreeFindDuplicates<-function(pedigree, verbose=TRUE) 
 {
-	## Checking entries not NA
-	entries.na<-which(is.na(pedigree),arr.ind=TRUE)
-	if(length(entries.na)!=0) {stop("Error - There are NAs. Run pedigreeClean to locate"); }
-	
-	##Checking columns that not numeric 
-	
-	cols.not.numeric<-NULL
-	tsamp<-pedigree[,c("family","individ","mother","father")]
-	n<-dim(tsamp)[2]
-	for (i in 1:n) {
-	 if (!is.numeric(tsamp[,i])) {stop("Error. Some columns are not numeric. Run pedigreeClean to locate");}
-	}
-	##Checking sex code
-	rows.sexcode.error<-which(!is.element(pedigree$sex,c("M","F")))
-	if(length(rows.sexcode.error)!=0) {stop("Error in sex code. Run pedigreeClean to locate");}
-	
-	##Checking individual id's of 0
-	zero.individ<-which(pedigree$individ==0)
-	if(length(zero.individ)!=0) {stop("Error - There are individual ids which are 0. Run pedigreeClean to locate");}
-	
+	er<-pedigreeClean(pedigree)
+      if(!is.null(er)) stop("basic errors - run pedigreeClean to identify")
+
 	###Check duplicates within family
 	dup<-data.frame()
 	u<-unique(pedigree$family)

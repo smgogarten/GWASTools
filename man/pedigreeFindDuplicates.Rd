@@ -12,7 +12,7 @@ consistent.  \code{pedigreeDeleteDuplicates} removes duplicates
 from a pedigree.
 }
 \usage{
-pedigreeFindDuplicates(pedigree, verbose = TRUE)
+pedigreeFindDuplicates(pedigree, verbose=TRUE)
 
 pedigreeDeleteDuplicates(pedigree, duplicates) 
 }
@@ -24,13 +24,13 @@ pedigreeDeleteDuplicates(pedigree, duplicates)
 \arguments{
   \item{pedigree}{A dataframe containing the pedigree information
     for the samples to be examined with columns labeled "family",
-    "individ", "mother", "father" and "sex" containing the identity
-    numbers of the family, individual, individual's mother, individual's
-    father and individual's gender (coded as "M" or "F") .}
+    "individ", "mother", "father" and "sex" containing the identifiers
+    of the family, individual, individual's mother, individual's
+    father and individual's sex (coded as "M" or "F") .}
 
-  \item{duplicates}{dataframe with columns "family" (family id) and "individ" (individual id)}
+  \item{duplicates}{dataframe with columns "family" (family id) and "individ" (individual id).}
 
-  \item{verbose}{Logical value specifying whether or not to show progress information.}	
+  \item{verbose}{Logical value specifying whether or not to display messages.}	
 
 }
 
@@ -44,9 +44,9 @@ pedigreeDeleteDuplicates(pedigree, duplicates)
   pedigree with duplicates removed.
 }
 \value{
-The output of \code{pedigreeFindDuplicates} is list containing two dataframes:
+The output of \code{pedigreeFindDuplicates} is a list containing two dataframes:
 \item{dups.mismatch}{A dataframe containing the family id, individual id and number of copies for any duplicates with mismatching pedigree data}
-\item{dups.match}{A dataframe containing the family id, individual id and number of copies for any duplicates with matching pedigree data}
+\item{dups.match}{A dataframe containing the family id, individual id and number of copies for any duplicates with matching pedigree data.}
 
 The output of \code{pedigreeDeleteDuplicates} is a pedigree
 identical to \code{pedigree}, but with duplicates removed.
@@ -69,7 +69,7 @@ individ <- c(1,2,3,3,4,5,6,6)
 mother <- c(0,0,1,1,0,0,4,4)
 father <- c(0,0,2,2,0,0,5,5)
 sex <- c("F","M","F","F","F","F","M","M")
-pedigree <- data.frame(family, individ, mother, father, sex)
+pedigree <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
 duplicates <- pedigreeFindDuplicates(pedigree)
 pedigree.no.dups <- pedigreeDeleteDuplicates(pedigree, duplicates$dups.match) 
 }

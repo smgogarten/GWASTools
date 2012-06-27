@@ -95,7 +95,7 @@ findBAFvariance(sd.by.chrom.window, sd.by.scan.chrom.window,
   the BAlleleFreq standard deviation for the i'th scan in the j'th
   bin. This is typically created using the
   \code{sdByScanChromWindow} function. For the X chromosome the
-  calculations are separated out by gender.
+  calculations are separated out by sex.
   
   \code{findBAFvariance} determines which chromosomes of which scans
   have regions which are at least a given number of SDs from the mean,

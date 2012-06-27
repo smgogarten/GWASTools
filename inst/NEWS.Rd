@@ -107,4 +107,15 @@
     \item Allow selection of theoretical boundaries to draw in ibdPlot.
   }
 }
-
+\section{Changes in version 1.3.7}{
+  \itemize{
+    \item In batchChisqTest, Yates correction cannot be bigger than the
+    terms it corrects.  Changed to match bug fix to chisq.test in R 2.15.1.
+  }
+}
+\section{Changes in version 1.3.8}{
+  \itemize{
+    \item Pedigree functions accept non-numeric identifiers and provide
+    additional output.
+  }
+}

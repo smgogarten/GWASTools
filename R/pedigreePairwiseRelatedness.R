@@ -50,7 +50,7 @@ pedigreePairwiseRelatedness<-
 		individ<-c(1:dim(Yo)[1])
 		mother<-match(Yo$mother,Yo$individ,nomatch=0)
 		father<-match(Yo$father,Yo$individ,nomatch=0)
-		YY<-data.frame(individ,mother,father)
+		YY<-data.frame(individ,mother,father,stringsAsFactors=F)
 		
 		#Calculate kinship coefficient for each pair
 		kc<-diag(1/2,n,n)
@@ -72,15 +72,13 @@ pedigreePairwiseRelatedness<-
 		tKC<-KC
 		tKC[row(tKC)>col(tKC)]<-1
 		wunr<-which(tKC==0,arr.ind=TRUE)
-		unr<-data.frame(wunr)
+		unr<-data.frame(wunr,stringsAsFactors=F)
 		names(unr)<-c("Individ1","Individ2")
 		out.list<-list(KC,unr)
 		names(out.list)<-c("kinship","unrelated")
 		return(out.list) 
 	 }
 
-	
-	
 	
 	
 	
@@ -91,8 +89,9 @@ pedigreePairwiseRelatedness<-
 	  
 	u<-unique(samp$family)
 	un<-length(u)
-	relativeprs<-data.frame()
+	relativeprs<-NULL
 	inbreed<-NULL
+      inbred.kc<-NULL
 	for (i in 1:un){
 	x<-samp[is.element(samp$family,u[i]),c("individ","mother","father")] #get family
 	
@@ -104,15 +103,14 @@ pedigreePairwiseRelatedness<-
 	individ<-x$individ
 	mother<-x$mother
 	father<-x$father
-	new<-NULL
-	exf<-NULL
-	exm<-NULL
+
+
 	#find non-zero mother/father (known) entries that are not in individ list
 	um<-setdiff(um,0); uf<-setdiff(uf,0)
 	em<-setdiff(um,intersect(ui,um))
 	ef<-setdiff(uf,intersect(ui,uf))
 	new<-c(em,ef);ln<-length(new)
-	newnind<-max(c(x$individ,x$mother,x$father))
+
 	#identify children with one unknown parent, assign individ id and assume is 'founder' (no parents)
 	wum<-which(is.element(x$mother,0)) 
 	nwuf<-which(!is.element(x$father,0))
@@ -121,8 +119,10 @@ pedigreePairwiseRelatedness<-
 	nwum<-which(!is.element(x$mother,0))
 	wf<-intersect(wuf,nwum)
 	lm<-length(wm); lf<-length(wf)
-	if(lf!=0){exf<-(newnind+1):(newnind+lf);father[wf]<-exf}
-	if(lm!=0){exm<-(newnind+lf+1):(newnind+lf+lm);mother[wm]<-exm}
+
+      if(lf!=0){ exf<-paste("unfa",individ[wf],sep=""); father[wf]<-exf} else exf<-NULL
+	if(lm!=0){exm<-paste("unmo",individ[wm],sep="");mother[wm]<-exm} else exm<-NULL
+
 	if(ln !=0) {
 	individ<-c(individ,new)
 	mother<-c(mother,rep(0,ln))
@@ -136,13 +136,13 @@ pedigreePairwiseRelatedness<-
 	mother<-c(mother,rep(0,lm))
 	father<-c(father,rep(0,lm))}
 	
-	XX<-data.frame(individ,mother,father)  
+	XX<-data.frame(individ,mother,father,stringsAsFactors=F)  
 	
 	#recode so that individ is 1:number of individuals, mother/father ids correspond
 	individ<-c(1:dim(XX)[1])
 	mother<-match(XX$mother,XX$individ,nomatch=0)
 	father<-match(XX$father,XX$individ,nomatch=0)
-	Y<-data.frame(individ,mother,father)
+	Y<-data.frame(individ,mother,father,stringsAsFactors=F)
 	
 	#find offspring,parent pairs directly from pedigree
 	p<-Y[!is.element(Y$mother,0),c("individ","mother")]
@@ -166,7 +166,29 @@ pedigreePairwiseRelatedness<-
 	w<-which(!is.element(Y$mother,0) & !is.element(Y$father,0))
 	mofa<-paste(Y$mother[w],Y$father[w])
 	famo<-paste(Y$father[w],Y$mother[w])
-	if(any(!is.element(mofa,punr) & !is.element(famo,punr))) {inbreed<-c(inbreed,u[i]);next}
+	if(any(!is.element(mofa,punr) & !is.element(famo,punr))) {
+            inbreed<-c(inbreed,u[i])
+           	pprs<-combn(Y$individ,2)
+	      tp<-t(pprs)
+	      inbprs<-data.frame(tp,stringsAsFactors=F)
+	      names(inbprs)<-c("Individ1","Individ2")
+         	inbprs$kinship<-dg$kinship[tp]
+            inbprs$family<-u[i]
+	#decode back to original individ id's
+	     if(!opt)uui<-ui else uui<-c(ui,new,exf,exm)
+	     w1<-as.list(rep(NA,length(uui)))
+	     w2<-as.list(rep(NA,length(uui)))
+	     for (j in 1:length(uui)) {
+	         w1[[j]]<-which(is.element(inbprs$Individ1,j))
+	         w2[[j]]<-which(is.element(inbprs$Individ2,j))
+           }
+	     for (j in 1:length(uui)){
+	         inbprs$Individ1[w1[[j]]]<-uui[j]
+	         inbprs$Individ2[w2[[j]]]<-uui[j]  
+           }
+           inbred.kc<-rbind(inbred.kc,inbprs)
+           next
+      }
 	
 	###SIBS
 	#Find which parents have more than one child - columns of adjacency matrix have more than 1 one
@@ -372,7 +394,7 @@ pedigreePairwiseRelatedness<-
 	
 	pprs<-combn(Y$individ,2)
 	tp<-t(pprs)
-	relprs<-data.frame(tp)
+	relprs<-data.frame(tp,stringsAsFactors=F)
 	names(relprs)<-c("Individ1","Individ2")
 	relprs$relation<-rep("Other",dim(pprs)[2])
 	relprs$kinship<-dg$kinship[tp]
@@ -483,8 +505,8 @@ pedigreePairwiseRelatedness<-
 	#add onto previous family
 	relativeprs<-rbind(relativeprs,relprs)
 	} #end of family loop
-	out.list<-list(inbreed,relativeprs)
-	names(out.list)<-c("inbred.fam","relativeprs")
+	out.list<-list(inbreed,inbred.kc,relativeprs)
+	names(out.list)<-c("inbred.fam","inbred.KC","relativeprs")
 	return(out.list)
 }
 

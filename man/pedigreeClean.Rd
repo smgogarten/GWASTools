@@ -4,19 +4,18 @@
 \title{Basic pedigree data checking
 }
 
-\description{This function checks a pedigree for completeness and gross errors
+\description{This function checks a pedigree for completeness and gross errors. 
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usage{
-pedigreeClean(pedigree, verbose = TRUE)
+pedigreeClean(pedigree)
 }
 
 \arguments{
 
-\item{pedigree}{A dataframe containing the pedigree information for the samples to be examined with columns labeled "family", "individ", "mother", "father" and "sex" containing the identity numbers of the family, individual, individual's mother, individual's father and individual's gender (coded as "M" or "F") .}
-
-\item{verbose}{Logical value specifying whether or not to show progress information.}	
+\item{pedigree}{A dataframe containing the pedigree information for the samples to be examined with columns labeled "family", "individ", "mother", "father" and "sex" containing the identifiers of the family, individual, individual's mother, individual's father and individual's sex (coded as "M" or "F"). 
+  Identifiers can be integer, numeric or character but identifiers for mother and father for founders are assumed to be 0. Identifier for unknown parent is assumed to be 0.}
 
 }
 
@@ -24,16 +23,7 @@ pedigreeClean(pedigree, verbose = TRUE)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \details{
 
-The function performs a basic check on pedigree data for gross errors, checking for missing id's, non-integer id's, mis-coded gender, id's of 0 and for individuals that appear as both mothers and fathers. 
-
-
-%Output: checks for NA entries and outputs vector of row positions where NAs exist,
-%distinquishing NA entries in family id from NA entries where family id ok
-%, checks all columns other than sex are numeric - outputs names of columns with problems, 
-%check sex is coded "M" and "F" and outputs row numbers with problems, and
-%checks individual id's are not 0 and outputs row numbers with individual id = 0
-%checks that no individual appears in both mother and father column 
-
+The function performs a basic check on pedigree data for gross errors, checking for missing (or blank) id's, mis-coded sex, individual id's of 0 and for individuals that appear as both mothers and fathers. 
 
 }
 
@@ -41,12 +31,14 @@ The function performs a basic check on pedigree data for gross errors, checking 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \value{
 A list with the following components:
-\item{fam.na}{A vector of integers containing the row positions of entries with missing family id's}
-\item{other.na}{A vector of integers containing the row positions of entries with missing individual, mother or father id's}
-\item{cols.not.numeric}{A vector of integers containing the row positions of non-numeric id's}
-\item{rows.sexcode.error}{A vector of integers containing the row positions of entries with mis-specified gender}
-\item{zero.individ}{A vector of integers containing the row positions with an id equal to 0.}
-\item{mofa}{A vector containing the id's of individuals appearing as both mothers and fathers}
+\item{family.missing}{A vector of integers containing the row positions of entries where family id's are missing (\code{NA}) or blank}
+\item{individ.missing}{A vector of integers containing the row positions of entries where individual id's are missing (\code{NA}) or blank}
+\item{father.missing}{A vector of integers containing the row positions of entries where father id's are missing (\code{NA}) or blank}
+\item{mother.missing}{A vector of integers containing the row positions of entries where mother id's are missing (\code{NA}) or blank}
+
+\item{sexcode.error}{A vector of integers containing the row positions of entries with mis-specified sex}
+\item{zero.individ}{A vector of integers containing the row positions with individ (individual id) equal to 0}
+\item{both.mother.father}{A list where the names of the list are family id's and the entries of the list are vectors containing the id's appearing as both mothers and fathers.}
 
 Returns \code{NULL} if no errors were found.
 }
@@ -63,31 +55,35 @@ Returns \code{NULL} if no errors were found.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \examples{
-family <- c(1,1,1,NA,2,2,2,2)
-individ <- c(1,2,3,0,4,5,6,NA)
-mother <- c(0,0,1,1,0,0,4,4)
-father <- c(0,0,2,2,0,0,5,4)
-sex <- c("F","M","F","F","F","F","M",1)
-pedigree <- data.frame(family, individ, mother, father, sex)
-pedigreeClean(pedigree)
+family <- c("a","a","a","b","b","c","")
+individ <- c("A","B","C","A","B",0,"")
+mother <- c("B","C",0,0,0,NA,0)
+father <- c("C","D",0,0,"",0,"D")
+sex <- c("F","2","M","F","F","M","F")
+samp <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
+pedigreeClean(samp)
 
-#$fam.na
-#[1] 4
-
-#$other.na
-#[1] 8
-
-#$cols.not.numeric
-#NULL
-
-#$rows.sexcode.error
-#[1] 8
-
-#$zero.individ
-#[1] 4
-
-#$mofa
-#[1] 2
+# $family.missing
+# [1] 7
+#
+# $individ.missing
+# [1] 7
+#
+# $father.missing
+# [1] 5
+#
+# $mother.missing
+# [1] 6
+#
+# $sexcode.error
+# [1] 2
+#
+# $zero.individ
+# [1] 6
+#
+# $both.mother.father
+# $both.mother.father$a
+# [1] "C"
 }
 
 

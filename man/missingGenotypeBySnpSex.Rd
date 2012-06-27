@@ -28,7 +28,7 @@ missingGenotypeBySnpSex(genoData, scan.exclude = NULL,
 \value{
 This function returns a list with three components: "missing.counts,"
 "scans.per.sex," and "missing.fraction."
-  \item{missing.counts}{A matrix with one row per SNP and one column per gender containing the number of missing SNP counts for males and females, respectively. }
+  \item{missing.counts}{A matrix with one row per SNP and one column per sex containing the number of missing SNP counts for males and females, respectively. }
   \item{scans.per.sex}{A vector containing the number of males and
     females respectively.}
   \item{missing.fraction}{A vector containing the fraction of missing
