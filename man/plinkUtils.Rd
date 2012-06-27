@@ -123,6 +123,7 @@ readLines(logfile)
 #281
 #283
 
+close(genoData)
 unlink(c(logfile, paste(pedfile, "*", sep=".")))
 }
 \keyword{manip}

@@ -30,9 +30,9 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
   geno[is.na(geno)] <- "0 0"
   if (is.null(alleleA.col) | is.null(alleleB.col)) {
   # maps the -1 0 1 2 genotype coding to 00 BB AB AA coding for ped files
-    geno[geno == 0] <- "B B"
-    geno[geno == 1] <- "A B"
-    geno[geno == 2] <- "A A"
+    geno[geno %in% 0] <- "B B"
+    geno[geno %in% 1] <- "A B"
+    geno[geno %in% 2] <- "A A"
   } else {
     alleles <- getSnpVariable(genoData, c(alleleA.col, alleleB.col))
     names(alleles) <- c("A","B")
@@ -43,9 +43,9 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
     ab <- paste(pmin(alleles$A, alleles$B), pmax(alleles$A, alleles$B)) # sorted
     bb <- paste(alleles$B, alleles$B)
     for (k in 1:ncol(geno)) {
-      geno[geno[,k] == 0, k] <- bb[geno[,k] == 0]
-      geno[geno[,k] == 1, k] <- ab[geno[,k] == 1]
-      geno[geno[,k] == 2, k] <- aa[geno[,k] == 2]
+      geno[geno[,k] %in% 0, k] <- bb[geno[,k] %in% 0]
+      geno[geno[,k] %in% 1, k] <- ab[geno[,k] %in% 1]
+      geno[geno[,k] %in% 2, k] <- aa[geno[,k] %in% 2]
     }
   }
   if (ncol(geno) == 1) {
@@ -259,7 +259,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
       }
     }
     if (!is.null(phenotype.col)) {
-      if (scan.df[ind,"phenotype"] != x[6]) {
+      if (!allequal(scan.df[ind,"phenotype"], x[6])) {
         writeLines(c(paste("phenotype mismatch for sample", x[2], "at line", line),
                      paste("Ped:", x[6]),
                      paste("NetCDF:", scan.df[ind,"phenotype"])), con)
