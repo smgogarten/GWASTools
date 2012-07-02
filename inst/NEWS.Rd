@@ -119,3 +119,10 @@
     additional output.
   }
 }
+\section{Changes in version 1.3.9}{
+  \itemize{
+    \item Fixed bug in assocTestCPH that could lead to false positives
+    if additive model failed but GxE model did not.
+    \item Allow multiple variables for stratified analysis in assocTestCPH.
+  }
+}

@@ -5,11 +5,11 @@
 
 \usage{
 assocTestCPH(genoData, event, time.to.event,
-             covars, factor.covars,
+             covars, factor.covars = NULL,
              scan.chromosome.filter = NULL,
              scan.exclude = NULL,
              maf.filter = FALSE, 
-             GxE = NULL, stratum = NULL,
+             GxE = NULL, strata.vars = NULL,
              chromosome.set = NULL, block.size = 5000,
              verbose = TRUE,
              outfile = NULL)
@@ -44,7 +44,7 @@ e.g. A scan.chromosome.filter matrix used for an analyis when
   \item{maf.filter}{whether to filter results returned using \code{MAF*(1-MAF)
   > 75/(2*n)} where \code{MAF} = minor allele frequency and \code{n} = number of events}
   \item{GxE}{name of the covariate to use for E if genotype-by-environment (i.e. SNP:E) model is to be analyzed, in addition to the main effects (E can be a covariate interaction)}
-  \item{stratum}{ name of variable to stratify on for a
+  \item{strata.vars}{vector of names of variables to stratify on for a
     stratified analysis (use \code{NULL} if no stratified analysis
     needed)  }
   \item{chromosome.set}{integer vector with chromosome(s) to be analyzed.  Use 23, 24, 25, 26, 27 for X, XY, Y, M, Unmapped respectively.}

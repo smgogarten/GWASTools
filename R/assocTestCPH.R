@@ -8,12 +8,12 @@ assocTestCPH <- function(
 	event,	# name of variable in genoData for event to analyze
 	time.to.event,		# name of variable in genoData for time to event
 	covars,		# vector of covariate terms for model (can include interactions as 'a:b', main effects correspond to variable names in genoData)
-	factor.covars,		# vector of names of covariates to be converted to factor
+	factor.covars=NULL,		# vector of names of covariates to be converted to factor
 	scan.chromosome.filter = NULL,  # matrix of T/F for scan by chromosome for chromosome-specific selection of samples
         scan.exclude = NULL,
 	maf.filter = FALSE,  # whether to filter results returned using maf  > 75/2n where n = number of events
 	GxE = NULL,     # name of the covariate to use for E if genotype-by-environment (i.e. SNP:E) model is to be analyzed, in addition to the main effects (E can be a covariate interaction)
-	stratum = NULL,  # name of variable to stratify on for a stratified analysis (use NULL if no stratified analysis needed)
+	strata.vars = NULL,  # name of variable to stratify on for a stratified analysis (use NULL if no stratified analysis needed)
 	chromosome.set = NULL, 	# vector of chromosome numbers (corresponding to format of "chromosome" in genoData - i.e. integer codes)	
 	block.size = 5000,	# number of SNPs from a given chromosome to read in one block from genoData
         verbose = TRUE,
@@ -26,6 +26,8 @@ assocTestCPH <- function(
 # v4 saves number of events for each SNP
 # v5 adds option for including one genotype-by-environment interaction term & make missing  value return for genotypes general
 # v6 change returned data from matrix to data.frame to avoid floating point rounding
+# allow for multiple factors in strata statement
+# fix bug in GxE test related to warnings
 
 	############# preliminaries  ############################
 
@@ -45,7 +47,7 @@ assocTestCPH <- function(
           allchrom <- FALSE
         }
 
-	sample.dat <- getScanVariable(genoData, unique(c("sex", cvnames, event, time.to.event, stratum)))  # get necessary variables
+	sample.dat <- getScanVariable(genoData, unique(c("sex", cvnames, event, time.to.event, strata.vars)))  # get necessary variables
 
 	if(!all(is.element(sample.dat$sex,c("M","F")))) stop("sex must be coded as M and F")
 
@@ -70,16 +72,19 @@ assocTestCPH <- function(
 	if(!is.null(GxE)) {
           if( length(GxE)!=1 | !is.element(GxE, covars)) stop("GxE should be a single covariate")
         }
-	
-	if(!is.null(stratum)) {
-          if(length(stratum)>1) stop("length of stratum must equal one")
-        }
+
 
 	model <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype"))
 	if(!is.null(GxE)) model2 <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype +", GxE, ":gtype", sep=""))
-	if(!is.null(stratum)) {
-		model <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype + strata(", stratum, ")", sep=""))
-		if(!is.null(GxE)) model2 <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype +", GxE, ":gtype+ strata(",stratum,")", sep=""))
+	if(!is.null(strata.vars)) {
+		# prepare to add strata to model
+			nstrat <- length(strata.vars)
+			strat <- NULL
+			for(js in 1:nstrat) strat <- paste(strat,strata.vars[js], sep=",")
+			strat <- substring(strat,2)
+			strat <- paste(" + strata(", strat, ")", sep="")
+		model <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype", strat, sep=""))
+		if(!is.null(GxE)) model2 <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype +", GxE, ":gtype", strat, sep=""))
 	}
 
 	# make matrix of chrom start and count
@@ -106,9 +111,10 @@ assocTestCPH <- function(
 	 }
 
 	# make factors where necessary
+	if(!is.null(factor.covars)){
         y <- length(factor.covars)
         for(q in 1:y) sample.dat[,factor.covars[q]] <- factor(sample.dat[,factor.covars[q]])
-
+	}
 
         k <- 1  # counter for row in res
 
@@ -203,11 +209,12 @@ assocTestCPH <- function(
 					}
 					# fit the interaction model
 					if(!is.null(GxE)){
-						cph <- tryCatch(coxph( model2, data=pheno.com), warning=function(w) TRUE, error=function(e) TRUE)
-						if(is.logical(cph)) {  # i.e. if an error or warning was issued
-							res2[k,] <- list(index, int.id, chr, maf, mafx, cph, ne, NA, NA)
+						cphge <- tryCatch(coxph( model2, data=pheno.com), warning=function(w) TRUE, error=function(e) TRUE)  
+						if(is.logical(cphge) | is.logical(cph)) {  # i.e. if an error or warning was issued in either model
+							cphge <- TRUE
+							res2[k,] <- list(index, int.id, chr, maf, mafx, cphge, ne, NA, NA)
 						} else {
-							loglik2 <- cph$loglik[2]	
+							loglik2 <- cphge$loglik[2]	
 							lrtest <- -2*(loglik-loglik2)
 							pval <- 1-pchisq(lrtest,1)
 							res2[k,] <- list(index, int.id, chr, maf, mafx, FALSE, ne, lrtest, pval)
