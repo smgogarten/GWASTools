@@ -89,7 +89,7 @@ chromIntensityPlot <- function(
             snpID <- getSnpID(intenData, index=chri)
             toPlot <- !(snpID %in% snp.exclude)
         } else {
-            toPlot <- TRUE
+            toPlot <- rep(TRUE, length(chri))
         }
         
         # get the data to plot
@@ -235,14 +235,14 @@ chromIntensityPlot <- function(
         if (ideogram) {
             par(mar=c(1,4,1,2)+0.1)
             if (ideo.zoom) {
-                ideo.x <- c(min(posi), max(posi))
+                ideo.x <- c(min(posi[toPlot]), max(posi[toPlot]))
             } else {
                 ideo.x <- c(0, lengthChromosome(chrom.char[i], "bases"))
             }
             plot(ideo.x, c(-2,2),
                  type="n", xaxt="n", yaxt="n", xlab="", ylab="", bty="n")
             paintCytobands(chrom.char[i], units="bases", width=1, cex.leg=cex.leg)
-            if (ideo.rect) rect(min(posi), -1.2, max(posi), 0.2, border="red", lwd=2)
+            if (ideo.rect) rect(min(posi[toPlot]), -1.2, max(posi[toPlot]), 0.2, border="red", lwd=2)
         }
     }
 }

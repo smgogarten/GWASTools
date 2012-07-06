@@ -126,3 +126,9 @@
     \item Allow multiple variables for stratified analysis in assocTestCPH.
   }
 }
+\section{Changes in version 1.3.10}{
+  \itemize{
+    \item Fixed bug in chromIntensityPlot so ideogram scales correctly
+    if SNPs are excluded.
+  }
+}
