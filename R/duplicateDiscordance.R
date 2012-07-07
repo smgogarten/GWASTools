@@ -92,7 +92,7 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
     for(m in 1:n) dat[,m] <- getGenotype(genoData, snp=c(1,-1), scan=c(idk[m],1))
 
     # if this is a female, exclude Y chrom
-    if (hasSex(genoData)) {
+    if ("Y" %in% chrom & hasSex(genoData)) {
       if (sex[idk[1]] == "F") {
         dat[chrom == "Y",] <- NA
       }

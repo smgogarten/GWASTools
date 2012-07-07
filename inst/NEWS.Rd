@@ -132,3 +132,9 @@
     if SNPs are excluded.
   }
 }
+\section{Changes in version 1.3.11}{
+  \itemize{
+    \item Fixed bug in duplicateDiscordance when Y chromosome is not
+    included.
+  }
+}
