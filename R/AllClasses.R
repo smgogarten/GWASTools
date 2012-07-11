@@ -85,7 +85,6 @@ setClass("NcdfReader",
          representation(filename = "character",
                         handler = "ncdf"))
 
-
 # NcdfGenotypeReader
 # Reads genotype data stored in netCDF format
 setClass("NcdfGenotypeReader",
@@ -130,10 +129,41 @@ setClass("MatrixGenotypeReader",
                    XYchromCode = 24L,
                    MchromCode = 26L))
 
+# GdsReader
+# holds GDS file handler (gdsfmt library)
+setOldClass("gdsclass")
+setClass("GdsReader",
+         representation(filename = "character",
+                        handler = "gdsclass"))
+
+# GdsGenotypeReader
+# Reads genotype data stored in GDS format
+setClass("GdsGenotypeReader",
+         contains = "GdsReader",
+         representation(snpIDvar = "character",
+                        chromosomeVar = "character",
+                        positionVar = "character",
+                        scanIDvar = "character",
+                        genotypeVar = "character",
+                        XchromCode = "integer",
+                        YchromCode = "integer",
+                        XYchromCode = "integer",
+                        MchromCode = "integer"),
+         prototype(snpIDvar = "snp.id",
+                   chromosomeVar = "snp.chromosome",
+                   positionVar = "snp.position",
+                   scanIDvar = "sample.id",
+                   genotypeVar = "genotype",
+                   XchromCode = 23L,
+                   YchromCode = 25L,
+                   XYchromCode = 24L,
+                   MchromCode = 26L))
+
 # GenotypeReader
 # Generic reader class
 # Add more Reader classes as necessary
-setClassUnion("GenotypeReader", c("NcdfGenotypeReader", "MatrixGenotypeReader"))
+setClassUnion("GenotypeReader", c("NcdfGenotypeReader", "MatrixGenotypeReader",
+                                  "GdsGenotypeReader"))
 
 # GenotypeData
 setClass("GenotypeData",

@@ -54,7 +54,7 @@
     \item{}{
       \code{GenotypeData(data, snpAnnot=NULL, scanAnnot=NULL)}:
 
-      \code{data} must be an \code{\link{NcdfGenotypeReader}} or \code{\link{MatrixGenotypeReader}} object.
+      \code{data} must be an \code{\link{NcdfGenotypeReader}}, \code{\link{GdsGenotypeReader}}, or \code{\link{MatrixGenotypeReader}} object.
 
       \code{snpAnnot}, if not \code{NULL}, must be a
       \code{\link{SnpAnnotationDataFrame}} or \code{\link{SnpAnnotationSQLite}} object.
@@ -204,8 +204,8 @@
   \code{\link{SnpAnnotationSQLite}},
   \code{\link{ScanAnnotationDataFrame}},
   \code{\link{ScanAnnotationSQLite}},
-  \code{\link{NcdfReader}},
   \code{\link{NcdfGenotypeReader}},
+  \code{\link{GdsGenotypeReader}},
   \code{\link{MatrixGenotypeReader}},
   \code{\link{IntensityData}}
 }

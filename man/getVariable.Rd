@@ -1,5 +1,6 @@
 \name{getVariable}
 \alias{getVariable}
+\alias{getVariableNames}
 \alias{getAnnotation}
 \alias{getBAlleleFreq}
 \alias{getChromosome}
@@ -33,6 +34,7 @@
 \alias{writeAnnotation}
 \alias{writeMetadata}
 \alias{getQuery}
+\alias{getAttribute}
 \alias{XchromCode}
 \alias{YchromCode}
 \alias{XYchromCode}
@@ -48,19 +50,25 @@
 
 \usage{
   getScanVariable(object, varname, ...)
+  getScanVariableNames(object, ...)
   getScanID(object, ...)
   getSex(object, ...)
   getSnpVariable(object, varname, ...)
+  getSnpVariableNames(object, ...)
   getSnpID(object, ...)
   getChromosome(object, ...)
   getPosition(object, ...)
+
   getVariable(object, varname, ...)
+  getVariableNames(object, ...)
   getGenotype(object, ...)
   getQuality(object, ...)
   getX(object, ...)
   getY(object, ...)
   getBAlleleFreq(object, ...)
   getLogRRatio(object, ...)
+  getAttribute(object, attname, varname, ...)
+
   getAnnotation(object, ...)
   getMetadata(object, ...)
   getQuery(object, statement, ...)
@@ -92,6 +100,7 @@
 \arguments{
   \item{object}{Object, possibly derived from or containing
     \code{\link{NcdfReader-class}},
+    \code{\link{GdsReader-class}},
     \code{\link{ScanAnnotationDataFrame-class}},
     \code{\link{SnpAnnotationDataFrame-class}},
     \code{\link{ScanAnnotationSQLite-class}}, or
@@ -99,7 +108,9 @@
 
   \item{varname}{Name of the variable (single character string, or a
     character vector for multiple variables).}
-
+  
+  \item{attname}{Name of an attribute.}
+  
   \item{statement}{SQL statement to query
     \code{\link{ScanAnnotationSQLite-class}} or
     \code{\link{SnpAnnotationSQLite-class}} objects.}
@@ -136,6 +147,7 @@
   \code{\link{NcdfReader-class}},
   \code{\link{NcdfGenotypeReader-class}},
   \code{\link{NcdfIntensityReader-class}},
+  \code{\link{GdsReader-class}},
   \code{\link{GenotypeData-class}}, \code{\link{IntensityData-class}}
 }
 

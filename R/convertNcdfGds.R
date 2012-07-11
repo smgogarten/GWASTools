@@ -16,10 +16,6 @@
 
 convertGdsNcdf <- function(gds.filename, ncdf.filename, verbose = TRUE)
 {
-        if (!(require(gdsfmt))) {
-          stop("please install gdsfmt to use this function")
-        }
-  
 	# check
 	stopifnot(is.character(gds.filename))
 	stopifnot(is.character(ncdf.filename))
@@ -96,10 +92,6 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
         alleleA.col="alleleA", alleleB.col="alleleB",
         zipflag = "zip.max", verbose = TRUE)
 {
-        if (!(require(gdsfmt))) {
-          stop("please install gdsfmt to use this function")
-        }
-  
 	# check
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
@@ -207,10 +199,6 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 
 checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 {
-        if (!(require(gdsfmt))) {
-          stop("please install gdsfmt to use this function")
-        }
-  
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
 

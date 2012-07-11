@@ -2,6 +2,7 @@ import(methods)
 import(Biobase)
 import(DBI)
 import(RSQLite)
+import(gdsfmt)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocTestCPH
 importFrom(sandwich, vcovHC) # used in assocTestRegression
@@ -15,6 +16,8 @@ exportClasses(
     ScanAnnotationSQLite,
     NcdfReader,
     NcdfGenotypeReader,
+    GdsReader,
+    GdsGenotypeReader,
     MatrixGenotypeReader,
     NcdfIntensityReader,
     GenotypeData,
@@ -29,6 +32,8 @@ export(
     ScanAnnotationSQLite,
     NcdfReader,
     NcdfGenotypeReader,
+    GdsReader,
+    GdsGenotypeReader,
     MatrixGenotypeReader,
     NcdfIntensityReader,
     GenotypeData,
@@ -115,6 +120,7 @@ exportMethods(
     getAttribute,
     getBAlleleFreq,
     getChromosome,
+    getDimension,
     getDimensionNames,
     getGenotype,
     getLogRRatio,

@@ -1,6 +1,4 @@
 test_convertNcdfGds <- function() {
-  require(gdsfmt)
-          
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
                          n.samples=20, ncdf.filename=ncfile)
@@ -42,8 +40,6 @@ test_convertNcdfGds <- function() {
 }
 
 test_convertGdsNcdf <- function() {
-  require(gdsfmt)
-       
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
                          n.samples=20, ncdf.filename=ncfile)
@@ -73,8 +69,6 @@ test_convertGdsNcdf <- function() {
 }
 
 test_checkNcdfGds <- function() {
-  require(gdsfmt)
-          
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
                          n.samples=20, ncdf.filename=ncfile)

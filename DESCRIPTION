@@ -1,13 +1,13 @@
 Package: GWASTools
-Version: 1.3.11
+Version: 1.3.12
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
 Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos, Cecelia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Jess Shen, Rohit Swarnkar
 Maintainer: Stephanie M. Gogarten <sdmorris@u.washington.edu>
-Depends: Biobase, ncdf, GWASExactHW, sandwich
+Depends: Biobase, ncdf, GWASExactHW, sandwich, gdsfmt
 Imports: methods, DBI, RSQLite, DNAcopy, survival, lmtest, quantsmooth
-Suggests: GWASdata, RUnit, gdsfmt, SNPRelate, snpStats
+Suggests: GWASdata, RUnit, SNPRelate, snpStats
 License: Artistic-2.0
 LazyData: yes
 biocViews: SNP, GeneticVariability, QualityControl, Microarray
@@ -15,6 +15,7 @@ Collate: utils.R AllGenerics.R AllClasses.R
   Methods-ScanAnnotationDataFrame.R Methods-SnpAnnotationDataFrame.R
   Methods-ScanAnnotationSQLite.R Methods-SnpAnnotationSQLite.R
   Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
+  Methods-GdsReader.R Methods-GdsGenotypeReader.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
   ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R

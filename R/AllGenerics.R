@@ -2,6 +2,7 @@ setGeneric("getAnnotation", function(object, ...) standardGeneric("getAnnotation
 setGeneric("getAttribute", function(object, attname, varname, ...) standardGeneric("getAttribute"))
 setGeneric("getBAlleleFreq", function(object, ...) standardGeneric("getBAlleleFreq"))
 setGeneric("getChromosome", function(object, ...) standardGeneric("getChromosome"))
+setGeneric("getDimension", function(object, varname, ...) standardGeneric("getDimension"))
 setGeneric("getDimensionNames", function(object, varname, ...) standardGeneric("getDimensionNames"))
 setGeneric("getGenotype", function(object, ...) standardGeneric("getGenotype"))
 setGeneric("getLogRRatio", function(object, ...) standardGeneric("getLogRRatio"))

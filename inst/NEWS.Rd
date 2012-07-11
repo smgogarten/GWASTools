@@ -138,3 +138,10 @@
     included.
   }
 }
+\section{Changes in version 1.3.12}{
+  \itemize{
+    \item Added GdsReader and GdsGenotypeReader classes with dependency
+    on gdsfmt.  GenotypeData objects can also be created with
+    GdsGenotypeReader objects in the "data" slot.
+  }
+}

@@ -3,6 +3,7 @@
 # constructor
 NcdfReader <- function(filename) {
   if (missing(filename)) stop("filename is required")
+  if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
   handler <- open.ncdf(filename, readunlim=FALSE)
   new("NcdfReader", filename=filename, handler=handler)
 }

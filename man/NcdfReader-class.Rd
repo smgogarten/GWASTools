@@ -8,13 +8,11 @@
 \alias{show,NcdfReader-method}
 \alias{getDimensionNames}
 \alias{getDimensionNames,NcdfReader-method}
-\alias{getVariableNames}
 \alias{getVariableNames,NcdfReader-method}
 \alias{hasCoordVariable}
 \alias{hasCoordVariable,NcdfReader-method}
 \alias{hasVariable,NcdfReader-method}
 \alias{getVariable,NcdfReader-method}
-\alias{getAttribute}
 \alias{getAttribute,NcdfReader-method}
 
 \title{Class NcdfReader}
@@ -87,12 +85,6 @@
       \code{varname} is a variable in the NetCDF file (including
       coordinate variables).
     }
-    \item{}{
-      \code{open(object)}: Opens a connection to the NetCDF file.
-    }
-    \item{}{
-      \code{close(object)}: Closes the NetCDF file connection.
-    }
   }
 }
 
@@ -105,6 +97,9 @@
     }
     \item{}{
       \code{close(object)}: Closes the connection to a NetCDF file.
+    }
+    \item{}{
+      \code{show(object)}: Summarizes the contents of a NetCDF file.
     }
   }
 }
