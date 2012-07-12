@@ -44,10 +44,12 @@ test_GdsGenotypeReader <- function() {
   write.gdsn(index.gdsn(gds, "snp.id"), 1:10)
   closefn.gds(gds)
   checkException(GdsGenotypeReader(file))
+  unlink(file)
   
   # check exception with incorrect variable names
-  gds <- openfn.gds(file, readonly=FALSE)
-  delete.gdsn(index.gdsn(gds, "snp.chromosome"))
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  add.gdsn(gds, "snp.id", snp)
   closefn.gds(gds)
   checkException(GdsGenotypeReader(file))
   unlink(file)
