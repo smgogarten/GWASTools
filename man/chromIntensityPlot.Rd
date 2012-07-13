@@ -26,8 +26,9 @@ chromIntensityPlot(intenData, scan.ids, chrom.ids,
 
 \arguments{
   \item{intenData}{\code{\link{IntensityData}} object, must contain at least one of 'BAlleleFreq', 'LogRRatio', 'X', 'Y'. }
-  \item{scan.ids}{ A vector containing the sample indices of the plots.}
-  \item{chrom.ids}{ A vector containing the chromosome indices of the plots.}
+  \item{scan.ids}{ A vector containing the scan IDs to plot.}
+  \item{chrom.ids}{ A vector containing the chromosomes to plot for each
+  scanID (should have same length as \code{scan.ids}).}
   \item{type}{ The type of plot to be created.  'BAF/LRR' creates both 'B Allele Freq' and 'Log R Ratio' plots. 'R/Theta' creates both 'R' and 'Theta' plots. }
   \item{main}{ Vector of plot titles. If \code{NULL} then the title will
   include scanID, sex, and chromosome.}
