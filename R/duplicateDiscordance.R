@@ -173,8 +173,17 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
         geno1 <- geno1[ok]
         geno2 <- geno2[ok]
       }
-      # get correlation between 2 genotype vectors
-      corr.snp[s] <- cor(geno1, geno2, use="pairwise.complete.obs")
+      # remove pairs with NA in either vector
+      nna <- !is.na(geno1) & !is.na(geno2)
+      geno1 <- geno1[nna]
+      geno2 <- geno2[nna]
+      # check for no variation in either vector - correlation not defined in this case
+      if (length(unique(geno1)) == 1 | length(unique(geno2)) == 1) {
+        corr.snp[s] <- NA
+      } else {
+        # get correlation between 2 genotype vectors
+        corr.snp[s] <- cor(geno1, geno2)
+      }
     }
 
     snp.res$correlation <- corr.snp
