@@ -145,3 +145,10 @@
     GdsGenotypeReader objects in the "data" slot.
   }
 }
+\section{Changes in version 1.3.13}{
+  \itemize{
+    \item Added vignette on converting VCF to NetCDF with annotation.
+    \item Prevent duplicateDiscordance from checking correlation by SNP
+    in cases of no variation.
+  }
+}
