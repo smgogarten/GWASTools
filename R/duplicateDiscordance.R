@@ -121,7 +121,12 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
 	nds = nds | discij
 	frac[i,j] <- sum(dat[,i][naij] == dat[,j][naij]) / sum(naij)
 	frac[j,i] <- frac[i,j]
-        corr[i,j] <- cor(dat[,i][naij], dat[,j][naij])
+        # check for no variation in one of the vectors - correlation not defined in this case
+        if (length(unique(dat[,i][naij])) == 1 | length(unique(dat[,j][naij])) == 1) {
+          corr[i,j] <- NA
+        } else {
+          corr[i,j] <- cor(dat[,i][naij], dat[,j][naij])
+        }
         corr[j,i] <- corr[i,j]
       }
     }
@@ -177,7 +182,7 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
       nna <- !is.na(geno1) & !is.na(geno2)
       geno1 <- geno1[nna]
       geno2 <- geno2[nna]
-      # check for no variation in either vector - correlation not defined in this case
+      # check for no variation in one of the vectors - correlation not defined in this case
       if (length(unique(geno1)) == 1 | length(unique(geno2)) == 1) {
         corr.snp[s] <- NA
       } else {
