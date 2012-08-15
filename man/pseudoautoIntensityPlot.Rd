@@ -13,7 +13,8 @@ This function plots X, Y and pseudoautosomal SNPs on BAF/LRR plots.
 
 \usage{
 pseudoautoIntensityPlot(intenData, scan.ids, main=NULL,
-  plotY=FALSE, hg.build=c("hg18", "hg19"), cex=0.5, ...)
+  plotY=FALSE, hg.build=c("hg18", "hg19"),
+  snp.exclude = NULL, cex=0.5, ...)
 }
 
 
@@ -28,6 +29,8 @@ pseudoautoIntensityPlot(intenData, scan.ids, main=NULL,
   \item{plotY}{If \code{plotY} is \code{TRUE}, the Y chromosome will be
     plotted in addition to X.}
   \item{hg.build}{Human genome bulid number}
+  \item{snp.exclude}{An integer vector giving the IDs of SNPs to exclude
+  from the plot.}
   \item{cex}{cex value for points on the plots}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }

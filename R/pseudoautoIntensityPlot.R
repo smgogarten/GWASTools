@@ -6,6 +6,7 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                                     main = NULL,
                                     plotY = FALSE,
                                     hg.build = c("hg18", "hg19"),
+                                    snp.exclude = NULL,
                                     cex=0.5,
                                     ...)
 {
@@ -43,6 +44,15 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
     bafreq[,i] <- getBAlleleFreq(intenData, snp=c(chr.start, chr.count), scan=c(thisi,1))
   }
 
+  if (!is.null(snp.exclude)) {
+    snpID <- getSnpID(intenData, index=sexChrom)
+    keep <- !(snpID %in% snp.exclude)
+    logrratio <- logrratio[keep,,drop=FALSE]
+    bafreq <- bafreq[keep,,drop=FALSE]
+    chr <- chr[keep]
+    pos <- pos[keep]
+  }
+  
   # get the X, Y and XY inds
   xinds <- !is.na(chr) & chr=="X"
   xyinds <- !is.na(chr) & chr=="XY"
