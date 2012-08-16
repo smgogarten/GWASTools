@@ -119,9 +119,9 @@ ncdfCheckIntensity <- function(path="",
 
 	nsx <- length(check.scan.index)
 
+        if (verbose) start <- Sys.time()
 	for(i in check.scan.index){
 
-		if (verbose) start <- Sys.time()
 
 		# save diagnostics at each step in case of crash
 		diagnostics <- list(read.file, row.num, sample.names, sample.match, snp.chk, chk, snp.order, qs.chk,
@@ -254,6 +254,7 @@ ncdfCheckIntensity <- function(path="",
 			rate <- (Sys.time()-start)/10
 			percent <- 100*i/nsx
 			message(paste("file", i, "-", format(percent,digits=3), "percent completed - rate =", format(rate,digits=4)))
+                        start <- Sys.time()
 		}
 
 	}	# end of loop

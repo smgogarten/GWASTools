@@ -71,9 +71,9 @@ ncdfCheckGenotype <- function(path="",
 
 	nsx <- length(check.scan.index)
 
+        if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
 	for(i in check.scan.index){
 
-		if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
 
 		# save at each iteration in case of crash
 		diagnostics <- list(read.file, row.num, sample.names, sample.match, missg, snp.chk, chk, snp.order, geno.chk)
@@ -160,6 +160,7 @@ ncdfCheckGenotype <- function(path="",
 			rate <- (Sys.time()-start)/10
 			percent <- 100*i/nsx
 			message(paste("file", i, "-", format(percent,digits=3), "percent completed - rate =", format(rate,digits=4)))
+                        start <- Sys.time()
 		}
 
 

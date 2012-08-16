@@ -75,10 +75,10 @@ ncdfAddData <- function(path="",
 	# add data to ncdf one sample (file) at a time
 
         k <- scan.start.index
+        
+        if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
 	for(i in 1:fn){
           
-		if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
-
 		# save diagnostics for each sample in case of interruption
 		diagnostics <- list(read.file, row.num, samples, sample.match, missg, snp.chk, chk)
 		names(diagnostics) <- c("read.file", "row.num", "samples", "sample.match", "missg", "snp.chk", "chk")
@@ -150,6 +150,7 @@ ncdfAddData <- function(path="",
 			rate <- (Sys.time()-start)/10
 			percent <- 100*i/fn
 			message(paste("file", i, "-", format(percent,digits=3), "percent completed - rate =", format(rate,digits=4)))
+                        start <- Sys.time()
 		}
 	}	# end of for loop
 	# finish up

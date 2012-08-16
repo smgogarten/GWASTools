@@ -48,10 +48,9 @@ ncdfAddIntensity <- function(path="",
 	# this file has two rows per probe, one for A and one for B (sub.probe.id = probe_name-A or probe_name-B)
 	# split the data set and make X=intensity of A and Y=intensity of B
 
+        if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
         for(i in 1:fn){
 		
-		if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
-
                 dat <- try(read.table(files[i], sep="\t", header=TRUE, colClasses=c("character","double")))
                 if (inherits(dat, "try-error")) { read.file[i] <- 0; message(paste("error reading file",i)); next }
                 read.file[i] <- 1			
@@ -92,6 +91,7 @@ ncdfAddIntensity <- function(path="",
 			rate <- (Sys.time()-start)/10
 			percent <- 100*i/fn
 			message(paste("file", i, "-", format(percent,digits=3), "percent completed - rate =", format(rate,digits=4)))
+                        start <- Sys.time()
 		}
 	}
 	
