@@ -9,7 +9,6 @@ assocTestRegression <- function(genoData,
                                 CI = 0.95,
                                 robust = FALSE,
                                 LRtest = TRUE,
-                                geno.counts = TRUE,
                                 chromosome.set = NULL,
                                 block.set = NULL,
                                 block.size = 5000,
@@ -37,14 +36,29 @@ TransformGenotype <- function(index, geno){
 RunRegression <- function(mdat){  
   ##### logistic regression #####
   if(model.type[md]=="logistic"){
-    mod <- tryCatch(glm(model.formula, data = mdat, family=binomial()), warning=function(w) TRUE, error=function(e) TRUE);
+    # check for monomorphic group
+    if(mono.cc0 | mono.cc1){
+      mod <- TRUE
+    # if not, try the regression
+    }else{
+      mod <- tryCatch(glm(model.formula, data = mdat, family=binomial()), warning=function(w) TRUE, error=function(e) TRUE);
+    }
 
-    # if warning or error
+    # if monomorphic group or warning or error
     if(is.logical(mod)){
-      if(liv[md] == 0){
-        tmp <- c(1,rep(NA,7));
+      # determine error type
+      if(mono.cc0){
+        err.type <- 0
+      }else if(mono.cc1){
+        err.type <- 1
       }else{
-        tmp <- c(1,rep(NA,(4+5*liv[md])));
+        err.type <- 9
+      }
+      # results entries
+      if(liv[md] == 0){
+        tmp <- c(err.type,rep(NA,7));
+      }else{
+        tmp <- c(err.type,rep(NA,(4+5*liv[md])));
       }
     # if any coef are NA
     }else if(!all(!is.na(coef(mod)))){
@@ -111,9 +125,9 @@ RunRegression <- function(mdat){
     # if warning or error
     if(is.logical(mod)){
       if(liv[md] == 0){
-        tmp <- c(1,rep(NA,6));
+        tmp <- c(9,rep(NA,6));
       }else{
-        tmp <- c(1,rep(NA,(4+4*liv[md])));
+        tmp <- c(9,rep(NA,(4+4*liv[md])));
       }
     # if any coef are NA
     }else if(!all(!is.na(coef(mod)))){
@@ -176,9 +190,9 @@ RunRegression <- function(mdat){
     # if warning or error
     if(is.logical(mod)){
       if(liv[md] == 0){
-        tmp <- c(1,rep(NA,7));
+        tmp <- c(9,rep(NA,7));
       }else{
-        tmp <- c(1,rep(NA,(4+5*liv[md])));
+        tmp <- c(9,rep(NA,(4+5*liv[md])));
       }
     # if any coef are NA
     }else if(!all(!is.na(coef(mod)))){
@@ -379,9 +393,7 @@ RunRegression <- function(mdat){
         stop(paste("Model number",j,"is logistic, the corresponding outcome variable must be coded as 0/1"))
       }
 
-      if(geno.counts){
-        nv <- append(nv, paste(names(covar.list)[j], c("nAA.cc0","nAB.cc0","nBB.cc0","nAA.cc1","nAB.cc1","nBB.cc1"), sep="."));
-      }
+      nv <- append(nv, paste(names(covar.list)[j], c("nAA.cc0","nAB.cc0","nBB.cc0","nAA.cc1","nAB.cc1","nBB.cc1"), sep="."));
       
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
@@ -407,9 +419,7 @@ RunRegression <- function(mdat){
       }      
       
     }else if(model.type[j]=="linear"){
-      if(geno.counts){
-        nv <- append(nv, paste(names(covar.list)[j], c("nAA","nAB","nBB"), sep="."));
-      }
+      nv <- append(nv, paste(names(covar.list)[j], c("nAA","nAB","nBB"), sep="."));
       
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
@@ -591,28 +601,33 @@ RunRegression <- function(mdat){
               model.dat <- na.omit(model.dat);
 
               ##### genotype counts calculation #####
-              if(geno.counts){
-                mdat = model.dat;
-                # switch genotype coding back if flipped before - want to count based on A/B coding
-                if(minor.allele==0){
-                  mdat$genotype <- abs(mdat$genotype-2);
-                }
+              mdat = model.dat;
+              # switch genotype coding back if flipped before - want to count based on A/B coding
+              if(minor.allele==0){
+                mdat$genotype <- abs(mdat$genotype-2);
+              }
 
-                if(model.type[md]=="logistic"){
-                  nBB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==0);
-                  nAB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==1);
-                  nAA.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==2);
-                  nBB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==0);
-                  nAB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==1);
-                  nAA.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==2);
-                  res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
-                }else if(model.type[md]=="linear"){
-                  nBB <- sum(mdat[,"genotype"]==0);
-                  nAB <- sum(mdat[,"genotype"]==1);
-                  nAA <- sum(mdat[,"genotype"]==2);
-                  res <- append(res,c(nAA, nAB, nBB));
-                }
-              } # if geno.counts
+              if(model.type[md]=="logistic"){
+                nBB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==0);
+                nAB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==1);
+                nAA.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==2);
+                nBB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==0);
+                nAB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==1);
+                nAA.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==2);
+                res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
+
+                # check for monomorphic group
+                ncc0 <- sum(nBB.cc0, nAB.cc0, nAA.cc0)
+                mono.cc0 <- nBB.cc0 == ncc0 || nAA.cc0 == ncc0 || nAB.cc0 == ncc0
+                ncc1 <- sum(nBB.cc1, nAB.cc1, nAA.cc1)
+                mono.cc1 <- nBB.cc1 == ncc1 || nAA.cc1 == ncc1 || nAB.cc1 == ncc1
+
+              }else if(model.type[md]=="linear"){
+                nBB <- sum(mdat[,"genotype"]==0);
+                nAB <- sum(mdat[,"genotype"]==1);
+                nAA <- sum(mdat[,"genotype"]==2);
+                res <- append(res,c(nAA, nAB, nBB));
+              }
 
               #### loop through all the gene.actions used for model md ####
               for(ga in gene.action.list[[md]]){
@@ -659,9 +674,7 @@ RunRegression <- function(mdat){
       for(ga in 1:gene.act.num[j]){
         # which columns to pull out of res.set
         mod.var.set <- c(1:3, grep(paste("model", j, gene.action.list[[j]][ga], sep="."), names(res.set)))
-        if(geno.counts){
-          mod.var.set <- append(mod.var.set, grep(paste("model", j, "n[[:upper:]]{2}", sep="."), names(res.set)))
-        }
+        mod.var.set <- append(mod.var.set, grep(paste("model", j, "n[[:upper:]]{2}", sep="."), names(res.set)))
         mod.res <- res.set[,mod.var.set];
             
         # define models attribute

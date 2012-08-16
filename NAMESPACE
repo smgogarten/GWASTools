@@ -51,6 +51,7 @@ export(
     apartSnpSelection,
     asSnpMatrix,
     assocTestCPH,
+    assocTestFisherExact,
     assocTestRegression,
     BAFfromClusterMeans,
     BAFfromGenotypes,
