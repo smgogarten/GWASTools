@@ -74,7 +74,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
 
   # rectangles with XY regions (in Mb)
   hg.build <- match.arg(hg.build)
-  pa <- get(data(list=paste("pseudoautosomal", hg.build, sep=".")))
+  pa <- get(data(list=paste("pseudoautosomal", hg.build, sep="."),
+                 package="GWASTools", envir=environment()))
   PAR1start <- pa["X.PAR1", "start.base"] / 1e6
   PAR1end <- pa["X.PAR1", "end.base"] / 1e6
   xXTRstart <-  pa["X.XTR", "start.base"] / 1e6
