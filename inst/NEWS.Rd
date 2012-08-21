@@ -152,3 +152,11 @@
     in cases of no variation.
   }
 }
+\section{Changes in version 1.3.14}{
+  \itemize{
+    \item assocTestRegression returns NA for snps where cases or controls are monomorphic, added assocTestFisherExact to use in that case.
+    \item Added snp.exclude argument to pseudoautoIntensityPlot.
+    \item Bug fix in messages reporting file read times when creating or
+    checking netCDF files.
+  }
+}
