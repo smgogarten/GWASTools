@@ -122,7 +122,7 @@ pedigreeCheck<-function(pedigree,unknown.parents=FALSE)
 		   individ<-c(fam$individ,new)
 		   mother<-c(fam$mother,rep(0,ln))
 		   father<-c(fam$father,rep(0,ln))
-		   fam<-data.frame(individ,mother,father,stringsAsFactors=F)
+		   fam<-data.frame(individ,mother,father,stringsAsFactors=FALSE)
               } 
 		
 		#check relatedness
@@ -151,7 +151,7 @@ pedigreeCheck<-function(pedigree,unknown.parents=FALSE)
 				 sfam<-union(sfam,ug[i])
 				 f<-rep(ug[i],length(clus))
 				 sf<-rep(counter,length(clus))
-				 newsf<-data.frame(f,sf,clus,stringsAsFactors=F)
+				 newsf<-data.frame(f,sf,clus,stringsAsFactors=FALSE)
                          names(newsf)<-c("family","subfamily","individ")
 				 subfams<-rbind(subfams,newsf)
 		  } 

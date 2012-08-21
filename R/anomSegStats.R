@@ -189,18 +189,18 @@ anomSegStats <- function(intenData, genoData,
 			non.baf <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai) & is.element(geno, c(1,-1))
 			non.lrr <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai)
 		# calculate median of baf and lrr in non-anomalous regions
-			baf.non.med <- median(baf[non.baf], na.rm=T)
-			lrr.non.med <- median(lrr[non.lrr], na.rm=T)
+			baf.non.med <- median(baf[non.baf], na.rm=TRUE)
+			lrr.non.med <- median(lrr[non.lrr], na.rm=TRUE)
 		# calculate MAD of lrr in non-anomalous regions
-			lrr.non.mad <- mad(lrr[non.lrr], na.rm=T)
+			lrr.non.mad <- mad(lrr[non.lrr], na.rm=TRUE)
 		# calculate stats in anomalous segments
 		# eligible points used for anomaly detection
 			ebaf <- is.element(intid, eligible) & is.element(geno, c(1,-1))
 			elrr <- is.element(intid, eligible)
 		# Cooper metric
 			coop <- sqrt(pmin( (baf-0), (1-baf), abs(baf-baf.non.med) ))
-			coop.non.mean <- mean(coop[non.baf], na.rm=T)
-			coop.non.sd <- sd(coop[non.baf], na.rm=T)
+			coop.non.mean <- mean(coop[non.baf], na.rm=TRUE)
+			coop.non.sd <- sd(coop[non.baf], na.rm=TRUE)
 	
 		# loop through anomalies within sample
 			for(j in 1:k){ # for each anomaly within a sample
@@ -292,7 +292,7 @@ anomSegStats <- function(intenData, genoData,
 							chr.ind <- indices[sel.chrom]
 							left <- chr.ind[1]; right <- anom$left.index[r]-1
 							anom$left.term.lrr.n[r] <- right-left+1
-							if(right>=left) anom$left.term.lrr.med[r] <- median(lrr[left:right], na.rm=T) 
+							if(right>=left) anom$left.term.lrr.med[r] <- median(lrr[left:right], na.rm=TRUE) 
 						}
 					}
 					if(anom$right.most[r]){
@@ -308,7 +308,7 @@ anomSegStats <- function(intenData, genoData,
 							chr.ind <- indices[sel.chrom]; ni <- length(chr.ind)
 							left <- anom$right.index[r]+1; right <- chr.ind[ni]
 							anom$right.term.lrr.n[r] <- right-left+1
-							if(right>=left) anom$right.term.lrr.med[r] <- median(lrr[left:right], na.rm=T) 
+							if(right>=left) anom$right.term.lrr.med[r] <- median(lrr[left:right], na.rm=TRUE) 
 						}
 					}
 

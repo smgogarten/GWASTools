@@ -60,7 +60,7 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       if(length(bf)<3) next  # don't want to feed DNAcopy something that will crash
       ind<-INDEX[wc]
       chrm<-CHR[wc]
-      med<-median(bf,na.rm=T)
+      med<-median(bf,na.rm=TRUE)
       bf1<-1-bf
       bfm<-abs(bf-med)
       c<-cbind(bf,bf1,bfm)

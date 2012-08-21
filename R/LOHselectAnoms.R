@@ -82,7 +82,7 @@ tm5<-NULL
  lt<-select$left[j]; rt<-select$right[j]
  int<-index>=select$left[j] & index<=select$right[j] 
  xx<-lrr[int]
- xxm<-median(xx,na.rm=T)
+ xxm<-median(xx,na.rm=TRUE)
 
  zf<-length.factor*sum(int)
   left.bdy<-index[1]
@@ -94,7 +94,7 @@ int.test<-index>=nleft & index<=nright
  int5<-int.test&nonanom
   yy<-lrr[int5]
  if(length(yy)< min.lrr.num){tm5<-c(tm5,NA)} else { 
-  yym<-median(yy,na.rm=T);yymad<-mad(yy,na.rm=T)
+  yym<-median(yy,na.rm=TRUE);yymad<-mad(yy,na.rm=TRUE)
   tm<-(xxm-yym)/yymad
   tm5<-c(tm5,tm)  }
 
@@ -155,9 +155,9 @@ seg.median<-NULL;seg.mean<-NULL;nm<-NULL
    subind<-index>=runsegs$left[k] & index<=runsegs$right[k]
    nm<-c(nm,sum(subind))
    sublrr<-lrr[subind]
-   seg.med<-median(sublrr,na.rm=T)
+   seg.med<-median(sublrr,na.rm=TRUE)
    seg.median<-c(seg.median,seg.med)
-   sgm<-mean(sublrr,na.rm=T)
+   sgm<-mean(sublrr,na.rm=TRUE)
    seg.mean<-c(seg.mean,sgm)
    sdf<-(sgm-base$chrom.nonanom.mean)/base$chrom.nonanom.sd
    mdf<-(seg.med-base$chrom.nonanom.median)/base$chrom.nonanom.mad

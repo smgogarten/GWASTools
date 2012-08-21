@@ -116,10 +116,10 @@ for(k in 1:length(newright)){
    }
 if(length(lrr.pts)<min.lrr.num) {out<-data.frame(NA,NA,NA,NA)} else{
 
- chmad<-mad(lrr.pts,na.rm=T)
- chmed<-median(lrr.pts,na.rm=T)
- chmn<-mean(lrr.pts,na.rm=T)
- chsd<-sd(lrr.pts,na.rm=T)
+ chmad<-mad(lrr.pts,na.rm=TRUE)
+ chmed<-median(lrr.pts,na.rm=TRUE)
+ chmn<-mean(lrr.pts,na.rm=TRUE)
+ chsd<-sd(lrr.pts,na.rm=TRUE)
  out<-data.frame(chmad,chmed,chmn,chsd)
 }
 names(out)<-c("chrom.nonanom.mad","chrom.nonanom.median","chrom.nonanom.mean","chrom.nonanom.sd")

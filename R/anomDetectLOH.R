@@ -143,9 +143,9 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
           subind<-index>=RUNS.snch$left[k] & index<=RUNS.snch$right[k]         
           nm<-c(nm,sum(subind))
           sublrr<-lrr[subind]
-          seg.med<-median(sublrr,na.rm=T)
+          seg.med<-median(sublrr,na.rm=TRUE)
           seg.median<-c(seg.median,seg.med)
-          seg.mean<-c(seg.mean,mean(sublrr,na.rm=T))
+          seg.mean<-c(seg.mean,mean(sublrr,na.rm=TRUE))
         }#end of k loop
         RUNS.snch$num.mark<-nm
         RUNS.snch$seg.median<-seg.median

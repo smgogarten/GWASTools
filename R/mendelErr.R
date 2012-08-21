@@ -391,7 +391,7 @@ mendelErr <- function(genoData,
       trios[Ind, 1:2] <- ti[1, 1:2]
       # average counts over all duplicate samples for that child
       for (j in 3:n){
-        trios[Ind, j] <- mean(ti[, j+3], na.rm=T)
+        trios[Ind, j] <- mean(ti[, j+3], na.rm=TRUE)
       }
       Ind <- Ind + 1
     }

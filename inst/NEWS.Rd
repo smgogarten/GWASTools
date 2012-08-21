@@ -160,3 +160,8 @@
     checking netCDF files.
   }
 }
+\section{Changes in version 1.3.15}{
+  \itemize{
+    \item Bug fix in pedigreePairwiseRelatedness related to use of character identifiers.
+  }
+}

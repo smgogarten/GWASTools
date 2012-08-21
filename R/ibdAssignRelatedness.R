@@ -31,7 +31,7 @@ ibdAssignRelatedness <- function(
         mean.vec<-FS$mean  #vector
         sig.inv<-FS$invCov
         n0<-length(k0)
-        X<-matrix(c(k0,k1),2,n0,byrow=T)
+        X<-matrix(c(k0,k1),2,n0,byrow=TRUE)
         Mn<-matrix(rep(mean.vec,n0),2,n0)
         diff<-X-Mn
         tmp<-sig.inv%*%diff

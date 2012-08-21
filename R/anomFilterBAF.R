@@ -66,7 +66,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
            new.num.mark<-sum(an$num.mark[ind[choose]])
            new.seg.mean<-sum(an$seg.mean[ind[choose]]*an$num.mark[ind[choose]])/new.num.mark
            new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=F)
+           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
            names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
            merged.anoms<-rbind(merged.anoms,new)
          }
@@ -83,7 +83,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
            new.num.mark<-sum(an$num.mark[ind[set1]])
            new.seg.mean<-sum(an$seg.mean[ind[set1]]*an$num.mark[ind[set1]])/new.num.mark
            new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=F)
+           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
            names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
            merged.anoms<-rbind(merged.anoms,new)
          }
@@ -92,7 +92,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
            new.num.mark<-sum(an$num.mark[ind[set2]])
            new.seg.mean<-sum(an$seg.mean[ind[set2]]*an$num.mark[ind[set2]])/new.num.mark
            new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=F)
+           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
            names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
            merged.anoms<-rbind(merged.anoms,new)
          }
@@ -384,7 +384,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       bf<-BAF[wc]
       ind<-INDEX[wc]
       chrm<-CHR[wc]
-      med<-median(bf,na.rm=T)
+      med<-median(bf,na.rm=TRUE)
       bf1<-1-bf
       bfm<-abs(bf-med)
       c<-cbind(bf,bf1,bfm)
@@ -409,7 +409,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     if(length(sel.chr)<2) {w.selec<-which(!is.element(chr,c(XchromCode(intenData),XYchromCode(intenData))))} else { 
   
       ##compare each autosome seg.mean with baseline based on other autosomes
-      an.snglo<-an.sngl[order(an.sngl$seg.mean,decreasing=T),]
+      an.snglo<-an.sngl[order(an.sngl$seg.mean,decreasing=TRUE),]
       an.snglo<-an.snglo[is.element(an.snglo$chrom,sel.chr),]
       sel.chro<-an.snglo$chrom  #decreasing order of seg.mean so work with largest mean sequentially
       N<-length(sel.chro)  #sel.chro are autosome chroms unsegmented
@@ -419,8 +419,8 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       while(flag==1){ 
         w.selec<-is.element(chr,sel.chro[(j+1):N])
         bbase<-baf.dat[w.selec]
-        base.mean<-mean(bbase,na.rm=T)
-        base.sd<-sd(bbase,na.rm=T)
+        base.mean<-mean(bbase,na.rm=TRUE)
+        base.sd<-sd(bbase,na.rm=TRUE)
         mean.chk<-an.snglo$seg.mean[is.element(an.snglo$chrom,sel.chro[j])]
         if(abs(mean.chk-base.mean)/base.sd >sd.long){
           if((N-j)==1) {flag<-0;keep<-N}
@@ -433,8 +433,8 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     ##baseline now based on autosome unsegmented not identified as whole chrom anoms
 
     bbase<-baf.dat[w.selec]
-    base.mean<-mean(bbase,na.rm=T)
-    base.sd<-sd(bbase,na.rm=T)
+    base.mean<-mean(bbase,na.rm=TRUE)
+    base.sd<-sd(bbase,na.rm=TRUE)
     sd.fac<-abs(an$seg.mean-base.mean)/base.sd
     
     if(length(sel.chr)<2){chr.ct<-0} else {chr.ct<-length(sel.chro[keep])}
@@ -489,7 +489,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
         whm<- GENO == 1 | is.na(GENO)
         index2<-which(int2&selgood&whm)  
         mt<-is.element(index,index2)
-        seg.mn<-mean(baf.dat[mt],na.rm=T)
+        seg.mn<-mean(baf.dat[mt],na.rm=TRUE)
         sdf<-abs(seg.mn-base.mean)/base.sd
         tst.rev$num.mark[k]<-length(index2)
         tst.rev$sd.fac[k]<-sdf
