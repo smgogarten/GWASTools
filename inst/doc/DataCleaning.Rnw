@@ -1276,7 +1276,7 @@ table(res12bin4sd[, "chromosome"])
 @ 
 
 Call \Rcode{chromIntensityPlot} to plot the BAF of all SNPs on the indicated chromosome-sample
-pair against position.  This yields many plots that must be individually examined
+pairs against position.  This yields many plots that must be individually examined
 to distinguish noisy data from chromosomal abnormalities.
 
 <<fig=TRUE>>= 
@@ -1284,7 +1284,7 @@ scanID <- as.integer(res12bin4sd[, "scanID"])
 chrom <- as.integer(res12bin4sd[, "chromosome"])
 chrom[res12bin4sd[, "chromosome"] == "X"] <- 23
 bincode <- paste("Bin", res12bin4sd[, "bin"], sep = " ")
-chromIntensityPlot(blData, scanID[1], chrom[1], info=bincode[1], ideogram=FALSE)
+chromIntensityPlot(blData, scanID, chrom, info=bincode, ideogram=FALSE)
 @
 
 <<>>=
