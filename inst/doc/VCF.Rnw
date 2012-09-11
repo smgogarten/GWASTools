@@ -21,14 +21,59 @@
 
 \SweaveOpts{keep.source=TRUE, eps=FALSE} 
 
-This vignette demonstrates how to convert a Variant Call Format (VCF) file into a NetCDF
-file with SNP and scan annotation for use in \Rpackage{GWASTools}.
+This vignette demonstrates how to convert a Variant Call Format (VCF)
+file into a format compatible with \Rpackage{GWASTools}.
 As \Rpackage{GWASTools} expects genotype data represented as the number of A
 alleles, with values of 0, 1, 2, or missing, only bi-allelic SNP data
 can be preserved in the conversion.  Other types of variants will be
 ignored.  The VCF format is described here: \href{http://www.1000genomes.org/wiki/Analysis/Variant\%20Call\%20Format/vcf-variant-call-format-version-41}{http://www.1000genomes.org/wiki/Analysis/Variant\%20Call\%20Format/vcf-variant-call-format-version-41}.
 
-We use the \Rpackage{VariantAnnotation} package to read the VCF file.
+\section{Converting to GDS}
+
+The simplest way to convert a VCF file is to use the function
+\Rcode{convertVcfGds}.  This function will extract sample name, SNP
+ID, chromosome, position, reference and alternate alleles, and
+genotypes from a VCF file and store them in a GDS file (described in
+the \Rpackage{gdsfmt} package).  Unique integer IDs are generated
+for all samples and SNPs.
+
+<<>>=
+library(GWASTools)
+vcffile <- system.file("extdata", "sequence.vcf", package="SNPRelate")
+gdsfile <- "snps.gds"
+convertVcfGds(vcffile, gdsfile)
+@ 
+
+Now that the file has been created, we can access it in
+\Rpackage{GWASTools} using the \Rcode{GdsGenotypeReader} class.
+
+<<>>=
+(gds <- GdsGenotypeReader(gdsfile))
+
+getScanID(gds)
+getSnpID(gds)
+getChromosome(gds)
+getPosition(gds)
+getVariable(gds, "sample.name")
+getVariable(gds, "snp.rs.id")
+getVariable(gds, "snp.allele")
+getGenotype(gds)
+
+close(gds)
+@ 
+
+<<echo=FALSE, results=hide>>=
+unlink(gdsfile)
+@ 
+
+\section{Converting to NetCDF}
+
+In some cases it may be desirable to extract additional information
+from a VCF file, e.g., monomorphic SNPs, quality scores, etc.
+In that case one can use the \Rpackage{VariantAnnotation} package to read the VCF file.
+We then create a NetCDF
+file with SNP and scan annotation for use in \Rpackage{GWASTools}.
+
 <<>>=
 library(VariantAnnotation)
 vcffile <- system.file("extdata", "ex2.vcf", package="VariantAnnotation")
@@ -157,14 +202,21 @@ geno.ab[geno %in% c("1/1", "1|1")] <- 0 # BB = ALT/ALT
 geno.ab <- geno.ab[snp.ord,]
 @ 
 
-Create a genotype NetCDF file and add the integer sample IDs and genotypes.
+Extract the genotype quality scores from the VCF.
+<<>>=
+gq <- geno(vcf)$GQ
+@ 
+
+Create a genotype NetCDF file and add the integer sample IDs,
+genotypes, and quality scores.
 <<>>=
 ncfile <- "ex2.nc"
 ncdfCreate(snp.annotation=snp.df, ncdf.filename=ncfile,
-           n.samples=ncol(vcf), variables="genotype")
+           n.samples=ncol(vcf), variables=c("genotype", "quality"))
 nc <- open.ncdf(ncfile, write=TRUE)
 put.var.ncdf(nc, "sampleID", scanAnnot$scanID, start=1, count=-1)
 put.var.ncdf(nc, "genotype", geno.ab)
+put.var.ncdf(nc, "quality", gq)
 close.ncdf(nc)
 @ 
 
@@ -176,11 +228,27 @@ nc <- NcdfGenotypeReader(ncfile)
 pData(snpAnnot)
 pData(scanAnnot)
 getGenotype(genoData)
+getVariable(genoData, "quality")
 close(genoData)
 @ 
 
 <<echo=FALSE, results=hide>>=
 unlink(ncfile)
 @ 
+
+
+\section{References}
+The variant call format and VCFtools.
+Danecek P, Auton A, Abecasis G, Albers CA, Banks E, DePristo MA, Handsaker RE,
+Lunter G, Marth GT, Sherry ST, McVean G, Durbin R; 1000 Genomes Project Analysis Group.
+Bioinformatics. 2011 Aug 1;27(15):2156-8. Epub 2011 Jun 7.
+
+\vspace{2mm}
+\noindent
+GDS home page: \href{http://corearray.sourceforge.net}{http://corearray.sourceforge.net}
+
+\vspace{2mm}
+\noindent
+NetCDF home page: \href{http://www.unidata.ucar.edu/software/netcdf}{http://www.unidata.ucar.edu/software/netcdf}
 
 \end{document}

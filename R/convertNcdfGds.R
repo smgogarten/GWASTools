@@ -90,7 +90,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, verbose = TRUE)
 convertNcdfGds <- function(ncdf.filename, gds.filename,
 	sample.annot = NULL, snp.annot = NULL, rsID.col = "rsID",
         alleleA.col="alleleA", alleleB.col="alleleB",
-        zipflag = "zip.max", verbose = TRUE)
+        zipflag = "ZIP.max", verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(ncdf.filename))

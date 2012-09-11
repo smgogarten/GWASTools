@@ -61,6 +61,7 @@ export(
     chromIntensityPlot,
     convertGdsNcdf,
     convertNcdfGds,
+    convertVcfGds,
     duplicateDiscordance,
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,
