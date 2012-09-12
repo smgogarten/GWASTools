@@ -63,7 +63,7 @@ manhattanPlot(p, chromosome,
 \examples{
 n <- 1000
 pvals <- sample(-log10((1:n)/n), n, replace=TRUE)
-chromosome <- c(rep(1,250), rep(2,250), rep("X",250), rep("Y",250))
+chromosome <- c(rep(1,400), rep(2,350), rep("X",200), rep("Y",50))
 manhattanPlot(pvals, chromosome, signif=1e-7)
 }
 

@@ -49,8 +49,8 @@ snpCorrelationPlot(correlations, chromosome,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \examples{
-correlations <- sample(0.01*(0:100), 100, replace=TRUE)
-chromosome <- c(rep(1,25), rep(2,25), rep("X",25), rep("Y",25))
+correlations <- sample(0.001*(0:1000), 1000, replace=TRUE)
+chromosome <- c(rep(1,400), rep(2,350), rep("X",200), rep("Y",50))
 snpCorrelationPlot(correlations, chromosome)
 }
 

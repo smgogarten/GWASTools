@@ -74,9 +74,12 @@ convertNcdfGds(ncfile, gdsfile, sample.annot=illumina_scan_annot,
 
 checkNcdfGds(ncfile, gdsfile)
 
+\dontrun{
 ncfile2 <- tempfile()
-#convertGdsNcdf(gdsfile, ncfile2)
+convertGdsNcdf(gdsfile, ncfile2)
+file.remove(ncfile2)
+}
 
-file.remove(gdsfile, ncfile2)
+file.remove(gdsfile)
 }
 \keyword{manip}
