@@ -126,7 +126,7 @@ setMethod("getGenotype",
           function(object, ...) {
             var <- getVariable(object, object@genotypeVar, ...)
             # set missing values to NA
-            var[!(var %in% c(0,1,2))] <- NA
+            var[var < 0 | var > 2] <- NA
             var
           })
 
