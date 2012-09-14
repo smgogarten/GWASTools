@@ -19,7 +19,7 @@ convertVcfGds(vcf.filename, gds.filename, nblock=1024, zipflag="ZIP.max",
 \details{
 	\code{convertVcfGds} extracts bi-allelic SNP genotypes from a VCF file
 	and stores them in a GDS file.  All VCF rows which do not
-	contain bi-allelic SNPs are ignored.  Unique integer IDs are generated
+	contain polymorphic, bi-allelic SNPs are ignored.  Unique integer IDs are generated
 	for all samples and SNPs.  Sample name, SNP ID, reference and
 	alternate alleles, chromosome, and position are stored in the
 	GDS file as well.
