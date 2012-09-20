@@ -19,7 +19,7 @@ Collate: utils.R AllGenerics.R AllClasses.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
   ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R
-  ncdfCreate.R ncdfSubset.R ncdfSubsetCheck.R convertNcdfGds.R convertVcfGds.R
+  ncdfCreate.R ncdfSubset.R ncdfSubsetCheck.R
   BAFfromClusterMeans.R BAFfromGenotypes.R
   sdByScanChromWindow.R medianSdOverAutosomes.R meanSdByChromWindow.R findBAFvariance.R 
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R 
@@ -39,4 +39,5 @@ Collate: utils.R AllGenerics.R AllClasses.R
   pedigreeCheck.R pedigreeClean.R pedigreeDeleteDuplicates.R 
   pedigreeFindDuplicates.R pedigreePairwiseRelatedness.R
   plinkUtils.R snpStats.R
+  convertNcdfGds.R convertVcfGds.R ncdfImputedDosage.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R test.R
