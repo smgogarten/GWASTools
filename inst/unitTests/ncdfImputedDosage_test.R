@@ -45,34 +45,38 @@ test_beagle <- function() {
 
   files <- c(probfile, dosefile)
   inputs <- c(FALSE, TRUE)
-  for (i in 1:2) {
-    ncdfImputedDosage(input.files=c(files[i], markfile), ncdf.filename=ncfile, chromosome=22,
-                      input.type="BEAGLE", input.dosage=inputs[i],
-                      snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+  # 100 lines in file
+  blocks <- c(5000, 40, 99)
+  for (b in blocks) {
+    for (i in 1:2) {
+      ncdfImputedDosage(input.files=c(files[i], markfile), ncdf.filename=ncfile, chromosome=22,
+                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
-    nc <- NcdfGenotypeReader(ncfile)
-    scanAnnot <- getobj(scanfile)
-    snpAnnot <- getobj(snpfile)
-    genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-    geno <- getGenotype(genoData)
-    alleleA <- getVariable(genoData, "alleleA")
-    alleleB <- getVariable(genoData, "alleleB")
-    checkIdentical(snpAnnot$alleleA, alleleA)
-    checkIdentical(snpAnnot$alleleB, alleleB)
+      nc <- NcdfGenotypeReader(ncfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      alleleA <- getVariable(genoData, "alleleA")
+      alleleB <- getVariable(genoData, "alleleB")
+      checkIdentical(snpAnnot$alleleA, alleleA)
+      checkIdentical(snpAnnot$alleleB, alleleB)
   
-    dat <- read.table(dosefile, as.is=TRUE, header=TRUE)
-    dose <- 2 - as.matrix(dat[,4:ncol(dat)])
-    dimnames(dose) <- NULL
-    checkEquals(dose, geno, tolerance=0.0001)
-    checkIdentical(names(dat)[-1:-3], scanAnnot$ID)
+      dat <- read.table(dosefile, as.is=TRUE, header=TRUE)
+      dose <- 2 - as.matrix(dat[,4:ncol(dat)])
+      dimnames(dose) <- NULL
+      checkEquals(dose, geno, tolerance=0.0001)
+      checkIdentical(names(dat)[-1:-3], scanAnnot$ID)
 
-    mark <- read.table(markfile, as.is=TRUE, header=FALSE)
-    checkIdentical(mark[,1], snpAnnot$marker)
-    checkIdentical(mark[,2], snpAnnot$position)
-    checkIdentical(mark[,3], snpAnnot$alleleA)
-    checkIdentical(mark[,4], snpAnnot$alleleB)
+      mark <- read.table(markfile, as.is=TRUE, header=FALSE)
+      checkIdentical(mark[,1], snpAnnot$marker)
+      checkIdentical(mark[,2], snpAnnot$position)
+      checkIdentical(mark[,3], snpAnnot$alleleA)
+      checkIdentical(mark[,4], snpAnnot$alleleB)
 
-    close(genoData)
+      close(genoData)
+    }
   }
   
   unlink(c(ncfile, snpfile, scanfile))
@@ -94,39 +98,43 @@ test_mach <- function() {
 
   files <- c(probfile, dosefile)
   inputs <- c(FALSE, TRUE)
-  for (i in 1:2) {
-    ncdfImputedDosage(input.files=c(files[i], markfile, posfile), ncdf.filename=ncfile, chromosome=22,
-                      input.type="MaCH", input.dosage=inputs[i],
-                      snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+  # 500 lines in file
+  blocks <- c(5000, 200, 499)
+  for (b in blocks) {
+    for (i in 1:2) {
+      ncdfImputedDosage(input.files=c(files[i], markfile, posfile), ncdf.filename=ncfile, chromosome=22,
+                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
-    nc <- NcdfGenotypeReader(ncfile)
-    scanAnnot <- getobj(scanfile)
-    snpAnnot <- getobj(snpfile)
-    genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-    geno <- getGenotype(genoData)
-    alleleA <- getVariable(genoData, "alleleA")
-    alleleB <- getVariable(genoData, "alleleB")
-    checkIdentical(as.character(snpAnnot$alleleA), alleleA)
-    checkIdentical(as.character(snpAnnot$alleleB), alleleB)
+      nc <- NcdfGenotypeReader(ncfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      alleleA <- getVariable(genoData, "alleleA")
+      alleleB <- getVariable(genoData, "alleleB")
+      checkIdentical(as.character(snpAnnot$alleleA), alleleA)
+      checkIdentical(as.character(snpAnnot$alleleB), alleleB)
   
-    dat <- read.table(dosefile, as.is=TRUE, header=FALSE)
-    samples <- as.data.frame(matrix(unlist(strsplit(dat[,1], "->")), ncol=2, byrow=TRUE))
-    checkIdentical(scanAnnot$ID_1, samples[,1])
-    checkIdentical(scanAnnot$ID_2, samples[,2])
-    dose <-  t(as.matrix(dat[,3:ncol(dat)]))
-    dimnames(dose) <- NULL
-    checkEquals(dose, geno, tolerance=0.001)
+      dat <- read.table(dosefile, as.is=TRUE, header=FALSE)
+      samples <- as.data.frame(matrix(unlist(strsplit(dat[,1], "->")), ncol=2, byrow=TRUE))
+      checkIdentical(scanAnnot$ID_1, samples[,1])
+      checkIdentical(scanAnnot$ID_2, samples[,2])
+      dose <-  t(as.matrix(dat[,3:ncol(dat)]))
+      dimnames(dose) <- NULL
+      checkEquals(dose, geno, tolerance=0.001)
 
-    mark <- read.table(markfile, as.is=TRUE, header=TRUE)
-    checkIdentical(mark[,1], snpAnnot$SNP)
-    checkIdentical(mark[,2], snpAnnot$alleleA)
-    checkIdentical(mark[,3], snpAnnot$alleleB)
+      mark <- read.table(markfile, as.is=TRUE, header=TRUE)
+      checkIdentical(mark[,1], snpAnnot$SNP)
+      checkIdentical(mark[,2], snpAnnot$alleleA)
+      checkIdentical(mark[,3], snpAnnot$alleleB)
 
-    pos <- read.table(posfile, as.is=TRUE, header=TRUE)
-    checkIdentical(pos[,1], snpAnnot$SNP)
-    checkIdentical(pos[,2], snpAnnot$position)
+      pos <- read.table(posfile, as.is=TRUE, header=TRUE)
+      checkIdentical(pos[,1], snpAnnot$SNP)
+      checkIdentical(pos[,2], snpAnnot$position)
 
-    close(genoData)
+      close(genoData)
+    }
   }
   
   unlink(c(ncfile, snpfile, scanfile))
@@ -142,35 +150,39 @@ test_impute2 <- function() {
   snpfile <- tempfile()
   scanfile <- tempfile()
 
-  ncdfImputedDosage(input.files=c(probfile, sampfile), ncdf.filename=ncfile, chromosome=22,
-                    input.type="IMPUTE2", input.dosage=FALSE,
-                    snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+  # 33 lines in file
+  blocks <- c(5000, 10, 32)
+  for (b in blocks) {
+    ncdfImputedDosage(input.files=c(probfile, sampfile), ncdf.filename=ncfile, chromosome=22,
+                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
+                      snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
-  nc <- NcdfGenotypeReader(ncfile)
-  scanAnnot <- getobj(scanfile)
-  snpAnnot <- getobj(snpfile)
-  genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  geno <- getGenotype(genoData)
-  alleleA <- getVariable(genoData, "alleleA")
-  alleleB <- getVariable(genoData, "alleleB")
-  checkIdentical(snpAnnot$alleleA, alleleA)
-  checkIdentical(snpAnnot$alleleB, alleleB)
+    nc <- NcdfGenotypeReader(ncfile)
+    scanAnnot <- getobj(scanfile)
+    snpAnnot <- getobj(snpfile)
+    genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+    geno <- getGenotype(genoData)
+    alleleA <- getVariable(genoData, "alleleA")
+    alleleB <- getVariable(genoData, "alleleB")
+    checkIdentical(snpAnnot$alleleA, alleleA)
+    checkIdentical(snpAnnot$alleleB, alleleB)
   
-  dat <- read.table(probfile, as.is=TRUE, header=FALSE)
-  dose <- GWASTools:::.probToDosage(as.matrix(dat[,6:ncol(dat)]))
-  dimnames(dose) <- NULL
-  checkEquals(dose, geno, tolerance=0.0001)
-  checkIdentical(dat[,1], snpAnnot$SNP)
-  checkIdentical(dat[,2], snpAnnot$rsID)
-  checkIdentical(dat[,3], snpAnnot$position)
-  checkIdentical(dat[,4], snpAnnot$alleleA)
-  checkIdentical(dat[,5], snpAnnot$alleleB)
+    dat <- read.table(probfile, as.is=TRUE, header=FALSE)
+    dose <- GWASTools:::.probToDosage(as.matrix(dat[,6:ncol(dat)]))
+    dimnames(dose) <- NULL
+    checkEquals(dose, geno, tolerance=0.0001)
+    checkIdentical(dat[,1], snpAnnot$SNP)
+    checkIdentical(dat[,2], snpAnnot$rsID)
+    checkIdentical(dat[,3], snpAnnot$position)
+    checkIdentical(dat[,4], snpAnnot$alleleA)
+    checkIdentical(dat[,5], snpAnnot$alleleB)
 
-  samp <- read.table(sampfile, as.is=TRUE, header=FALSE, skip=2)
-  checkIdentical(samp[,1], scanAnnot$ID_1)
-  checkIdentical(samp[,2], scanAnnot$ID_2)
+    samp <- read.table(sampfile, as.is=TRUE, header=FALSE, skip=2)
+    checkIdentical(samp[,1], scanAnnot$ID_1)
+    checkIdentical(samp[,2], scanAnnot$ID_2)
 
-  close(genoData)
+    close(genoData)
+  }
   
   unlink(c(ncfile, snpfile, scanfile))
 }

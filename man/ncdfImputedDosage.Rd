@@ -10,7 +10,8 @@ ncdfImputedDosage(input.files, ncdf.filename, chromosome,
                   input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
                   input.dosage=FALSE, block.size=5000,
                   snp.annot.filename="dosage.snp.RData",
-                  scan.annot.filename="dosage.scan.RData")
+                  scan.annot.filename="dosage.scan.RData",
+                  verbose=TRUE)
 }
 \arguments{
   \item{input.files}{A character vector of input files.  The first file
@@ -34,11 +35,24 @@ ncdfImputedDosage(input.files, ncdf.filename, chromosome,
   \item{input.dosage}{Logical for whether the genotype file
     (\code{input.files[1]}) contains dosages.  If \code{FALSE} (default), the
     genotype file is assumed to contain genotype probabilities.}
-  \item{block.size}{block size}
+  \item{block.size}{Number of lines to read at once.}
   \item{snp.annot.filename}{Output .RData file for storing a \code{\link{SnpAnnotationDataFrame}}.}
-  \item{scan.annot.filename}{Output .RData file for storing a \code{\link{ScanAnnotationDataFrame}}.}
+  \item{scan.annot.filename}{Output .RData file for storing a
+    \code{\link{ScanAnnotationDataFrame}}.}
+  \item{verbose}{Logical for whether to print progress messages.}
 }
 \details{
+  Input files can contain either imputed dosages or genotype
+  probabilities, specified by the \code{input.dosage} flag.
+  In either case, the NetCDF file will store dosage of
+  the A allele in the "genotype" variable.  All SNPs are assumed to be
+  on the same chromosome, which is indicated by the \code{chromosome}
+  argument.
+
+  SNP and scan annotation are created from the input files and stored in
+  RData format in \code{snp.annot.filename} and \code{scan.annot.filename}.
+
+  Currently supported input file types are IMPUTE2, BEAGLE, and MaCH.
 }
 \references{
   IMPUTE2: \url{http://mathgen.stats.ox.ac.uk/impute/impute_v2.html}
@@ -67,6 +81,9 @@ nc <- NcdfGenotypeReader(ncfile)
 scanAnnot <- getobj(scanfile)
 snpAnnot <- getobj(snpfile)
 genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+geno <- getGenotype(genoData)
+getVariable(genoData, "alleleA")
+getVariable(genoData, "alleleB")
 close(genoData)
 
 
@@ -78,12 +95,6 @@ markfile <- system.file("extdata", "imputation", "BEAGLE", "hapmap.markers",
 ncdfImputedDosage(input.files=c(probfile, markfile), ncdf.filename=ncfile, chromosome=22,
                   input.type="BEAGLE", input.dosage=FALSE,
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
-nc <- NcdfGenotypeReader(ncfile)
-scanAnnot <- getobj(scanfile)
-snpAnnot <- getobj(snpfile)
-genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-geno <- getGenotype(genoData)
-close(genoData)
 
 # BEAGLE - dosage
 dosefile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.dose",
@@ -103,12 +114,6 @@ posfile <- system.file("extdata", "imputation", "MaCH", "mach1.snp.position",
 ncdfImputedDosage(input.files=c(probfile, markfile, posfile), ncdf.filename=ncfile, chromosome=22,
                   input.type="MaCH", input.dosage=FALSE,
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
-nc <- NcdfGenotypeReader(ncfile)
-scanAnnot <- getobj(scanfile)
-snpAnnot <- getobj(snpfile)
-genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-geno <- getGenotype(genoData)
-close(genoData)
 
 # MaCH - dosage
 dosefile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mldose",
