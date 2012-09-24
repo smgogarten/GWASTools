@@ -1,0 +1,169 @@
+%\VignetteIndexEntry{Data formats in GWASTools}
+%\VignetteDepends{GWASTools}
+\documentclass[11pt]{article}
+\usepackage{fullpage}
+\usepackage{Sweave}
+\usepackage{amsmath}  
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[pdftex,plainpages=false, letterpaper, bookmarks, bookmarksnumbered, colorlinks, linkcolor=blue, citecolor=blue, filecolor=blue, urlcolor=blue]{hyperref}
+
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rcode}[1]{{\texttt{#1}}}
+
+\begin{document}
+
+\title{Data formats in GWASTools}
+\author{Stephanie M. Gogarten}
+
+\maketitle
+%\tableofcontents
+
+\SweaveOpts{keep.source=TRUE, eps=FALSE} 
+
+The central classes of the \Rpackage{GWASTools} package are
+\Rcode{GenotypeData} and \Rcode{IntensityData}.  They are designed to
+link all parts of a GWAS analysis (genotype data, SNP information, and
+sample information) in a single S4 object, even when the genotype data
+is too large to be stored in R's memory at one time.
+In designing \Rpackage{GWASTools}, we took care to separate the
+application programming interface (API) of the \Rcode{GenotypeData}
+and \Rcode{IntensityData} classes from the format in which the data are
+stored.
+
+Each class contains a data slot (for a \Rcode{GenotypeReader} or
+\Rcode{IntensityReader} object, respectively)
+and annotation slots (a \Rcode{SnpAnnotationReader} and a \Rcode{ScanAnnotationReader}).
+These Reader classes are actually class unions, allowing multiple options for
+storing data and enabling new storage methods to be added without
+changing any code that uses \Rcode{GenotypeData} and \Rcode{IntensityData} objects.
+The class unions are currently defined as follows:
+\begin{itemize}
+\item \Rcode{GenotypeReader}:
+\Rcode{NcdfGenotypeReader}, \Rcode{GdsGenotypeReader}, or
+\Rcode{MatrixGenotypeReader}
+\item \Rcode{IntensityReader}: \Rcode{NcdfIntensityReader}
+\item \Rcode{SnpAnnotationReader}: \Rcode{SnpAnnotationDataFrame} or \Rcode{SnpAnnotationSQLite}
+\item \Rcode{ScanAnnotationReader}: \Rcode{ScanAnnotationDataFrame} or \Rcode{ScanAnnotationSQLite}
+\end{itemize}
+
+We use the term ``scan'' to indicate a unique genotyping instance, as
+the same DNA sample may be genotyped more than once.
+Each SNP and scan must have a
+unique integer ID (``snpID'' and ``scanID'') that serves as the primary key between the genotype
+data and the annotation.  Validity methods ensure that these IDs, as
+well as chromosome and base position of SNPs, are consistent between
+the data and annotation slots.  Chromosome and position values must be
+integers, so all classes which include SNP data have slots to record
+integer codes for non-autosomal chromosome types (X, Y,
+pseudoautosomal, and mitochondrial).
+
+
+\section{Genotype data formats}
+
+\subsection{NetCDF}
+
+The Network Common Data Form (NetCDF, \href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}) allows array-oriented data to be
+stored on disk with fast access to subsets of the data in R using the
+\Rpackage{ncdf} package.  The \Rcode{NcdfReader} class provides an S4
+wrapper for \Rcode{ncdf} objects.  \Rcode{NcdfGenotypeReader} and
+\Rcode{NcdfIntensityReader} extend \Rcode{NcdfReader} with
+methods specific to genotype and intensity data.  
+
+\subsection{GDS}
+
+Genomic Data Structure (GDS,
+\href{http://corearray.sourceforge.net/}{http://corearray.sourceforge.net/})
+is a storage format for bioinformatics data similar to NetCDF.  An R
+interface is provided with the \Rcode{gdsfmt} package.  The
+\Rpackage{GWASTools} functions \Rcode{convertNcdfGds} and
+\Rcode{convertGdsNcdf} allow conversion between NetCDF and GDS
+format.  GDS format is required for the \Rpackage{SNPRelate} package,
+which computes relatedness and PCA as demonstrated in the ``GWAS Data
+Cleaning'' vignette, so it may be convenient to store data in this
+format from the start.  The \Rcode{GdsReader} class provides a wrapper
+for \Rpackage{gdsfmt} objects with the same API as the
+\Rcode{NcdfReader} class, and the \Rcode{GdsGenotypeReader} class
+provides the same methods as the \Rcode{NcdfGenotypeReader} class.
+
+\subsection{Matrix}
+
+The \Rcode{MatrixGenotypeReader} class is convenient for analyses on smaller data sets which can easily fit into R's
+memory.  It combines a matrix of genotypes with scanID, snpID,
+chromosome, and position.  
+
+\section{Annotation}
+
+SNP and scan annotation can be stored in either of two formats: an
+annotated data frame, or a SQLite database.  Either format may be
+supplied to the \Rcode{snpAnnot} and \Rcode{scanAnnot} slots of a
+\Rcode{GenotypeData} or \Rcode{IntensityData} object.  
+Each annotation object consists of two component data frames (or tables).  The
+main annotation data frame has one row for each SNP (or scan) and columns
+containing variables such as (for SNPs) snpID, chromosome, position, rsID, A and B alleles and (for
+scans) scanID, subject ID (to link duplicate scans of the same
+subject), sex, and phenotype.  The metadata data frame has one row for
+each column in the annotation data frame, and (at minimum) a column containing a description
+of the variable.  
+Both formats
+share methods to return annotation columns and metadata.
+
+\subsection{Annotated data frames}
+
+The \Rcode{SnpAnnotationDataFrame} and \Rcode{ScanAnnotationDataFrame}
+classes extend the \Rcode{AnnotatedDataFrame} class in the
+\Rcode{Biobase} package.  In addition to GWASTools methods, all
+methods defined for \Rcode{AnnotatedDataFrame} are available to these
+classes, including operators which allow these objects to be used like
+standard data frames in many ways.  
+This format provides some built-in functionality from
+\Rcode{AnnotatedDataFrame} to ensure that the annotation and metadata
+data frames are consistent.
+
+\subsection{SQLite databases}
+
+The \Rcode{ScanAnnotationSQLite} and \Rcode{ScanAnnotationSQLite}
+classes provide an alternate means of storing annotation that is
+portable across multiple platforms.  In addition to the methods shared
+with the annotation data frame classes, these classes have
+\Rcode{getQuery} methods to pass any SQL query to the database.
+
+\section{Input}
+
+\subsection{Plain text}
+  
+Data in plain text format (for example, FinalReport files
+produced by Illumina's GenomeStudio) can be converted to NetCDF files
+using the functions \Rcode{ncdfCreate} and \Rcode{ncdfAddData}.  See
+the ``GWAS Data Cleaning'' and ``Preparing Affymetrix Data'' vignettes for
+examples.
+
+\subsection{PLINK}
+
+PLINK ped/map files can be converted to NetCDF with accompanying SNP
+and scan annotation using the function \Rcode{plinkToNcdf}.
+
+\subsection{VCF}
+
+Bi-allelic SNP data from Variant Call Format (VCF) can be converted to
+GDS or NetCDF.  See the ``Converting VCF data'' vignette for examples.
+
+\subsection{Imputed genotypes}
+
+Genotype probabilities or dosages from IMPUTE2, BEAGLE, or MaCH can be
+converted into A allele dosage and stored in NetCDF with the function
+\Rcode{ncdfImputedDosage}.
+
+\section{Output}
+
+\subsection{PLINK}
+
+A \Rcode{GenotypeData} object can be written to PLINK ped/map files
+with the function \Rcode{plinkWrite}.
+
+\subsection{snpStats}
+
+\Rcode{asSnpMatrix} converts a \Rcode{GenotypeData} object can to a
+\Rcode{SnpMatrix} object for use with the \Rpackage{snpStats} package.
+
+\end{document}
