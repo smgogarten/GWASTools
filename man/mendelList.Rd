@@ -14,20 +14,30 @@ mendelListAsDataFrame(mendel.list)
 }
 
 \arguments{
-  \item{familyid}{A vector of family ID numbers.}
-  \item{offspring}{A vector of offspring ID numbers.}
-  \item{father}{A vector of father ID numbers.}
-  \item{mother}{A vector of mother ID numbers.}
-  \item{sex}{A vector to specify whether each scan is male "M" or female "F".}
-  \item{scanID}{A vector of unique scan identification numbers.  These will be used to identify scans in output.}
+  \item{familyid}{A vector of family identifiers.}
+  \item{offspring}{A vector of offspring subject identifiers.}
+  \item{father}{A vector of father identifiers.}
+  \item{mother}{A vector of mother identifiers.}
+  \item{sex}{A vector to specify whether each subject is male "M" or female "F".}
+  \item{scanID}{A vector of scanIDs indicating unique genotyping
+  instances for the \code{offspring} vector.  In the case of duplicate samples, the same
+  \code{offspring} identifier may correspond to multiple \code{scanID} values.}
   
   \item{mendel.list}{An object of class "mendelList".}
 }
 
 \details{
-	The lengths of \code{familyid}, \code{offspring}, \code{father},
-	\code{mother}, \code{sex}, and \code{scanID} must all be identical.
-	The "mendelList" object is required as input for the \code{\link{mendelErr}} function.
+  The lengths of \code{familyid}, \code{offspring}, \code{father},
+  \code{mother}, \code{sex}, and \code{scanID} must all be
+  identical.  These vectors should include all genotyped samples, i.e.,
+  samples present in the \code{father} and \code{mother} vectors should also
+  appear in the \code{offspring} vector if there are genotypes for these
+  samples, and their unique scan IDs should be given in the
+  \code{scanID} vector.
+  
+  Identifiers may be character strings or integers, but not factors.
+	
+  The "mendelList" object is required as input for the \code{\link{mendelErr}} function.
 }
 
 \value{
@@ -46,28 +56,31 @@ from the "mendelList" object and puts them all into one large data frame.  This 
 for certain analyses.
 }
 
-\author{Xiuwen Zheng, Matt Conomos}
+\author{Xiuwen Zheng, Matthew P. Conomos}
 
 \seealso{\code{\link{mendelErr}}}
 
 \examples{
-# get sample annotation
-library(GWASdata)
-data(affyScanADF)
+# data frame of sample information.  No factors!
+dat <- data.frame(family=c(1,1,1,1,2,2,2), offspring=c("a","a","b","c","d","e","f"),
+  father=c("b","b",0,0,"e",0,0), mother=c("c","c",0,0,"f",0,0),
+  sex=c("M","M","M","F","F","M","F"), scanID=1:7,
+  stringsAsFactors=FALSE)
+dat
 
-# generate trio list
-men.list <- mendelList(affyScanADF$family, affyScanADF$subjectID,
-  affyScanADF$father, affyScanADF$mother, affyScanADF$sex,
-  affyScanADF$scanID)
+men.list <- mendelList(dat$family, dat$offspring, dat$father, dat$mother,
+                       dat$sex, dat$scanID)
+men.list
 
-class(men.list)
-# [1] "mendelList"
+# If fathers and mothers do not have separate entries in each vector,
+# mendelList returns a "NULL":
+dat <- dat[c(1,5),]
+dat
+mendelList(dat$family, dat$offspring, dat$father, dat$mother,
+           dat$sex, dat$scanID)
 
-# convert into a data.frame
 men.df <- mendelListAsDataFrame(men.list)
-
-class(men.df)
-# [1] "data.frame"
+men.df
 }
 
 \keyword{Mendelian}
