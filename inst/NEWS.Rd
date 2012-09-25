@@ -165,3 +165,13 @@
     \item Bug fix in pedigreePairwiseRelatedness related to use of character identifiers.
   }
 }
+\section{Changes in version 1.3.16}{
+  \itemize{
+    \item Added convertVcfGds to extract bi-allelic SNPs from a VCF
+    file.
+    \item Added ncdfImputedDosage to convert output from common
+    imputation programs to NetCDF.  assocTestRegression has an
+    additional argument dosage=TRUE to be used with these files.
+    \item Added vignette describing GWASTools data structures.
+  }
+}

@@ -4,6 +4,7 @@ assocTestRegression <- function(genoData,
                                 covar.list = NULL,
                                 ivar.list = NULL,
                                 gene.action.list = NULL,
+                                dosage = FALSE,
                                 scan.chromosome.filter = NULL,
                                 scan.exclude = NULL,
                                 CI = 0.95,
@@ -325,6 +326,11 @@ RunRegression <- function(mdat){
   if(is.null(gene.action.list)){
     gene.action.list <- as.list(rep("additive",nModels))
   }
+  if(dosage){
+    if(!all(is.element(unlist(gene.action.list),"additive"))){
+      stop("When using imputed genotype dosages, the gene.action must be additive.")
+    }
+  }
   if(!all(is.element(unlist(gene.action.list),c("additive","dominant","recessive","dominance")))){
     stop("At least one of the choices for gene.action is invalid. Valid options are additive, dominant, recessive, and dominance.")
   }
@@ -524,6 +530,13 @@ RunRegression <- function(mdat){
         geno <- getGenotype(genoData, snp=c(snp.start.pos, n.snps.block), scan=c(1,-1))
         geno <- geno[,keep];
 
+        # check for genotypes/dosages
+        if(!dosage){
+          if(!all(is.element(geno,c(0,1,2,NA)))){
+            stop("Genotype values must be 0, 1, 2, or NA. If you want to use imputed dosages, set dosage=TRUE.")
+          }
+        }
+
         ########### loop through SNPs in the block #############
         cblockrow=0;
         for(si in snp.start.pos:(snp.start.pos+n.snps.block-1)){
@@ -608,24 +621,39 @@ RunRegression <- function(mdat){
               }
 
               if(model.type[md]=="logistic"){
-                nBB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==0);
-                nAB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==1);
-                nAA.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==2);
-                nBB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==0);
-                nAB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==1);
-                nAA.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==2);
-                res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
+                if(dosage){
+                  nBB.cc0 <- NA; nAB.cc0 <- NA; nAA.cc0 <- NA; nBB.cc1 <- NA; nAB.cc1 <- NA; nAA.cc1 <- NA;
+                }else{
+                  nBB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==0);
+                  nAB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==1);
+                  nAA.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==2);
+                  nBB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==0);
+                  nAB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==1);
+                  nAA.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==2);
+                }
 
                 # check for monomorphic group
-                ncc0 <- sum(nBB.cc0, nAB.cc0, nAA.cc0)
-                mono.cc0 <- nBB.cc0 == ncc0 || nAA.cc0 == ncc0 || nAB.cc0 == ncc0
-                ncc1 <- sum(nBB.cc1, nAB.cc1, nAA.cc1)
-                mono.cc1 <- nBB.cc1 == ncc1 || nAA.cc1 == ncc1 || nAB.cc1 == ncc1
+                if(length(unique(mdat[mdat[,outcome[md]]==0,"genotype"])) > 1){
+                  mono.cc0 <- FALSE
+                }else{
+                  mono.cc0 <- TRUE
+                }
+                if(length(unique(mdat[mdat[,outcome[md]]==1,"genotype"])) > 1){
+                  mono.cc1 <- FALSE
+                }else{
+                  mono.cc1 <- TRUE
+                }
+
+                res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
 
               }else if(model.type[md]=="linear"){
-                nBB <- sum(mdat[,"genotype"]==0);
-                nAB <- sum(mdat[,"genotype"]==1);
-                nAA <- sum(mdat[,"genotype"]==2);
+                if(dosage){
+                  nBB <- NA; nAB <- NA; nAA <- NA;
+                }else{
+                  nBB <- sum(mdat[,"genotype"]==0);
+                  nAB <- sum(mdat[,"genotype"]==1);
+                  nAA <- sum(mdat[,"genotype"]==2);
+                }
                 res <- append(res,c(nAA, nAB, nBB));
               }
 

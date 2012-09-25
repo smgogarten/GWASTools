@@ -63,7 +63,7 @@ ncdfImputedDosage(input.files, ncdf.filename, chromosome,
   MaCH: \url{http://www.sph.umich.edu/csg/abecasis/MACH/tour/imputation.html}
 }
 \author{Stephanie Gogarten}
-\seealso{\code{\link{ncdfCreate}}, \code{\link{GenotypeData}}}
+\seealso{\code{\link{ncdfCreate}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
 \examples{
 ncfile <- tempfile()
 snpfile <- tempfile()
@@ -84,6 +84,13 @@ genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 geno <- getGenotype(genoData)
 getVariable(genoData, "alleleA")
 getVariable(genoData, "alleleB")
+
+# association test with imputed dosages
+scanAnnot$status <- sample(0:1, nrow(scanAnnot), replace=TRUE)
+genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+assoc <- assocTestRegression(genoData, outcome="status", model.type="logistic",
+                             gene.action.list="additive", dosage=TRUE)
+head(assoc)
 close(genoData)
 
 
