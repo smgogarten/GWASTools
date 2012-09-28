@@ -85,14 +85,12 @@ only bi-allelic SNPs, we discard any variants where the reference or
 alternate sequences have length $>1$, and variants with more than one
 alternate allele.
 <<>>=
-ref <- values(ref(vcf))[["REF"]]
-alt <- values(alt(vcf))[["ALT"]]
 # width of ref seq
-rw <- width(ref)
+rw <- width(ref(vcf))
 # width of first alt seq
-aw <- unlist(lapply(alt, function(x) {width(x[1])}))
+aw <- unlist(lapply(alt(vcf), function(x) {width(x[1])}))
 # number of alternate genotypes
-nalt <- elementLengths(alt)
+nalt <- elementLengths(alt(vcf))
 # select only bi-allelic SNPs (monomorphic OK, so aw can be 0 or 1)
 snp <- rw == 1 & aw <= 1 & nalt == 1
 # subset vcf
@@ -103,10 +101,10 @@ Retrieve the row data from the VCF, which describes the SNPs.
 <<>>=
 chrom <- as.vector(seqnames(rowData(vcf)))
 position <- start(ranges(rowData(vcf)))
-REF <- as.character(values(ref(vcf))[["REF"]])
-ALT <- as.character(unlist(values(alt(vcf))[["ALT"]]))
-QUAL <- values(qual(vcf))[["QUAL"]]
-FILTER <- values(filt(vcf))[["FILTER"]]
+REF <- as.character(ref(vcf))
+ALT <- as.character(unlist(alt(vcf)))
+QUAL <- qual(vcf)
+FILTER <- filt(vcf)
 @
 
 Chromosome must be stored as an integer in the NetCDF file.
@@ -200,6 +198,8 @@ geno.ab[geno %in% c("0/1", "0|1", "1/0", "1|0")] <- 1 # AB = REF/ALT
 geno.ab[geno %in% c("1/1", "1|1")] <- 0 # BB = ALT/ALT
 # new snp order (by chrom and position)
 geno.ab <- geno.ab[snp.ord,]
+# geno.ab should be integer, not character
+mode(geno.ab) <- "integer"
 @ 
 
 Extract the genotype quality scores from the VCF.
