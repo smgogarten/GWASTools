@@ -163,7 +163,7 @@ with the function \Rcode{plinkWrite}.
 
 \subsection{snpStats}
 
-\Rcode{asSnpMatrix} converts a \Rcode{GenotypeData} object can to a
+\Rcode{asSnpMatrix} converts a \Rcode{GenotypeData} object to a
 \Rcode{SnpMatrix} object for use with the \Rpackage{snpStats} package.
 
 \end{document}
