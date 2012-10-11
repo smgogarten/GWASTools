@@ -62,21 +62,21 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   snpID <- getSnpID(genoData)
   index <- which(!is.element(snpID, snp.exclude))
 
+  if (minor.allele.only) {
+    # find the genotype to be ignored (no minor allele) for each SNP
+    major.genotype <- rep(NA,length(index))
+    # A allele freq < 0.5, so A is minor allele, so BB=0 is ignored
+    major.genotype[allele.freq[index] < 0.5] <- 0
+    # A allele freq > 0.5, so B is minor allele, so AA=2 is ignored
+    major.genotype[allele.freq[index] >= 0.5] <- 2
+  }
+
   nsnp <- length(index)
   discord <- rep(0,nsnp)
   npair <- rep(0,nsnp)
   ndsubj <- rep(0,nsnp)
   fracList <- list(length=length(ids))
   corrList <- list(length=length(ids))
-
-  if (minor.allele.only) {
-    # find the genotype to be ignored (no minor allele) for each SNP
-    major.genotype <- rep(NA,nsnp)
-    # A allele freq < 0.5, so A is minor allele, so BB=0 is ignored
-    major.genotype[allele.freq[index] < 0.5] <- 0
-    # A allele freq > 0.5, so B is minor allele, so AA=2 is ignored
-    major.genotype[allele.freq[index] > 0.5] <- 2
-  }
 
   # for each set of duplicates (which may have >3 members)
   for (k in 1:(length(ids))) {

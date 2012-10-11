@@ -10,6 +10,7 @@
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   subjName.cols, snpName.cols, one.pair.per.subj=TRUE,
+  minor.allele.only=FALSE, 
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -27,6 +28,9 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
     two datasets.}
 \item{one.pair.per.subj}{A logical indicating whether a single pair of
   scans should be randomly selected for each subject with more than 2 scans.}
+\item{minor.allele.only}{A logical indicating whether discordance should be calculated
+  only between pairs of scans in which at least one scan has a genotype
+  with the minor allele (i.e., exclude major allele homozygotes).}
 \item{scan.exclude1}{An integer vector containing the ids of scans to be
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be

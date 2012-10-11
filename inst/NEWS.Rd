@@ -175,3 +175,9 @@
     \item Added vignette describing GWASTools data structures.
   }
 }
+\section{Changes in version 1.5.1}{
+  \itemize{
+    \item Added option to duplicateDiscordanceAcrossDatasets to
+    calculate minor allele discordance.
+  }
+}

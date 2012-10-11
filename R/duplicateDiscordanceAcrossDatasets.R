@@ -7,8 +7,11 @@
 # - two scanIDs
 # - two vectors of matched snp IDs
 # returns: logical vector of discordances for all snps
+# if major.genotype is not NULL, "nonmissing" only counts SNPs
+#  where the pair included the minor allele
 discordantPair <- function(genoData1, scanID1, snpID1,
-                             genoData2, scanID2, snpID2) {
+                           genoData2, scanID2, snpID2,
+                           major.genotype=NULL) {
   # check that snp ID vectors are the same length
   stopifnot(length(snpID1) == length(snpID2))
   
@@ -45,10 +48,12 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   
   # compare genotypes
   nonmissing <- !is.na(geno1) & !is.na(geno2)
+  if (!is.null(major.genotype)) {
+    nonmissing <- nonmissing & !is.na(major.genotype) & (geno1 != major.genotype | geno2 != major.genotype)
+  }
   discordant <- nonmissing & geno1 != geno2
   return(data.frame(discordant=discordant, nonmissing=nonmissing))
 }
-
 
 # duplicateDiscordanceAcrossDatasets
 # inputs:
@@ -57,11 +62,11 @@ discordantPair <- function(genoData1, scanID1, snpID1,
 # - vector of common snp ID columns
 # - vectors of scans to exclude (optional)
 # - vector of snp IDs to include (optional)
-# returns: vector of number of discordances with names = common snp ID
 duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
                                                   subjName.cols,
                                                   snpName.cols,
                                  one.pair.per.subj = TRUE,
+                                 minor.allele.only = FALSE,
                                                scan.exclude1=NULL,scan.exclude2=NULL,
                                                   snp.include = NULL, verbose=TRUE) {
   # check that both genoData objects have subjName, snpName
@@ -146,12 +151,36 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     stop("some selected snps not found in genoData2")
   }
 
+  if (minor.allele.only) {
+    # calculate allele frequency of dataset with fewer snps, common samples only
+    if (verbose) message("Calculating allele freqency")
+    if (nsnp(genoData1) < nsnp(genoData2)) {
+      scan.freq <- scanID1[subjID1 %in% dups & !duplicated(subjID1)]
+      scan.excl <- setdiff(getScanID(genoData1), scan.freq)
+      allele.freq <- alleleFrequency(genoData1, scan.exclude=scan.excl, verbose=FALSE)
+      allele.freq <- allele.freq[as.character(snpID1),"all"]
+    } else {
+      scan.freq <- scanID2[subjID2 %in% dups & !duplicated(subjID2)]
+      scan.excl <- setdiff(getScanID(genoData2), scan.freq)
+      allele.freq <- alleleFrequency(genoData2, scan.exclude=scan.excl, verbose=FALSE)
+      allele.freq <- allele.freq[as.character(snpID2),"all"]
+    }
+    # find the genotype to be ignored (no minor allele) for each SNP
+    major.genotype <- rep(NA,length(allele.freq))
+    # A allele freq < 0.5, so A is minor allele, so BB=0 is ignored
+    major.genotype[allele.freq < 0.5] <- 0
+    # A allele freq > 0.5, so B is minor allele, so AA=2 is ignored
+    major.genotype[allele.freq >= 0.5] <- 2
+  } else {
+    major.genotype <- NULL
+  }
+   
   nsnp <- length(snp.include)
   discord <- rep(0, nsnp)
   npair <- rep(0, nsnp)
   ndsubj <- rep(0, nsnp)
   fracList <- list(length = length(ids))
-    
+   
   # for each duplicate, calculate pair discordance
   # add to total number of discordances for each snp
   for (k in 1:(length(ids))) {
@@ -171,7 +200,8 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     for (i in 1:n1) {
       for (j in 1:n2) {
         res <- discordantPair(genoData1, scan1[i], snpID1,
-                              genoData2, scan2[j], snpID2)
+                              genoData2, scan2[j], snpID2,
+                              major.genotype)
         discord[res$discordant] <- discord[res$discordant] + 1
         npair[res$nonmissing] <- npair[res$nonmissing] + 1
         nds[res$discordant] <- nds[res$discordant] + 1

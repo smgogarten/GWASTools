@@ -91,6 +91,28 @@ test_discordantPair <- function() {
   checkIdentical(c$discordant, c.exp)
   checkIdentical(c$nonmissing, c.nm)
 
+  # expected output for minor.allele.only
+  major.genotype <- c(2,0,0,2,2)
+  a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
+  a.nm <- c(TRUE, FALSE, FALSE, TRUE, TRUE)
+  b.exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  b.nm <- c(TRUE, TRUE, TRUE, FALSE, FALSE)
+  c.exp <- c(FALSE, TRUE, FALSE, TRUE, FALSE)
+  c.nm <- c(FALSE, TRUE, FALSE, TRUE, TRUE)
+  a <- GWASTools:::discordantPair(genoData1, a.scanID1, snpID1,
+                       genoData2, a.scanID2, snpID2, major.genotype)
+  checkIdentical(a$discordant, a.exp)
+  checkIdentical(a$nonmissing, a.nm)
+  b <- GWASTools:::discordantPair(genoData1, b.scanID1, snpID1,
+                       genoData2, b.scanID2, snpID2, major.genotype)
+  checkIdentical(b$discordant, b.exp)
+  checkIdentical(b$nonmissing, b.nm)
+  c <- GWASTools:::discordantPair(genoData1, c.scanID1, snpID1,
+                       genoData2, c.scanID2, snpID2, major.genotype)
+  checkIdentical(c$discordant, c.exp)
+  checkIdentical(c$nonmissing, c.nm)
+
+  
   # what if we rearrange the order of SNPs?
   snpID1 <- c(3,5,1,9,7)
   snpID2 <- c(2,3,1,5,4)
@@ -188,7 +210,8 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   # scan annotation
   scanID <- 1:5
   subjID <- c("a","b","c","d","e")
-  scandf <- data.frame(scanID=scanID, subjID=subjID,
+  sex <- rep("F",5)
+  scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex,
                        stringsAsFactors=FALSE)
   scanAnnot <- ScanAnnotationDataFrame(scandf)
   
@@ -220,7 +243,8 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   # scan annotation
   scanID <- 1:5
   subjID <- c("c","f","b","a",NA)
-  scandf <- data.frame(scanID=scanID, subjID=subjID,
+  sex <- rep("F",5)
+  scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex,
                        stringsAsFactors=FALSE)
   scanAnnot <- ScanAnnotationDataFrame(scandf)
 
@@ -255,6 +279,17 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
+  # expected output for minor.allele.only
+  snp.exp <- data.frame(discordant=c(1,0,2,1,0), npair=c(2,1,2,2,0),
+    n.disc.subj=c(1,0,2,1,0), discord.rate=c(1,0,2,1,0)/c(2,1,2,2,0))
+  row.names(snp.exp) <- c("rs101","rs103","rs105","rs107","rs109")
+  subj.exp <- list(a=matrix(1/2, 1, 1, dimnames=list(1,4)),
+                   b=matrix(1/3, 1, 1, dimnames=list(2,3)),
+                   c=matrix(2/2, 1, 1, dimnames=list(3,1)))
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
+    rep("subjID", 2), rep("rsID", 2), minor.allele.only=TRUE)
+  checkIdentical(discord$discordance.by.snp, snp.exp)
+  checkIdentical(discord$discordance.by.subject, subj.exp)
   
   # test 2: add a second scan for subject "c" to dataset 2
   # scan annotation
