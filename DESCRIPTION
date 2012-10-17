@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.5.0
+Version: 1.5.1
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
