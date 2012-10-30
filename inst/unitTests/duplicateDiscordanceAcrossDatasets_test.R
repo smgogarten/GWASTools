@@ -9,28 +9,22 @@ test_discordantPair <- function() {
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos,
                       alleleA=alleleA, alleleB=alleleB,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot1 <- SnpAnnotationDataFrame(snpdf)
   
   # scan annotation
   scanID <- 1:5
   subjID <- c("a","b","c","d","e")
   scandf <- data.frame(scanID=scanID, subjID=subjID)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot1 <- ScanAnnotationDataFrame(scandf)
   
-  # netCDF
-  geno <- matrix(c(rep(0,5), rep(1,5),
+  geno1 <- matrix(c(rep(0,5), rep(1,5),
                    rep(1,5), rep(2,5),
                    rep(2,5), rep(0,5),
                    rep(0,10),
                    rep(0,10)), ncol=5)
-  ncfile1 <- tempfile()
-  ncdfCreate(snpdf, ncfile1, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile1, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc1 <- NcdfGenotypeReader(ncfile1)
-  genoData1 <- GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
 
   # second set
   # snp annotation
@@ -42,27 +36,21 @@ test_discordantPair <- function() {
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos,
                       alleleA=alleleA, alleleB=alleleB,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot2 <- SnpAnnotationDataFrame(snpdf)
 
   # scan annotation
   scanID <- 1:4
   subjID <- c("c","f","b","a")
   scandf <- data.frame(scanID=scanID, subjID=subjID)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot2 <- ScanAnnotationDataFrame(scandf)
 
-  # netCDF
-  geno <- matrix(c(2,1,NA,1,0,
+  geno2 <- matrix(c(2,1,NA,1,0,
                    rep(0,5),
                    1,1,0,2,2,
                    2,0,0,1,1), ncol=4)
-  ncfile2 <- tempfile()
-  ncdfCreate(snpdf, ncfile2, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile2, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc2 <- NcdfGenotypeReader(ncfile2)
-  genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
 
   # expected output (TRUE for discordance)
   # sample "a"
@@ -174,22 +162,12 @@ test_discordantPair <- function() {
                                  genoData2, a.scanID2, snpID2))
   
   # check that Y chrom SNPs for females are ignored
-  snpID <- 1:10
   chrom <- c(rep(1L, 2), rep(25L, 8))
-  pos <- 101:110
-  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
-  scanID <- 1:5
-  subjID <- c("a","b","c","d","e")
-  scandf <- data.frame(scanID=scanID, subjID=subjID)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
-  scanAnnot$sex <- "F"
-  close(genoData1)
-  nc <- open.ncdf(ncfile1, write=TRUE)
-  put.var.ncdf(nc, "chromosome", snpAnnot$chromosome)
-  close.ncdf(nc)
-  nc1 <- NcdfGenotypeReader(ncfile1)
-  genoData1 <- GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  snpAnnot1$chromosome <- chrom
+  scanAnnot1$sex <- "F"
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpAnnot1$snpID,
+    chromosome=chrom, position=snpAnnot1$pos, scanID=scanAnnot1$scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
   
   # expected output (TRUE for discordance)
   a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
@@ -214,10 +192,6 @@ test_discordantPair <- function() {
                        genoData2, c.scanID2, snpID2)
   checkIdentical(c$discordant, c.exp)
   checkIdentical(c$nonmissing, c.nm)
-
-  close(genoData1)
-  close(genoData2)
-  file.remove(ncfile1, ncfile2)
 }
 
 
@@ -235,7 +209,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
                       alleleA=alleleA, alleleB=alleleB,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot1 <- SnpAnnotationDataFrame(snpdf)
   
   # scan annotation
   scanID <- 1:5
@@ -243,22 +217,16 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   sex <- rep("F",5)
   scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot1 <- ScanAnnotationDataFrame(scandf)
   
-  # netCDF
-  geno <- matrix(c(rep(0,5), rep(1,5),
+  geno1 <- matrix(c(rep(0,5), rep(1,5),
                    rep(1,5), rep(2,5),
                    rep(2,5), rep(0,5),
                    rep(0,10),
                    rep(0,10)), ncol=5)
-  ncfile1 <- tempfile()
-  ncdfCreate(snpdf, ncfile1, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile1, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc1 <- NcdfGenotypeReader(ncfile1)
-  genoData1 <- GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
 
   # second set
   # snp annotation
@@ -271,7 +239,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
                       alleleA=alleleA, alleleB=alleleB,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot2 <- SnpAnnotationDataFrame(snpdf)
 
   # scan annotation
   scanID <- 1:5
@@ -279,22 +247,16 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   sex <- rep("F",5)
   scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot2 <- ScanAnnotationDataFrame(scandf)
 
-  # netCDF
-  geno <- matrix(c(2,NA,1,1,0,
+  geno2 <- matrix(c(2,NA,1,1,0,
                    rep(0,5),
                    1,1,0,2,NA,
                    2,0,0,1,NA,
                    rep(0,5)), ncol=5)
-  ncfile2 <- tempfile()
-  ncdfCreate(snpdf, ncfile2, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile2, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc2 <- NcdfGenotypeReader(ncfile2)
-  genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
 
   # expected output (TRUE for discordance)
   a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
@@ -339,26 +301,19 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   checkIdentical(discord$discordance.by.subject, subj.exp)
   
   # test 2: add a second scan for subject "c" to dataset 2
-  # scan annotation
   scanID <- 1:5
   subjID <- c("c","f","b","a","c")
   scandf <- data.frame(scanID=scanID, subjID=subjID,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
-
-  # netCDF
-  geno <- matrix(c(2,1,1,1,0,
+  scanAnnot2 <- ScanAnnotationDataFrame(scandf)
+  geno2 <- matrix(c(2,1,1,1,0,
                    rep(0,5),
                    1,1,0,2,2,
                    2,0,0,1,1,
                    2,2,2,1,0), ncol=5)
-  ncdfCreate(snpdf, ncfile2, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile2, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc2 <- NcdfGenotypeReader(ncfile2)
-  genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpAnnot2$snpID,
+    chromosome=snpAnnot2$chrom, position=snpAnnot2$pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
 
   # expected output (TRUE for discordance)
   a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
@@ -442,24 +397,19 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   rsID <- paste("rs", pos, sep="")
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot2 <- SnpAnnotationDataFrame(snpdf)
 
   # scan annotation
   scanID <- 1:4
   subjID <- c("c","f","b","a")
   scandf <- data.frame(scanID=scanID, subjID=subjID,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot2 <- ScanAnnotationDataFrame(scandf)
 
-  # netCDF
-  geno <- matrix(c(rep(0,5), rep(0,5), rep(0,5), rep(0,5)), ncol=4)
-  ncdfCreate(snpdf, ncfile2, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile2, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc2 <- NcdfGenotypeReader(ncfile2)
-  genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  geno2 <- matrix(c(rep(0,5), rep(0,5), rep(0,5), rep(0,5)), ncol=4)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
   
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
       rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
@@ -474,28 +424,23 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   rsID <- paste("rs", pos, sep="")
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot1 <- SnpAnnotationDataFrame(snpdf)
   
   # scan annotation
   scanID <- 1:5
   subjID <- c("a","b","c","d",NA)
   scandf <- data.frame(scanID=scanID, subjID=subjID,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot1 <- ScanAnnotationDataFrame(scandf)
   
-  # netCDF
-  geno <- matrix(c(rep(0,5), rep(1,5),
+  geno1 <- matrix(c(rep(0,5), rep(1,5),
                    rep(1,5), rep(2,5),
                    rep(2,5), rep(0,5),
                    rep(0,10),
                    rep(0,10)), ncol=5)
-  ncdfCreate(snpdf, ncfile1, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile1, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc1 <- NcdfGenotypeReader(ncfile1)
-  genoData1 <- GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
 
   # snp annotation
   snpID <- 1:5
@@ -504,30 +449,22 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   rsID <- paste("rs", pos, sep="")
   snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
                       stringsAsFactors=FALSE)
-  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  snpAnnot2 <- SnpAnnotationDataFrame(snpdf)
 
   # scan annotation
   scanID <- 1:4
   subjID <- c("g","f",NA,NA)
   scandf <- data.frame(scanID=scanID, subjID=subjID,
                        stringsAsFactors=FALSE)
-  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  scanAnnot2 <- ScanAnnotationDataFrame(scandf)
 
   # netCDF
-  geno <- matrix(c(rep(0,5), rep(0,5), rep(0,5), rep(0,5)), ncol=4)
-  ncdfCreate(snpdf, ncfile2, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile2, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc2 <- NcdfGenotypeReader(ncfile2)
-  genoData2 <- GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  geno2 <- matrix(c(rep(0,5), rep(0,5), rep(0,5), rep(0,5)), ncol=4)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
   
   discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
       rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
-
-  close(genoData1)
-  close(genoData2)
-  file.remove(ncfile1, ncfile2)
 }
