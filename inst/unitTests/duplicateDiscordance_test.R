@@ -19,14 +19,9 @@ test_duplicateDiscordance <- function() {
                    c(1,0,1,1,1,2,2,2,2,0),
                    c(1,1,0,1,0,2,2,2,2,0),
                    c(0,0,0,0,2,2,1,1,NA,1)), ncol=6)
-  ncfile <- tempfile()
-  ncdfCreate(snpdf, ncfile, n.samples=nrow(scandf))
-  nc <- open.ncdf(ncfile, write=TRUE)
-  put.var.ncdf(nc, "sampleID", scanID)
-  put.var.ncdf(nc, "genotype", geno)
-  close.ncdf(nc)
-  nc <- NcdfGenotypeReader(ncfile)
-  genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 
   # expected values
   a.exp <- c(0,0,0,0,1,1,0,0,0,0)
@@ -136,12 +131,9 @@ test_duplicateDiscordance <- function() {
   # check that Y chrom SNPs for females are ignored
   snpAnnot$chromosome <- c(rep(1L, 2), rep(25L, 8))
   scanAnnot$sex <- "F"
-  close(genoData)
-  nc <- open.ncdf(ncfile, write=TRUE)
-  put.var.ncdf(nc, "chromosome", snpAnnot$chromosome)
-  close.ncdf(nc)
-  nc <- NcdfGenotypeReader(ncfile)
-  genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  mgr <- MatrixGenotypeReader(genotype=geno, snpID=snpID,
+    chromosome=snpAnnot$chromosome, position=pos, scanID=scanID)
+  genoData <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 
   snp.exclude <- 10
   a.exp <- c(0,0,0,0,0,0,0,0,0)
@@ -155,7 +147,4 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
-
-  close(genoData)
-  file.remove(ncfile)
 }
