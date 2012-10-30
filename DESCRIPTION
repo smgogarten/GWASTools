@@ -29,6 +29,7 @@ Collate: utils.R AllGenerics.R AllClasses.R
   alleleFrequency.R apartSnpSelection.R 
   assocTestCPH.R assocTestFisherExact.R assocTestRegression.R 
   batchChisqTest.R batchFisherTest.R chromIntensityPlot.R duplicateDiscordance.R 
+  plinkUtils.R snpStats.R
   duplicateDiscordanceAcrossDatasets.R duplicateDiscordanceProbability.R
   genoClusterPlot.R genoClusterPlotByBatch.R gwasExactHW.R hetByScanChrom.R
   hetBySnpSex.R intensityOutliersPlot.R manhattanPlot.R mendelErr.R 
@@ -38,6 +39,5 @@ Collate: utils.R AllGenerics.R AllClasses.R
   ibdAreasDraw.R ibdAssignRelatedness.R ibdPlot.R findRelationsMeanVar.R
   pedigreeCheck.R pedigreeClean.R pedigreeDeleteDuplicates.R 
   pedigreeFindDuplicates.R pedigreePairwiseRelatedness.R
-  plinkUtils.R snpStats.R
   convertNcdfGds.R convertVcfGds.R ncdfImputedDosage.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R test.R

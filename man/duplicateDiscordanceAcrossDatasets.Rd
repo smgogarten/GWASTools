@@ -9,8 +9,9 @@
 
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-  subjName.cols, snpName.cols, one.pair.per.subj=TRUE,
-  minor.allele.only=FALSE, 
+  subjName.cols, snpName.cols,
+  alleleA.cols=NULL, alleleB.cols=NULL,
+  one.pair.per.subj=TRUE, minor.allele.only=FALSE, 
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -26,6 +27,10 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   \item{snpName.cols}{2-element character vector indicating the names of the
     annotation variables that will be identical for the same SNPs in the
     two datasets.}
+  \item{alleleA.cols}{2-element character vectors indicating the names
+  of the annotation variables with allele A for the two datasets.}
+  \item{alleleB.cols}{2-element character vectors indicating the names
+  of the annotation variables with allele B for the two datasets.}
 \item{one.pair.per.subj}{A logical indicating whether a single pair of
   scans should be randomly selected for each subject with more than 2 scans.}
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
@@ -47,8 +52,11 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   one scan from each dataset randomly selected for computing discordance.  If
   \code{one.pair.per.subj=FALSE}, discordances will be calculated
   pair-wise for all possible cross-dataset pairs for each subject.
+
+  If \code{minor.allele.only=TRUE}, the allele frequency will be
+  calculated in \code{genoData1}, using only samples common to both datasets.
   
-  If \code{snp.include = NULL} (the default), discordances will be found
+  If \code{snp.include=NULL} (the default), discordances will be found
   for all SNPs common to both datasets.
 }
 

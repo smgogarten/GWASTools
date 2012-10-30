@@ -11,6 +11,7 @@
 #  where the pair included the minor allele
 discordantPair <- function(genoData1, scanID1, snpID1,
                            genoData2, scanID2, snpID2,
+                           alleleA.cols=NULL, alleleB.cols=NULL,
                            major.genotype=NULL) {
   # check that snp ID vectors are the same length
   stopifnot(length(snpID1) == length(snpID2))
@@ -19,7 +20,9 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   scanIndex1 <- which(getScanID(genoData1) == scanID1)
   if (length(scanIndex1) == 0) stop("scanID1 not found in genoData1")
   # get genotypes for this index
-  geno1 <- getGenotype(genoData1, snp=c(1,-1), scan=c(scanIndex1,1))
+  geno1 <- GWASTools:::getPlinkGenotype(genoData1, scan.start=scanIndex1, scan.count=1,
+                            alleleA.col=alleleA.cols[1],
+                            alleleB.col=alleleB.cols[1])
   # discard Y chrom SNPs for females
   if (hasSex(genoData1)) {
     sex <- getSex(genoData1, index=scanIndex1)
@@ -36,7 +39,9 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   scanIndex2 <- which(getScanID(genoData2) == scanID2)
   if (length(scanIndex2) == 0) stop("scanID2 not found in genoData2")
   # get genotypes for this index
-  geno2 <- getGenotype(genoData2, snp=c(1,-1), scan=c(scanIndex2,1))
+  geno2 <- GWASTools:::getPlinkGenotype(genoData2, scan.start=scanIndex2, scan.count=1,
+                            alleleA.col=alleleA.cols[2],
+                            alleleB.col=alleleB.cols[2])
   # only need to set one set of Y genotypes to NA to avoid counting them
   # get matched snps
   snpIndex2 <- match(snpID2, getSnpID(genoData2))
@@ -47,7 +52,7 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   stopifnot(length(geno1) == length(geno2))
   
   # compare genotypes
-  nonmissing <- !is.na(geno1) & !is.na(geno2)
+  nonmissing <- !is.na(geno1) & !is.na(geno2) & !(geno1 %in% "0 0") & !(geno2 %in% "0 0")
   if (!is.null(major.genotype)) {
     nonmissing <- nonmissing & !is.na(major.genotype) & (geno1 != major.genotype | geno2 != major.genotype)
   }
@@ -65,6 +70,7 @@ discordantPair <- function(genoData1, scanID1, snpID1,
 duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
                                                   subjName.cols,
                                                   snpName.cols,
+                             alleleA.cols=NULL, alleleB.cols=NULL,
                                  one.pair.per.subj = TRUE,
                                  minor.allele.only = FALSE,
                                                scan.exclude1=NULL,scan.exclude2=NULL,
@@ -74,6 +80,13 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
   stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
   stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
+
+  if (!is.null(alleleA.cols) & !is.null(alleleB.cols)) {
+    stopifnot(hasSnpVariable(genoData1, alleleA.cols[1]))
+    stopifnot(hasSnpVariable(genoData1, alleleB.cols[1]))
+    stopifnot(hasSnpVariable(genoData2, alleleA.cols[1]))
+    stopifnot(hasSnpVariable(genoData2, alleleB.cols[1]))
+  }
 
   if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
     if (!hasSex(genoData1)) {
@@ -154,23 +167,29 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   if (minor.allele.only) {
     # calculate allele frequency of dataset with fewer snps, common samples only
     if (verbose) message("Calculating allele freqency")
-    if (nsnp(genoData1) < nsnp(genoData2)) {
-      scan.freq <- scanID1[subjID1 %in% dups & !duplicated(subjID1)]
-      scan.excl <- setdiff(getScanID(genoData1), scan.freq)
-      allele.freq <- alleleFrequency(genoData1, scan.exclude=scan.excl, verbose=FALSE)
-      allele.freq <- allele.freq[as.character(snpID1),"all"]
+    
+    scan.freq <- scanID1[subjID1 %in% dups & !duplicated(subjID1)]
+    scan.excl <- setdiff(getScanID(genoData1), scan.freq)
+    allele.freq <- alleleFrequency(genoData1, scan.exclude=scan.excl, verbose=FALSE)
+    allele.freq <- allele.freq[as.character(snpID1),"all"]
+
+    if (!is.null(alleleA.cols) & !is.null(alleleB.cols)) {
+      ind <- match(snp.include, snp1)
+      alleleA1 <- getSnpVariable(genoData1, alleleA.cols[1], index=ind)
+      alleleB1 <- getSnpVariable(genoData1, alleleB.cols[1], index=ind)
     } else {
-      scan.freq <- scanID2[subjID2 %in% dups & !duplicated(subjID2)]
-      scan.excl <- setdiff(getScanID(genoData2), scan.freq)
-      allele.freq <- alleleFrequency(genoData2, scan.exclude=scan.excl, verbose=FALSE)
-      allele.freq <- allele.freq[as.character(snpID2),"all"]
+      alleleA1 <- rep("A", length(allele.freq))
+      alleleB1 <- rep("B", length(allele.freq))
     }
+  
     # find the genotype to be ignored (no minor allele) for each SNP
     major.genotype <- rep(NA,length(allele.freq))
-    # A allele freq < 0.5, so A is minor allele, so BB=0 is ignored
-    major.genotype[allele.freq < 0.5] <- 0
-    # A allele freq > 0.5, so B is minor allele, so AA=2 is ignored
-    major.genotype[allele.freq >= 0.5] <- 2
+    # A allele freq < 0.5, so A is minor allele, so BB is ignored
+    Amin <- allele.freq < 0.5
+    major.genotype[Amin] <- paste(alleleB1[Amin], alleleB1[Amin])
+    # A allele freq > 0.5, so B is minor allele, so AA is ignored
+    Bmin <- allele.freq >= 0.5
+    major.genotype[Bmin] <- paste(alleleA1[Bmin], alleleA1[Bmin])
   } else {
     major.genotype <- NULL
   }
@@ -201,6 +220,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
       for (j in 1:n2) {
         res <- discordantPair(genoData1, scan1[i], snpID1,
                               genoData2, scan2[j], snpID2,
+                              alleleA.cols, alleleB.cols,
                               major.genotype)
         discord[res$discordant] <- discord[res$discordant] + 1
         npair[res$nonmissing] <- npair[res$nonmissing] + 1
