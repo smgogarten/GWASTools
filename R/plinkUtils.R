@@ -12,11 +12,12 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
                              scan.chromosome.filter = NULL,
                              alleleA.col=NULL, alleleB.col=NULL) {
   geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count))
-  if (length(dim(geno)) < 2) {
-    geno <- matrix(geno, ncol=1)
-  }
+  
   # apply scan-chromosome filter
   if (!is.null(scan.chromosome.filter)) {
+    if (length(dim(geno)) < 2) {
+      geno <- matrix(geno, ncol=1)
+    }
     filt <- scan.chromosome.filter[scan.start:(scan.start+scan.count-1),,drop=FALSE]
     chr <- getChromosome(genoData, char=TRUE)
     for (c in colnames(scan.chromosome.filter)) {
@@ -24,33 +25,19 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
       if (length(badscans) > 0) {
         geno[chr == c, badscans] <- NA
       }
+    }    
+    if (ncol(geno) == 1) {
+      geno <- as.vector(geno)
     }
   }
-  
+
+  # convert to alleles
+  alleleA <- getSnpVariable(genoData, alleleA.col)
+  alleleB <- getSnpVariable(genoData, alleleB.col)
+  geno <- genotypeToCharacter(geno, alleleA, alleleB)
+  # plink uses "A B" instead of "A/B"
+  geno <- gsub("/", " ", geno)
   geno[is.na(geno)] <- "0 0"
-  if (is.null(alleleA.col) | is.null(alleleB.col)) {
-  # maps the -1 0 1 2 genotype coding to 00 BB AB AA coding for ped files
-    geno[geno %in% 0] <- "B B"
-    geno[geno %in% 1] <- "A B"
-    geno[geno %in% 2] <- "A A"
-  } else {
-    alleles <- getSnpVariable(genoData, c(alleleA.col, alleleB.col))
-    names(alleles) <- c("A","B")
-    # convert to character, as pmin and pmax will not work on factors
-    alleles$A <- as.character(alleles$A)
-    alleles$B <- as.character(alleles$B)
-    aa <- paste(alleles$A, alleles$A)
-    ab <- paste(pmin(alleles$A, alleles$B), pmax(alleles$A, alleles$B)) # sorted
-    bb <- paste(alleles$B, alleles$B)
-    for (k in 1:ncol(geno)) {
-      geno[geno[,k] %in% 0, k] <- bb[geno[,k] %in% 0]
-      geno[geno[,k] %in% 1, k] <- ab[geno[,k] %in% 1]
-      geno[geno[,k] %in% 2, k] <- aa[geno[,k] %in% 2]
-    }
-  }
-  if (ncol(geno) == 1) {
-    geno <- as.vector(geno)
-  }
   return(geno)
 }
 
