@@ -8,6 +8,8 @@
 \alias{getSnpID,SnpAnnotationSQLite-method}
 \alias{getChromosome,SnpAnnotationSQLite-method}
 \alias{getPosition,SnpAnnotationSQLite-method}
+\alias{getAlleleA,SnpAnnotationSQLite-method}
+\alias{getAlleleB,SnpAnnotationSQLite-method}
 \alias{getVariableNames,SnpAnnotationSQLite-method}
 \alias{getAnnotation,SnpAnnotationSQLite-method}
 \alias{getMetadata,SnpAnnotationSQLite-method}
@@ -100,6 +102,18 @@
       \code{getPosition(object, index, condition)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.    The optional
+      \code{condition} is a character string with an SQL clause used to
+      select data (e.g., "LIMIT 10", "WHERE chromosome=1").
+    }
+    \item{}{
+      \code{getAlleleA(object, index)}: A character vector of A alleles.
+      The optional
+      \code{condition} is a character string with an SQL clause used to
+      select data (e.g., "LIMIT 10", "WHERE chromosome=1").
+    }
+    \item{}{
+      \code{getAlleleB(object, index)}: A character vector of B alleles.
+      The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE chromosome=1").
     }

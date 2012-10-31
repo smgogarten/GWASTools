@@ -68,6 +68,7 @@ export(
     findBAFvariance,
     genoClusterPlot,
     genoClusterPlotByBatch,
+    genotypeToCharacter,
     gwasExactHW,
     hetByScanChrom,
     hetBySnpSex,
@@ -119,6 +120,8 @@ export(
 exportMethods(
     ## Methods associated with the generic functions defined in
     ## this package:
+    getAlleleA,
+    getAlleleB,
     getAnnotation,
     getAttribute,
     getBAlleleFreq,

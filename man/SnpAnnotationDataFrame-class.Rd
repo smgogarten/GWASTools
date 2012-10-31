@@ -8,6 +8,8 @@
 \alias{getSnpID,SnpAnnotationDataFrame-method}
 \alias{getChromosome,SnpAnnotationDataFrame-method}
 \alias{getPosition,SnpAnnotationDataFrame-method}
+\alias{getAlleleA,SnpAnnotationDataFrame-method}
+\alias{getAlleleB,SnpAnnotationDataFrame-method}
 \alias{getVariableNames,SnpAnnotationDataFrame-method}
 \alias{getAnnotation,SnpAnnotationDataFrame-method}
 \alias{getMetadata,SnpAnnotationDataFrame-method}
@@ -79,6 +81,16 @@
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
+    }
+    \item{}{
+      \code{getAlleleA(object, index)}: A character vector of A alleles.
+      The optional \code{index} is a logical or
+      integer vector specifying elements to extract.
+    }
+    \item{}{
+      \code{getAlleleB(object, index)}: A character vector of B alleles.
+      The optional \code{index} is a logical or
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getVariable(object, varname, index)}: A vector of the

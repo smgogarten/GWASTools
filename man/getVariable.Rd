@@ -1,6 +1,8 @@
 \name{getVariable}
 \alias{getVariable}
 \alias{getVariableNames}
+\alias{getAlleleA}
+\alias{getAlleleB}
 \alias{getAnnotation}
 \alias{getBAlleleFreq}
 \alias{getChromosome}
@@ -58,6 +60,8 @@
   getSnpID(object, ...)
   getChromosome(object, ...)
   getPosition(object, ...)
+  getAlleleA(object, ...)
+  getAlleleB(object, ...)
 
   getVariable(object, varname, ...)
   getVariableNames(object, ...)

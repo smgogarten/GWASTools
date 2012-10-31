@@ -117,3 +117,47 @@ test_GenotypeData_Matrix <- function() {
   checkIdentical(pos, getPosition(obj))
   checkIdentical(samp, getScanID(obj))
 }
+
+test_GenotypeData_char <- function() {
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  A <- rep("G", length(snp))
+  B <- rep("C", length(snp))
+  samp <- 1231:1235
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  mgr <- MatrixGenotypeReader(genotype=geno, snpID=snp, chromosome=chrom, position=pos, scanID=samp)
+
+  snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID=snp, chromosome=chrom, position=pos,
+                                                stringsAsFactors=FALSE))
+  obj <- GenotypeData(mgr, snpAnnot=snpAnnot)
+  gc <- getGenotype(obj, char=TRUE)
+  checkTrue(all(gc %in% c(NA,"A/A","A/B","B/B")))
+  checkIdentical(is.na(geno), is.na(gc))
+  checkIdentical(geno == 0, gc == "B/B")
+  checkIdentical(geno == 1, gc == "A/B")
+  checkIdentical(geno == 2, gc == "A/A")
+  
+  snpAnnot$alleleA <- A
+  snpAnnot$alleleB <- B
+  obj <- GenotypeData(mgr, snpAnnot=snpAnnot)
+  checkIdentical(A, getAlleleA(obj))
+  checkIdentical(B, getAlleleB(obj))
+  
+  gc <- getGenotype(obj, char=TRUE, sort=TRUE)
+  checkTrue(all(gc %in% c(NA,"C/C","C/G","G/G")))
+  checkIdentical(is.na(geno), is.na(gc))
+  checkIdentical(geno == 0, gc == "C/C")
+  checkIdentical(geno == 1, gc == "C/G")
+  checkIdentical(geno == 2, gc == "G/G")
+  
+  gc <- getGenotype(obj, char=TRUE, sort=FALSE)
+  checkTrue(all(gc %in% c(NA,"C/C","G/C","G/G")))
+  checkIdentical(is.na(geno), is.na(gc))
+  checkIdentical(geno == 0, gc == "C/C")
+  checkIdentical(geno == 1, gc == "G/C")
+  checkIdentical(geno == 2, gc == "G/G")
+}

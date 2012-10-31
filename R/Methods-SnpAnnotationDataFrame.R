@@ -101,6 +101,18 @@ setMethod("getPosition",
           function(object, ...) {
             getVariable(object, object@positionCol, ...)
           })
+      
+setMethod("getAlleleA",
+          signature(object = "SnpAnnotationDataFrame"),
+          function(object, ...) {
+            getVariable(object, object@alleleACol, ...)
+          })
+
+setMethod("getAlleleB",
+          signature(object = "SnpAnnotationDataFrame"),
+          function(object, ...) {
+            getVariable(object, object@alleleBCol, ...)
+          })
 
 setMethod("getVariableNames",
           signature(object = "SnpAnnotationDataFrame"),

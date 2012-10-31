@@ -23,14 +23,17 @@ test_SnpAnnotationSQLite <- function() {
   xmeta <- data.frame(var="snpID", descr="id")
   checkException(writeMetadata(obj, xmeta))
 
-  # add a column
+  # add columns
+  alleleA <- rep("A",10)
+  alleleB <- rep("B",10)
   rsID <- paste("rs", 1:10, sep="")
-  x <- cbind(x, rsID, stringsAsFactors=FALSE)
+  x <- cbind(x, alleleA, alleleB, rsID, stringsAsFactors=FALSE)
   writeAnnotation(obj, x)
   checkIdentical(x, getAnnotation(obj))
   checkException(validObject(obj))
-  newmeta <- data.frame(varname="rsID", description="rs id",
-                         stringsAsFactors=FALSE)
+  newmeta <- data.frame(varname=c("alleleA", "alleleB", "rsID"),
+                        description=c("A", "B", "rs id"),
+                        stringsAsFactors=FALSE)
   writeMetadata(obj, newmeta, append=TRUE)
   checkIdentical(rbind(metadata, newmeta), getMetadata(obj))
 
@@ -40,6 +43,8 @@ test_SnpAnnotationSQLite <- function() {
   checkIdentical(c(rep("1",5),"X","XY","Y","M","U"),
                  getChromosome(obj, char=TRUE))
   checkIdentical(pos, getPosition(obj))
+  checkIdentical(alleleA, getAlleleA(obj))
+  checkIdentical(alleleB, getAlleleB(obj))
   
   # other columns
   checkTrue(hasVariable(obj, "rsID"))

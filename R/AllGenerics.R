@@ -1,3 +1,5 @@
+setGeneric("getAlleleA", function(object, ...) standardGeneric("getAlleleA"))
+setGeneric("getAlleleB", function(object, ...) standardGeneric("getAlleleB"))
 setGeneric("getAnnotation", function(object, ...) standardGeneric("getAnnotation"))
 setGeneric("getAttribute", function(object, attname, varname, ...) standardGeneric("getAttribute"))
 setGeneric("getBAlleleFreq", function(object, ...) standardGeneric("getBAlleleFreq"))

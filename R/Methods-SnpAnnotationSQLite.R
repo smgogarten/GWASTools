@@ -188,6 +188,18 @@ setMethod("getPosition",
             getVariable(object, object@positionCol, ...)
           })
 
+setMethod("getAlleleA",
+          signature(object = "SnpAnnotationSQLite"),
+          function(object, ...) {
+            getVariable(object, object@alleleACol, ...)
+          })
+
+setMethod("getAlleleB",
+          signature(object = "SnpAnnotationSQLite"),
+          function(object, ...) {
+            getVariable(object, object@alleleBCol, ...)
+          })
+
 setMethod("getAnnotation",
           signature(object = "SnpAnnotationSQLite"),
           function(object, ...) {

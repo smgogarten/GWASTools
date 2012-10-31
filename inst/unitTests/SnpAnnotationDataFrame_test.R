@@ -4,8 +4,10 @@ test_SnpAnnotationDataFrame <- function() {
   chrom <- c(rep(1L,5), 23:27)
   pos <- 101:110
   rsID <- paste("rs", 1:10, sep="")
+  A <- rep("A",10)
+  B <- rep("B",10)
   x <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
-                  stringsAsFactors=FALSE)
+                  alleleA=A, alleleB=B, stringsAsFactors=FALSE)
   obj <- SnpAnnotationDataFrame(x)
   checkIdentical(x, as(obj, "data.frame"))
 
@@ -15,6 +17,8 @@ test_SnpAnnotationDataFrame <- function() {
   checkIdentical(c(rep("1",5),"X","XY","Y","M","U"),
                  getChromosome(obj, char=TRUE))
   checkIdentical(pos, getPosition(obj))
+  checkIdentical(A, getAlleleA(obj))
+  checkIdentical(B, getAlleleB(obj))
 
   # other columns
   checkTrue(hasVariable(obj, "rsID"))

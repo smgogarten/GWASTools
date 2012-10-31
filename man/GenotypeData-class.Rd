@@ -13,6 +13,8 @@
 \alias{getSnpID,GenotypeData-method}
 \alias{getChromosome,GenotypeData-method}
 \alias{getPosition,GenotypeData-method}
+\alias{getAlleleA,GenotypeData-method}
+\alias{getAlleleB,GenotypeData-method}
 \alias{getScanID,GenotypeData-method}
 \alias{hasSex,GenotypeData-method}
 \alias{getSex,GenotypeData-method}
@@ -105,6 +107,16 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
+      \code{getAlleleA(object, index)}: A character vector of A alleles.
+      The optional \code{index} is a logical or
+      integer vector specifying elements to extract.  
+    }
+    \item{}{
+      \code{getAlleleB(object, index)}: A character vector of B alleles.
+      The optional \code{index} is a logical or
+      integer vector specifying elements to extract.  
+    }
+    \item{}{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
@@ -119,11 +131,13 @@
       \code{object}. 
     }
     \item{}{
-      \code{getGenotype(object, snp, scan)}: Extracts genotype values
+      \code{getGenotype(object, snp, scan, char=FALSE, sort=TRUE)}: Extracts genotype values
       (number of A alleles).  
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
-      represented as \code{NA}.
+      represented as \code{NA}.  If \code{char=TRUE}, genotypes are
+      returned as characters of the form "A/B".  If \code{sort=TRUE},
+      alleles are lexographically sorted ("G/T" instead of "T/G").
     }
     \item{}{
       \code{getSnpVariable(object, varname, index)}: Returns the snp

@@ -122,6 +122,26 @@ setMethod("getPosition",
             }
           })
 
+setMethod("getAlleleA",
+          signature(object = "GenotypeData"),
+          function(object, ...) {
+            if (hasSnpAnnotation(object)) {
+              getAlleleA(object@snpAnnot, ...)
+            } else {
+              NULL
+            }
+          })
+
+setMethod("getAlleleB",
+          signature(object = "GenotypeData"),
+          function(object, ...) {
+            if (hasSnpAnnotation(object)) {
+              getAlleleB(object@snpAnnot, ...)
+            } else {
+              NULL
+            }
+          })
+
 setMethod("getScanID",
           signature(object = "GenotypeData"),
           function(object, ...) {
@@ -223,10 +243,17 @@ setMethod("getVariable",
             getVariable(object@data, varname, ...)
           })
 
+# char=TRUE to return character values "A/B"
 setMethod("getGenotype",
           signature(object = "GenotypeData"),
-          function(object, ...) {
-            getGenotype(object@data, ...)
+          function(object, char=FALSE, sort=TRUE, ...) {
+            geno <- getGenotype(object@data, ...)
+            if (char) {
+              alleleA <- getAlleleA(object)
+              alleleB <- getAlleleB(object)
+              geno <- genotypeToCharacter(geno, alleleA, alleleB, sort)
+            }
+            geno
           })
 
 setMethod("nsnp", "GenotypeData",

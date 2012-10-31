@@ -11,7 +11,7 @@ Suggests: GWASdata, RUnit, SNPRelate, snpStats, VariantAnnotation
 License: Artistic-2.0
 LazyData: yes
 biocViews: SNP, GeneticVariability, QualityControl, Microarray
-Collate: utils.R AllGenerics.R AllClasses.R
+Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-ScanAnnotationDataFrame.R Methods-SnpAnnotationDataFrame.R
   Methods-ScanAnnotationSQLite.R Methods-SnpAnnotationSQLite.R
   Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
