@@ -10,7 +10,6 @@
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   subjName.cols, snpName.cols,
-  alleleA.cols=NULL, alleleB.cols=NULL,
   one.pair.per.subj=TRUE, minor.allele.only=FALSE, 
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
@@ -27,10 +26,6 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   \item{snpName.cols}{2-element character vector indicating the names of the
     annotation variables that will be identical for the same SNPs in the
     two datasets.}
-  \item{alleleA.cols}{2-element character vectors indicating the names
-  of the annotation variables with allele A for the two datasets.}
-  \item{alleleB.cols}{2-element character vectors indicating the names
-  of the annotation variables with allele B for the two datasets.}
 \item{one.pair.per.subj}{A logical indicating whether a single pair of
   scans should be randomly selected for each subject with more than 2 scans.}
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
@@ -58,6 +53,10 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   
   If \code{snp.include=NULL} (the default), discordances will be found
   for all SNPs common to both datasets.
+
+  \code{genoData1} and \code{genoData2} should each have "alleleA" and
+  "alleleB" defined in their SNP annotation.  If allele coding cannot be
+  found, the two datasets are assumed to have identical coding.
 }
 
 \value{
@@ -84,16 +83,17 @@ library(GWASdata)
 # dataset 1
 file1 <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc1 <- NcdfGenotypeReader(file1)
-data(affySnpADF)
-data(affyScanADF)
-data1 <-  GenotypeData(nc1, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
+data(affySnpADF, affyScanADF)
+# old SnpAnnotationDataFrame object has no alleleA and alleleB slots
+snpAnnot <- SnpAnnotationDataFrame(pData(affySnpADF))
+data1 <-  GenotypeData(nc1, snpAnnot=snpAnnot, scanAnnot=affyScanADF)
 
 # dataset 2
 file2 <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc2 <- NcdfGenotypeReader(file2)
-data(illuminaSnpADF)
-data(illuminaScanADF)
-data2 <-  GenotypeData(nc2, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
+data(illuminaSnpADF, illuminaScanADF)
+snpAnnot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
+data2 <-  GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
 
 discord <- duplicateDiscordanceAcrossDatasets(data1, data2,
              subjName.cols=c("CoriellID", "CoriellID"),

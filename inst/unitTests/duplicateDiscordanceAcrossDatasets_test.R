@@ -87,28 +87,8 @@ test_discordantPair <- function() {
   checkIdentical(c$discordant, c.exp)
   checkIdentical(c$nonmissing, c.nm)
 
-  # provide allele coding
-  a <- GWASTools:::discordantPair(genoData1, a.scanID1, snpID1,
-                      genoData2, a.scanID2, snpID2,
-                      alleleA.cols=rep("alleleA",2),
-                      alleleB.cols=rep("alleleB",2))
-  checkIdentical(a$discordant, a.exp)
-  checkIdentical(a$nonmissing, a.nm)
-  b <- GWASTools:::discordantPair(genoData1, b.scanID1, snpID1,
-                      genoData2, b.scanID2, snpID2,
-                      alleleA.cols=rep("alleleA",2),
-                      alleleB.cols=rep("alleleB",2))
-  checkIdentical(b$discordant, b.exp)
-  checkIdentical(b$nonmissing, b.nm)
-  c <- GWASTools:::discordantPair(genoData1, c.scanID1, snpID1,
-                      genoData2, c.scanID2, snpID2,
-                      alleleA.cols=rep("alleleA",2),
-                      alleleB.cols=rep("alleleB",2))
-  checkIdentical(c$discordant, c.exp)
-  checkIdentical(c$nonmissing, c.nm)
-   
   # expected output for minor.allele.only
-  major.genotype <- c("A A","B B","B B","A A","A A")
+  major.genotype <- c("A/A","G/G","G/G","A/A","A/A")
   a.exp <- c(TRUE, FALSE, FALSE, FALSE, FALSE)
   a.nm <- c(TRUE, FALSE, FALSE, TRUE, TRUE)
   b.exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
@@ -274,12 +254,6 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
-  # provide allele coding
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), rep("alleleA",2), rep("alleleB",2))
-  checkIdentical(discord$discordance.by.snp, snp.exp)
-  checkIdentical(discord$discordance.by.subject, subj.exp)
-
   # expected output for minor.allele.only
   snp.exp <- data.frame(discordant=c(1,0,2,1,0), npair=c(2,1,2,2,0),
     n.disc.subj=c(1,0,2,1,0), discord.rate=c(1,0,2,1,0)/c(2,1,2,2,0))
@@ -290,13 +264,6 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   # switch order to get allele freq from genoData2
   discord <- duplicateDiscordanceAcrossDatasets(genoData2, genoData1,
     rep("subjID", 2), rep("rsID", 2), minor.allele.only=TRUE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
-  checkIdentical(discord$discordance.by.subject, subj.exp)
-  
-  # provide allele coding
-  discord <- duplicateDiscordanceAcrossDatasets(genoData2, genoData1,
-    rep("subjID", 2), rep("rsID", 2), rep("alleleA",2), rep("alleleB",2),
-                                                minor.allele.only=TRUE)
   checkIdentical(discord$discordance.by.snp, snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
   
