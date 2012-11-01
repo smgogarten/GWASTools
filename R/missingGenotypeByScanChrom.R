@@ -50,7 +50,7 @@ function(
         miss.frac <- rowSums(miss.cnt) / sum(spc)
         sex <- getSex(genoData)
         # for females, exclude Y chromosome
-        female <- sex == "F"
+        female <- which(sex == "F")
         notY <- uniqChrom != "Y"
         miss.frac[female] <- rowSums(miss.cnt[female, notY, drop=FALSE]) / sum(spc[notY])
         

@@ -31,7 +31,7 @@ meanSdByChromWindow <- function(sd.by.scan.chrom.window, sex)
         	rownames(sds.chr[[s]]) <- c("Female Mean", "Male Mean", "Female SD", "Male SD")
 
         	# figure out which samples are M & which are F
-        	fem.ind <- sex == "F"  # these are the indices for the female samples
+        	fem.ind <- !is.na(sex) & sex == "F"  # these are the indices for the female samples
         	
         	
         	# loop through bins of X chr, take out females # MOVED fem.ind in the 4 rows within loop

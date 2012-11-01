@@ -57,7 +57,7 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   if(!all(is.element(snp.ids,intid))) stop("eligible snps not contained in snp ids")
 
   sid <- intenScanID
-  male <- sid[sex == "M"]
+  male <- sid[!is.na(sex) & sex == "M"]
   chrom <- getChromosome(intenData)
   
   if(!is.element(class(known.anoms),"data.frame") | !all(is.element(c("scanID","chromosome","left.index","right.index"),names(known.anoms)))){

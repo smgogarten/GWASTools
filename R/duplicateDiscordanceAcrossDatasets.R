@@ -23,7 +23,7 @@ discordantPair <- function(genoData1, scanID1, snpID1,
   # discard Y chrom SNPs for females
   if (hasSex(genoData1)) {
     sex <- getSex(genoData1, index=scanIndex1)
-    if (sex == "F") {
+    if (!is.na(sex) & sex == "F") {
       geno1[getChromosome(genoData1, char=TRUE) == "Y"] <- NA
     }
   }
