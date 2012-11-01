@@ -226,16 +226,18 @@
 
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
+file <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(file)
 
 # object without annotation
 genoData <- GenotypeData(nc)
 
 # object with annotation
-data(affySnpADF)
-data(affyScanADF)
-genoData <-  GenotypeData(nc, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
+data(illuminaSnpADF)
+data(illuminaScanADF)
+# need to rebuild old SNP annotation object to get allele methods
+snpAnnot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
+genoData <-  GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
 
 # dimensions
 nsnp(genoData)
@@ -258,6 +260,11 @@ geno <- getGenotype(genoData, snp=c(1,-1), scan=c(1,1))
 
 # starting at snp 100, get 10 snps for the first 5 scans
 geno <- getGenotype(genoData, snp=c(100,10), scan=c(1,5))
+geno
+
+# return genotypes as "A/B" rather than number of A alleles
+geno <- getGenotype(genoData, snp=c(100,10), scan=c(1,5), char=TRUE)
+geno
 
 close(genoData)
 }

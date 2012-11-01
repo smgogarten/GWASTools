@@ -93,6 +93,10 @@ file2 <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc2 <- NcdfGenotypeReader(file2)
 data(illuminaSnpADF, illuminaScanADF)
 snpAnnot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
+# make alleleA and alleleB NULL since we don't have allele coding for
+# dataset 1 (A/B definitions for both arrays should be the same)
+snpAnnot$alleleA <- NULL
+snpAnnot$alleleB <- NULL
 data2 <-  GenotypeData(nc2, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
 
 discord <- duplicateDiscordanceAcrossDatasets(data1, data2,

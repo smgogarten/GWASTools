@@ -181,3 +181,14 @@
     calculate minor allele discordance.
   }
 }
+\section{Changes in version 1.5.2}{
+  \itemize{
+    \item Added "getAlleleA" and "getAlleleB" methods to SnpAnnotation*
+    and GenotypeData objects.
+    \item Added genotypeToCharacter function to convert genotypes from
+    number of A alleles to A/B format.
+    \item getGenotype for GenotypeData has option char=TRUE to return
+    character genotypes in A/B format.
+  }
+}
+

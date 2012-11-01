@@ -246,11 +246,19 @@ setMethod("getVariable",
 # char=TRUE to return character values "A/B"
 setMethod("getGenotype",
           signature(object = "GenotypeData"),
-          function(object, char=FALSE, sort=TRUE, ...) {
-            geno <- getGenotype(object@data, ...)
+          function(object, snp, scan, char=FALSE, sort=TRUE, ...) {
+            if (!missing(snp) & !missing(scan)) {
+              snpstart <- snp[1]
+              snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
+              snpind <- snpstart:snpend
+              geno <- getGenotype(object@data, snp, scan, ...)
+            } else {
+              snpind <- rep(TRUE, nsnp(object))
+              geno <- getGenotype(object@data, ...)
+            }
             if (char) {
-              alleleA <- getAlleleA(object)
-              alleleB <- getAlleleB(object)
+              alleleA <- getAlleleA(object, index=snpind)
+              alleleB <- getAlleleB(object, index=snpind)
               geno <- genotypeToCharacter(geno, alleleA, alleleB, sort)
             }
             geno

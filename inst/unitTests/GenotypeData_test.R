@@ -160,4 +160,11 @@ test_GenotypeData_char <- function() {
   checkIdentical(geno == 0, gc == "C/C")
   checkIdentical(geno == 1, gc == "G/C")
   checkIdentical(geno == 2, gc == "G/G")
+
+  # check subset of snps and scans
+  gc <- getGenotype(obj, snp=c(1,10), scan=c(2,2), char=TRUE)
+  checkIdentical(is.na(geno[1:10,2:3]), is.na(gc))
+  checkIdentical(geno[1:10,2:3] == 0, gc == "C/C")
+  checkIdentical(geno[1:10,2:3] == 1, gc == "C/G")
+  checkIdentical(geno[1:10,2:3] == 2, gc == "G/G")
 }
