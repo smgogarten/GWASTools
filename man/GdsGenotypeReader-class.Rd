@@ -7,6 +7,8 @@
 \alias{getSnpID,GdsGenotypeReader-method}
 \alias{getChromosome,GdsGenotypeReader-method}
 \alias{getPosition,GdsGenotypeReader-method}
+\alias{getAlleleA,GdsGenotypeReader-method}
+\alias{getAlleleB,GdsGenotypeReader-method}
 \alias{getScanID,GdsGenotypeReader-method}
 \alias{getGenotype,GdsGenotypeReader-method}
 \alias{nsnp,GdsGenotypeReader-method}
@@ -43,6 +45,9 @@
 	a matrix of bytes with dimensions ('snp','sample').  The byte values
 	must be the number of A alleles : 2=AA, 1=AB, 0=BB.
       }
+      The optional variable "snp.allele" stores the A and B alleles in a
+      character vector with format "A/B".
+      
       Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
       26=M.  The defaults may be changed with the arguments
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
@@ -90,6 +95,16 @@
     \item{}{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
+      integer vector specifying elements to extract.  
+    }
+    \item{}{
+      \code{getAlleleA(object, index)}: A character vector of A alleles.
+      The optional \code{index} is a logical or
+      integer vector specifying elements to extract.  
+    }
+    \item{}{
+      \code{getAlleleB(object, index)}: A character vector of B alleles.
+      The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
     \item{}{

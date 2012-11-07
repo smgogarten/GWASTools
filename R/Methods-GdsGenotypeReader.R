@@ -113,6 +113,22 @@ setMethod("getPosition",
             var <- getVariable(object, object@positionVar)
             if (missing(index)) var else var[index]
           })
+                         
+setMethod("getAlleleA",
+          signature(object="GdsGenotypeReader"),
+          function(object, index) {
+            var <- getVariable(object, object@alleleVar)
+            var <- substr(var, 1, 1)
+            if (missing(index)) var else var[index]
+          })
+                           
+setMethod("getAlleleB",
+          signature(object="GdsGenotypeReader"),
+          function(object, index) {
+            var <- getVariable(object, object@alleleVar)
+            var <- substr(var, 3, 3)
+            if (missing(index)) var else var[index]
+          })
                         
 setMethod("getScanID",
           signature(object="GdsGenotypeReader"),

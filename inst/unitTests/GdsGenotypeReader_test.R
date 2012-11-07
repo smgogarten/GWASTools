@@ -4,6 +4,9 @@ test_GdsGenotypeReader <- function() {
   snp <- 1:260
   chrom <- rep(1:26, each=10)
   pos <- rep(1001:1026, 10)
+  a <- rep("A", 260)
+  b <- rep("G", 260)
+  alleles <- paste(a, b, sep="/")
   samp <- 1231:1235
   nsnp <- length(snp)
   nsamp <- length(samp)
@@ -12,6 +15,7 @@ test_GdsGenotypeReader <- function() {
   add.gdsn(gds, "snp.id", snp)
   add.gdsn(gds, "snp.chromosome", chrom)
   add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
   add.gdsn(gds, "sample.id", samp)
   add.gdsn(gds, "genotype", geno, storage="bit2")
   closefn.gds(gds)
@@ -20,6 +24,8 @@ test_GdsGenotypeReader <- function() {
   checkIdentical(snp, getSnpID(obj))
   checkIdentical(chrom, getChromosome(obj))
   checkIdentical(pos, getPosition(obj))
+  checkIdentical(a, getAlleleA(obj))
+  checkIdentical(b, getAlleleB(obj))
   checkIdentical(samp, getScanID(obj))
   geno[geno == 3] <- NA
   checkIdentical(geno, getGenotype(obj))
