@@ -18,6 +18,10 @@ test_NcdfReader <- function() {
   # check data types
   checkTrue(is(getVariable(obj, "snp"), "vector"))
   checkTrue(is(geno, "matrix"))
+
+  # check dimensions
+  checkIdentical(dim(getVariable(obj, "genotype")), getDimension(obj, "genotype"))
+  checkIdentical(c("snp","sample"), getDimensionNames(obj, "genotype"))
   
   # file errors
   checkException(NcdfReader())

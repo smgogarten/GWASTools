@@ -6,6 +6,7 @@
 \alias{getAnnotation}
 \alias{getBAlleleFreq}
 \alias{getChromosome}
+\alias{getDimension}
 \alias{getGenotype}
 \alias{getLogRRatio}
 \alias{getMetadata}
@@ -71,6 +72,7 @@
   getY(object, ...)
   getBAlleleFreq(object, ...)
   getLogRRatio(object, ...)
+  getDimension(object, varname, ...)
   getAttribute(object, attname, varname, ...)
 
   getAnnotation(object, ...)

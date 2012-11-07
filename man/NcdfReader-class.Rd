@@ -6,6 +6,7 @@
 \alias{open,NcdfReader-method}
 \alias{close,NcdfReader-method}
 \alias{show,NcdfReader-method}
+\alias{getDimension,NcdfReader-method}
 \alias{getDimensionNames}
 \alias{getDimensionNames,NcdfReader-method}
 \alias{getVariableNames,NcdfReader-method}
@@ -63,6 +64,10 @@
     \item{}{
       \code{getVariableNames(object)}: Returns names of variables in the
       NetCDF file.
+    }
+    \item{}{
+      \code{getDimension(object, varname)}: Returns dimension
+      for NetCDF variable \code{varname}.
     }
     \item{}{
       \code{getDimensionNames(object, varname)}: Returns names of

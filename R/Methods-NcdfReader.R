@@ -37,6 +37,12 @@ setMethod("show",
             show(object@handler)
           })
 
+setMethod("getDimension",
+          signature(object="NcdfReader"),
+          function(object, varname) {
+            sapply(object@handler$var[[varname]]$dim, function(x) x$len)
+          })
+
 # get dimension names   
 # if varname is missing, returns dimension names for netcdf object          
 setMethod("getDimensionNames",

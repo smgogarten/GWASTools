@@ -6,7 +6,6 @@
 \alias{open,GdsReader-method}
 \alias{close,GdsReader-method}
 \alias{show,GdsReader-method}
-\alias{getDimension}
 \alias{getDimension,GdsReader-method}
 \alias{getVariableNames,GdsReader-method}
 \alias{hasVariable,GdsReader-method}
