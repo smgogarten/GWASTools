@@ -11,13 +11,13 @@ identical data to a \code{\link{GenotypeData}} object.
 \usage{
 plinkWrite(genoData, pedFile="testPlink", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
-  phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
+  phenotype.col=NULL,
   rs.col="rsID", mapdist.col=NULL, scan.exclude=NULL,
   scan.chromosome.filter=NULL, blockSize=100, verbose=TRUE)
 
 plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   individual.col="scanID", father.col="father", mother.col="mother",
-  phenotype.col=NULL, alleleA.col=NULL, alleleB.col=NULL,
+  phenotype.col=NULL,
   rs.col="rsID", map.alt=NULL, check.parents=TRUE, check.sex=TRUE,
   scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE)
 }
@@ -32,10 +32,6 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   \item{mother.col}{name of the column in the scan annotation that contains mother ID of the sample}
   \item{phenotype.col}{name of the column in the scan annotation that
     contains phenotype variable (e.g. case control statue) of the sample}
-  \item{alleleA.col}{name of the column in the SNP annototation that
-  contains allele A for the SNP}
-  \item{alleleB.col}{name of the column in the SNP annototation that
-  contains allele B for the SNP}
   \item{rs.col}{name of the column in the SNP annotation that contains rs ID (or some other ID) for the SNP}
   \item{mapdist.col}{name of the column in the SNP annotation that
     contains genetic distance in Morgans for the SNP}
@@ -61,7 +57,8 @@ plinkCheck(genoData, pedFile, logFile="plinkCheck.txt", family.col="family",
   \item{verbose}{logical for whether to show progress information.}
 }
 \details{
-If \code{alleleA.col} or \code{alleleB.col} is NULL, genotypes are
+If "alleleA" and "alleleB" columns are not found in the SNP annotation
+of \code{genoData}, genotypes are
 written as "A A", "A B", "B B" (or "0 0" for missing data).
 
 If \code{phenotype.col=NULL}, \code{plinkWrite} will use "-9"
@@ -102,19 +99,18 @@ Please see
 \examples{
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-data(illuminaSnpADF)
-data(illuminaScanADF)
+data(illuminaSnpADF, illuminaScanADF)
+# old SnpAnnotationDataFrame object has no alleleA and alleleB slots
+illuminaSnpADF <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
 genoData <- GenotypeData(NcdfGenotypeReader(ncfile),
   scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 pedfile <- tempfile()
-plinkWrite(genoData, pedfile,
-  alleleA.col="alleleA", alleleB.col="alleleB")
+plinkWrite(genoData, pedfile)
 logfile <- tempfile()
-plinkCheck(genoData, pedfile, logfile,
-  alleleA.col="alleleA", alleleB.col="alleleB")
+plinkCheck(genoData, pedfile, logfile)
 
-# use default AB allele coding and exclude samples
+# exclude samples
 plinkWrite(genoData, pedfile, scan.exclude=c(281, 283),
   blockSize=10)
 plinkCheck(genoData, pedfile, logfile)

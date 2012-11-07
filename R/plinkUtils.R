@@ -9,9 +9,12 @@
 
 # return genotype matrix or vector in plink format
 getPlinkGenotype <- function(genoData, scan.start, scan.count,
-                             scan.chromosome.filter = NULL,
-                             alleleA.col=NULL, alleleB.col=NULL) {
-  geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count))
+                             scan.chromosome.filter = NULL) {
+  geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count),
+                      char=TRUE)
+  
+  # plink uses "A B" instead of "A/B"
+  geno <- gsub("/", " ", geno)
   
   # apply scan-chromosome filter
   if (!is.null(scan.chromosome.filter)) {
@@ -31,12 +34,7 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
     }
   }
 
-  # convert to alleles
-  alleleA <- getSnpVariable(genoData, alleleA.col)
-  alleleB <- getSnpVariable(genoData, alleleB.col)
-  geno <- genotypeToCharacter(geno, alleleA, alleleB)
-  # plink uses "A B" instead of "A/B"
-  geno <- gsub("/", " ", geno)
+  # plink missing is "0 0"
   geno[is.na(geno)] <- "0 0"
   return(geno)
 }
@@ -82,7 +80,6 @@ getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
 
 plinkWrite <- function(genoData, pedFile="testPlink",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
-        alleleA.col=NULL, alleleB.col=NULL,
 	rs.col="rsID", mapdist.col=NULL,
         scan.exclude=NULL, scan.chromosome.filter=NULL, blockSize=100,
                        verbose=TRUE){
@@ -118,8 +115,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     rdf <- matrix(nrow=bsize, ncol=6+nsnp)
     rdf[,1:6] <- as.matrix(scan.df[i:(i+bsize-1),])
     geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=i, scan.count=bsize,
-                             scan.chromosome.filter=scan.chromosome.filter,
-                             alleleA.col=alleleA.col, alleleB.col=alleleB.col)
+                             scan.chromosome.filter=scan.chromosome.filter)
     # transpose since PLINK has scans as rows and snps as columns
     rdf[,7:(6+nsnp)] <- t(geno)
     # exclude scans
@@ -136,7 +132,6 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 
 plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
-        alleleA.col=NULL, alleleB.col=NULL,
 	rs.col="rsID", map.alt=NULL,
                        check.parents=TRUE, check.sex=TRUE, 
                        scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE) { 
@@ -256,8 +251,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 
     # compare genotypes
     geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=ind, scan.count=1,
-                             scan.chromosome.filter=scan.chromosome.filter,
-                             alleleA.col=alleleA.col, alleleB.col=alleleB.col)
+                             scan.chromosome.filter=scan.chromosome.filter)
     geno <- geno[snp.match]
 
     # sort allele by character

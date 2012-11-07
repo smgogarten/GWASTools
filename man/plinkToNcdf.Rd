@@ -101,8 +101,7 @@ snpAnnot <- getobj(snpfile)
 genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 prefix <- sub(".ped", "", pedfile, fixed=TRUE)
 log <- tempfile()
-stopifnot(plinkCheck(genoData, prefix, log, alleleA.col="alleleA",
-  alleleB.col="alleleB"))
+stopifnot(plinkCheck(genoData, prefix, log))
 close(genoData)
 
 # provide allele coding with extended map file
@@ -125,8 +124,7 @@ nc <- NcdfGenotypeReader(ncfile, YchromCode=24L, XYchromCode=25L)
 scanAnnot <- getobj(scanfile)
 snpAnnot <- getobj(snpfile)
 genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-stopifnot(plinkCheck(genoData, prefix, log, alleleA.col="alleleA",
-  alleleB.col="alleleB"))
+stopifnot(plinkCheck(genoData, prefix, log))
 close(genoData)
 
 file.remove(ncfile, scanfile, snpfile, log, mapfile.ext)

@@ -10,14 +10,14 @@ test_getPlinkGenotype <- function() {
                                              stringsAsFactors=FALSE))
   gd <- GenotypeData(mgr, snpdf)
   exp <- c("T T", "A T", "A A", "0 0", "C C", "C G", "G G", "0 0")
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1, alleleA.col="alleleA", alleleB.col="alleleB")
+  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1,)
   checkIdentical(exp, pg)
 
   g2 <- rep(NA, 8)
   mgr <- MatrixGenotypeReader(matrix(c(g1, g2), ncol=2), snpID, chromosome, position, 1:2)
   gd <- GenotypeData(mgr, snpdf)
   exp2 <- matrix(c(exp, rep("0 0", 8)), ncol=2)
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 2, alleleA.col="alleleA", alleleB.col="alleleB")
+  pg <- GWASTools:::getPlinkGenotype(gd, 1, 2)
   checkIdentical(exp2, pg)
 
   # what happens if we have some missing values in the alleles?
@@ -26,7 +26,7 @@ test_getPlinkGenotype <- function() {
   snpdf <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position, alleleA, alleleB,
                                              stringsAsFactors=FALSE))
   gd <- GenotypeData(mgr, snpdf)
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1, alleleA.col="alleleA", alleleB.col="alleleB")
+  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1)
   checkIdentical(exp, pg)
 }
 
@@ -61,7 +61,7 @@ test_plinkWrite <- function() {
                               scandf$scanID)
   genoData <- GenotypeData(mgr, scanAnnot=scandf, snpAnnot=snpdf)
   pedfile <- tempfile()
-  plinkWrite(genoData, pedfile, alleleA.col="alleleA", alleleB.col="alleleB")
+  plinkWrite(genoData, pedfile)
   ped.in <- as.matrix(read.table(paste(pedfile, "ped", sep="."),
                        colClasses=rep("character", ncol(ped)),
                        as.is=TRUE, header=FALSE))
@@ -108,19 +108,19 @@ test_plinkCheck <- function() {
               row.names=FALSE, col.names=FALSE)
   
   log <- tempfile()
-  checkTrue(plinkCheck(genoData, pedfile, log, alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, pedfile, log))
 
   # change ped file
   ped2 <- ped
   ped2[1,1] <- 3
   write.table(ped2, file=paste(pedfile, "ped", sep="."), quote=FALSE,
               row.names=FALSE, col.names=FALSE)
-  checkTrue(!plinkCheck(genoData, pedfile, log, alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(!plinkCheck(genoData, pedfile, log))
   ped2 <- ped
   ped2[2,2] <- 3
   write.table(ped2, file=paste(pedfile, "ped", sep="."), quote=FALSE,
               row.names=FALSE, col.names=FALSE)
-  checkTrue(!plinkCheck(genoData, pedfile, log, alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(!plinkCheck(genoData, pedfile, log))
   # change map file
   write.table(ped, file=paste(pedfile, "ped", sep="."), quote=FALSE,
               row.names=FALSE, col.names=FALSE)
@@ -128,7 +128,7 @@ test_plinkCheck <- function() {
   map2$rsID[1] <- "foo"
   write.table(map2, file=paste(pedfile, "map", sep="."), quote=FALSE,
               row.names=FALSE, col.names=FALSE)
-  checkTrue(!plinkCheck(genoData, pedfile, log, alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(!plinkCheck(genoData, pedfile, log))
   
   unlink(paste(pedfile, "*", sep=""))
   unlink(log)
@@ -159,9 +159,9 @@ test_plinkCheck2 <- function() {
                            snpAnnot=SnpAnnotationDataFrame(snpdf))
   
   pedfile <- tempfile()
-  plinkWrite(genoData, pedfile, alleleA.col="allele.A", alleleB.col="allele.B")
+  plinkWrite(genoData, pedfile)
   logfile <- tempfile()
-  checkTrue(plinkCheck(genoData, pedfile, logfile, alleleA.col="allele.A", alleleB.col="allele.B"))
+  checkTrue(plinkCheck(genoData, pedfile, logfile))
   close(genoData)
 
   # change ncdf file
@@ -173,7 +173,7 @@ test_plinkCheck2 <- function() {
   nc.new <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc.new, scanAnnot=ScanAnnotationDataFrame(scandf),
                            snpAnnot=SnpAnnotationDataFrame(snpdf))
-  checkTrue(!plinkCheck(genoData, pedfile, logfile, alleleA.col="allele.A", alleleB.col="allele.B"))
+  checkTrue(!plinkCheck(genoData, pedfile, logfile))
   close(genoData)
   
   unlink(c(ncfile, logfile, paste(pedfile, "*", sep=".")))
@@ -204,7 +204,7 @@ test_plinkCheck_map <- function() {
                            snpAnnot=SnpAnnotationDataFrame(snpdf))
   
   pedfile <- tempfile()
-  plinkWrite(genoData, pedfile, alleleA.col="allele.A", alleleB.col="allele.B")
+  plinkWrite(genoData, pedfile)
 
   # change chromosomes in netCDF file
   nc.new <- open.ncdf(ncfile, write=TRUE)
@@ -230,7 +230,7 @@ test_plinkCheck_map <- function() {
   map$chromosome[chr.new == 25] <- 24
   
   logfile <- tempfile()
-  checkTrue(plinkCheck(genoData, pedfile, logfile, map.alt=map, alleleA.col="allele.A", alleleB.col="allele.B"))
+  checkTrue(plinkCheck(genoData, pedfile, logfile, map.alt=map))
   close(genoData)
   
   unlink(c(ncfile, logfile, paste(pedfile, "*", sep=".")))
@@ -294,8 +294,7 @@ test_plinkToNcdf <- function() {
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
   checkEquals(geno.map, getGenotype(genoData))
-  checkTrue(plinkCheck(genoData, prefix, log,
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log))
   close(genoData)
   
   # test with bim file
@@ -310,8 +309,7 @@ test_plinkToNcdf <- function() {
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
   checkEquals(geno, getGenotype(genoData))
-  checkTrue(plinkCheck(genoData, prefix, log,
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log))
   close(genoData)
 
   # test with non-unique individual ID
@@ -339,8 +337,7 @@ test_plinkToNcdf <- function() {
   checkEquals(scanAnnot$scanID, 1:3)
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ",
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ"))
   close(genoData)
   
   # test with character chromosomes
@@ -352,8 +349,7 @@ test_plinkToNcdf <- function() {
   scanAnnot <- getobj(scanfile)
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ",
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ"))
   checkEquals(c(23,23,24,25,25,26,27), getChromosome(genoData))
   checkEquals(c("X", "X", "XY", "Y", "Y", "M", "U"), getChromosome(genoData, char=TRUE))
   close(genoData)
@@ -367,8 +363,7 @@ test_plinkToNcdf <- function() {
   scanAnnot <- getobj(scanfile)
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ",
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ"))
   checkEquals(c(23,23,24,25,25,26,27), getChromosome(genoData))
   checkEquals(c("X", "X", "XY", "Y", "Y", "M", "U"), getChromosome(genoData, char=TRUE))
   close(genoData)
@@ -382,8 +377,7 @@ test_plinkToNcdf <- function() {
   scanAnnot <- getobj(scanfile)
   nc <- NcdfGenotypeReader(ncfile)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ",
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ"))
   checkEquals(c(23,24,24,25,25,26,27), getChromosome(genoData))
   checkEquals(c("X", "XY", "XY", "Y", "Y", "M", "U"), getChromosome(genoData, char=TRUE))
   close(genoData)
@@ -400,8 +394,7 @@ test_plinkToNcdf <- function() {
   nc <- NcdfGenotypeReader(ncfile, XchromCode=15L, XYchromCode=14L,
                            YchromCode=13L, MchromCode=12L)
   genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ",
-                       alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData, prefix, log, individual.col="individ"))
   checkEquals(c(0,12,13,13,14,15,15), getChromosome(genoData))
   checkEquals(c("U", "M", "Y", "Y", "XY", "X", "X"), getChromosome(genoData, char=TRUE))
   close(genoData)
@@ -437,7 +430,7 @@ test_plinkToNcdf2<- function() {
                            snpAnnot=SnpAnnotationDataFrame(snpdf))
   
   pedfile <- tempfile()
-  plinkWrite(genoData, pedfile, alleleA.col="alleleA", alleleB.col="alleleB")
+  plinkWrite(genoData, pedfile)
   close(genoData)
 
   # test without alleles
@@ -459,8 +452,7 @@ test_plinkToNcdf2<- function() {
   #cannot compare genotypes directly since definition of A and B alleles
   # has changed  
   log <- tempfile()
-  checkTrue(plinkCheck(genoData2, pedfile, log,
-             alleleA.col="alleleA", alleleB.col="alleleB"))
+  checkTrue(plinkCheck(genoData2, pedfile, log))
   close(genoData2)
 
   # test with alleles
@@ -478,8 +470,7 @@ test_plinkToNcdf2<- function() {
   snpcols <- c("snpID", "chromosome", "position", "rsID", "alleleA", "alleleB")
   checkTrue(allequal(pData(snpAnnot)[,snpcols], snpdf[,snpcols]))
   checkEquals(getGenotype(genoData2), geno)  
-  checkTrue(plinkCheck(genoData2, pedfile, log,
-             alleleA.col="alleleA", alleleB.col="alleleB")) 
+  checkTrue(plinkCheck(genoData2, pedfile, log)) 
   close(genoData2)
   
   unlink(paste(pedfile, "*", sep=""))
