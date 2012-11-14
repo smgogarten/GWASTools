@@ -191,4 +191,13 @@
     character genotypes in A/B format.
   }
 }
+\section{Changes in version 1.5.3}{
+  \itemize{
+    \item Removed "alleleA.col" and "alleleB.col" options from plink
+    functions, as "alleleA" and "alleleB" are now standard names.
+    \item Added "getAlleleA" and "getAlleleB" methods to
+    GdsGenotypeReader.
+    \item Added "getDimension" method to NcdfReader.
+  }
+}
 
