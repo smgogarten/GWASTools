@@ -131,7 +131,7 @@ snp.ord <- order(snp.df$chromosome, snp.df$position)
 snp.df <- snp.df[snp.ord,]
 snp.df$snpID <- 1:nrow(snp.df)
 cols <- c("snpID", "chromosome", "position", "REF", "ALT", "QUAL", "FILTER")
-hdr <- exptData(vcf)[["header"]]
+hdr <- exptData(vcf)$header
 desc <- c("unique integer ID = snp dimension values in NetCDF file",
   "chromosome as integer where X=23, XY=24, Y=25, M=26",
   "base position",
@@ -149,7 +149,7 @@ single value for each SNP (Number=0, 1, or A).  'A' means one value
 per alternate allele, but we have kept only variants with one
 alternate allele.
 <<>>=
-info <- elementMetadata(info(vcf))
+info <- info(vcf)
 info.meta <- info(hdr)
 vals <- list()
 for (i in 1:nrow(info.meta)) {
