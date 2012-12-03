@@ -171,10 +171,10 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     # find the genotype to be ignored (no minor allele) for each SNP
     major.genotype <- rep(NA,length(allele.freq))
     # A allele freq < 0.5, so A is minor allele, so BB is ignored
-    Amin <- allele.freq < 0.5
+    Amin <- !is.na(allele.freq) & allele.freq < 0.5
     major.genotype[Amin] <- paste(alleleB1[Amin], alleleB1[Amin], sep="/")
     # A allele freq > 0.5, so B is minor allele, so AA is ignored
-    Bmin <- allele.freq >= 0.5
+    Bmin <- !is.na(allele.freq) & allele.freq >= 0.5
     major.genotype[Bmin] <- paste(alleleA1[Bmin], alleleA1[Bmin], sep="/")
   } else {
     major.genotype <- NULL
