@@ -6,6 +6,7 @@ genoClusterPlot <- function(intenData,
                          by.sex= FALSE, # if by.sex is TRUE, sex annotation should be included in intenData or genoData
                          scan.sel = NULL, 
                          scan.hilite = NULL,
+                         start.axis.at.0 = FALSE,
                          verbose = TRUE,
                          ...)
 {
@@ -108,11 +109,19 @@ genoClusterPlot <- function(intenData,
     if(plot.type=="RTheta") {
       theta <- atan(y/x)*(2/pi)
       r <- x+y
-      plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1),col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      if (start.axis.at.0) {
+        plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1), ylim=c(0,max(r)), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      } else {
+        plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      }
       points(theta[hilite.ind==1],r[hilite.ind==1],col=xcol[hilite.ind==1],pch=xpch[hilite.ind==1], cex=cex[hilite.ind==1], ...)
     } 
     else {
-      plot(x, y, xlab="X", ylab="Y",col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      if (start.axis.at.0) {
+        plot(x, y, xlab="X", ylab="Y", xlim=c(0,max(x)), ylim=c(0,max(y)), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      } else { 
+        plot(x, y, xlab="X", ylab="Y", col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+      }
       points(x[hilite.ind==1],y[hilite.ind==1],col=xcol[hilite.ind==1],pch=xpch[hilite.ind==1], cex=cex[hilite.ind==1], ...)
     }
   }

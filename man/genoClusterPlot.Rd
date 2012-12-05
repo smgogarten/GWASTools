@@ -9,8 +9,9 @@
 
 \usage{
 genoClusterPlot(intenData, genoData, plot.type = c("RTheta", "XY"), 
-                snpID, main.txt = NULL, by.sex= FALSE,
+                snpID, main.txt = NULL, by.sex = FALSE,
                 scan.sel = NULL, scan.hilite = NULL,
+                start.axis.at.0 = FALSE,
                 verbose = TRUE, ...)
 
 genoClusterPlotByBatch(intenData, genoData, plot.type = c("RTheta", "XY"), 
@@ -33,6 +34,8 @@ genoClusterPlotByBatch(intenData, genoData, plot.type = c("RTheta", "XY"),
   \item{scan.hilite}{integer vector of scans to highlight in the plot
 	with different colors.  If \code{NULL}, all scans will be plotted with
 	the same colors.}
+  \item{start.axis.at.0}{Logical for whether the min value of each axis
+                       should be 0.}
   \item{verbose}{Logical value specifying whether to show progress.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
