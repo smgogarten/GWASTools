@@ -11,7 +11,8 @@
 #  where the pair included the minor allele
 discordantPair <- function(genoData1, scanID1, snpID1,
                            genoData2, scanID2, snpID2,
-                           major.genotype=NULL) {
+                           major.genotype=NULL,
+                           missing.fail=c(FALSE, FALSE)) {
   # check that snp ID vectors are the same length
   stopifnot(length(snpID1) == length(snpID2))
   
@@ -52,6 +53,23 @@ discordantPair <- function(genoData1, scanID1, snpID1,
     nonmissing <- nonmissing & !is.na(major.genotype) & (geno1 != major.genotype | geno2 != major.genotype)
   }
   discordant <- nonmissing & geno1 != geno2
+  if (missing.fail[1]) {
+    fail <- is.na(geno1) & !is.na(geno2)
+    if (!is.null(major.genotype)) {
+      fail <- fail & !is.na(major.genotype) & (geno2 != major.genotype)
+    }
+    discordant <- discordant | fail
+    nonmissing <- nonmissing | fail
+  }
+  if (missing.fail[2]) {
+    fail <- !is.na(geno1) & is.na(geno2)
+    if (!is.null(major.genotype)) {
+      fail <- fail & !is.na(major.genotype) & (geno1 != major.genotype)
+    }
+    discordant <- discordant | fail
+    nonmissing <- nonmissing | fail
+  }
+  # FIX FOR MINOR.ALLELE.ONLY
   return(data.frame(discordant=discordant, nonmissing=nonmissing))
 }
 
@@ -67,6 +85,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
                                                   snpName.cols,
                                  one.pair.per.subj = TRUE,
                                  minor.allele.only = FALSE,
+                                               missing.fail=c(FALSE,FALSE),
                                                scan.exclude1=NULL,scan.exclude2=NULL,
                                                   snp.include = NULL, verbose=TRUE) {
   # check that both genoData objects have subjName, snpName
@@ -206,7 +225,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
       for (j in 1:n2) {
         res <- discordantPair(genoData1, scan1[i], snpID1,
                               genoData2, scan2[j], snpID2,
-                              major.genotype)
+                              major.genotype, missing.fail)
         discord[res$discordant] <- discord[res$discordant] + 1
         npair[res$nonmissing] <- npair[res$nonmissing] + 1
         nds[res$discordant] <- nds[res$discordant] + 1

@@ -10,7 +10,8 @@
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   subjName.cols, snpName.cols,
-  one.pair.per.subj=TRUE, minor.allele.only=FALSE, 
+  one.pair.per.subj=TRUE, minor.allele.only=FALSE,
+  missing.fail=c(FALSE, FALSE),
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -31,6 +32,9 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
   only between pairs of scans in which at least one scan has a genotype
   with the minor allele (i.e., exclude major allele homozygotes).}
+\item{missing.fail}{2-element logical vector indicating whether missing
+  values in datasets 1 and 2, respectively, will be considered failures
+  (discordances with called genotypes in the other dataset).}
 \item{scan.exclude1}{An integer vector containing the ids of scans to be
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be

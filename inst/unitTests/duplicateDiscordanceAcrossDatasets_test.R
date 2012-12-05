@@ -435,3 +435,134 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
       rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
 }
+
+
+test_missing.fail <- function() {
+  # snp annotation
+  snpID <- 1:5
+  chrom <- rep(1L, 5)
+  pos <- 101:105
+  alleleA <- rep("A",5)
+  alleleB <- rep("G",5)
+  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos,
+                      alleleA=alleleA, alleleB=alleleB,
+                      stringsAsFactors=FALSE)
+  snpAnnot <- SnpAnnotationDataFrame(snpdf)
+  
+  # scan annotation
+  scanID <- 1:2
+  subjID <- c("a","b")
+  scandf <- data.frame(scanID=scanID, subjID=subjID)
+  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  
+  geno1 <- matrix(c(0,1,
+                    0,1,
+                    0,1,
+                    0,0,
+                    NA,NA), ncol=2, byrow=TRUE)
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+
+  geno2 <- matrix(c(NA,NA,
+                    0,1,
+                    1,0,
+                    NA,NA, 
+                    0,0),
+                  ncol=2, byrow=TRUE)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+
+  
+  # expected output (TRUE for discordance)
+  # samples "a" and "b" - default
+  exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  nm <- c(FALSE, TRUE, TRUE, FALSE, FALSE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                       genoData2, 1, 1:5)
+  checkIdentical(a$discordant, exp)
+  checkIdentical(a$nonmissing, nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5)
+  checkIdentical(b$discordant, exp)
+  checkIdentical(b$nonmissing, nm)
+
+  # missing.fail[1]=TRUE
+  exp <- c(FALSE, FALSE, TRUE, FALSE, TRUE)
+  nm <- c(FALSE, TRUE, TRUE, FALSE, TRUE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                       genoData2, 1, 1:5,
+                      missing.fail=c(TRUE,FALSE))
+  checkIdentical(a$discordant, exp)
+  checkIdentical(a$nonmissing, nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5,
+                      missing.fail=c(TRUE,FALSE))
+  checkIdentical(b$discordant, exp)
+  checkIdentical(b$nonmissing, nm)
+  
+  # missing.fail[2]=TRUE
+  exp <- c(TRUE, FALSE, TRUE, TRUE, FALSE)
+  nm <- c(TRUE, TRUE, TRUE, TRUE, FALSE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                       genoData2, 1, 1:5,
+                      missing.fail=c(FALSE,TRUE))
+  checkIdentical(a$discordant, exp)
+  checkIdentical(a$nonmissing, nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5,
+                      missing.fail=c(FALSE,TRUE))
+  checkIdentical(b$discordant, exp)
+  checkIdentical(b$nonmissing, nm)
+
+  # both TRUE
+  exp <- c(TRUE, FALSE, TRUE, TRUE, TRUE)
+  nm <- c(TRUE, TRUE, TRUE, TRUE, TRUE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                       genoData2, 1, 1:5,
+                      missing.fail=c(TRUE,TRUE))
+  checkIdentical(a$discordant, exp)
+  checkIdentical(a$nonmissing, nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5,
+                      missing.fail=c(TRUE,TRUE))
+  checkIdentical(b$discordant, exp)
+  checkIdentical(b$nonmissing, nm)
+  
+  # missing.fail[1]=TRUE and minor.allele.only=TRUE
+  a.exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  a.nm <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  b.exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  b.nm <- c(FALSE, TRUE, TRUE, FALSE, FALSE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                      genoData2, 1, 1:5,
+                      major.genotype="G/G",
+                      missing.fail=c(TRUE,FALSE))
+  checkIdentical(a$discordant, a.exp)
+  checkIdentical(a$nonmissing, a.nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5,
+                      major.genotype="G/G",
+                      missing.fail=c(TRUE,FALSE))
+  checkIdentical(b$discordant, b.exp)
+  checkIdentical(b$nonmissing, b.nm)
+  
+  # missing.fail[2]=TRUE and minor.allele.only=TRUE
+  a.exp <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  a.nm <- c(FALSE, FALSE, TRUE, FALSE, FALSE)
+  b.exp <- c(TRUE, FALSE, TRUE, FALSE, FALSE)
+  b.nm <- c(TRUE, TRUE, TRUE, FALSE, FALSE)
+  a <- GWASTools:::discordantPair(genoData1, 1, 1:5,
+                      genoData2, 1, 1:5,
+                      major.genotype="G/G",
+                      missing.fail=c(FALSE,TRUE))
+  checkIdentical(a$discordant, a.exp)
+  checkIdentical(a$nonmissing, a.nm)
+  b <- GWASTools:::discordantPair(genoData1, 2, 1:5,
+                      genoData2, 2, 1:5,
+                      major.genotype="G/G",
+                      missing.fail=c(FALSE,TRUE))
+  checkIdentical(b$discordant, b.exp)
+  checkIdentical(b$nonmissing, b.nm)
+}
