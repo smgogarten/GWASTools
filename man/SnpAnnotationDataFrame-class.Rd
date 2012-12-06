@@ -13,6 +13,7 @@
 \alias{getVariableNames,SnpAnnotationDataFrame-method}
 \alias{getAnnotation,SnpAnnotationDataFrame-method}
 \alias{getMetadata,SnpAnnotationDataFrame-method}
+\alias{autosomeCode,SnpAnnotationDataFrame-method}
 \alias{XchromCode,SnpAnnotationDataFrame-method}
 \alias{XYchromCode,SnpAnnotationDataFrame-method}
 \alias{YchromCode,SnpAnnotationDataFrame-method}
@@ -43,8 +44,8 @@
 	\item "position": integer vector containing position (in base
 	pairs) on the chromosome.
       }
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
 
@@ -137,6 +138,10 @@
       The operators \code{[}, \code{$}, and \code{[[} work just as they do in
       standard data frames, for both retrieval and assignment.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

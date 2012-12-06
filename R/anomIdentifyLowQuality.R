@@ -15,7 +15,7 @@ if(!hasVariable(snp, "eligible")
 
 snp.chrom <- getChromosome(snp)
  
-num.elig<-sum(snp$eligible & is.element(snp.chrom,1:22))
+num.elig<-sum(snp$eligible & is.element(snp.chrom, autosomeCode(snp)))
 ##needed when considering factor over autosomes
 #######################
 ##eligible marker counts for each chromosome

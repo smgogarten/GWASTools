@@ -161,6 +161,7 @@ exportMethods(
     nscan,
     writeAnnotation,
     writeMetadata,
+    autosomeCode,
     XchromCode,
     YchromCode,
     XYchromCode,

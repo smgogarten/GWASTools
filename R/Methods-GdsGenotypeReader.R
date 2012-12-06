@@ -92,7 +92,7 @@ setMethod("getChromosome",
             if (char) {
               # default is unknown code
               chromChar <- rep("U", length(var))
-              autosome <- var %in% 1:22
+              autosome <- var %in% object@autosomeCode
               chromChar[autosome] <- as.character(var[autosome])
               xchrom <- var == object@XchromCode & !is.na(var)
               chromChar[xchrom] <- "X"
@@ -156,6 +156,11 @@ setMethod("nscan", "GdsGenotypeReader",
             getDimension(object, object@scanIDvar)
           })
 
+setMethod("autosomeCode", "GdsGenotypeReader",
+          function(object) {
+            object@autosomeCode
+          })
+   
 setMethod("XchromCode", "GdsGenotypeReader",
           function(object) {
             object@XchromCode

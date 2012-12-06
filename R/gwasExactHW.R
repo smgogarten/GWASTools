@@ -93,7 +93,7 @@ gwasExactHW <- function (genoData,
       if(chr == XchromCode(genoData))
         keep <- keep & (getSex(genoData) == "F");
 
-      if(!(chr %in% c(1:22, XchromCode(genoData), XYchromCode(genoData))))
+      if(!(chr %in% c(autosomeCode(genoData), XchromCode(genoData), XYchromCode(genoData))))
         keep <- keep & FALSE;
 
       # create empty results data.frame

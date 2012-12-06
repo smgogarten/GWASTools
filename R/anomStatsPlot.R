@@ -97,7 +97,7 @@ anomStatsPlot <- function(intenData, genoData,
     centromere$chrom <- as.integer(centromere$chrom)
     centromere <- centromere[, c("chrom","left.base","right.base")]
     if(!all(unlist(lapply(centromere, class))=="integer")) stop("required centromere variables must be of class integer")
-    if(!all(is.element(c(1:22, XchromCode(intenData)),centromere$chrom))) stop("centromere positions must be given for chroms 1-22 and X")
+    if(!all(is.element(c(autosomeCode(intenData), XchromCode(intenData)),centromere$chrom))) stop("centromere positions must be given for chroms 1-22 and X")
   }
   cent.col <- "lightblue1"
   term.col <- "orange"

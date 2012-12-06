@@ -53,7 +53,7 @@ sdByScanChromWindow <- function(
 	#
 	## select chromosomes to run (only from 1:23)
 	chromosomes <- unique(chroms)
-	chromosomes <- chromosomes[is.element(chromosomes, c(1:22, "X"))]
+	chromosomes <- chromosomes[is.element(chromosomes, c(autosomeCode(intenData), "X"))]
 	#
 	n.chrom <- length(chromosomes)
 	

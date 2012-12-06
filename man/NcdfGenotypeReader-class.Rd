@@ -11,6 +11,7 @@
 \alias{getGenotype,NcdfGenotypeReader-method}
 \alias{nsnp,NcdfGenotypeReader-method}
 \alias{nscan,NcdfGenotypeReader-method}
+\alias{autosomeCode,NcdfGenotypeReader-method}
 \alias{XchromCode,NcdfGenotypeReader-method}
 \alias{XYchromCode,NcdfGenotypeReader-method}
 \alias{YchromCode,NcdfGenotypeReader-method}
@@ -46,8 +47,8 @@
 	a matrix of bytes with dimensions ('snp','sample').  The byte values
 	must be the number of A alleles : 2=AA, 1=AB, 0=BB.
       }
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
       
@@ -115,6 +116,10 @@
       represented as \code{NA}.  If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

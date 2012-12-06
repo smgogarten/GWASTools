@@ -34,6 +34,7 @@
 \alias{hasY,IntensityData-method}
 \alias{hasBAlleleFreq,IntensityData-method}
 \alias{hasLogRRatio,IntensityData-method}
+\alias{autosomeCode,IntensityData-method}
 \alias{XchromCode,IntensityData-method}
 \alias{XYchromCode,IntensityData-method}
 \alias{YchromCode,IntensityData-method}
@@ -211,6 +212,10 @@
     \item{}{
       \code{close(object)}: Closes the data connection.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

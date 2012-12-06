@@ -20,6 +20,7 @@
 \alias{close,SnpAnnotationSQLite-method}
 \alias{nsnp,SnpAnnotationSQLite-method}
 \alias{show,SnpAnnotationSQLite-method}
+\alias{autosomeCode,SnpAnnotationSQLite-method}
 \alias{XchromCode,SnpAnnotationSQLite-method}
 \alias{XYchromCode,SnpAnnotationSQLite-method}
 \alias{YchromCode,SnpAnnotationSQLite-method}
@@ -46,8 +47,8 @@
 	\item "position": integer vector containing position (in base
 	pairs) on the chromosome.
       }
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
       
@@ -157,6 +158,10 @@
 	overwrite=TRUE)}: Writes \code{value} to the metadata table.
       \code{value} should be a data.frame containing
        columns "varname" and "description".
+     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
      }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X

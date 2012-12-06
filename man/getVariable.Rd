@@ -38,6 +38,7 @@
 \alias{writeMetadata}
 \alias{getQuery}
 \alias{getAttribute}
+\alias{autosomeCode}
 \alias{XchromCode}
 \alias{YchromCode}
 \alias{XYchromCode}
@@ -94,6 +95,7 @@
   nsnp(object)
   nscan(object)
 
+  autosomeCode(object)
   XchromCode(object)
   XYchromCode(object)
   YchromCode(object)
@@ -139,8 +141,10 @@
   \code{nsnp} and \code{nscan} return the number of SNPs and scans in
   the object, repectively.
 
-  \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
-  \code{MchromCode} return the integer chromosome codes associated with X,
+
+  \code{autosomeCode}, \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
+  \code{MchromCode} return the integer chromosome codes associated with
+  autosomal, X,
   pseudoautosomal, Y, and mitochondrial SNPs.
 }
 

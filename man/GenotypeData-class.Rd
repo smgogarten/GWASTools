@@ -27,6 +27,7 @@
 \alias{hasVariable,GenotypeData-method}
 \alias{getVariable,GenotypeData-method}
 \alias{getGenotype,GenotypeData-method}
+\alias{autosomeCode,GenotypeData-method}
 \alias{XchromCode,GenotypeData-method}
 \alias{XYchromCode,GenotypeData-method}
 \alias{YchromCode,GenotypeData-method}
@@ -192,6 +193,10 @@
     \item{}{
       \code{close(object)}: Closes the data connection.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

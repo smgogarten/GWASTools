@@ -57,7 +57,7 @@ hetByScanChrom <- function(
         }
         rm(geno)
 	# heterozygous fraction for autosomes
-        index <- is.element(uniqChrom, as.character(1:22))
+        index <- is.element(uniqChrom, as.character(autosomeCode(genoData)))
         A[i] <- sum(het[i, index])/sum(nm[i, index])
     }
     het <- het/nm  # heterozygous fraction

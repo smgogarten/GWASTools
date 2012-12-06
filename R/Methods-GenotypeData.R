@@ -286,6 +286,11 @@ setMethod("close",
       close(con@data, ...)
     })
 
+setMethod("autosomeCode", "GenotypeData",
+          function(object) {
+            autosomeCode(object@data)
+          })
+ 
 setMethod("XchromCode", "GenotypeData",
           function(object) {
             XchromCode(object@data)

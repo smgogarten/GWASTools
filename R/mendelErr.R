@@ -179,7 +179,7 @@ mendelErr <- function(genoData,
   
   # for Mendelian errors, check autosome, X, XY and Y
   if (!is.null(snp.exclude)) chr <- chr[SNPsubset]
-  chr.auto <- is.element(chr, 1:22)
+  chr.auto <- is.element(chr, as.character(autosomeCode(genoData)))
   chr.x <- is.element(chr, "X")
   chr.xy <- is.element(chr, "XY")
   chr.y <- is.element(chr, "Y")
@@ -351,7 +351,7 @@ mendelErr <- function(genoData,
                         stringsAsFactors = FALSE)
 
         # error counts by chromosome
-        for (j in c(1:22, "X", "XY", "Y")){
+        for (j in c(as.character(autosomeCode(genoData)), "X", "XY", "Y")){
           r[[paste("chr", j, sep="")]] <- sum(m==1 & is.element(chr, j))
         }
 

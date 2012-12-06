@@ -11,6 +11,7 @@
 \alias{nsnp,MatrixGenotypeReader-method}
 \alias{nscan,MatrixGenotypeReader-method}
 \alias{show,MatrixGenotypeReader-method}
+\alias{autosomeCode,MatrixGenotypeReader-method}
 \alias{XchromCode,MatrixGenotypeReader-method}
 \alias{XYchromCode,MatrixGenotypeReader-method}
 \alias{YchromCode,MatrixGenotypeReader-method}
@@ -33,8 +34,8 @@
       \code{snp} must be a unique integer vector of SNP ids.
       
       \code{chromosome} must be an integer vector of chromosomes.
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
       
@@ -98,6 +99,10 @@
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

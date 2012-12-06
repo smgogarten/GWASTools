@@ -296,6 +296,11 @@ setMethod("close",
       close(con@data, ...)
     })
 
+setMethod("autosomeCode", "IntensityData",
+          function(object) {
+            autosomeCode(object@data)
+          })
+ 
 setMethod("XchromCode", "IntensityData",
           function(object) {
             XchromCode(object@data)

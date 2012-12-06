@@ -43,6 +43,7 @@ setGeneric("nsnp", function(object) standardGeneric("nsnp"))
 setGeneric("writeAnnotation", function(object, value, ...) standardGeneric("writeAnnotation"))
 setGeneric("writeMetadata", function(object, value, ...) standardGeneric("writeMetadata"))
 
+setGeneric("autosomeCode", function(object) standardGeneric("autosomeCode"))
 setGeneric("XchromCode", function(object) standardGeneric("XchromCode"))
 setGeneric("YchromCode", function(object) standardGeneric("YchromCode"))
 setGeneric("XYchromCode", function(object) standardGeneric("XYchromCode"))

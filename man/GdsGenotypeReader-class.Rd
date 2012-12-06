@@ -13,6 +13,7 @@
 \alias{getGenotype,GdsGenotypeReader-method}
 \alias{nsnp,GdsGenotypeReader-method}
 \alias{nscan,GdsGenotypeReader-method}
+\alias{autosomeCode,GdsGenotypeReader-method}
 \alias{XchromCode,GdsGenotypeReader-method}
 \alias{XYchromCode,GdsGenotypeReader-method}
 \alias{YchromCode,GdsGenotypeReader-method}
@@ -48,8 +49,8 @@
       The optional variable "snp.allele" stores the A and B alleles in a
       character vector with format "A/B".
       
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
       

@@ -81,7 +81,7 @@ setMethod("getChromosome",
             if (char) {
               # default is unknown code
               chromChar <- rep("U", length(var))
-              autosome <- var %in% 1:22
+              autosome <- var %in% object@autosomeCode
               chromChar[autosome] <- as.character(var[autosome])
               xchrom <- var == object@XchromCode & !is.na(var)
               chromChar[xchrom] <- "X"
@@ -132,6 +132,11 @@ setMethod("getMetadata",
             varMetadata(object)
           })
 
+setMethod("autosomeCode", "SnpAnnotationDataFrame",
+          function(object) {
+            object@autosomeCode
+          })
+   
 setMethod("XchromCode", "SnpAnnotationDataFrame",
           function(object) {
             object@XchromCode

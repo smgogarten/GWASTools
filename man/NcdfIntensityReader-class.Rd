@@ -20,6 +20,7 @@
 \alias{hasLogRRatio,NcdfIntensityReader-method}
 \alias{nsnp,NcdfIntensityReader-method}
 \alias{nscan,NcdfIntensityReader-method}
+\alias{autosomeCode,NcdfIntensityReader-method}
 \alias{XchromCode,NcdfIntensityReader-method}
 \alias{XYchromCode,NcdfIntensityReader-method}
 \alias{YchromCode,NcdfIntensityReader-method}
@@ -52,8 +53,8 @@
 	\item 'sampleID': a unique integer vector of scan ids with
 	dimension 'sample'
       }
-      Default values for chromosome codes are 1-22, 23=X, 24=XY, 25=Y,
-      26=M.  The defaults may be changed with the arguments
+      Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
+      26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
       
@@ -169,6 +170,10 @@
       represented as \code{NA}.  If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }
+     \item{}{
+       \code{autosomeCode(object)}: Returns the integer codes for the
+       autosomes.
+     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.

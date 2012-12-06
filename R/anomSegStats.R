@@ -104,7 +104,7 @@ anomSegStats <- function(intenData, genoData,
 	if(class(anom)!="data.frame") stop("anom should be a data.frame")
 	if(!all(is.element(c("scanID", "chromosome", "left.index","right.index","sex","method","anom.id"),names(anom)))) stop("anom does not have required variable names")
 	if(!all(is.element(c(anom$left.index,anom$right.index),indices))) stop("left.index and/or right.index are not within range of snp indices")
-        ok.chrom <- c(1:22, XchromCode(intenData), XYchromCode(intenData))
+        ok.chrom <- c(autosomeCode(intenData), XchromCode(intenData), XYchromCode(intenData))
 	if(!all(anom$chromosome %in% ok.chrom)) stop("chromosome must be integer code for autosomes, X, or XY")
 
 	# check eligible and get selection vector
@@ -186,8 +186,8 @@ anomSegStats <- function(intenData, genoData,
 			k <- nrow(dat)
 			ai <- NULL	#indices included in anomalies
 			for(j in 1:k) ai <- c(ai, dat$left.index[j]:dat$right.index[j])
-			non.baf <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai) & is.element(geno, c(1,-1))
-			non.lrr <- is.element(chrom, 1:22) & is.element(intid, eligible) & !is.element(indices, ai)
+			non.baf <- is.element(chrom, autosomeCode(intenData)) & is.element(intid, eligible) & !is.element(indices, ai) & is.element(geno, c(1,-1))
+			non.lrr <- is.element(chrom, autosomeCode(intenData)) & is.element(intid, eligible) & !is.element(indices, ai)
 		# calculate median of baf and lrr in non-anomalous regions
 			baf.non.med <- median(baf[non.baf], na.rm=TRUE)
 			lrr.non.med <- median(lrr[non.lrr], na.rm=TRUE)
