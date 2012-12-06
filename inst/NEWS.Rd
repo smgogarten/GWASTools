@@ -200,4 +200,15 @@
     \item Added "getDimension" method to NcdfReader.
   }
 }
-
+\section{Changes in version 1.5.4}{
+  \itemize{
+    \item Removed hard-coding of autosomes as 1:22; can now set a vector
+    of integer codes corresponding to autosomes
+    with "autosomeCode" argument at object creation and retrieve with
+    "autosomeCode" methods.  This change makes GWASTools compatible with
+    non-human organisms.
+    \item Added option to duplicateDiscordanceAcrossDatasets to
+    count missing data as discordance.
+    \item Added option to start axes of genoClusterPlot at 0.
+  }
+}
