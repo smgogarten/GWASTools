@@ -212,3 +212,9 @@
     \item Added option to start axes of genoClusterPlot at 0.
   }
 }
+\section{Changes in version 1.5.5}{
+  \itemize{
+    \item Added additional output column "MAF" to matrix returned by
+    alleleFrequency.
+  }
+}

@@ -32,6 +32,8 @@ test_alleleFrequency <- function() {
   checkEquals(afreq[auto,"M"], afreq.M)
   checkEquals(afreq[auto,"F"], afreq.F)
   checkEquals(afreq[auto,"all"], afreq.all)
+  checkEquals(afreq[auto,"MAF"], pmin(afreq.all, 1-afreq.all))
+  checkTrue(max(afreq[auto,"MAF"]) <= 0.5)
   
   # X chrom - males
   x <- chrom == "X"
@@ -58,6 +60,8 @@ test_alleleFrequency <- function() {
   checkEquals(afreq[x,"M"], afreq.M)
   checkEquals(afreq[x,"F"], afreq.F)
   checkEquals(afreq[x,"all"], afreq.all)
+  checkEquals(afreq[x,"MAF"], pmin(afreq.all, 1-afreq.all))
+  checkTrue(max(afreq[x,"MAF"]) <= 0.5)
   
   # Y chrom - males
   y <- chrom == "Y"
@@ -85,6 +89,8 @@ test_alleleFrequency <- function() {
   checkEquals(afreq[y,"M"], afreq.M)
   checkEquals(afreq[y,"F"], afreq.F)
   checkEquals(afreq[y,"all"], afreq.all)
+  checkEquals(afreq[y,"MAF"], pmin(afreq.all, 1-afreq.all))
+  checkTrue(max(afreq[y,"MAF"]) <= 0.5)
   
   # scan.exclude - expected results
   scan.exclude <- c(1,2,10)
@@ -109,6 +115,8 @@ test_alleleFrequency <- function() {
   checkEquals(afreq[auto,"M"], afreq.M)
   checkEquals(afreq[auto,"F"], afreq.F)
   checkEquals(afreq[auto,"all"], afreq.all)
+  checkEquals(afreq[auto,"MAF"], pmin(afreq.all, 1-afreq.all))
+  checkTrue(max(afreq[auto,"MAF"]) <= 0.5)
   
   close(genoData)
   file.remove(ncfile)

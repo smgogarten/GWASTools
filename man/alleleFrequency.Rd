@@ -26,7 +26,8 @@ alleleFrequency(genoData, scan.exclude,
 }
 \value{
 A matrix of allelic frequencies with snps as
-rows and 3 columns ("M" for males, "F" for females, "all" for all scans).
+rows and 4 columns ("M" for males, "F" for females, "all" for all scans,
+"MAF" for minor allele frequency over all scans).
 }
 \author{Cathy Laurie
 }

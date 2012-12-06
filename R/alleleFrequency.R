@@ -28,9 +28,8 @@ alleleFrequency <- function(genoData, # object of type GenotypeData
     if (verbose & (i %% 100 == 0)) {
       message(paste("reading scan", i, "of", N))
     }
+    geno <- getGenotype(genoData, snp=c(1,-1), scan=c(i,1))
     if (i %in% males) {
-      geno <- getGenotype(genoData, snp=c(1,-1), scan=c(i,1))
-
       # all but sex chroms
       noxy <- !(xchr | ychr | is.na(geno))
       afreq[noxy,"M"] <- afreq[noxy,"M"] + geno[noxy]
@@ -42,8 +41,6 @@ alleleFrequency <- function(genoData, # object of type GenotypeData
       nonmiss[xy,"M"] <- nonmiss[xy,"M"] + 1
 
     } else if (i %in% females) {
-      geno <- getGenotype(genoData, snp=c(1,-1), scan=c(i,1))
-
       # all but Y
       noy <- !(ychr | is.na(geno))
       afreq[noy,"F"] <- afreq[noy,"F"] + geno[noy]
@@ -53,5 +50,7 @@ alleleFrequency <- function(genoData, # object of type GenotypeData
   afreq[,"all"] <- rowSums(afreq[,c("M","F")])
   nonmiss[,"all"] <- rowSums(nonmiss[,c("M","F")])
   afreq.frac <- afreq/nonmiss
+  MAF <- pmin(afreq.frac[,"all"], 1-afreq.frac[,"all"])
+  afreq.frac <- cbind(afreq.frac, MAF)
   return(afreq.frac)
 }
