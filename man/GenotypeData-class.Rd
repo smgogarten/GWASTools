@@ -272,6 +272,50 @@ geno <- getGenotype(genoData, snp=c(100,10), scan=c(1,5), char=TRUE)
 geno
 
 close(genoData)
+
+#--------------------------------------
+# An example using a non-human organism
+#--------------------------------------
+# Chicken has 38 autosomes, Z, and W.  Male is ZZ, female is ZW.
+# Define sex chromosomes as X=Z and Y=W.
+ncfile <- tempfile()
+simulateGenotypeMatrix(n.snps=10, n.chromosomes=40, n.samples=5,
+                       ncdf.filename=ncfile)
+nc <- NcdfGenotypeReader(ncfile, autosomeCode=1:38L,
+                         XchromCode=39L, YchromCode=40L,
+                         XYchromCode=41L, MchromCode=42L)
+table(getChromosome(nc))
+table(getChromosome(nc, char=TRUE))
+
+# SNP annotation
+snpdf <- data.frame(snpID=getSnpID(nc),
+                    chromosome=getChromosome(nc),
+                    position=getPosition(nc))
+snpAnnot <- SnpAnnotationDataFrame(snpdf, autosomeCode=1:38L,
+                         XchromCode=39L, YchromCode=40L,
+                         XYchromCode=41L, MchromCode=42L)
+varMetadata(snpAnnot)[,"labelDescription"] <-
+  c("unique integer ID",
+    "chromosome coded as 1:38=autosomes, 39=Z, 40=W",
+    "base position")
+
+# reverse sex coding to get proper counting of sex chromosome SNPs
+scandf <- data.frame(scanID=1:5, sex=c("M","M","F","F","F"),
+                     stringsAsFactors=FALSE)
+scanAnnot <- ScanAnnotationDataFrame(scandf)
+varMetadata(scanAnnot)[,"labelDescription"] <-
+  c("unique integer ID",
+    "sex coded as M=female and F=male")
+
+genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+afreq <- alleleFrequency(genoData)
+# frequency of Z chromosome in females ("M") and males ("F")
+afreq[snpAnnot$chromosome == 39, c("M","F")]
+# frequency of W chromosome in females ("M") and males ("F")
+afreq[snpAnnot$chromosome == 40, c("M","F")]
+
+close(genoData)
+unlink(ncfile)
 }
 
 \keyword{methods}
