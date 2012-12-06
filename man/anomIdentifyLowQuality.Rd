@@ -101,8 +101,7 @@ autosomes uses the total number of segments and eligible SNPs across all autosom
 
 \examples{
 library(GWASdata)
-data(illuminaScanADF)
-data(illuminaSnpADF)
+data(illuminaScanADF, illuminaSnpADF)
 
 blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
 blnc <- NcdfIntensityReader(blfile)
@@ -126,7 +125,7 @@ anom <- anomDetectBAF(blData, genoData, scan.ids=scan.ids, chrom.ids=chrom.ids,
   snp.ids=snp.ids, centromere=centromeres.hg18, low.qual.ids=low.qual.ids)
 
 # further screen for low quality scans
-snp.annot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
+snp.annot <- illuminaSnpADF
 snp.annot$eligible <- snp.annot$missing.n1 < 1
 low.qual <- anomIdentifyLowQuality(snp.annot, med.baf.sd, anom$seg.info,
   sd.thresh=0.1, sng.seg.thresh=0.0008, auto.seg.thresh=0.0001)

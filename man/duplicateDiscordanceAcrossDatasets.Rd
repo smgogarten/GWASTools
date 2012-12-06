@@ -88,15 +88,12 @@ library(GWASdata)
 file1 <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 nc1 <- NcdfGenotypeReader(file1)
 data(affySnpADF, affyScanADF)
-# old SnpAnnotationDataFrame object has no alleleA and alleleB slots
-affySnpADF <- SnpAnnotationDataFrame(pData(affySnpADF))
 data1 <-  GenotypeData(nc1, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
 # dataset 2
 file2 <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc2 <- NcdfGenotypeReader(file2)
 data(illuminaSnpADF, illuminaScanADF)
-illuminaSnpADF <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
 # make alleleA and alleleB NULL since we don't have allele coding for
 # dataset 1 (A/B definitions for both arrays should be the same)
 illuminaSnpADF$alleleA <- NULL

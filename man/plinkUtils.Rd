@@ -100,8 +100,6 @@ Please see
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 data(illuminaSnpADF, illuminaScanADF)
-# old SnpAnnotationDataFrame object has no alleleA and alleleB slots
-illuminaSnpADF <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
 genoData <- GenotypeData(NcdfGenotypeReader(ncfile),
   scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
