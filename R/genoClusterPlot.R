@@ -110,7 +110,7 @@ genoClusterPlot <- function(intenData,
       theta <- atan(y/x)*(2/pi)
       r <- x+y
       if (start.axis.at.0) {
-        plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1), ylim=c(0,max(r)), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+        plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1), ylim=c(0,max(r,na.rm=TRUE)), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
       } else {
         plot(theta, r, xlab="Theta", ylab="R", xlim=c(0,1), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
       }
@@ -118,7 +118,7 @@ genoClusterPlot <- function(intenData,
     } 
     else {
       if (start.axis.at.0) {
-        plot(x, y, xlab="X", ylab="Y", xlim=c(0,max(x)), ylim=c(0,max(y)), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
+        plot(x, y, xlab="X", ylab="Y", xlim=c(0,max(x,na.rm=TRUE)), ylim=c(0,max(y,na.rm=TRUE))), col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
       } else { 
         plot(x, y, xlab="X", ylab="Y", col=xcol, pch=xpch, main=main.txt[i], cex=cex, ...)
       }
