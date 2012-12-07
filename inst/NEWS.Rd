@@ -214,6 +214,11 @@
 }
 \section{Changes in version 1.5.5}{
   \itemize{
+    \item Deprecated pedigreeClean and pedigreeFindDuplicates.
+    pedigreeCheck now encompasses all pedigree checks and should be used
+    instead.
+    \item Added pedigreeMaxUnrelated to find the maximum set of
+    unrelated members of a pedigree.
     \item Added additional output column "MAF" to matrix returned by
     alleleFrequency.
   }

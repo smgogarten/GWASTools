@@ -10,6 +10,8 @@
 
 pedigreeClean<-function(pedigree)
 {
+  .Deprecated("pedigreeCheck")
+  
 	cl<-unlist(lapply(pedigree,class))
       if(is.element("factor",cl)) stop("some variables are factors")	
 

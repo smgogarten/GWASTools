@@ -9,6 +9,8 @@
 
 pedigreeFindDuplicates<-function(pedigree, verbose=TRUE) 
 {
+  .Deprecated("pedigreeCheck")
+  
 	er<-pedigreeClean(pedigree)
       if(!is.null(er)) stop("basic errors - run pedigreeClean to identify")
 

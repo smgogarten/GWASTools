@@ -60,7 +60,7 @@ A list with the following components:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\seealso{ \code{\link{pedigreeCheck}}
+\seealso{ \code{\link{pedigreeCheck}}, \code{\link{pedigreeMaxUnrelated}}
 
 }
 

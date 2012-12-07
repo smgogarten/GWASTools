@@ -1,20 +1,22 @@
 \name{pedigreeFindDuplicates}
 \alias{pedigreeFindDuplicates}
+\alias{pedigreeFindDuplicates-deprecated}
 \alias{pedigreeDeleteDuplicates}
 
 \title{
-Identify and remove duplicates from a pedigree
+Remove duplicates from a pedigree
 }
 \description{
-\code{pedigreeFindDuplicates} identifies duplicates of
-individuals within a family and checks that pedigree data on duplicates is
-consistent.  \code{pedigreeDeleteDuplicates} removes duplicates
+\code{pedigreeDeleteDuplicates} removes duplicates
 from a pedigree.
+  
+\code{pedigreeFindDuplicates} is deprecated - use
+\code{\link{pedigreeCheck}} instead.
 }
 \usage{
 pedigreeFindDuplicates(pedigree, verbose=TRUE)
 
-pedigreeDeleteDuplicates(pedigree, duplicates) 
+pedigreeDeleteDuplicates(pedigree, duplicates)
 }
 
 
@@ -39,7 +41,7 @@ pedigreeDeleteDuplicates(pedigree, duplicates)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \details{
-  The output of \code{pedigreeFindDuplicates} can be provided
+  The output of \code{\link{pedigreeCheck}} can be provided
   to \code{pedigreeDeleteDuplicates} in order to generate a new
   pedigree with duplicates removed.
 }
@@ -60,7 +62,7 @@ identical to \code{pedigree}, but with duplicates removed.
 }
 
 
-\seealso{\code{\link{pedigreeClean}},  \code{\link{pedigreeCheck}}, \code{\link{pedigreePairwiseRelatedness}}
+\seealso{\code{\link{pedigreeCheck}}, \code{\link{pedigreePairwiseRelatedness}}
 }
 
 \examples{
@@ -70,8 +72,8 @@ mother <- c(0,0,1,1,0,0,4,4)
 father <- c(0,0,2,2,0,0,5,5)
 sex <- c("F","M","F","F","F","F","M","M")
 pedigree <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
-duplicates <- pedigreeFindDuplicates(pedigree)
-pedigree.no.dups <- pedigreeDeleteDuplicates(pedigree, duplicates$dups.match) 
+duplicates <- pedigreeCheck(pedigree)$duplicates
+pedigree.no.dups <- pedigreeDeleteDuplicates(pedigree, duplicates) 
 }
 
 \keyword{manip}

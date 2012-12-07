@@ -75,7 +75,7 @@ There may be additional problems not investigated because of the current problem
 }
 
 
-\seealso{\code{\link{pedigreePairwiseRelatedness}}
+\seealso{\code{\link{pedigreeDeleteDuplicates}}, \code{\link{pedigreePairwiseRelatedness}}
 }
 
 \examples{

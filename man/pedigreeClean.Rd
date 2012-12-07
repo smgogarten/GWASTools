@@ -1,10 +1,12 @@
 \name{pedigreeClean}
 \alias{pedigreeClean}
+\alias{pedigreeClean-deprecated}
 
 \title{Basic pedigree data checking
 }
 
-\description{This function checks a pedigree for completeness and gross errors. 
+\description{This function is deprecated.  Use
+  \code{\link{pedigreeCheck}} instead.
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,42 +51,42 @@ Returns \code{NULL} if no errors were found.
 \author{Cecelia Laurie
 }
 
-\seealso{\code{\link{pedigreeCheck}}, \code{\link{pedigreeFindDuplicates}}, \code{\link{pedigreePairwiseRelatedness}}
+\seealso{\code{\link{pedigreeCheck}}, \code{\link{pedigreePairwiseRelatedness}}
 }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\examples{
-family <- c("a","a","a","b","b","c","")
-individ <- c("A","B","C","A","B",0,"")
-mother <- c("B","C",0,0,0,NA,0)
-father <- c("C","D",0,0,"",0,"D")
-sex <- c("F","2","M","F","F","M","F")
-samp <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
-pedigreeClean(samp)
+% \examples{
+% family <- c("a","a","a","b","b","c","")
+% individ <- c("A","B","C","A","B",0,"")
+% mother <- c("B","C",0,0,0,NA,0)
+% father <- c("C","D",0,0,"",0,"D")
+% sex <- c("F","2","M","F","F","M","F")
+% samp <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
+% pedigreeClean(samp)
 
-# $family.missing
-# [1] 7
-#
-# $individ.missing
-# [1] 7
-#
-# $father.missing
-# [1] 5
-#
-# $mother.missing
-# [1] 6
-#
-# $sexcode.error
-# [1] 2
-#
-# $zero.individ
-# [1] 6
-#
-# $both.mother.father
-# $both.mother.father$a
-# [1] "C"
-}
+% # $family.missing
+% # [1] 7
+% #
+% # $individ.missing
+% # [1] 7
+% #
+% # $father.missing
+% # [1] 5
+% #
+% # $mother.missing
+% # [1] 6
+% #
+% # $sexcode.error
+% # [1] 2
+% #
+% # $zero.individ
+% # [1] 6
+% #
+% # $both.mother.father
+% # $both.mother.father$a
+% # [1] "C"
+% }
 
 
 \keyword{manip}
