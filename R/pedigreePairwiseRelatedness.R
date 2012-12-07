@@ -5,11 +5,8 @@
 #Output - vector of families with inbreeding (to be handled by hand)
 #         dataframe of Individ1, Individ2, relation,  kinship coefficient, family
 
-#Options: opt=FALSE (default) creates pairs using only Individ1 and Individ2 from list of id's in individ column
-#         opt=TRUE  creates pairs using any id's contained in individ, mother, or father           
-
 pedigreePairwiseRelatedness<-
-			function( pedigree,  use.any.ids=FALSE) 
+			function(pedigree) 
 {
 	
 	
@@ -50,7 +47,7 @@ pedigreePairwiseRelatedness<-
 		individ<-c(1:dim(Yo)[1])
 		mother<-match(Yo$mother,Yo$individ,nomatch=0)
 		father<-match(Yo$father,Yo$individ,nomatch=0)
-		YY<-data.frame(individ,mother,father,stringsAsFactors=FALSE)
+		YY<-data.frame(individ,mother,father,stringsAsFactors=F)
 		
 		#Calculate kinship coefficient for each pair
 		kc<-diag(1/2,n,n)
@@ -72,77 +69,41 @@ pedigreePairwiseRelatedness<-
 		tKC<-KC
 		tKC[row(tKC)>col(tKC)]<-1
 		wunr<-which(tKC==0,arr.ind=TRUE)
-		unr<-data.frame(wunr,stringsAsFactors=FALSE)
+		unr<-data.frame(wunr,stringsAsFactors=F)
 		names(unr)<-c("Individ1","Individ2")
 		out.list<-list(KC,unr)
 		names(out.list)<-c("kinship","unrelated")
 		return(out.list) 
 	 }
 
+		
+    samp<- pedigree
 	
-	
-	
-	samp<- pedigree
-	opt<- use.any.ids
-	er<- pedigreeCheck(samp)
-	if(!is.null(er)){stop("ERROR: There are consistency errors. Run pedigreeCheck to diagnose")}
+    er<- pedigreeCheck(samp)
+    if(!is.null(er)){stop("ERROR: There are consistency errors. Run pedigreeCheck to diagnose")}
 	  
-	u<-unique(samp$family)
-	un<-length(u)
-	relativeprs<-NULL
-	inbreed<-NULL
-      inbred.kc<-NULL
-	for (i in 1:un){
-	x<-samp[is.element(samp$family,u[i]),c("individ","mother","father")] #get family
+    u<-unique(samp$family)
+    un<-length(u)
+    relativeprs<-NULL
+    inbreed<-NULL
+    inbred.kc<-NULL
+    for (i in 1:un){
+	  x<-samp[is.element(samp$family,u[i]),c("individ","mother","father")] #get family
 	
-	#add 'extra' mothers and fathers to individ list  (assumed to be "founders")
-	ui<-x$individ  #recall no duplicates
-	nind<-length(ui)
-	um<-x$mother
-	uf<-x$father
-	individ<-x$individ
-	mother<-x$mother
-	father<-x$father
-
-
-	#find non-zero mother/father (known) entries that are not in individ list
-	um<-setdiff(um,0); uf<-setdiff(uf,0)
-	em<-setdiff(um,intersect(ui,um))
-	ef<-setdiff(uf,intersect(ui,uf))
-	new<-c(em,ef);ln<-length(new)
-
-	#identify children with one unknown parent, assign individ id and assume is 'founder' (no parents)
-	wum<-which(is.element(x$mother,0)) 
-	nwuf<-which(!is.element(x$father,0))
-	wm<-intersect(wum,nwuf)
-	wuf<-which(is.element(x$father,0))
-	nwum<-which(!is.element(x$mother,0))
-	wf<-intersect(wuf,nwum)
-	lm<-length(wm); lf<-length(wf)
-
-      if(lf!=0){ exf<-paste("unfa",individ[wf],sep=""); father[wf]<-exf} else exf<-NULL
-	if(lm!=0){exm<-paste("unmo",individ[wm],sep="");mother[wm]<-exm} else exm<-NULL
-
-	if(ln !=0) {
-	individ<-c(individ,new)
-	mother<-c(mother,rep(0,ln))
-	father<-c(father,rep(0,ln))}
-	if(lf!=0){
-	individ<-c(individ,exf)
-	mother<-c(mother,rep(0,lf))
-	father<-c(father,rep(0,lf))}
-	if(lm!=0){
-	individ<-c(individ,exm)
-	mother<-c(mother,rep(0,lm))
-	father<-c(father,rep(0,lm))}
+	  ui<-x$individ  #recall no duplicates
+	  nind<-length(ui)
 	
-	XX<-data.frame(individ,mother,father,stringsAsFactors=FALSE)  
+	  individ<-x$individ
+	  mother<-x$mother
+	  father<-x$father
+	
+	XX<-data.frame(individ,mother,father,stringsAsFactors=F)  
 	
 	#recode so that individ is 1:number of individuals, mother/father ids correspond
 	individ<-c(1:dim(XX)[1])
 	mother<-match(XX$mother,XX$individ,nomatch=0)
 	father<-match(XX$father,XX$individ,nomatch=0)
-	Y<-data.frame(individ,mother,father,stringsAsFactors=FALSE)
+	Y<-data.frame(individ,mother,father,stringsAsFactors=F)
 	
 	#find offspring,parent pairs directly from pedigree
 	p<-Y[!is.element(Y$mother,0),c("individ","mother")]
@@ -170,21 +131,21 @@ pedigreePairwiseRelatedness<-
             inbreed<-c(inbreed,u[i])
            	pprs<-combn(Y$individ,2)
 	      tp<-t(pprs)
-	      inbprs<-data.frame(tp,stringsAsFactors=FALSE)
+	      inbprs<-data.frame(tp,stringsAsFactors=F)
 	      names(inbprs)<-c("Individ1","Individ2")
          	inbprs$kinship<-dg$kinship[tp]
             inbprs$family<-u[i]
 	#decode back to original individ id's
-	     if(!opt)uui<-ui else uui<-c(ui,new,exf,exm)
-	     w1<-as.list(rep(NA,length(uui)))
-	     w2<-as.list(rep(NA,length(uui)))
-	     for (j in 1:length(uui)) {
+	 
+	     w1<-as.list(rep(NA,length(ui)))
+	     w2<-as.list(rep(NA,length(ui)))
+	     for (j in 1:length(ui)) {
 	         w1[[j]]<-which(is.element(inbprs$Individ1,j))
 	         w2[[j]]<-which(is.element(inbprs$Individ2,j))
            }
-	     for (j in 1:length(uui)){
-	         inbprs$Individ1[w1[[j]]]<-uui[j]
-	         inbprs$Individ2[w2[[j]]]<-uui[j]  
+	     for (j in 1:length(ui)){
+	         inbprs$Individ1[w1[[j]]]<-ui[j]
+	         inbprs$Individ2[w2[[j]]]<-ui[j]  
            }
            inbred.kc<-rbind(inbred.kc,inbprs)
            next
@@ -394,7 +355,7 @@ pedigreePairwiseRelatedness<-
 	
 	pprs<-combn(Y$individ,2)
 	tp<-t(pprs)
-	relprs<-data.frame(tp,stringsAsFactors=FALSE)
+	relprs<-data.frame(tp,stringsAsFactors=F)
 	names(relprs)<-c("Individ1","Individ2")
 	relprs$relation<-rep("Other",dim(pprs)[2])
 	relprs$kinship<-dg$kinship[tp]
@@ -465,46 +426,24 @@ pedigreePairwiseRelatedness<-
 	  phsfc<-paste(hsfc[,1],hsfc[,2])
 	  mhsfc<-match(phsfc,R)
 	  relprs$relation[mhsfc]<-"HSFC" }
-	
-	#delete any pairs that involve the 'added' individs
-	#recall the id's in mother or father are contained in new 
-	#exf and exm contain extra id's for missing identifiers
-	#if opt=FALSE, delete all
-	#if opt=TRUE, delete only the extras for missing identifiers
-	
-	tnew<-NULL
-	ladd<-length(new)+length(exf)+length(exm)
-	lex<-length(c(exf,exm))
-	lui<-length(ui)+1
-	lp<-length(ui)+length(new)
-	lend<-length(ui)+ladd
-	if(!opt && (ladd !=0)) tnew<-lui:lend
-	if(opt && (lex!=0)) tnew<-(lp+1):lend 
-	w1<-which(is.element(relprs[,1],tnew))
-	w2<-which(is.element(relprs[,2],tnew))
-	w<-union(w1,w2)
-	W<-c(1:dim(relprs)[1])
-	keep<-setdiff(W,w)
-	relprs<-relprs[keep,]
-	
+		
 	#decode back to original individ id's
-	if(!opt)uui<-ui else uui<-c(ui,new,exf,exm)
-	w1<-as.list(rep(NA,length(uui)))
-	w2<-as.list(rep(NA,length(uui)))
-	for (j in 1:length(uui)) {
+	w1<-as.list(rep(NA,length(ui)))
+	w2<-as.list(rep(NA,length(ui)))
+	for (j in 1:length(ui)) {
 	 w1[[j]]<-which(is.element(relprs$Individ1,j))
 	 w2[[j]]<-which(is.element(relprs$Individ2,j)) }
-	for (j in 1:length(uui)){
-	 relprs$Individ1[w1[[j]]]<-uui[j]
-	 relprs$Individ2[w2[[j]]]<-uui[j]  }
+	for (j in 1:length(ui)){
+	 relprs$Individ1[w1[[j]]]<-ui[j]
+	 relprs$Individ2[w2[[j]]]<-ui[j]  }
 	
 	#add family id column
-	relprs$family<-rep(u[i],dim(relprs)[1])
+	relprs$family<-rep(u[i],nrow(relprs))
 	
 	
 	#add onto previous family
 	relativeprs<-rbind(relativeprs,relprs)
-	} #end of family loop
+    } #end of family loop
 	out.list<-list(inbreed,inbred.kc,relativeprs)
 	names(out.list)<-c("inbred.fam","inbred.KC","relativeprs")
 	return(out.list)

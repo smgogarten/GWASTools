@@ -1541,8 +1541,10 @@ ibdobj$k0[1:5,1:5]
 We can now find the expected relationships between samples in the CEU group based on the pedigree data
 that is stored in the sample annotation file. We will create a subset of the sample annotation that has one line per 
 sample and columns that hold family, father and mother ids, where an entry of \Rcode{0} indicates no familial data.  
-Then the function \Rcode{pedigreeClean} is called, which checks for basic pedigree errors such as not all mothers annotated as 
-female or not all fathers as male, or that there exist no individual ids that appear in both the mother and father columns.
+Then the function \Rcode{pedigreeCheck} is called, which 
+determines if there are any duplicates,
+singleton families, mothers/fathers whose sex does not match,
+impossible relationships, or subfamilies.
 
 <<>>=
 ped <- pData(scanAnnot)[scanAnnot$race == "CEU",
@@ -1550,60 +1552,52 @@ ped <- pData(scanAnnot)[scanAnnot$race == "CEU",
 dim(ped)
 names(ped) <- c("family", "individ", "father", "mother", "sex")
 ped[1:5, ]
-pedigreeClean(ped)
+(chk <- pedigreeCheck(ped))
 @ 
 
-The functions that determine expected relationships require no duplicates in the pedigree. This will be verified by a
-function call to \Rcode{pedigreeFindDuplicates}. We will also call \Rcode{pedigreeCheck} which determines if there are any 
-singleton families, mothers/fathers whose sex does not match,
-impossible relationships, or subfamilies.
+The functions that determine expected relationships require no
+duplicates in the pedigree, so we remove them with \Rcode{pedigreeDeleteDuplicates}.
 
 <<>>=
-dups <- pedigreeFindDuplicates(ped)
-names(dups)
-nrow(dups$dups.mismatch)
-uni.ped <- pedigreeDeleteDuplicates(ped, dups$dups.match)
-fc <- pedigreeCheck(uni.ped)
+dups <- chk$duplicates
+head(dups)
+uni.ped <- pedigreeDeleteDuplicates(ped, dups)
+(chk <- pedigreeCheck(uni.ped))
 @ 
 
-The output is a list consisting of  vectors and a matrix: 
-\Rcode{one.person} is vector of family ids for one-person families. 
-\Rcode{mismatch.sex} consists of family ids where sex of mother and/or father is incorrect.
-\Rcode{impossible.related} consists of family ids where either child is mother of self or 
-an individual is both child and mother of same person subfamilies. \Rcode{ident} is a matrix
-with family id (families with subfamilies), subfamily identifier, individual ids of
-persons in the subfamily. (In \Rcode{subfamilies.ident} the individual id's include 
-individuals identified as mother or father who may not be in \Rcode{individ}.) 
- 
+There is one parent with no individual entry, so we add a row for that parent.
+
 <<>>=
-length(fc$one.person)
-length(fc$mismatch.sex)
-length(fc$impossible.related)
-length(fc$subfamilies.ident)
+ni <- chk$parent.no.individ.entry
+parent <- data.frame(family=ni$family, individ=ni$parentID, 
+                     father=0, mother=0, sex="F", 
+                     stringsAsFactors=FALSE)
+ped.complete <- rbind(uni.ped, parent)
+(chk <- pedigreeCheck(ped.complete))
 @ 
 
 There are multiple subfamilies identified, so we will need to
     assign new family IDs to the subfamilies.
   
 <<>>=
-subf <- fc$subfamilies.ident
+subf <- chk$subfamilies.ident
 head(subf)
 table(subf$family)
 subf.ids <- subf$individ[subf$subfamily == 2]
-newfam <- uni.ped$individ %in% subf.ids
-uni.ped$family[newfam] <- uni.ped$family[newfam] + 10000
-table(uni.ped$family)
-pedigreeCheck(uni.ped)
+newfam <- ped.complete$individ %in% subf.ids
+ped.complete$family[newfam] <- ped.complete$family[newfam] + 10000
+table(ped.complete$family)
+pedigreeCheck(ped.complete)
 @ 
 
- Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
+The revised pedigree passes all checks.  Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
 among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}. The relationships looked for as annotated are:
 U = unrelated, PO = parent/offspring, FS = full siblings, HS =
 half-sibling-like (including avuncular and grandparent-grandchild), and FC = first cousins.
 Families where mothers and fathers are related are also looked for among the family annotations.
 
 <<>>=
-rels <- pedigreePairwiseRelatedness(uni.ped)
+rels <- pedigreePairwiseRelatedness(ped.complete)
 length(rels$inbred.fam)
 relprs <- rels$relativeprs
 relprs[1:5,]
@@ -1718,7 +1712,7 @@ We can now find the expected relationships between samples in the YRI group base
 that is stored in the sample annotation file. 
 We will create a subset of the sample annotation that has one line per sample and columns that hold family, father
 and mother ids, where an entry of \Rcode{0} indicates no familial data.
-As before, we use the function \Rcode{pedigreeClean} to check for
+As before, we use the function \Rcode{pedigreeCheck} to check for
 pedigree errors.
 
 <<>>=
@@ -1727,29 +1721,25 @@ ped <- pData(scanAnnot)[scanAnnot$race == "YRI",
 dim(ped)
 names(ped) <- c("family", "individ", "father", "mother", "sex")
 ped[1:5, ]
-pedigreeClean(ped)
+(chk <- pedigreeCheck(ped))
 @ 
 
-As with the Europeans, we use \Rcode{pedigreeFindDuplicates} to
-    identify duplicates and and \Rcode{pedigreeCheck} to look for
-singleton families, mothers/fathers whose sex does not match,
-impossible relationships, or subfamilies.
+As with the Europeans, we remove duplicates and fix subfamilies.
 In studies with family data, sorting pedigree inconsistencies
 is a convoluted task and it is important to utilize automated methods to help detect any inconsistencies.
 
 <<>>=
-dups <- pedigreeFindDuplicates(ped)
-names(dups)
-nrow(dups$dups.mismatch)
-uni.ped <- pedigreeDeleteDuplicates(ped, dups$dups.match)
-fc <- pedigreeCheck(uni.ped)
-(subf <- fc$subfamilies.ident)
+dups <- chk$duplicates
+head(dups)
+uni.ped <- pedigreeDeleteDuplicates(ped, dups)
+(chk <- pedigreeCheck(uni.ped))
 @ 
 
 There is a subfamily with two unrelated people (likely
     founders), so we remove this family from the pedigree.
 
 <<>>=
+subf <- chk$subfamilies.ident
 uni.ped <- uni.ped[!(uni.ped$family %in% subf$family),]
 table(uni.ped$family)
 pedigreeCheck(uni.ped)

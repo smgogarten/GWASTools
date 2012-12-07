@@ -9,7 +9,7 @@ Find inconsistencies within pedigrees.
 
 
 \usage{
-pedigreeCheck(pedigree, unknown.parents=FALSE)
+pedigreeCheck(pedigree)
 }
 
 
@@ -17,15 +17,8 @@ pedigreeCheck(pedigree, unknown.parents=FALSE)
 \arguments{
 
    \item{pedigree}{A dataframe containing the pedigree information for the samples to be examined with columns labeled "family", "individ", "mother", "father" and "sex" containing the identifiers of the family, individual, individual's mother, individual's father and individual's sex (coded as "M" or "F") .
-      Identifiers can be integer, numeric or character but identifiers for mother and father for founders are assumed to be 0. Identifier for unknown parent is assumed to be 0.
-    }
-    \item{unknown.parents}{A logical indicating whether to check for
-      unknown parents.}
-   
-  
+      Identifiers can be integer, numeric or character but identifiers for mother and father for founders are assumed to be 0.  }    
 }
-
-
 
 
 
@@ -37,70 +30,100 @@ pedigreeCheck(pedigree, unknown.parents=FALSE)
 
 \details{
 
-The function \code{pedigreeCheck} finds any of a number of possible inconsistencies within pedigree data: single individual families, sex mismatches with mother or father, and impossible relationships (either where a child is a parent of self or an individual is both a child and a parent of the same person). 
-   It also looks for multiple subfamilies within a family. If the option \code{unknown.parents=TRUE}, it will identify (and output) individuals with one known parent and one unknown parent.
-  The function first checks the pedigree for gross errors.
+The function \code{pedigreeCheck} finds any of a number of possible errors and inconsistencies within pedigree data.
+ If no problems are encountered, the output is \code{NULL}. If problems are encountered, output contains information
+  for the errors encountered (a sub-list of the output values described below) and the following message is printed:
+"All row numbers refer to rows in the full pedigree (not just within a family). Correct current problems and rerun pedigreeCheck.
+There may be additional problems not investigated because of the current problems."
+
 }
 \value{
-The output for \code{pedigreeCheck} is a list with the following elements if the option \code{unknown.parents=FALSE} (the default):
+The output for \code{pedigreeCheck} is \code{NULL} or a sub-list of the following: 
+\item{family.missing.rows}{A vector of integers containing the row positions of entries in the full pedigree where family id's are missing (NA) or blank}
+\item{individ.missing_or_0.rows}{A vector of integers containing the row positions of entries in the full pedigree where individual id's are missing (NA), blank, or 0}
+\item{father.missing.rows}{A vector of integers containing the row positions of entries in the full pedigree where father id's are missing (NA) or blank}
+\item{mother.missing.rows}{A vector of integers containing the row positions of entries in the full pedigree where mother id's are missing (NA) or blank}
+\item{sexcode.error.rows}{A vector of integers containing the row positions of entries in the full pedigree where the 'sex' variable is mis-coded}
 
-\item{one.person}{A vector of family ids for one-person families}
-\item{mismatch.sex }{A vector of family ids where sex of mother and/or father is incorrect }
-\item{impossible.related }{A vector of family ids where either child is mother of self or an individual is both child and mother of same person }
-\item{subfamilies.ident }{A matrix with columns for the family id (of
-  'families' with multiple subfamilies), subfamily identifier and
-  individual of each person in the identified subfamilies. Note that
-  subfamilies are not identified for any families already identified
-  with problems, and that the individual id's include individuals
-  identified as a mother or father who may not be listed as individuals
-  in the pedigree.}
+\item{both.mother.father}{A data.frame with the variables 'family','parentID','mother.row',and 'father.row' where
+    'family' = family identifier, 'parentID' = identifier of parent that appears as both mother and father,
+     'father.row' = row positions(s) in full pedigree in which parent appears as father, and 'mother.row' = row position(s) in full pedigree in which parent appears as mother
+     (if mutliple rows, row numbers are concatenated with separator = ';')}
+\item{parent.no.individ.entry}{A data.frame with the variables 'row.num', 'family', 'no_individ_entry', and 'parentID', 
+  where 'row.num' = row position of entry in the full pedigree where mother and/or father IDs are not included in the pedigree,
+'family' = family identifier,  'no_individ_entry' has values 'father', 'mother' or 'both' indicating which parent is not in the pedigree, and
+    'parentID' = the identifier(s) for individuals not in the pedigree (if more than one, identifiers are concatenated with separator =';')}
+\item{unknown.parent.rows}{A data.frame with variables 'row.num' = row position in full pedigree where one parent is known and one parent is unknown and 'family' = family identifier.}
+\item{duplicates}{A data.frame with variables 'family' = family identifier, 'individ' = individual identifier, 'copies' = number of copies of individual and  'match'= T/F depending upon whether all copies have identical pedigree information} 
+\item{one.person.fams}{A data.frame identifying singeltons (one person families) with variables 'family' = family identifier and 'founder' = T/F depending up whether the singleton is a founder or not }
+
+\item{mismatch.sex }{A data.frame with variables 'family' = family identifier and 'individ' = individual identifier for individuals that occur as mothers but sex is "M" or occur as fathers but sex is "F"  }
+\item{impossible.related.rows }{A list where each entry in the list contains a set of row positions in the full pedigree which together indicate impossible relationships: where either a child is mother of self or an individual is both child and mother of the same person. Names of list entries are associated family identifiers. }
+
+\item{subfamilies.ident }{A data.frame with variables 'family' = family identifier, "subfamily" = sub-family identifier within family, and
+   'individ' = individual identifier of members of identified sub-family. }
   
  If no inconsistencies are found, the output is \code{NULL}.
 
- If \code{unknown.parents = TRUE} the output contains as well:
-\item{unknown.parents}{ a sub-data.frame of pedigree identifying individuals with one parent known and one parent unknown.}
 }
 
 
 \author{Cecelia Laurie
 }
-\note{Subfamilies are not identified for any families already identified with problems, and individual id's in subfamilies may include individual ids listed for a mother or father who may not be listed as individuals in the pedigree.
+\note{All row numbers in output refer to row positions in the full pedigree (not just within family). User should correct current problems and rerun pedigreeCheck.
+There may be additional problems not investigated because of the current problems.
 }
 
 
-\seealso{\code{\link{pedigreeClean}}, \code{\link{pedigreeFindDuplicates}}, \code{\link{pedigreePairwiseRelatedness}}
+\seealso{\code{\link{pedigreePairwiseRelatedness}}
 }
 
 \examples{
-family <- c(1,1,1,2,2,2,3,4,4,4,4,4)
-individ <- c(1,2,3,1,2,3,1,1,2,3,4,5)
-mother <- c(2,0,1,2,1,0,1,2,0,0,5,0)
-father <- c(3,0,3,0,3,0,2,3,0,0,0,0)
-sex <- c("F","F","M","F","M","M","F","M","F","M","F","F")
-samp <- data.frame(family, individ, mother, father, sex, stringsAsFactors=FALSE)
-pedigreeCheck(samp, unknown.parents=TRUE)
 
-# $one.person
-# [1] 3
-#
-# $mismatch.sex
-# [1] 2
-#
-# $impossible.related
-# [1] 1 2 3
-#
-# $subfamilies.ident
-#   family subfamily individ
-# 1      4         1       1
-# 2      4         1       2
-# 3      4         1       3
-# 4      4         2       4
-# 5      4         2       5
-#
-# $unknown.parents
-#    family individ mother father sex
-# 4       2       1      2      0   F
-# 11      4       4      5      0   F
+#basic errors
+family <- c("a","a","a","b","b","c","")
+individ <- c("A","B","C","A","B",0,"")
+mother <- c("B","C",0,0,0,NA,0)
+father <- c("C","D",0,0,"",0,"D")
+sex <- c("F","2","M","F","F","M","F")
+samp <- data.frame(family, individ, mother,father,sex,stringsAsFactors=FALSE)
+pedigreeCheck(samp)
+# there are other problems not investigated since 
+#    the above are basic problems to be cleared up first
+
+## 'duplicates', 'both.mother.father', 'parent.no.individ.entry'
+family <- c("b","b","b","b","c","c",rep("d",5))
+individ <- c("A","B","C","A","B","B",1:5)
+mother <- c("B",0,0,"D",0,0,0,0,1,2,1)
+father <- c("C",0,0,"C",0,0,0,0,2,1,2)
+sex <- c("F","F","M","M","F","F","F","M","F","F","M")
+samp <- data.frame(family, individ, mother,father,sex,stringsAsFactors=FALSE)
+pedigreeCheck(samp)
+# there are other problems (such as mismatch.sex) but not investigated 
+#     directly because already had both.mother.father inconsistency
+
+# 'parent.no.individ.entry', 'one.person.fams', 'unknown.parent.rows',
+#    'mismatch.sex','impossible.related.rows'
+family <- c(1,1,1,2,2,2,3,4,4,4,5,5,5,5,6,6,6)
+individ <- c(1,2,3,1,2,3,1,1,3,2,1,2,3,4,1,2,3)
+mother <- c(2,0,1,2,1,0,1,2,0,2,2,4,0,0,2,1,0)
+father <- c(3,0,3,0,3,0,2,3,1,0,3,1,0,0,3,3,0)
+sex <- c("F","F","M","F","F","M","F","F","F","F","M","F","M","F","F","M","F")
+samp <- data.frame(family, individ,mother,father,sex,stringsAsFactors=FALSE)
+pedigreeCheck(samp)
+# 'mismatch.sex' and 'impossible.related.rows' are only investigated 
+#      for families where there are no other inconsistencies
+
+## 'subfamilies.ident'
+family <- rep(1,12)
+individ <- 1:12
+mother <- c(0,0,2,2,0,0,5,0,7,0,0,10)
+father <- c(0,0,1,1,0,0,6,0,8,0,0,11)
+sex <- c("M",rep("F",4),"M","F","M","M","F","M","M")
+samp <- data.frame(family,individ,mother,father,sex,stringsAsFactors=FALSE)
+pedigreeCheck(samp)
+# 'subfamilies.ident' is only investigated for families 
+#     where there are no other inconsistencies
 }
 
 \keyword{manip}
