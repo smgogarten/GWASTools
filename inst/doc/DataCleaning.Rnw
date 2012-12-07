@@ -1544,7 +1544,7 @@ sample and columns that hold family, father and mother ids, where an entry of \R
 Then the function \Rcode{pedigreeCheck} is called, which 
 determines if there are any duplicates,
 singleton families, mothers/fathers whose sex does not match,
-impossible relationships, or subfamilies.
+impossible relationships, subfamilies, or missing entries.
 
 <<>>=
 ped <- pData(scanAnnot)[scanAnnot$race == "CEU",
@@ -1560,7 +1560,6 @@ duplicates in the pedigree, so we remove them with \Rcode{pedigreeDeleteDuplicat
 
 <<>>=
 dups <- chk$duplicates
-head(dups)
 uni.ped <- pedigreeDeleteDuplicates(ped, dups)
 (chk <- pedigreeCheck(uni.ped))
 @ 
@@ -1581,7 +1580,6 @@ There are multiple subfamilies identified, so we will need to
   
 <<>>=
 subf <- chk$subfamilies.ident
-head(subf)
 table(subf$family)
 subf.ids <- subf$individ[subf$subfamily == 2]
 newfam <- ped.complete$individ %in% subf.ids
@@ -1730,7 +1728,6 @@ is a convoluted task and it is important to utilize automated methods to help de
 
 <<>>=
 dups <- chk$duplicates
-head(dups)
 uni.ped <- pedigreeDeleteDuplicates(ped, dups)
 (chk <- pedigreeCheck(uni.ped))
 @ 
