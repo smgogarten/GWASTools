@@ -101,8 +101,8 @@ Retrieve the row data from the VCF, which describes the SNPs.
 <<>>=
 chrom <- as.vector(seqnames(rowData(vcf)))
 position <- start(ranges(rowData(vcf)))
-REF <- as.character(ref(vcf))
-ALT <- as.character(unlist(alt(vcf)))
+alleleA <- as.character(ref(vcf))
+alleleB <- as.character(unlist(alt(vcf)))
 QUAL <- qual(vcf)
 FILTER <- filt(vcf)
 @
@@ -125,12 +125,12 @@ column contains a unique integer ID that will be used to index SNPs in
 the NetCDF file.
 <<>>=
 # make annotation
-snp.df <- data.frame(chromosome, position, REF, ALT, QUAL, FILTER,
+snp.df <- data.frame(chromosome, position, alleleA, alleleB, QUAL, FILTER,
                      row.names=rownames(vcf), stringsAsFactors=FALSE)
 snp.ord <- order(snp.df$chromosome, snp.df$position)
 snp.df <- snp.df[snp.ord,]
 snp.df$snpID <- 1:nrow(snp.df)
-cols <- c("snpID", "chromosome", "position", "REF", "ALT", "QUAL", "FILTER")
+cols <- c("snpID", "chromosome", "position", "alleleA", "alleleB", "QUAL", "FILTER")
 hdr <- exptData(vcf)$header
 desc <- c("unique integer ID = snp dimension values in NetCDF file",
   "chromosome as integer where X=23, XY=24, Y=25, M=26",
