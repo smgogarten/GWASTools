@@ -1,6 +1,6 @@
 ############ Find anomalous segments from homozygous runs ##############
 #### subfunctions to merge consecutive intervals passing filter #########
-mmerge<-function(w,segs){
+.mmerge<-function(w,segs){
 N<-length(w)
   if(N<=1) {flag<-0;tmp2<-segs[w,c("left","right")]
 out<-list(flag,tmp2);
@@ -42,7 +42,7 @@ flag<-1;out<-list(flag,tmp2)
 names(out)<-c("flag","anoms")
 return(out)   } #end function mmerge
 ################### main merge ##############
-runsMerge<-function(segs,sig) {
+.runsMerge<-function(segs,sig) {
 ## output is new list of runs with merged endpoints ##
 
  wup<-which(segs$sd.fac>sig)
@@ -55,12 +55,12 @@ runsMerge<-function(segs,sig) {
 ### up ###
 tmpup<-NULL
  if(length(wup)!=0){
- resup<-GWASTools:::mmerge(wup,segs)
+ resup<-.mmerge(wup,segs)
 tmpup<-resup$anoms  } # end if(wup!=0)
 ## down ## 
 tmpdown<-NULL
  if(length(wdown)!=0){
- resdown<-GWASTools:::mmerge(wdown,segs)
+ resdown<-.mmerge(wdown,segs)
   tmpdown<-resdown$anoms
  } # end if(wdown!=0)
 #####
@@ -75,7 +75,7 @@ return(rout)
   } #end runsMerge 
 ############################################################
 ############local mad #########################
-LOHlocalMad<-function(select,index,nonanom.index,lrr,length.factor,min.lrr.num){
+.LOHlocalMad<-function(select,index,nonanom.index,lrr,length.factor,min.lrr.num){
 if(any(select$left>select$right))stop("some left endpts > right endpts in runs input dataframe")
 tm5<-NULL
  for(j in 1:dim(select)[1]){
@@ -108,7 +108,7 @@ return(out)
 ## find breakpoints in a homozygous run ##
 ##############
 
-LOHselectAnoms<-function(snum,ch,segs,RUNS,base,index,nonanom.index,lrr,
+.LOHselectAnoms<-function(snum,ch,segs,RUNS,base,index,nonanom.index,lrr,
  homodel.min.num=10,homodel.thresh=10,small.num=20,small.thresh=2.25, 
 medium.num=50,medium.thresh=2,long.num=100,long.thresh=1.5, small.na.thresh=2.5,
  length.factor=5,merge.fac=.85,min.lrr.num=20) {
@@ -127,7 +127,7 @@ if(!all(segs$scanID==snum & segs$chrom==ch)) stop("segs not from same sample/chr
 if(!all(base$scanID==snum & base$chrom==ch)) stop("base not from same sample/chrom")
 
 ##### merge segs if appropriate #####
-new<- GWASTools:::runsMerge(segs,merge.fac)
+new<- .runsMerge(segs,merge.fac)
 FLAG<-new$flag
 select<-new$newsegs
 
@@ -179,7 +179,7 @@ runsegs$chrom.nonanom.sd<-base$chrom.nonanom.sd
 num.segs<-dim(segs)[1]
  
 ## LOHlocalMad computes and adds the variable "local"
-select2<-GWASTools:::LOHlocalMad(runsegs,index,nonanom.index,lrr,length.factor,min.lrr.num)
+select2<-.LOHlocalMad(runsegs,index,nonanom.index,lrr,length.factor,min.lrr.num)
 select2$num.segs<-num.segs
 
 lenrest<-dim(select2)[1]

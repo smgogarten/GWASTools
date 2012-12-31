@@ -8,7 +8,7 @@
 # genotypes (both alleles e.g. A A for all SNPs ordered according to the map file order
 
 # return genotype matrix or vector in plink format
-getPlinkGenotype <- function(genoData, scan.start, scan.count,
+.getPlinkGenotype <- function(genoData, scan.start, scan.count,
                              scan.chromosome.filter = NULL) {
   geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count),
                       char=TRUE)
@@ -41,7 +41,7 @@ getPlinkGenotype <- function(genoData, scan.start, scan.count,
 
 
 # return sample data frame in plink format
-getPlinkFam <- function(genoData, family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL) {
+.getPlinkFam <- function(genoData, family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL) {
   scan.df <- getScanVariable(genoData, c(family.col, individual.col, father.col, mother.col))
   names(scan.df) <- c("family", "individual", "father", "mother")
   scan.df$sex <- 0
@@ -58,7 +58,7 @@ getPlinkFam <- function(genoData, family.col="family", individual.col="scanID", 
 
 
 # return map data frame in plink format
-getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
+.getPlinkMap <- function(genoData, rs.col="rsID", mapdist.col=NULL) {
   map.df <- getSnpVariable(genoData, c(rs.col, "position"))
   chrom <- getChromosome(genoData, char=TRUE)
   # PLINK chromosome coding
@@ -90,7 +90,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
   
   #######################################################
   # Creating map file
-  map.df <- GWASTools:::getPlinkMap(genoData, rs.col, mapdist.col)
+  map.df <- .getPlinkMap(genoData, rs.col, mapdist.col)
   write.table(map.df,mapfile,quote=FALSE,row.names=FALSE,col.names=FALSE,sep="\t")
   # free memory
   rm(map.df)
@@ -100,7 +100,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
   nsample <- nscan(genoData)
   nsnp <- nsnp(genoData)
   
-  scan.df <- GWASTools:::getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
+  scan.df <- .getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
   scanID <- getScanID(genoData)
   
   # This loop retrives each individuals genotypes from the .nc files and writes them in the ped file. One individual per line
@@ -114,7 +114,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     if (verbose) message("writing block ",j," of ",nBlock,": scans ",i,"-",i+bsize-1)
     rdf <- matrix(nrow=bsize, ncol=6+nsnp)
     rdf[,1:6] <- as.matrix(scan.df[i:(i+bsize-1),])
-    geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=i, scan.count=bsize,
+    geno <- .getPlinkGenotype(genoData, scan.start=i, scan.count=bsize,
                              scan.chromosome.filter=scan.chromosome.filter)
     # transpose since PLINK has scans as rows and snps as columns
     rdf[,7:(6+nsnp)] <- t(geno)
@@ -160,7 +160,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   snp.plink <- paste(map$chromosome, map$rsID, map$position)
 
   if (is.null(map.alt)) {
-    map.df <- GWASTools:::getPlinkMap(genoData, rs.col=rs.col)
+    map.df <- .getPlinkMap(genoData, rs.col=rs.col)
     map.df <- map.df[,c("chromosome", rs.col, "position")]
     names(map.df) <- c("chromosome", "rsID", "position")
   } else {
@@ -186,7 +186,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   snp.match <- match(snp.plink, snp.ncdf)
 
   # sample data
-  scan.df <- GWASTools:::getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
+  scan.df <- .getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
   # exclude some samples
   scanID <- getScanID(genoData)
   keep <- !(scanID %in% scan.exclude)
@@ -250,7 +250,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     }
 
     # compare genotypes
-    geno <- GWASTools:::getPlinkGenotype(genoData, scan.start=ind, scan.count=1,
+    geno <- .getPlinkGenotype(genoData, scan.start=ind, scan.count=1,
                              scan.chromosome.filter=scan.chromosome.filter)
     geno <- geno[snp.match]
 

@@ -10,14 +10,14 @@ test_getPlinkGenotype <- function() {
                                              stringsAsFactors=FALSE))
   gd <- GenotypeData(mgr, snpdf)
   exp <- c("T T", "A T", "A A", "0 0", "C C", "C G", "G G", "0 0")
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1,)
+  pg <- GWASTools:::.getPlinkGenotype(gd, 1, 1,)
   checkIdentical(exp, pg)
 
   g2 <- rep(NA, 8)
   mgr <- MatrixGenotypeReader(matrix(c(g1, g2), ncol=2), snpID, chromosome, position, 1:2)
   gd <- GenotypeData(mgr, snpdf)
   exp2 <- matrix(c(exp, rep("0 0", 8)), ncol=2)
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 2)
+  pg <- GWASTools:::.getPlinkGenotype(gd, 1, 2)
   checkIdentical(exp2, pg)
 
   # what happens if we have some missing values in the alleles?
@@ -26,7 +26,7 @@ test_getPlinkGenotype <- function() {
   snpdf <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position, alleleA, alleleB,
                                              stringsAsFactors=FALSE))
   gd <- GenotypeData(mgr, snpdf)
-  pg <- GWASTools:::getPlinkGenotype(gd, 1, 1)
+  pg <- GWASTools:::.getPlinkGenotype(gd, 1, 1)
   checkIdentical(exp, pg)
 }
 

@@ -6,7 +6,7 @@
 # Accessory function
 
 # input will be zoom type - zl for left breakpoint, zr for right breakpoint, zb for both
-zoom2 <- function(pos, 	# position vector over all snps in the netCDF
+.zoom2 <- function(pos, 	# position vector over all snps in the netCDF
 	left.index,   # left index for anomaly(ies) to be plotted
 	right.index,
 	xlim.all, 
@@ -234,9 +234,9 @@ anomStatsPlot <- function(intenData, genoData,
       xlim <- xlim.all	# set xlim to be the start and end of the chromosome
     } else {
      # zoom2 accessory function defined above
-      if(zoom=="left")  xlim <- GWASTools:::zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zl", z=win)
-      if(zoom=="right") xlim <- GWASTools:::zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zr", z=win)
-      if(zoom=="both")  xlim <- GWASTools:::zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zb", z=win)
+      if(zoom=="left")  xlim <- .zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zl", z=win)
+      if(zoom=="right") xlim <- .zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zr", z=win)
+      if(zoom=="both")  xlim <- .zoom2(pos=pos, left.index=left, right.index=right, xlim.all=xlim.all, ztype="zb", z=win)
     }
 
     # set lower limit on lrr to be -2 or the min within the anomaly, whichever is smaller

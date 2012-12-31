@@ -1,4 +1,4 @@
-sampCharac<-function(snp,med.sd,seg.info){
+.sampCharac<-function(snp,med.sd,seg.info){
   #find segmentation factors and record along with sd info for BAF and LOH
   #segmentation factors are ratio of number of segments to number of eligible markers
   #  found for each chromosome 1-23 and one factor for all autosomes
@@ -63,7 +63,7 @@ return(sampchr)
 
 ## identify messy samples
 
-identifyLowQual<-function(samp.info,sd.thresh,sng.seg.thresh,auto.seg.thresh){
+.identifyLowQual<-function(samp.info,sd.thresh,sng.seg.thresh,auto.seg.thresh){
 req<-c("scanID","chrX.num.segs","chrX.fac","max.autosome","max.auto.fac","max.auto.num.segs","fac.all.auto","med.sd")
 if(!is.element(class(samp.info),"data.frame") | 
   !all(is.element(req,names(samp.info)))) stop("class or names of samp.info incorrect")
@@ -97,7 +97,7 @@ return(bad)
 
 anomIdentifyLowQuality <- function(snp.annot, med.sd, seg.info,
                                    sd.thresh,sng.seg.thresh,auto.seg.thresh) {
-  samp.info <- GWASTools:::sampCharac(snp.annot, med.sd, seg.info)
-  low.qual <- GWASTools:::identifyLowQual(samp.info, sd.thresh, sng.seg.thresh, auto.seg.thresh)
+  samp.info <- .sampCharac(snp.annot, med.sd, seg.info)
+  low.qual <- .identifyLowQual(samp.info, sd.thresh, sng.seg.thresh, auto.seg.thresh)
   return(low.qual)
 }

@@ -2,7 +2,7 @@
 #############SUB-FUNCTIONS############
 ## MERGE contiguous segments that meet a filter
 #  based on number of st.devs from a baseline
-mergeSeg<-function(segs,snum,ch,cent,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) { 
+.mergeSeg<-function(segs,snum,ch,cent,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) { 
 #segs is data.frame of DNAcopy segments from sample snum and chromosome ch
 #cent: centromere position information
 #Pos: position info from netCDF
@@ -116,7 +116,7 @@ return(out)
 # looking for run of lrr values < lrr.cut then narrow to this run
 # (BAF DNAcopy tends to not segment these well - often occur in longer homozygous runs)
 
-delHomoRuns<-function(anoms,sid,eligible,intid,LRR,run.size,inter.size,
+.delHomoRuns<-function(anoms,sid,eligible,intid,LRR,run.size,inter.size,
    low.frac.used,lrr.cut,ct.thresh,frac.thresh){
 #run.size - min length of run
 #inter.size - number of homozygotes allowed to "interrupt" run
@@ -469,12 +469,12 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       names(tp)<-c("scanID","chrom","num.segs")
       an.seg.info<-rbind(an.seg.info,tp)  
 
-      tmp2<-GWASTools:::mergeSeg(anch,snum,ch,centromere,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) ## merged for given samp/chrom
+      tmp2<-.mergeSeg(anch,snum,ch,centromere,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) ## merged for given samp/chrom
 
       ### modifying breakpoints for potential homo deletions #####       
         ### delHomoRuns returns original breakpoints for any anom not needing adjustment
 
-      tst.rev<-GWASTools:::delHomoRuns(tmp2,sid,snp.ids,intid,LRR,
+      tst.rev<-.delHomoRuns(tmp2,sid,snp.ids,intid,LRR,
         run.size,inter.size,low.frac.used,lrr.cut,ct.thresh,frac.thresh)
 
       diff.right<-tst.rev$old.right-tst.rev$right

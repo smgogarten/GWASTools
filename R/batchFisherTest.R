@@ -159,7 +159,7 @@ batchFisherTest <- function(genoData,
                     CI1.Batch[,i] <- ci[,1]
                     CI2.Batch[,i] <- ci[,2]
                   }
-                  Exp.Batch[,i] <- GWASTools:::minExpFreq(n1A, n1B, n2A, n2B)
+                  Exp.Batch[,i] <- .minExpFreq(n1A, n1B, n2A, n2B)
                 }
                 
                 # odds ratio goes from 0 to infinity

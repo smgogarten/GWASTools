@@ -9,7 +9,7 @@
 # returns: logical vector of discordances for all snps
 # if major.genotype is not NULL, "nonmissing" only counts SNPs
 #  where the pair included the minor allele
-discordantPair <- function(genoData1, scanID1, snpID1,
+.discordantPair <- function(genoData1, scanID1, snpID1,
                            genoData2, scanID2, snpID2,
                            major.genotype=NULL,
                            missing.fail=c(FALSE, FALSE)) {
@@ -69,7 +69,6 @@ discordantPair <- function(genoData1, scanID1, snpID1,
     discordant <- discordant | fail
     nonmissing <- nonmissing | fail
   }
-  # FIX FOR MINOR.ALLELE.ONLY
   return(data.frame(discordant=discordant, nonmissing=nonmissing))
 }
 
@@ -223,7 +222,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     nds <- rep(0, nsnp)
     for (i in 1:n1) {
       for (j in 1:n2) {
-        res <- discordantPair(genoData1, scan1[i], snpID1,
+        res <- .discordantPair(genoData1, scan1[i], snpID1,
                               genoData2, scan2[j], snpID2,
                               major.genotype, missing.fail)
         discord[res$discordant] <- discord[res$discordant] + 1

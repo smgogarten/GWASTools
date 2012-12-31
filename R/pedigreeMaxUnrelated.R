@@ -14,7 +14,7 @@ pedigreeMaxUnrelated<-function(pedigree,pref=NULL){
 #   The user will need to add one-person families to the output.
 
 ################ SUBFUNCTION KCpairs ######################
-KCpairs<-function(Y,A){
+.KCpairs<-function(Y,A){
 #Input: Y = data frame individ, mother,father for a given family
 #       A = adjacency matrix
 #Assume no dups, consistency checked
@@ -69,7 +69,7 @@ KCpairs<-function(Y,A){
 }
 ####################
 ################## SUBFUNCTION fam.maxset.unrelated ############
-fam.maxset.unrelated<-function(KC,g,p){
+.fam.maxset.unrelated<-function(KC,g,p){
 
 ## Input is KC kinship coefficient matrix 
 ##  g is vector of indices for selected individuals
@@ -237,12 +237,12 @@ for (i in 1:un){
    A[ipo]<-1
 
   #Find kinship coefficient matrix and selected individs
-   KC<-KCpairs(Y,A)
+   KC<-.KCpairs(Y,A)
    g<-which(x$selset==1)
    p<-x$pref[g]   # preference levels
   
   ##Find maximal unrelated set of individuals in family i
-   mset<-fam.maxset.unrelated(KC,g,p)
+   mset<-.fam.maxset.unrelated(KC,g,p)
 
   #Decode back to original ids
    msetid<-x$individ[mset]

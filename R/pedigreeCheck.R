@@ -42,7 +42,7 @@
 ############################
 
 	## local function for testing for relatedness
-	relate<-function(ind,x)
+	.relate<-function(ind,x)
 	{
 		clust<-ind
 		if(!is.element(ind, x$individ))
@@ -298,7 +298,7 @@ There may be additional problems not investigated because of the current problem
 				flag2<-0; counter<-counter+1
 				  while(flag2==0) {
 				   ind<-choice[1]
-				   nclus<-relate(ind,ped)  #find everyone related to ind, includes ind
+				   nclus<-.relate(ind,ped)  #find everyone related to ind, includes ind
 				   clus<-union(clus,nclus)  #all related so far
 				   uclus<-union(uclus,ind)   #individuals already 'used' in relatedness check
 				   choice<-setdiff(clus,uclus)

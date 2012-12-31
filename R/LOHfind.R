@@ -2,7 +2,7 @@
 ########## SUB-functions ##########
 
 ### Find RUNS ##########
-LOHruns<-function(index,geno,eleft,eright,run.size,inter.size) {
+.LOHruns<-function(index,geno,eleft,eright,run.size,inter.size) {
 ## index are eligible snp indices for a sample/chrom
 ## geno is genotypes corresponding to eligible snp's
 ## eleft and eright:endpoints of interval of interest given as snp indices
@@ -93,7 +93,7 @@ return(out)
 ################
 
 ########## Find BASE info #############
-LOHbase<-function(anoms,index,lrr,min.lrr.num) {
+.LOHbase<-function(anoms,index,lrr,min.lrr.num) {
 ## anoms are anomalies found (BAF as well as potential LOH)  
 # for a given sample/chrom with left, right given as snp indices
 ## index,lrr,pos are for a given sample/chrom
@@ -127,7 +127,7 @@ return(out)  }
 ################################## 
 ########### MAIN FUNCTION ##############
 
-LOHfind<-function(snum,ch,geno,index,lrr,chr,segs,
+.LOHfind<-function(snum,ch,geno,index,lrr,chr,segs,
   ansch,run.size=50,inter.size=4,min.lrr.num=20 ) {
 
 #snum - current sample number
@@ -160,11 +160,11 @@ if(annum!=0){
     
 N<-length(LF)
 for(j in 1:N){ eleft<-LF[j];eright<-RT[j]
- outrun<-GWASTools:::LOHruns(index,geno,eleft,eright,run.size,inter.size)  #looking for runs in regions outside anoms
+ outrun<-.LOHruns(index,geno,eleft,eright,run.size,inter.size)  #looking for runs in regions outside anoms
  RUNS<-rbind(RUNS,outrun)  }  #RUNS$right and $left are snp indices
 #################### find base info ########
 if(is.null(RUNS)) { 
-base<-GWASTools:::LOHbase(ansch,index,lrr,min.lrr.num)
+base<-.LOHbase(ansch,index,lrr,min.lrr.num)
 base$num.runs<-0
 base$num.segs<-num.segs
 base$scanID<-snum
@@ -186,7 +186,7 @@ anoms1<-ansch[,c("left","right")]
 anoms2<-RUNS[,c("left","right")]
 anoms<-rbind(anoms1,anoms2)
 anoms<-anoms[order(anoms$left),]
-base<-GWASTools:::LOHbase(anoms,index,lrr,min.lrr.num)
+base<-.LOHbase(anoms,index,lrr,min.lrr.num)
 base$num.runs<-num.runs
 base$num.segs<-num.segs
 base$scanID<-snum

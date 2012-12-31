@@ -118,7 +118,7 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       segs<-segments[segments$chrom==ch,]
 
       ###### find homozygous runs and base info for current sample/chrom
-      out<-GWASTools:::LOHfind(snum,ch,geno,index,lrr,chrr,segs,ansch,
+      out<-.LOHfind(snum,ch,geno,index,lrr,chrr,segs,ansch,
                    run.size,inter.size,min.lrr.num )
   
       base.snch<-out$base.info
@@ -191,7 +191,7 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       nonanom.index<-setdiff(index,possible.anom.index)
 
       #### final FILTERING #########
-      outt<-GWASTools:::LOHselectAnoms(snum,ch,segs.snch,RUNS.snch,base.snch,index,nonanom.index,lrr,
+      outt<-.LOHselectAnoms(snum,ch,segs.snch,RUNS.snch,base.snch,index,nonanom.index,lrr,
         homodel.min.num,homodel.thresh,small.num,small.thresh, medium.num,medium.thresh,
         long.num,long.thresh, small.na.thresh,length.factor,merge.fac,min.lrr.num)
       raw.adj<-outt$raw.adjusted

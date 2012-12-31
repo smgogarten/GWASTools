@@ -14,7 +14,7 @@
 #############################################################################
 
 # minimum expected frequency in each cell
-minExpFreq <- function(n1A, n1B, n2A, n2B) {
+.minExpFreq <- function(n1A, n1B, n2A, n2B) {
 
         ntot <- (n1A + n1B + n2A + n2B)
         f1 <- n1A + n1B
@@ -159,7 +159,7 @@ batchChisqTest <- function(genoData,
 		# save
                 if (return.by.snp) {
                   Chi.Batch[,i] <- rv
-                  Exp.Batch[,i] <- GWASTools:::minExpFreq(n1A, n1B, n2A, n2B)
+                  Exp.Batch[,i] <- .minExpFreq(n1A, n1B, n2A, n2B)
                 }
 
                 # mean chisq
