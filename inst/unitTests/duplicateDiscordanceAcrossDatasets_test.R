@@ -575,3 +575,11 @@ test_missing.fail <- function() {
   checkIdentical(b$discordant, b.exp)
   checkIdentical(b$nonmissing, b.nm)
 }
+
+
+test_genoClasses <- function() {
+  geno <- c("A/A", "A/B", "B/B", NA)
+  major.genotype <- rep("A/A", 4)
+  checkEquals(c("major", "het", "minor", "miss"),
+              GWASTools:::.genoClasses(geno, major.genotype))
+}

@@ -97,7 +97,7 @@
   }
 
   # find the genotype to be ignored (no minor allele) for each SNP
-  major.genotype <- rep(NA,length(allele.freq))
+  major.genotype <- rep(NA, length(allele.freq))
   # A allele freq < 0.5, so A is minor allele, so BB is ignored
   Amin <- !is.na(allele.freq) & allele.freq < 0.5
   major.genotype[Amin] <- paste(alleleB[Amin], alleleB[Amin], sep="/")
@@ -183,7 +183,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
 
   if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
-    if (!(hasSex(genoData1) & hasSex(genoData2))) {
+    if (!hasSex(genoData1)) {
       stop("sex is required for checking Y chromosome discordance")
     }
   }
@@ -207,7 +207,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   
   if (minor.allele.only) {
     # calculate allele frequency of dataset with fewer snps, common samples only
-    if (verbose) message("Calculating allele freqency")
+    if (verbose) message("Calculating allele freqency in genoData1")
 
     scan.freq <- unlist(lapply(ids, function(x) {x$scanID[x$dataset == 1][1]}),
                         use.names=FALSE)
@@ -268,4 +268,137 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   discord.res$discordance.by.snp <- snp.res
   discord.res$discordance.by.subject <- fracList
   return(discord.res)
+}
+
+##########
+# starting functions for minor allele sensitivity and specificity
+
+.genoClasses <- function(geno, major.genotype) {
+  a <- substr(geno, 1, 1)
+  b <- substr(geno, 3, 3)
+  major <- substr(major.genotype, 1, 1)
+    
+  class <- rep("miss", length(geno))
+  class[!is.na(geno) & geno == major.genotype] <- "major"
+  class[!is.na(geno) & a == major & b != major] <- "het"
+  class[!is.na(geno) & a != major & b != major] <- "minor"
+  return(class)
+}
+
+## test <- matrix(c("2TP", "1TP+1FP", "2FP",
+##                  "1TP+1FN", "1TN+1TP", "1TN+1FP",
+##                  "2FN", "1FN+1TN", "2TN",
+##                  "2FN", "1FN+*", "2*"),
+##                ncol=3, nrow=4, byrow=TRUE,
+##                dimnames=list(c("II", "AI", "AA", "--"),
+##                  c("II", "AI", "AA")))
+## test
+## rows: geno2, cols: geno1
+##    II        AI        AA       
+## II "2TP"     "1TP+1FP" "2FP"    
+## AI "1TP+1FN" "1TN+1TP" "1TN+1FP"
+## AA "2FN"     "1FN+1TN" "2TN"    
+## -- "2FN"     "1FN+*"   "2*"   
+## * = exclude from the counts
+## alternatively, could treat "--" like "AA"
+## or could ignore "--"
+## "II"=major, "AI"=het, "AA"=minor, "--"=miss
+
+.truePos <- function(geno1, geno2) {
+  2*(geno1 == "major" & geno2 == "major") + 
+   (geno1 == "major" & geno2 == "het") +
+   (geno1 == "het" & geno2 == "major") +
+   (geno1 == "het" & geno2 == "het")
+}
+
+.trueNeg <- function(geno1, geno2) {
+  (geno1 == "het" & geno2 == "het") +
+   (geno1 == "het" & geno2 == "minor") +
+   (geno1 == "minor" & geno2 == "het") +
+   2*(geno1 == "minor" & geno2 == "minor")
+}
+
+.falsePos <- function(geno1, geno2) {
+  (geno1 == "het" & geno1 == "major") +
+   (geno1 == "minor" & geno2 == "het") +
+   2*(geno1 == "minor" & geno2 == "major")
+}
+
+.falseNeg <- function(geno1, geno2) {
+  (geno1 == "major" & geno2 == "het") +
+   2*(geno1 == "major" & geno2 == "minor") +
+   2*(geno1 == "major" & geno2 == "miss") +
+   (geno1 == "het" & geno2 == "minor") +
+   (geno1 == "het" & geno2 == "miss")
+}
+
+
+minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
+                                              subjName.cols, snpName.cols,
+                                              scan.exclude1=NULL,scan.exclude2=NULL,
+                                              snp.include=NULL, verbose=TRUE) {
+  # check that both genoData objects have subjName, snpName
+  stopifnot(hasScanVariable(genoData1, subjName.cols[1]))
+  stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
+  stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
+  stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
+
+  if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
+    if (!hasSex(genoData1)) {
+      stop("sex is required for checking Y chromosome")
+    }
+  }
+  
+  # find duplicate scans
+  ids <- .duplicatePairs(genoData1, genoData2, subjName.cols,
+                         scan.exclude1, scan.exclude2,
+                         one.pair.per.subj=TRUE)
+  if (is.null(ids)) {    
+    warning("no duplicate IDs found; check subjName.cols")
+    return(NULL)
+  }
+
+  # find common snps
+  snps <- .commonSnps(genoData1, genoData2, snpName.cols,
+                      snp.include)
+  if (is.null(snps)) {
+    warning("no common snps found; check snpName.cols")
+    return(NULL)
+  }
+  
+    # calculate allele frequency of dataset with fewer snps, common samples only
+  if (verbose) message("Calculating allele freqency in genoData1")
+  scan.freq <- unlist(lapply(ids, function(x) {x$scanID[x$dataset == 1][1]}),
+                      use.names=FALSE)
+  major.genotype <- .majorGenotype(genoData1, scan.freq, snps$snpID1)
+   
+  nsnp <- nrow(snps)
+  truePos <- rep(0, nsnp)
+  trueNeg <- rep(0, nsnp)
+  falsePos <- rep(0, nsnp)
+  falseNeg <- rep(0, nsnp)
+   
+  for (k in 1:(length(ids))) {
+    idk <- ids[[k]] # all scanIDs for the kth dup
+    scan1 <- idk$scanID[idk$dataset == 1]
+    scan2 <- idk$scanID[idk$dataset == 2]
+    
+    if (verbose)  
+      message("subject ",k, " out of ",length(ids))
+
+    geno1 <- .selectGenotype(genoData1, scan1[i], snps$snpID1)
+    geno2 <- .selectGenotype(genoData2, scan2[j], snps$snpID2)
+    class1 <- .genoClass(geno1, major.genotype)
+    class2 <- .genoClass(geno2, major.genotype)
+    truePos <- truePos + .truePos(class1, class2)
+    trueNeg <- trueNeg + .trueNeg(class1, class2)
+    falsePos <- falsePos + .falsePos(class1, class2)
+    falseNeg <- falseNeg + .falseNeg(class1, class2)
+  }
+
+  sensitivity <- truePos / (truePos + falseNeg)
+  specificity <- trueNeg / (falsePos + trueNeg)
+  res <- data.frame(sensitivity, specificity)
+  row.names(res) <- row.names(snps)
+  return(res)
 }
