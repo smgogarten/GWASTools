@@ -128,25 +128,13 @@
 }
 
 # discordantPair
-# inputs:
-# - two GenotypeData objects
-# - two scanIDs
-# - two vectors of matched snp IDs
+# inputs: two genotype vectors
 # returns: logical vector of discordances for all snps
 # if major.genotype is not NULL, "nonmissing" only counts SNPs
 #  where the pair included the minor allele
-.discordantPair <- function(genoData1, scanID1, snpID1,
-                            genoData2, scanID2, snpID2,
+.discordantPair <- function(geno1, geno2,
                             major.genotype=NULL,
                             missing.fail=c(FALSE, FALSE)) {
-  # check that snp ID vectors are the same length
-  stopifnot(length(snpID1) == length(snpID2))
-
-  # get matching genotypes
-  geno1 <- .selectGenotype(genoData1, scanID1, snpID1)
-  geno2 <- .selectGenotype(genoData2, scanID2, snpID2)
-  
-  # check that genotypes are the same length after selecting snps
   stopifnot(length(geno1) == length(geno2))
   
   # compare genotypes
@@ -252,8 +240,10 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
     nds <- rep(0, nsnp)
     for (i in 1:n1) {
       for (j in 1:n2) {
-        res <- .discordantPair(genoData1, scan1[i], snps$snpID1,
-                               genoData2, scan2[j], snps$snpID2,
+        # get matching genotypes
+        geno1 <- .selectGenotype(genoData1, scan1[i], snps$snpID1)
+        geno2 <- .selectGenotype(genoData2, scan2[j], snps$snpID2)
+        res <- .discordantPair(geno1, geno2,
                                major.genotype, missing.fail)
         discord[res$discordant] <- discord[res$discordant] + 1
         npair[res$nonmissing] <- npair[res$nonmissing] + 1
