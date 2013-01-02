@@ -1,5 +1,6 @@
 \name{duplicateDiscordanceAcrossDatasets}
 \alias{duplicateDiscordanceAcrossDatasets}
+\alias{minorAlleleSensitivitySpecificity}
 \title{Duplicate discordance across datasets}
 
 \description{
@@ -12,6 +13,11 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   subjName.cols, snpName.cols,
   one.pair.per.subj=TRUE, minor.allele.only=FALSE,
   missing.fail=c(FALSE, FALSE),
+  scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
+  verbose=TRUE)
+
+minorAlleleSensitivitySpecificity(genoData1, genoData2,
+  subjName.cols, snpName.cols,
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -61,16 +67,44 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   \code{genoData1} and \code{genoData2} should each have "alleleA" and
   "alleleB" defined in their SNP annotation.  If allele coding cannot be
   found, the two datasets are assumed to have identical coding.
-}
+
+  \code{minorAlleleSensitivitySpecificity} calculates
+  \itemize{
+    \item sensitivity to
+      the minor allele for each SNP as \code{TP/(TP+FN)} where
+      \code{TP=}number of true positives and \code{FN=}number of false negatives.
+    \item specificity for each SNP as \code{TN/(FP+TN)} where
+      \code{TN=}number of true negatives and \code{FP=}number of false
+      positives.
+  }
+  \code{genoData1} is assumed to be the "gold standard" and missing
+  values in this dataset are ignored.  If "M" is the major allele and
+  "m" is the minor allele (as calculated in \code{genoData1}), the values
+  of \code{TP}, \code{TN}, \code{FP}, and \code{FN} are determined from
+  the following table:
+  \tabular{lllll}{
+              \tab    \tab           \tab genoData1 \tab \cr
+              \tab    \tab mm        \tab Mm        \tab MM\cr
+              \tab mm \tab 2TP       \tab 1TP + 1FP \tab 2FP\cr
+    genoData2 \tab Mm \tab 1TP + 1FN \tab 1TN + 1TP \tab 1TN + 1FP\cr
+	      \tab MM \tab 2FN       \tab 1FN + 1TN \tab 2TN\cr 
+              \tab -- \tab 2FN       \tab 1FN       \tab \cr
+	    }
+}	    
 
 \value{
-  A list with the following components:
+  \code{duplicateDiscordanceAcrossDatasets} returns a list with the following components:
   \item{discordance.by.snp}{data frame with 4 columns: 1. discordant
   (number of discordant pairs), 2. npair (number of pairs examined),
   3. n.disc.subj (number of subjects with at least one discordance),
   4. discord.rate (discordance rate i.e. discordant/npair).  Row names
   are the common snp ID.}
   \item{discordance.by.subject}{a list of matrices (one for each subject) with the pair-wise discordance between the different genotyping instances of the subject}
+
+  \code{minorAlleleSensitivitySpecificity} returns a data.frame with the
+  following components for each SNP:
+  \item{sensitivity}{sensitivity to the minor allele}
+  \item{specificity}{specificity}
   
   If no duplicate scans or no common SNPs are found, issues a warning
   message and returns \code{NULL}.
@@ -103,6 +137,9 @@ data2 <-  GenotypeData(nc2, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
 discord <- duplicateDiscordanceAcrossDatasets(data1, data2,
              subjName.cols=c("CoriellID", "CoriellID"),
              snpName.cols=c("rsID", "rsID"))
+sens.spec <- minorAlleleSensitivitySpecificity(data1, data2,
+               subjName.cols=c("CoriellID", "CoriellID"),
+               snpName.cols=c("rsID", "rsID"))
 close(data1)
 close(data2)
 }

@@ -577,11 +577,11 @@ test_missing.fail <- function() {
 }
 
 
-test_genoClasses <- function() {
+test_genoClass <- function() {
   geno <- c("A/A", "A/B", "B/B", NA)
   major.genotype <- rep("A/A", 4)
-  checkEquals(c("major", "het", "minor", "miss"),
-              GWASTools:::.genoClasses(geno, major.genotype))
+  checkIdentical(c("major", "het", "minor", "miss"),
+                 GWASTools:::.genoClass(geno, major.genotype))
 }
 
 test_posNeg <- function() {
@@ -602,10 +602,69 @@ test_posNeg <- function() {
                  2,1,0,
                  2,1,0), nrow=4, byrow=TRUE)
 
-  geno1 <- matrix(c("major", "het", "minor"),
+  geno1 <- matrix(c("minor", "het", "major"),
                   nrow=4, ncol=3, byrow=TRUE)
-  geno2 <-  matrix(c("major", "het", "minor", "miss"),
+  geno2 <-  matrix(c("minor", "het", "major", "miss"),
                   nrow=4, ncol=3)
 
+  checkIdentical(TP, GWASTools:::.truePos(geno1, geno2))
+  checkIdentical(TN, GWASTools:::.trueNeg(geno1, geno2))
+  checkIdentical(FP, GWASTools:::.falsePos(geno1, geno2))
+  checkIdentical(FN, GWASTools:::.falseNeg(geno1, geno2))
+}
+
+test_minorAlleleSensitivitySpecificity <- function() {
+  # snp annotation
+  snpID <- 1:4
+  chrom <- rep(1L, 4)
+  pos <- 101:104
+  alleleA <- rep("A",4)
+  alleleB <- rep("G",4)
+  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos,
+                      alleleA=alleleA, alleleB=alleleB,
+                      stringsAsFactors=FALSE)
+  snpAnnot <- SnpAnnotationDataFrame(snpdf)
   
+  # scan annotation
+  scanID <- 1:4
+  subjID <- c("a","b","c","d")
+  sex <- rep("M",4)
+  scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex)
+  scanAnnot <- ScanAnnotationDataFrame(scandf)
+  
+  geno1 <- matrix(c(0,1,2,NA),
+                  nrow=4, ncol=4, byrow=TRUE)
+  mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+
+  geno2 <-  matrix(c(0,1,2,NA),
+                  nrow=4, ncol=4)
+  mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpID,
+    chromosome=chrom, position=pos, scanID=scanID)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  
+  TP <- matrix(c(2,1,0,
+                 1,1,0,
+                 0,0,0,
+                 0,0,0), nrow=4, byrow=TRUE)
+  TN <- matrix(c(0,0,0,
+                 0,1,1,
+                 0,1,2,
+                 0,0,0), nrow=4, byrow=TRUE)
+  FP <- matrix(c(0,1,2,
+                 0,0,1,
+                 0,0,0,
+                 0,0,0), nrow=4, byrow=TRUE)
+  FN <- matrix(c(0,0,0,
+                 1,0,0,
+                 2,1,0,
+                 2,1,0), nrow=4, byrow=TRUE)
+  exp <- data.frame(sensitivity=(rowSums(TP)/(rowSums(TP) + rowSums(FN))),
+                    specificity=(rowSums(TN)/(rowSums(FP) + rowSums(TN))))
+  row.names(exp) <- as.character(snpID)
+
+  res <- minorAlleleSensitivitySpecificity(genoData1, genoData2,
+                                           rep("subjID", 2), rep("snpID", 2))
+  checkIdentical(exp, res)
 }

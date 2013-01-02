@@ -273,7 +273,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 ##########
 # starting functions for minor allele sensitivity and specificity
 
-.genoClasses <- function(geno, major.genotype) {
+.genoClass <- function(geno, major.genotype) {
   a <- substr(geno, 1, 1)
   b <- substr(geno, 3, 3)
   major <- substr(major.genotype, 1, 1)
@@ -302,33 +302,33 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 ## * = exclude from the counts
 ## alternatively, could treat "--" like "AA"
 ## or could ignore "--"
-## "II"=major, "AI"=het, "AA"=minor, "--"=miss
+## "II"=minor, "AI"=het, "AA"=major, "--"=miss
 
 .truePos <- function(geno1, geno2) {
-  2*(geno1 == "major" & geno2 == "major") + 
-   (geno1 == "major" & geno2 == "het") +
-   (geno1 == "het" & geno2 == "major") +
+  2*(geno1 == "minor" & geno2 == "minor") + 
+   (geno1 == "minor" & geno2 == "het") +
+   (geno1 == "het" & geno2 == "minor") +
    (geno1 == "het" & geno2 == "het")
 }
 
 .trueNeg <- function(geno1, geno2) {
   (geno1 == "het" & geno2 == "het") +
-   (geno1 == "het" & geno2 == "minor") +
-   (geno1 == "minor" & geno2 == "het") +
-   2*(geno1 == "minor" & geno2 == "minor")
+   (geno1 == "het" & geno2 == "major") +
+   (geno1 == "major" & geno2 == "het") +
+   2*(geno1 == "major" & geno2 == "major")
 }
 
 .falsePos <- function(geno1, geno2) {
-  (geno1 == "het" & geno1 == "major") +
-   (geno1 == "minor" & geno2 == "het") +
-   2*(geno1 == "minor" & geno2 == "major")
+  (geno1 == "het" & geno2 == "minor") +
+   2*(geno1 == "major" & geno2 == "minor") +
+   (geno1 == "major" & geno2 == "het")
 }
 
 .falseNeg <- function(geno1, geno2) {
-  (geno1 == "major" & geno2 == "het") +
-   2*(geno1 == "major" & geno2 == "minor") +
-   2*(geno1 == "major" & geno2 == "miss") +
-   (geno1 == "het" & geno2 == "minor") +
+  (geno1 == "minor" & geno2 == "het") +
+   2*(geno1 == "minor" & geno2 == "major") +
+   2*(geno1 == "minor" & geno2 == "miss") +
+   (geno1 == "het" & geno2 == "major") +
    (geno1 == "het" & geno2 == "miss")
 }
 
@@ -386,8 +386,8 @@ minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
     if (verbose)  
       message("subject ",k, " out of ",length(ids))
 
-    geno1 <- .selectGenotype(genoData1, scan1[i], snps$snpID1)
-    geno2 <- .selectGenotype(genoData2, scan2[j], snps$snpID2)
+    geno1 <- .selectGenotype(genoData1, scan1, snps$snpID1)
+    geno2 <- .selectGenotype(genoData2, scan2, snps$snpID2)
     class1 <- .genoClass(geno1, major.genotype)
     class2 <- .genoClass(geno2, major.genotype)
     truePos <- truePos + .truePos(class1, class2)
