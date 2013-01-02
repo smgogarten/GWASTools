@@ -583,3 +583,29 @@ test_genoClasses <- function() {
   checkEquals(c("major", "het", "minor", "miss"),
               GWASTools:::.genoClasses(geno, major.genotype))
 }
+
+test_posNeg <- function() {
+  TP <- matrix(c(2,1,0,
+                 1,1,0,
+                 0,0,0,
+                 0,0,0), nrow=4, byrow=TRUE)
+  TN <- matrix(c(0,0,0,
+                 0,1,1,
+                 0,1,2,
+                 0,0,0), nrow=4, byrow=TRUE)
+  FP <- matrix(c(0,1,2,
+                 0,0,1,
+                 0,0,0,
+                 0,0,0), nrow=4, byrow=TRUE)
+  FN <- matrix(c(0,0,0,
+                 1,0,0,
+                 2,1,0,
+                 2,1,0), nrow=4, byrow=TRUE)
+
+  geno1 <- matrix(c("major", "het", "minor"),
+                  nrow=4, ncol=3, byrow=TRUE)
+  geno2 <-  matrix(c("major", "het", "minor", "miss"),
+                  nrow=4, ncol=3)
+
+  
+}
