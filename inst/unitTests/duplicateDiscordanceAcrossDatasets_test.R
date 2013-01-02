@@ -23,7 +23,8 @@ test_discordantPair <- function() {
   # scan annotation
   scanID <- 1:5
   subjID <- c("a","b","c","d","e")
-  scandf <- data.frame(scanID=scanID, subjID=subjID)
+  scandf <- data.frame(scanID=scanID, subjID=subjID,
+                       stringsAsFactors=FALSE)
   scanAnnot1 <- ScanAnnotationDataFrame(scandf)
   
   geno1 <- matrix(c(rep(0,5), rep(1,5),
@@ -50,7 +51,8 @@ test_discordantPair <- function() {
   # scan annotation
   scanID <- 1:4
   subjID <- c("c","f","b","a")
-  scandf <- data.frame(scanID=scanID, subjID=subjID)
+  scandf <- data.frame(scanID=scanID, subjID=subjID,
+                       stringsAsFactors=FALSE)
   scanAnnot2 <- ScanAnnotationDataFrame(scandf)
 
   geno2 <- matrix(c(2,1,NA,1,0,
@@ -461,7 +463,8 @@ test_missing.fail <- function() {
   # scan annotation
   scanID <- 1:2
   subjID <- c("a","b")
-  scandf <- data.frame(scanID=scanID, subjID=subjID)
+  scandf <- data.frame(scanID=scanID, subjID=subjID,
+                       stringsAsFactors=FALSE)
   scanAnnot <- ScanAnnotationDataFrame(scandf)
   
   geno1 <- matrix(c(0,1,
@@ -629,7 +632,8 @@ test_minorAlleleSensitivitySpecificity <- function() {
   scanID <- 1:4
   subjID <- c("a","b","c","d")
   sex <- rep("M",4)
-  scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex)
+  scandf <- data.frame(scanID=scanID, subjID=subjID, sex=sex,
+                       stringsAsFactors=FALSE)
   scanAnnot <- ScanAnnotationDataFrame(scandf)
   
   geno1 <- matrix(c(0,1,2,NA),
