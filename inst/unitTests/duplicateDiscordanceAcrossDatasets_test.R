@@ -664,7 +664,8 @@ test_minorAlleleSensitivitySpecificity <- function() {
                  1,0,0,
                  2,1,0,
                  2,1,0), nrow=4, byrow=TRUE)
-  exp <- data.frame(sensitivity=(rowSums(TP)/(rowSums(TP) + rowSums(FN))),
+  exp <- data.frame(npair=rowSums(!is.na(geno1)),
+                    sensitivity=(rowSums(TP)/(rowSums(TP) + rowSums(FN))),
                     specificity=(rowSums(TN)/(rowSums(FP) + rowSums(TN))))
   row.names(exp) <- as.character(snpID)
 

@@ -271,7 +271,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 }
 
 ##########
-# starting functions for minor allele sensitivity and specificity
+# functions for minor allele sensitivity and specificity
 
 .genoClass <- function(geno, major.genotype) {
   a <- substr(geno, 1, 1)
@@ -377,6 +377,7 @@ minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
   trueNeg <- rep(0, nsnp)
   falsePos <- rep(0, nsnp)
   falseNeg <- rep(0, nsnp)
+  npair <- rep(0, nsnp)
    
   for (k in 1:(length(ids))) {
     idk <- ids[[k]] # all scanIDs for the kth dup
@@ -394,11 +395,12 @@ minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
     trueNeg <- trueNeg + .trueNeg(class1, class2)
     falsePos <- falsePos + .falsePos(class1, class2)
     falseNeg <- falseNeg + .falseNeg(class1, class2)
+    npair <- npair + !is.na(geno1)
   }
 
   sensitivity <- truePos / (truePos + falseNeg)
   specificity <- trueNeg / (falsePos + trueNeg)
-  res <- data.frame(sensitivity, specificity)
+  res <- data.frame(npair, sensitivity, specificity)
   row.names(res) <- row.names(snps)
   return(res)
 }

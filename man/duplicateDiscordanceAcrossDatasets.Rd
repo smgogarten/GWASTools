@@ -103,6 +103,7 @@ minorAlleleSensitivitySpecificity(genoData1, genoData2,
 
   \code{minorAlleleSensitivitySpecificity} returns a data.frame with the
   following components for each SNP:
+  \item{npair}{number of sample pairs compared (non-missing in \code{genoData1})}
   \item{sensitivity}{sensitivity to the minor allele}
   \item{specificity}{specificity}
   
