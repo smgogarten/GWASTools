@@ -223,3 +223,8 @@
     alleleFrequency.
   }
 }
+\section{Changes in version 1.5.6}{
+  \itemize{
+    \item Added function minorAlleleSensitivitySpecificity.
+  }
+}
