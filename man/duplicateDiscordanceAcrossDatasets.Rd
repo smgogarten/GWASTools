@@ -1,6 +1,6 @@
 \name{duplicateDiscordanceAcrossDatasets}
 \alias{duplicateDiscordanceAcrossDatasets}
-\alias{minorAlleleSensitivitySpecificity}
+\alias{minorAlleleDetectionAccuracy}
 \title{Duplicate discordance across datasets}
 
 \description{
@@ -16,7 +16,7 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 
-minorAlleleSensitivitySpecificity(genoData1, genoData2,
+minorAlleleDetectionAccuracy(genoData1, genoData2,
   subjName.cols, snpName.cols,
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
@@ -68,20 +68,20 @@ minorAlleleSensitivitySpecificity(genoData1, genoData2,
   "alleleB" defined in their SNP annotation.  If allele coding cannot be
   found, the two datasets are assumed to have identical coding.
 
-  \code{minorAlleleSensitivitySpecificity} calculates
+  \code{minorAlleleDetectionAccuracy} summarizes the accuracy of minor
+  allele detection in \code{genoData2} with respect to \code{genoData1}
+  (the "gold standard").
+  \code{TP=}number of true positives, \code{TN=}number of true negatives,
+  \code{FP=}number of false positives, and \code{FN=}number of false
+  negatives.
+  Accuracy is represented by four metrics:
   \itemize{
-    \item sensitivity to
-      the minor allele for each SNP as \code{TP/(TP+FN)} where
-      \code{TP=}number of true positives and \code{FN=}number of false negatives.
-    \item specificity for each SNP as \code{TN/(FP+TN)} where
-      \code{TN=}number of true negatives and \code{FP=}number of false
-      positives.
+    \item sensitivity for each SNP as \code{TP/(TP+FN)}
+    \item specificity for each SNP as \code{TN/(TN+FP)}
+    \item positive predictive value for each SNP as \code{TP/(TP+FP)}
+    \item negative predictive value for each SNP as \code{TN/(TN+FN)}.
   }
-  \code{genoData1} is assumed to be the "gold standard" and missing
-  values in this dataset are ignored.  If "M" is the major allele and
-  "m" is the minor allele (as calculated in \code{genoData1}), the values
-  of \code{TP}, \code{TN}, \code{FP}, and \code{FN} are determined from
-  the following table:
+  \code{TP}, \code{TN}, \code{FP}, and \code{FN} are calculated as follows:
   \tabular{lllll}{
               \tab    \tab           \tab genoData1 \tab \cr
               \tab    \tab mm        \tab Mm        \tab MM\cr
@@ -90,6 +90,10 @@ minorAlleleSensitivitySpecificity(genoData1, genoData2,
 	      \tab MM \tab 2FN       \tab 1FN + 1TN \tab 2TN\cr 
               \tab -- \tab 2FN       \tab 1FN       \tab \cr
 	    }
+  "M" is the major allele and 
+  "m" is the minor allele (as calculated in \code{genoData1}).
+  "-" is a missing call in \code{genoData2}.
+  Missing calls in \code{genoData1} are ignored. 
 }	    
 
 \value{
@@ -101,14 +105,16 @@ minorAlleleSensitivitySpecificity(genoData1, genoData2,
   are the common snp ID.}
   \item{discordance.by.subject}{a list of matrices (one for each subject) with the pair-wise discordance between the different genotyping instances of the subject}
 
-  \code{minorAlleleSensitivitySpecificity} returns a data.frame with the
-  following components for each SNP:
+  \code{minorAlleleDetectionAccuracy} returns a data.frame with the
+  following columns.  Row names are the common snp ID.
   \item{npair}{number of sample pairs compared (non-missing in \code{genoData1})}
-  \item{sensitivity}{sensitivity to the minor allele}
+  \item{sensitivity}{sensitivity}
   \item{specificity}{specificity}
+  \item{positivePredictiveValue}{Positive predictive value}
+  \item{negativePredictiveValue}{Negative predictive value}
   
-  If no duplicate scans or no common SNPs are found, issues a warning
-  message and returns \code{NULL}.
+  If no duplicate scans or no common SNPs are found, these functions issue a warning
+  message and return \code{NULL}.
 }
 
 \author{Stephanie Gogarten, Jess Shen}
@@ -138,7 +144,7 @@ data2 <-  GenotypeData(nc2, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
 discord <- duplicateDiscordanceAcrossDatasets(data1, data2,
              subjName.cols=c("CoriellID", "CoriellID"),
              snpName.cols=c("rsID", "rsID"))
-sens.spec <- minorAlleleSensitivitySpecificity(data1, data2,
+minor.acc <- minorAlleleDetectionAccuracy(data1, data2,
                subjName.cols=c("CoriellID", "CoriellID"),
                snpName.cols=c("rsID", "rsID"))
 close(data1)

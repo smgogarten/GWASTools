@@ -83,7 +83,7 @@ export(
     mendelErr,
     mendelList,
     mendelListAsDataFrame,
-    minorAlleleSensitivitySpecificity,
+    minorAlleleDetectionAccuracy,
     missingGenotypeByScanChrom,
     missingGenotypeBySnpSex,
     ncdfAddData,

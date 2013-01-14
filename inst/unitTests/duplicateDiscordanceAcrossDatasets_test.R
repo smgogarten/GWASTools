@@ -616,7 +616,7 @@ test_posNeg <- function() {
   checkIdentical(FN, GWASTools:::.falseNeg(geno1, geno2))
 }
 
-test_minorAlleleSensitivitySpecificity <- function() {
+test_minorAlleleDetectionAccuracy <- function() {
   # snp annotation
   snpID <- 1:4
   chrom <- rep(1L, 4)
@@ -666,10 +666,12 @@ test_minorAlleleSensitivitySpecificity <- function() {
                  2,1,0), nrow=4, byrow=TRUE)
   exp <- data.frame(npair=rowSums(!is.na(geno1)),
                     sensitivity=(rowSums(TP)/(rowSums(TP) + rowSums(FN))),
-                    specificity=(rowSums(TN)/(rowSums(FP) + rowSums(TN))))
+                    specificity=(rowSums(TN)/(rowSums(TN) + rowSums(FP))),
+                    positivePredictiveValue=(rowSums(TP)/(rowSums(TP) + rowSums(FP))),
+                    negativePredictiveValue=(rowSums(TN)/(rowSums(TN) + rowSums(FN))))
   row.names(exp) <- as.character(snpID)
 
-  res <- minorAlleleSensitivitySpecificity(genoData1, genoData2,
-                                           rep("subjID", 2), rep("snpID", 2))
+  res <- minorAlleleDetectionAccuracy(genoData1, genoData2,
+                                      rep("subjID", 2), rep("snpID", 2))
   checkIdentical(exp, res)
 }

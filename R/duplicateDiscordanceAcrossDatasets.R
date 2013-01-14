@@ -333,10 +333,10 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 }
 
 
-minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
-                                              subjName.cols, snpName.cols,
-                                              scan.exclude1=NULL,scan.exclude2=NULL,
-                                              snp.include=NULL, verbose=TRUE) {
+minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
+                                         subjName.cols, snpName.cols,
+                                         scan.exclude1=NULL,scan.exclude2=NULL,
+                                         snp.include=NULL, verbose=TRUE) {
   # check that both genoData objects have subjName, snpName
   stopifnot(hasScanVariable(genoData1, subjName.cols[1]))
   stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
@@ -399,8 +399,11 @@ minorAlleleSensitivitySpecificity <- function(genoData1, genoData2,
   }
 
   sensitivity <- truePos / (truePos + falseNeg)
-  specificity <- trueNeg / (falsePos + trueNeg)
-  res <- data.frame(npair, sensitivity, specificity)
+  specificity <- trueNeg / (trueNeg + falsePos)
+  positivePredictiveValue <- truePos / (truePos + falsePos)
+  negativePredictiveValue <- trueNeg / (trueNeg + falseNeg)
+  res <- data.frame(npair, sensitivity, specificity,
+                    positivePredictiveValue, negativePredictiveValue)
   row.names(res) <- row.names(snps)
   return(res)
 }

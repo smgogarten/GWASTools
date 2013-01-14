@@ -228,3 +228,9 @@
     \item Added function minorAlleleSensitivitySpecificity.
   }
 }
+\section{Changes in version 1.5.7}{
+  \itemize{
+    \item Renamed minorAlleleSensitivitySpecificity to
+    minorAlleleDetectionAccuracy and added additional output.
+  }
+}
