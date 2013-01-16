@@ -1365,7 +1365,7 @@ boxplot(scanAnnot$het.A ~ scanAnnot$race,
 
 <<fig=TRUE>>=
 female <- scanAnnot$sex == "F"
-boxplot(scanAnnot$het.A[female] ~ scanAnnot$race[female], 
+boxplot(scanAnnot$het.X[female] ~ scanAnnot$race[female], 
   main="X Chromosome Heterozygosity in Females")
 @
 
