@@ -290,19 +290,19 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 ##                  "2FN", "1FN+1TN", "2TN",
 ##                  "2FN", "1FN+*", "2*"),
 ##                ncol=3, nrow=4, byrow=TRUE,
-##                dimnames=list(c("II", "AI", "AA", "--"),
-##                  c("II", "AI", "AA")))
+##                dimnames=list(c("mm", "Mm", "MM", "--"),
+##                  c("mm", "Mm", "MM")))
 ## test
 ## rows: geno2, cols: geno1
-##    II        AI        AA       
-## II "2TP"     "1TP+1FP" "2FP"    
-## AI "1TP+1FN" "1TN+1TP" "1TN+1FP"
-## AA "2FN"     "1FN+1TN" "2TN"    
+##    mm        Mm        MM       
+## mm "2TP"     "1TP+1FP" "2FP"    
+## Mm "1TP+1FN" "1TN+1TP" "1TN+1FP"
+## MM "2FN"     "1FN+1TN" "2TN"    
 ## -- "2FN"     "1FN+*"   "2*"   
 ## * = exclude from the counts
-## alternatively, could treat "--" like "AA"
+## alternatively, could treat "--" like "MM"
 ## or could ignore "--"
-## "II"=minor, "AI"=het, "AA"=major, "--"=miss
+## "mm"=minor, "Mm"=het, "MM"=major, "--"=miss
 
 .truePos <- function(geno1, geno2) {
   2*(geno1 == "minor" & geno2 == "minor") + 
