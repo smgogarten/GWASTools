@@ -17,7 +17,7 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   verbose=TRUE)
 
 minorAlleleDetectionAccuracy(genoData1, genoData2,
-  subjName.cols, snpName.cols,
+  subjName.cols, snpName.cols, missing.fail=TRUE,
   scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
   verbose=TRUE)
 }
@@ -38,9 +38,13 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
   only between pairs of scans in which at least one scan has a genotype
   with the minor allele (i.e., exclude major allele homozygotes).}
-\item{missing.fail}{2-element logical vector indicating whether missing
+\item{missing.fail}{For \code{duplicateDiscordanceAcrossDatasets},
+    a 2-element logical vector indicating whether missing
   values in datasets 1 and 2, respectively, will be considered failures
-  (discordances with called genotypes in the other dataset).}
+  (discordances with called genotypes in the other dataset).  For
+  \code{minorAlleleDetectionAccuracy}, a single logical indicating
+  whether missing values in dataset 2 will be considered false negatives
+  (\code{missing.fail=TRUE}) or ignored (\code{missing.fail=FALSE}).}
 \item{scan.exclude1}{An integer vector containing the ids of scans to be
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be
@@ -93,7 +97,9 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   "M" is the major allele and 
   "m" is the minor allele (as calculated in \code{genoData1}).
   "-" is a missing call in \code{genoData2}.
-  Missing calls in \code{genoData1} are ignored. 
+  Missing calls in \code{genoData1} are ignored. If
+  \code{missing.fail=FALSE}, missing calls in \code{genoData2} (the last
+  row of the table) are also ignored.
 }	    
 
 \value{

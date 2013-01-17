@@ -324,17 +324,20 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
    (geno1 == "major" & geno2 == "het")
 }
 
-.falseNeg <- function(geno1, geno2) {
-  (geno1 == "minor" & geno2 == "het") +
-   2*(geno1 == "minor" & geno2 == "major") +
-   2*(geno1 == "minor" & geno2 == "miss") +
-   (geno1 == "het" & geno2 == "major") +
-   (geno1 == "het" & geno2 == "miss")
+.falseNeg <- function(geno1, geno2, missing.fail=TRUE) {
+  FN <- (geno1 == "minor" & geno2 == "het") +
+        2*(geno1 == "minor" & geno2 == "major") +
+        (geno1 == "het" & geno2 == "major")
+  if (missing.fail) FN <- FN + 
+    2*(geno1 == "minor" & geno2 == "miss") +
+    (geno1 == "het" & geno2 == "miss")
+  FN
 }
 
 
 minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
                                          subjName.cols, snpName.cols,
+                                         missing.fail=TRUE,
                                          scan.exclude1=NULL,scan.exclude2=NULL,
                                          snp.include=NULL, verbose=TRUE) {
   # check that both genoData objects have subjName, snpName
@@ -394,7 +397,7 @@ minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
     truePos <- truePos + .truePos(class1, class2)
     trueNeg <- trueNeg + .trueNeg(class1, class2)
     falsePos <- falsePos + .falsePos(class1, class2)
-    falseNeg <- falseNeg + .falseNeg(class1, class2)
+    falseNeg <- falseNeg + .falseNeg(class1, class2, missing.fail)
     npair <- npair + !is.na(geno1)
   }
 
