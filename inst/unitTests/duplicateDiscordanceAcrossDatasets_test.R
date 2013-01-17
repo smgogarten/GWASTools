@@ -614,6 +614,12 @@ test_posNeg <- function() {
   checkIdentical(TN, GWASTools:::.trueNeg(geno1, geno2))
   checkIdentical(FP, GWASTools:::.falsePos(geno1, geno2))
   checkIdentical(FN, GWASTools:::.falseNeg(geno1, geno2))
+  
+  FN <- matrix(c(0,0,0,
+                 1,0,0,
+                 2,1,0,
+                 0,0,0), nrow=4, byrow=TRUE)
+  checkIdentical(FN, GWASTools:::.falseNeg(geno1, geno2, missing=FALSE))
 }
 
 test_minorAlleleDetectionAccuracy <- function() {
