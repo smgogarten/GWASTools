@@ -10,4 +10,6 @@ test_genotypeToCharacter <- function() {
                  genotypeToCharacter(g, NULL, NULL, sort=FALSE))
   checkIdentical(matrix(c("C/C","G/C","G/G",NA), nrow=2),
                  genotypeToCharacter(matrix(g, nrow=2), A[1:2], B[1:2], sort=FALSE))
+  checkIdentical(c("C/C","G/C","G/G",NA),
+                 genotypeToCharacter(g, "G", "C", sort=FALSE))
 }

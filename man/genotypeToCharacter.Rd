@@ -20,7 +20,9 @@ genotypeToCharacter(geno, alleleA=NULL, alleleB=NULL, sort=TRUE)
 
 \details{
   If \code{geno} is a vector, \code{alleleA} and \code{alleleB} should
-  have the same length.  If \code{geno} is a matrix, length of
+  have the same length as \code{geno} or length 1 (in the latter case the values are recycled).
+
+  If \code{geno} is a matrix, length of
   \code{alleleA} and \code{alleleB} should be equal to the number of
   rows of \code{geno}.
 

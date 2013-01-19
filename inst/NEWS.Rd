@@ -230,6 +230,8 @@
 }
 \section{Changes in version 1.5.7}{
   \itemize{
+    \item Fixed bug in genotypeToCharacter that resulted in calls to
+    getGenotype(char=TRUE) for a single SNP to return NA.
     \item Renamed minorAlleleSensitivitySpecificity to
     minorAlleleDetectionAccuracy and added additional output.
   }
