@@ -5,8 +5,8 @@ Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
 Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos, Cecelia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Jess Shen, Rohit Swarnkar
 Maintainer: Stephanie M. Gogarten <sdmorris@u.washington.edu>
-Depends: Biobase, ncdf, GWASExactHW, sandwich, gdsfmt
-Imports: methods, DBI, RSQLite, DNAcopy, survival, lmtest, quantsmooth
+Depends: Biobase, ncdf, gdsfmt, sandwich
+Imports: methods, DBI, RSQLite, GWASExactHW, DNAcopy, survival, lmtest, quantsmooth
 Suggests: GWASdata, BiocGenerics, RUnit, SNPRelate, snpStats, VariantAnnotation
 License: Artistic-2.0
 LazyData: yes
@@ -41,4 +41,4 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreeFindDuplicates.R pedigreePairwiseRelatedness.R
   pedigreeMaxUnrelated.R
   convertNcdfGds.R convertVcfGds.R ncdfImputedDosage.R
-  simulateGenotypeMatrix.R simulateIntensityMatrix.R test.R
+  simulateGenotypeMatrix.R simulateIntensityMatrix.R

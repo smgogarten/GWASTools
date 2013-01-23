@@ -3,6 +3,8 @@ import(Biobase)
 import(DBI)
 import(RSQLite)
 import(gdsfmt)
+import(ncdf)
+import(GWASExactHW)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocTestCPH
 importFrom(sandwich, vcovHC) # used in assocTestRegression
