@@ -7,7 +7,7 @@ Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos
 Maintainer: Stephanie M. Gogarten <sdmorris@u.washington.edu>
 Depends: Biobase, ncdf, GWASExactHW, sandwich, gdsfmt
 Imports: methods, DBI, RSQLite, DNAcopy, survival, lmtest, quantsmooth
-Suggests: GWASdata, RUnit, SNPRelate, snpStats, VariantAnnotation
+Suggests: GWASdata, BiocGenerics, RUnit, SNPRelate, snpStats, VariantAnnotation
 License: Artistic-2.0
 LazyData: yes
 biocViews: SNP, GeneticVariability, QualityControl, Microarray

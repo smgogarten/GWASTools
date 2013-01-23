@@ -1,3 +1,2 @@
-library(GWASTools)
 library(GWASdata)
-GWASTools:::.test()
+BiocGenerics:::testPackage("GWASTools", pattern=".*_test\\.R$")
