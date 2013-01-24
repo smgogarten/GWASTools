@@ -52,8 +52,10 @@
 	that all entries along that dimension should be read.
       }
       The result is a vector, matrix, or array, depending on the number
-      of dimensions in the returned values.  If the variable is not found in the GDS
-      file, returns \code{NULL}.
+      of dimensions in the returned values.
+      Missing values (specified by a "missing.value" attribute, see
+      \code{\link{put.attr.gdsn}}) are represented as \code{NA}.
+      If the variable is not found in the GDS file, returns \code{NULL}.
     }
     \item{}{
       \code{getVariableNames(object)}: Returns names of variables in the

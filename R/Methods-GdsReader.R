@@ -66,11 +66,17 @@ setMethod("getVariable",
             # get variable from gds
             var <- read.gdsn(index.gdsn(object@handler, varname), ...)
 
+            # set missing value to NA
+            missVal <- getAttribute(object, "missing.value", varname)
+            if (!is.null(missVal)) {
+              var[var == missVal] <- NA
+            }
+
             return(var)
           })
 
 setMethod("getAttribute",
           signature(object="GdsReader"),      
           function(object, attname, varname) {
-            get.attr.gdsn(index.gdsn(object@handler, varname)[[attname]])
+            get.attr.gdsn(index.gdsn(object@handler, varname))[[attname]]
           })

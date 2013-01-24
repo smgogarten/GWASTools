@@ -34,3 +34,18 @@ test_GdsReader <- function() {
   close(obj)
   unlink(file)
 }
+
+test_GdsReader_attr <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  node <- add.gdsn(gds, "var1", -1:10)
+  put.attr.gdsn(node, "missing.value", -1)
+  closefn.gds(gds)
+
+  obj <- GdsReader(file)
+  checkIdentical(-1, getAttribute(obj, "missing.value", "var1"))
+  checkIdentical(c(NA,0:10), getVariable(obj, "var1"))
+
+  close(obj)
+  unlink(file)
+}
