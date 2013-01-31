@@ -147,10 +147,10 @@ setClass("MatrixGenotypeReader",
 
 # GdsReader
 # holds GDS file handler (gdsfmt library)
-setOldClass("gdsclass")
+setOldClass("gds.class")
 setClass("GdsReader",
          representation(filename = "character",
-                        handler = "gdsclass"))
+                        handler = "gds.class"))
 
 # GdsGenotypeReader
 # Reads genotype data stored in GDS format
