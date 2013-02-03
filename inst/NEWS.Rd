@@ -236,3 +236,12 @@
     minorAlleleDetectionAccuracy and added additional output.
   }
 }
+\section{Changes in version 1.5.8}{
+  \itemize{
+    \item Adding missing value support to GdsReader.
+    \item Fixed bug in getAttribute method for GdsReader.
+    \item Updated GdsReader for compatibility with gdsfmt 0.9.11 (no
+    longer compatible with older versions).
+  }
+}
+
