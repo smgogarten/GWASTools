@@ -18,6 +18,7 @@ test_convertNcdfGds <- function() {
   geno <- getGenotype(nc.orig)
   # gds stores missing as 3
   geno[is.na(geno)] <- 3
+  close(nc.orig)
 
   gdsfile <- tempfile()
   convertNcdfGds(ncfile, gdsfile, sample.annot=scandf,
@@ -35,7 +36,6 @@ test_convertNcdfGds <- function() {
   checkEquals(geno, read.gdsn(index.gdsn(gdsobj, "genotype")))
 
   closefn.gds(gdsobj)
-  close(nc.orig)
   file.remove(ncfile, gdsfile)
 }
 
@@ -43,25 +43,19 @@ test_convertGdsNcdf <- function() {
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
                          n.samples=20, ncdf.filename=ncfile)
-  nc.orig <- NcdfGenotypeReader(ncfile)
-  
-  scanID <- getScanID(nc.orig)
-  snpID <- getSnpID(nc.orig)
-  chromosome <- getChromosome(nc.orig)
-  position <- getPosition(nc.orig)
-  geno <- getGenotype(nc.orig)
 
   gdsfile <- tempfile()
   convertNcdfGds(ncfile, gdsfile)
   ncfile2 <- tempfile()
   convertGdsNcdf(gdsfile, ncfile2)
-  
+
+  nc.orig <- NcdfGenotypeReader(ncfile) 
   nc.new <- NcdfGenotypeReader(ncfile2)
-  checkEquals(scanID, getScanID(nc.new))
-  checkEquals(snpID, getSnpID(nc.new))
-  checkEquals(chromosome, getChromosome(nc.new))
-  checkEquals(position, getPosition(nc.new))
-  checkEquals(geno, getGenotype(nc.new))
+  checkEquals(getScanID(nc.orig), getScanID(nc.new))
+  checkEquals(getSnpID(nc.orig), getSnpID(nc.new))
+  checkEquals(getChromosome(nc.orig), getChromosome(nc.new))
+  checkEquals(getPosition(nc.orig), getPosition(nc.new))
+  checkEquals(getGenotype(nc.orig), getGenotype(nc.new))
   
   close(nc.orig)
   close(nc.new)
@@ -86,13 +80,13 @@ test_checkNcdfGds <- function() {
   geno <- getGenotype(nc.orig)
   # gds stores missing as 3
   geno[is.na(geno)] <- 3
+  close(nc.orig)
 
   gdsfile <- tempfile()
   convertNcdfGds(ncfile, gdsfile, sample.annot=scandf,
                  snp.annot=snpdf, rsID.col="rs.id")
 
   checkTrue(checkNcdfGds(ncfile, gdsfile))
-  close(nc.orig)
 
   # change ncdf file
   nc.new <- open.ncdf(ncfile, write=TRUE)

@@ -205,6 +205,7 @@ test_plinkCheck_map <- function() {
   
   pedfile <- tempfile()
   plinkWrite(genoData, pedfile)
+  close(genoData)
 
   # change chromosomes in netCDF file
   nc.new <- open.ncdf(ncfile, write=TRUE)

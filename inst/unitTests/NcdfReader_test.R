@@ -23,10 +23,10 @@ test_NcdfReader <- function() {
   checkIdentical(dim(getVariable(obj, "genotype")), getDimension(obj, "genotype"))
   checkIdentical(c("snp","sample"), getDimensionNames(obj, "genotype"))
   
+  close(obj)
+  unlink(file)
+  
   # file errors
   checkException(NcdfReader())
   checkException(NcdfReader("foo"))
-
-  close(obj)
-  unlink(file)
 }

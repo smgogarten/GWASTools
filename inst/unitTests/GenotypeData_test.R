@@ -84,8 +84,8 @@ test_GenotypeData_Gds <- function() {
 
   snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID=snp, chromosome=chrom, position=pos))
   scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=samp))
-  gds <- GdsGenotypeReader(file)
-  obj <- GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  gdsobj <- GdsGenotypeReader(file)
+  obj <- GenotypeData(gdsobj, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
   geno[geno == 3] <- NA
   checkIdentical(geno, getGenotype(obj))
   checkIdentical(snp, getSnpID(obj))
