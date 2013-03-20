@@ -132,7 +132,7 @@ e.g. A scan.chromosome.filter matrix used for an analyis when
   covariates and genotype value to the model including only the covariates (a test of genotype effect).  When using a model with interaction terms,
   the association tests compare the model including all the interactions, the covariates, and the genotype value to the model
   with only the covariates and genotype value (jointly testing for all the interaction effects).  All tests and p-values are always
-  computed using Wald tests.  The option of using either sandwich based robust standard errors (which make no model assumptions)
+  computed using Wald tests with p-values computed from Chi-Squared distribtuions.  The option of using either sandwich based robust standard errors (which make no model assumptions)
   or using model based standard errors for the confidence intervals and Wald tests is specified by the \code{robust} parameter.
   The option of also performing equivalent Likelihood Ratio tests is available and is specified by the \code{LRtest} parameter.
   
@@ -172,108 +172,112 @@ e.g. A scan.chromosome.filter matrix used for an analyis when
   the function saves a data-frame for each model gene-action pair, with
   the naming convention as described by the variable \code{outfile}.
 
-  The first three columns of each data-frame are: 
+  The first column of each data-frame is: 
   \item{snpID}{snpID (from \code{genoData}) of the SNP}
-  \item{MAF}{minor allele frequency. Note that calculation of allele frequency for the X chromosome is different than that for the 
-  autosomes and the XY (pseudo-autosomal) region. Hence if chromosome.set includes 23, \code{genoData} should provide the sex of the 
-  scan ("M" or "F") i.e. there should be a column named "sex" with "F" for females and "M" for males.}
-  \item{minor.allele}{the minor allele. Takes values "A" or "B".}
   
   After these first three columns, for every model gene-action pair there are the following columns:
-  Here, "model.N" is the name assigned to the test where N = 1, 2,..., length(model.type), 
+  Here, "model.M" is the name assigned to the test where M = 1, 2,..., length(model.type), 
   and "gene_action" is the gene-action type of the test (one of "additive", "dominant", "recessive", or "dominance").
-  \item{model.N.gene_action.n}{sample size for the regression}
-  \item{model.N.gene_action.warningOrError}{report of different possible warnings or errors:  
-  0 if controls are monomorphic (logistic regression only), 1 if cases are monomorphic (logistic refression only), 
+  \item{model.M.n}{sample size for the regression}
+  
+  For tests that use linear regression (will be \code{NA} if using imputed dosages for genotypes):
+  \item{model.M.nAA}{ 	number of AA genotypes in samples}
+  \item{model.M.nAB}{ 	number of AB genotypes in samples}
+  \item{model.M.nBB}{ 	number of BB genotypes in samples}
+
+  For tests that use logistic regression (will be \code{NA} if using imputed dosages for genotypes):
+  \item{model.M.nAA.cc0}{number of AA genotypes in samples with outcome coded as 0}
+  \item{model.M.nAB.cc0}{number of AB genotypes in samples with outcome coded as 0}
+  \item{model.M.nBB.cc0}{number of BB genotypes in samples with outcome coded as 0}
+  \item{model.M.nAA.cc1}{number of AA genotypes in samples with outcome coded as 1}
+  \item{model.M.nAB.cc1}{number of AB genotypes in samples with outcome coded as 1}
+  \item{model.M.nBB.cc1}{number of BB genotypes in samples with outcome coded as 1}
+  
+  \item{model.M.MAF}{minor allele frequency. Note that calculation of allele frequency for the X chromosome is different than that for the 
+  autosomes and the XY (pseudo-autosomal) region. Hence if chromosome.set includes 23, \code{genoData} should provide the sex of the 
+  scan ("M" or "F") i.e. there should be a column named "sex" with "F" for females and "M" for males.}
+  \item{model.M.minor.allele}{the minor allele. Takes values "A" or "B".}
+   
+  \item{model.M.gene_action.warningOrError}{report of different possible warnings or errors:  
+  0 if controls are monomorphic (logistic regression only), 1 if cases are monomorphic (logistic refression only), 2 if all samples are monomorphic, 
   9 if a warning or error occured during model fitting, \code{NA} if none}
-  \item{model.N.gene_action.Est.G}{estimate of the regression coefficient for the genotype term. 
+  \item{model.M.gene_action.Est.G}{estimate of the regression coefficient for the genotype term. 
   See the description in \code{gene.action.list} above for interpretation.}
-  \item{model.N.gene_action.SE.G}{standard error of the regression coefficient estimate for the genotype term.  
+  \item{model.M.gene_action.SE.G}{standard error of the regression coefficient estimate for the genotype term.  
   Could be either sandwich based (robust) or model based; see description in \code{robust}.}
   
   For tests with interaction variables:
   Here, "ivar_name" refers to the name of the interaction variable; if there are multiple interaction variables, 
   there will be a column with each different "ivar_name".
-  \item{model.N.gene_action.Est.G.ivar_name}{estimate of the regression coefficient for the interaction between genotype and ivar_name.}
-  \item{model.N.gene_action.SE.G.ivar_name}{standard error of the regression coefficient estimate.
+  \item{model.M.gene_action.Est.G.ivar_name}{estimate of the regression coefficient for the interaction between genotype and ivar_name.}
+  \item{model.M.gene_action.SE.G.ivar_name}{standard error of the regression coefficient estimate.
   Could be either sandwich based (robust) or model based; see description in \code{robust}.}
   
   For tests that use logistic regression with no interaction variables:
-  \item{model.N.gene_action.OR.G}{odds ratio for the genotype term. This is exp(the regression coefficient). 
+  \item{model.M.gene_action.OR.G}{odds ratio for the genotype term. This is exp(the regression coefficient). 
   See the description in "gene.action.list" above for interpretation.}
-  \item{model.N.gene_action.OR_L95.G}{lower 95\% confidence limit for the odds ratio 
+  \item{model.M.gene_action.OR_L95.G}{lower 95\% confidence limit for the odds ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.OR_U95.G}{upper 95\% confidence limit for the odds ratio 
+  \item{model.M.gene_action.OR_U95.G}{upper 95\% confidence limit for the odds ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests that use logistic regression and interaction variables:
-  \item{model.N.gene_action.OR.G.ivar_name}{odds ratio for the genotype*ivar_name interaction term. 
+  \item{model.M.gene_action.OR.G.ivar_name}{odds ratio for the genotype*ivar_name interaction term. 
   This is exp(the interaction regression coefficient).  A separate odds ratio is calculated for each interaction term.  
   See the description in "gene.action.list" above for interpretation.}
-  \item{model.N.gene_action.OR_L95.G.ivar_name}{lower 95\% confidence limit for the odds ratio 
+  \item{model.M.gene_action.OR_L95.G.ivar_name}{lower 95\% confidence limit for the odds ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.OR_U95.G.ivar_name}{upper 95\% confidence limit for the odds ratio 
+  \item{model.M.gene_action.OR_U95.G.ivar_name}{upper 95\% confidence limit for the odds ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests that use linear regression with no interaction variables:
-  \item{model.N.gene_action.L95.G}{lower 95\% confidence limit for the genotype coefficient 
+  \item{model.M.gene_action.L95.G}{lower 95\% confidence limit for the genotype coefficient 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.U95.G}{upper 95\% confidence limit for the genotype coefficient
+  \item{model.M.gene_action.U95.G}{upper 95\% confidence limit for the genotype coefficient
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests that use linear regression and interaction variables:
-  \item{model.N.gene_action.L95.G.ivar_name}{lower 95\% confidence limit for the genotype*ivar_name interaction coefficient 
+  \item{model.M.gene_action.L95.G.ivar_name}{lower 95\% confidence limit for the genotype*ivar_name interaction coefficient 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.U95.G.ivar_name}{upper 95\% confidence limit for the genotype*ivar_name interaction coefficient
+  \item{model.M.gene_action.U95.G.ivar_name}{upper 95\% confidence limit for the genotype*ivar_name interaction coefficient
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests that use Poisson regression with no interaction variables:
-  \item{model.N.gene_action.RR.G}{rate ratio for the genotype term. This is exp(the regression coefficient). 
+  \item{model.M.gene_action.RR.G}{rate ratio for the genotype term. This is exp(the regression coefficient). 
   See the description in "gene.action.list" above for interpretation.}
-  \item{model.N.gene_action.RR_L95.G}{lower 95\% confidence limit for the rate ratio 
+  \item{model.M.gene_action.RR_L95.G}{lower 95\% confidence limit for the rate ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.RR_U95.G}{upper 95\% confidence limit for the rate ratio 
+  \item{model.M.gene_action.RR_U95.G}{upper 95\% confidence limit for the rate ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests that use Poisson regression and interaction variables:
-  \item{model.N.gene_action.RR.G.ivar_name}{rate ratio for the genotype*ivar_name interaction term. 
+  \item{model.M.gene_action.RR.G.ivar_name}{rate ratio for the genotype*ivar_name interaction term. 
   This is exp(the interaction regression coefficient).  A separate odds ratio is calculated for each interaction term.  
   See the description in "gene.action.list" above for interpretation.}
-  \item{model.N.gene_action.RR_L95.G.ivar_name}{lower 95\% confidence limit for the rate ratio 
+  \item{model.M.gene_action.RR_L95.G.ivar_name}{lower 95\% confidence limit for the rate ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
-  \item{model.N.gene_action.RR_U95.G.ivar_name}{upper 95\% confidence limit for the rate ratio 
+  \item{model.M.gene_action.RR_U95.G.ivar_name}{upper 95\% confidence limit for the rate ratio 
   (95 will be replaced with whatever confidence level is chosen in \code{CI}).}
   
   For tests with no interaction variables:
-  \item{model.N.gene_action.Wald.Stat.G}{value of the Wald test statistic for testing the genotype parameter}
-  \item{model.N.gene_action.Wald.pval.G}{Wald test p-value.  
+  \item{model.M.gene_action.Wald.Stat.G}{value of the Wald test statistic for testing the genotype parameter}
+  \item{model.M.gene_action.Wald.pval.G}{Wald test p-value, calculated from a Chi-Squared distribution.  
   This can be calculated using either sandwich based robust standard errors or model based standard errors (see \code{robust}).}
   
   For tests with interaction variables:
-  \item{model.N.gene_action.Wald.Stat.GxE}{value of the Wald test statistic for jointly testing all genotype interaction parameters}
-  \item{model.N.gene_action.Wald.pval.GxE}{Wald test p-value for jointly testing all genotype interaction parameters.  
+  \item{model.M.gene_action.Wald.Stat.GxE}{value of the Wald test statistic for jointly testing all genotype interaction parameters}
+  \item{model.M.gene_action.Wald.pval.GxE}{Wald test p-value for jointly testing all genotype interaction parameters, calculated from a Chi-Squared distribution.  
   This can be calculated using either sandwich based robust standard errors or model based standard errors (see \code{robust}).}
   
   If \code{LRtest = TRUE}, for tests with no interaction variables:
-  \item{model.N.gene_action.LR.Stat.G}{value of the Likelihood Ratio test statistic for testing the genotype parameter}
-  \item{model.N.gene_action.LR.pval.G}{Likelihood Ratio test p-value.}
+  \item{model.M.gene_action.LR.Stat.G}{value of the Likelihood Ratio test statistic for testing the genotype parameter}
+  \item{model.M.gene_action.LR.pval.G}{Likelihood Ratio test p-value.}
   
   If \code{LRtest = TRUE}, for tests with interaction variables:
-  \item{model.N.gene_action.LR.Stat.GxE}{value of the Likelihood Ratio test statistic for jointly testing all genotype interaction parameters}
-  \item{model.N.gene_action.LR.pval.GxE}{Likelihood Ratio test p-value for jointly testing all genotype interaction parameters.}
+  \item{model.M.gene_action.LR.Stat.GxE}{value of the Likelihood Ratio test statistic for jointly testing all genotype interaction parameters}
+  \item{model.M.gene_action.LR.pval.GxE}{Likelihood Ratio test p-value for jointly testing all genotype interaction parameters.}
   
-  For tests that use linear regression (will be \code{NA} if using imputed dosages for genotypes):
-  \item{model.N.nAA}{ 	number of AA genotypes in samples}
-  \item{model.N.nAB}{ 	number of AB genotypes in samples}
-  \item{model.N.nBB}{ 	number of BB genotypes in samples}
 
-  For tests that use logistic regression (will be \code{NA} if using imputed dosages for genotypes):
-  \item{model.N.nAA.cc0}{number of AA genotypes in samples with outcome coded as 0}
-  \item{model.N.nAB.cc0}{number of AB genotypes in samples with outcome coded as 0}
-  \item{model.N.nBB.cc0}{number of BB genotypes in samples with outcome coded as 0}
-  \item{model.N.nAA.cc1}{number of AA genotypes in samples with outcome coded as 1}
-  \item{model.N.nAB.cc1}{number of AB genotypes in samples with outcome coded as 1}
-  \item{model.N.nBB.cc1}{number of BB genotypes in samples with outcome coded as 1}
 
 Attributes:
 

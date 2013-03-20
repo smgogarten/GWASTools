@@ -38,7 +38,7 @@ RunRegression <- function(mdat){
   ##### logistic regression #####
   if(model.type[md]=="logistic"){
     # check for monomorphic group
-    if(mono.cc0 | mono.cc1){
+    if(mono | mono.cc0 | mono.cc1){
       mod <- TRUE
     # if not, try the regression
     }else{
@@ -48,7 +48,9 @@ RunRegression <- function(mdat){
     # if monomorphic group or warning or error
     if(is.logical(mod)){
       # determine error type
-      if(mono.cc0){
+      if(mono){
+        err.type <- 2
+      }else if(mono.cc0){
         err.type <- 0
       }else if(mono.cc1){
         err.type <- 1
@@ -121,10 +123,23 @@ RunRegression <- function(mdat){
 
   ###### linear regression #####
   }else if(model.type[md]=="linear"){
+    # check for monomorphic
+    if(mono){
+      mod <- TRUE
+    # if not, try the regression
+    }else{
       mod <- tryCatch(lm(model.formula, data = mdat), warning=function(w) TRUE, error=function(e)TRUE);
+    }
 
     # if warning or error
     if(is.logical(mod)){
+      # determine error type
+      if(mono){
+       err.type <- 2
+      }else{
+        err.type <- 9
+      }
+      # results entries
       if(liv[md] == 0){
         tmp <- c(9,rep(NA,6));
       }else{
@@ -186,10 +201,23 @@ RunRegression <- function(mdat){
 
   ##### poisson regression #####
   }else if(model.type[md]=="poisson"){
-    mod <- tryCatch(glm(model.formula, data = mdat, family=poisson()),warning=function(w) TRUE, error=function(e)TRUE);
+    # check for monomorphic
+    if(mono){
+      mod <- TRUE
+    # if not, try the regression
+    }else{
+      mod <- tryCatch(glm(model.formula, data = mdat, family=poisson()),warning=function(w) TRUE, error=function(e)TRUE);
+    }
 
     # if warning or error
     if(is.logical(mod)){
+      # determine error type
+      if(mono){
+       err.type <- 2
+      }else{
+        err.type <- 9
+      }
+      # results entries
       if(liv[md] == 0){
         tmp <- c(9,rep(NA,7));
       }else{
@@ -352,7 +380,7 @@ RunRegression <- function(mdat){
   names(covar.list) = paste("model",1:nModels,sep=".");
 
   # vector of variable names for results matrices
-  nv <- c("snpID","MAF","minor.allele");
+  nv <- "snpID";
   
   # gene.act.num counts the number of gene action types for each model in the analysis, it's used for indexing
   gene.act.num <- rep(NA,nModels);
@@ -399,11 +427,11 @@ RunRegression <- function(mdat){
         stop(paste("Model number",j,"is logistic, the corresponding outcome variable must be coded as 0/1"))
       }
 
-      nv <- append(nv, paste(names(covar.list)[j], c("nAA.cc0","nAB.cc0","nBB.cc0","nAA.cc1","nAB.cc1","nBB.cc1"), sep="."));
+      nv <- append(nv, paste(names(covar.list)[j], c("n","nAA.cc0","nAB.cc0","nBB.cc0","nAA.cc1","nAB.cc1","nBB.cc1","MAF","minor.allele"), sep="."));
       
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","OR.G",
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G","OR.G",
                                                                                     paste("OR_L",CIstr,".G",sep=""),
                                                                                     paste("OR_U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
@@ -413,7 +441,7 @@ RunRegression <- function(mdat){
         }
       }else{
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G",
                                                                                     paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("OR.G.",ivar.names,sep=""),
                                                                                     paste("OR_L",CIstr,".G.",ivar.names,sep=""),
                                                                                     paste("OR_U",CIstr,".G.",ivar.names,sep=""),
@@ -425,11 +453,11 @@ RunRegression <- function(mdat){
       }      
       
     }else if(model.type[j]=="linear"){
-      nv <- append(nv, paste(names(covar.list)[j], c("nAA","nAB","nBB"), sep="."));
+      nv <- append(nv, paste(names(covar.list)[j], c("n","nAA","nAB","nBB","MAF","minor.allele"), sep="."));
       
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G",
                                                                                     paste("L",CIstr,".G",sep=""),
                                                                                     paste("U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
@@ -439,7 +467,7 @@ RunRegression <- function(mdat){
         }
       }else{
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G",paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),
                                                                                     paste("L",CIstr,".G.",ivar.names,sep=""),
                                                                                     paste("U",CIstr,".G.",ivar.names,sep=""),
                                                                                     "Wald.Stat.GxE","Wald.pval.GxE"), sep="."));
@@ -450,9 +478,11 @@ RunRegression <- function(mdat){
       }
       
     }else if(model.type[j]=="poisson"){
+      nv <- append(nv, paste(names(covar.list)[j], c("n","MAF","minor.allele"), sep="."));
+      
       if(liv[j]==0){
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G","RR.G",
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G","RR.G",
                                                                                     paste("RR_L",CIstr,".G",sep=""),
                                                                                     paste("RR_U",CIstr,".G",sep=""),
                                                                                     "Wald.Stat.G","Wald.pval.G"), sep="."));
@@ -462,7 +492,7 @@ RunRegression <- function(mdat){
         }
       }else{
         for(ga in 1:gene.act.num[j]){
-          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("n","warningOrError","Est.G","SE.G",
+          nv <- append(nv, paste(names(covar.list)[j], gene.action.list[[j]][ga], c("warningOrError","Est.G","SE.G",
                                                                                     paste("Est.G.",ivar.names,sep=""),paste("SE.G.",ivar.names,sep=""),paste("RR.G.",ivar.names,sep=""),
                                                                                     paste("RR_L",CIstr,".G.",ivar.names,sep=""),
                                                                                     paste("RR_U",CIstr,".G.",ivar.names,sep=""),
@@ -543,46 +573,100 @@ RunRegression <- function(mdat){
           crow=crow+1;
           cblockrow=cblockrow+1;
           genovec <- geno[cblockrow,];
-          genovec[genovec==-1]=NA;
-		  
-          # maf calculation
-          # minor.allele coding: A = 1, B = 0
-          if(chr==XchromCode(genoData)){
-            sex <- getSex(genoData, index=keep);
-            m = na.omit(genovec[sex=="M"]);
-            f = na.omit(genovec[sex=="F"]);
-            frq = ( (sum(m)/2 ) + sum(f) ) / (length(m) + 2*length(f));
-            minor.allele <- ifelse(frq > 0.5, 0, 1);
-            frq = ifelse(frq > 0.5, 1-frq, frq);
-          }else{
-            frq = sum(genovec,na.rm=TRUE)/(length(na.omit(genovec))*2);
-            minor.allele <- ifelse(frq > 0.5, 0, 1);
-            frq = ifelse(frq > 0.5, 1-frq, frq);
-          }
 
-          # add SNP and minor allele info to results matrix
-          resm[crow,1] = snpID[si];
-          resm[crow,2] = frq;
-          resm[crow,3] = minor.allele;
+          # create vector to collect results for this SNP
+          res <- snpID[si];
 
-          # check that the SNP is not monomorphic
-          if(!is.na(frq) & frq!=0){
-            # create vector to collect results for this SNP
-            res <- c(snpID[si], frq, minor.allele);
+          ########## loop through all the models being run ##########
+          for(md in 1:nModels){
+            cvnames <-  unique(unlist(strsplit(covar.list[[md]],"[*:]")));
+            ivnames <- unique(unlist(strsplit(ivar.list[[md]], "[*:]")));
 
-            # make genotype coding so that value is count of minor alleles
-            if(minor.allele==1){
-              genotype <- genovec;
-            }else if(minor.allele==0){
-              genotype <- abs(genovec-2);
+            # get data for the model
+            annotvars <- unique(c(outcome[md],cvnames,ivnames));
+            model.dat <- as.data.frame(getScanVariable(genoData, annotvars, index=keep));
+            names(model.dat)[1] <- outcome[md];
+
+            # add genotype data to model data
+            model.dat$genotype <- genovec;
+
+            # add sex data if Xchr SNP
+            if(chr==XchromCode(genoData))
+              model.dat$sexTMP <- getSex(genoData, index=keep);
+
+            # remove samples with any missing data
+            model.dat <- na.omit(model.dat);
+
+            # sample size
+            res <- append(res,dim(model.dat)[1]);
+
+            
+            ##### genotype counts calculation #####
+            if(model.type[md]=="logistic"){
+              if(dosage){
+                nBB.cc0 <- NA; nAB.cc0 <- NA; nAA.cc0 <- NA; nBB.cc1 <- NA; nAB.cc1 <- NA; nAA.cc1 <- NA;
+              }else{
+                nBB.cc0 <- sum(model.dat[,outcome[md]]==0 & model.dat[,"genotype"]==0);
+                nAB.cc0 <- sum(model.dat[,outcome[md]]==0 & model.dat[,"genotype"]==1);
+                nAA.cc0 <- sum(model.dat[,outcome[md]]==0 & model.dat[,"genotype"]==2);
+                nBB.cc1 <- sum(model.dat[,outcome[md]]==1 & model.dat[,"genotype"]==0);
+                nAB.cc1 <- sum(model.dat[,outcome[md]]==1 & model.dat[,"genotype"]==1);
+                nAA.cc1 <- sum(model.dat[,outcome[md]]==1 & model.dat[,"genotype"]==2);
+              }
+              
+              # check for monomorphic group
+              if(length(unique(model.dat[model.dat[,outcome[md]]==0,"genotype"])) > 1){
+                mono.cc0 <- FALSE
+              }else{
+                mono.cc0 <- TRUE
+              }
+              if(length(unique(model.dat[model.dat[,outcome[md]]==1,"genotype"])) > 1){
+                mono.cc1 <- FALSE
+              }else{
+                mono.cc1 <- TRUE
+              }
+
+              # add counts to results
+              res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
+
+            }else if(model.type[md]=="linear"){
+              if(dosage){
+                nBB <- NA; nAB <- NA; nAA <- NA;
+              }else{
+                nBB <- sum(model.dat[,"genotype"]==0);
+                nAB <- sum(model.dat[,"genotype"]==1);
+                nAA <- sum(model.dat[,"genotype"]==2);
+              }
+
+              # add counts to results
+              res <- append(res,c(nAA, nAB, nBB));
             }
 
-            ########## loop through all the models being run ##########
-            for(md in 1:nModels){
-              cvnames <-  unique(unlist(strsplit(covar.list[[md]],"[*:]")));
-              ivnames <- unique(unlist(strsplit(ivar.list[[md]], "[*:]")));
+            
+            ##### maf calculation #####            
+            if(chr==XchromCode(genoData)){
+              m <- model.dat$genotype[model.dat$sexTMP == "M"]
+              f <- model.dat$genotype[model.dat$sexTMP == "F"]
+              frq <- ( (sum(m)/2) + sum(f) ) / (length(m) + 2*length(f));
+              # remove sexTMP data from model.dat (last column)
+              model.dat <- model.dat[,-dim(model.dat)[2]]
+            }else{
+              frq <- sum(model.dat$genotype)/(2*length(model.dat$genotype))
+            }
 
-              # create model formula and get model data
+            # minor.allele coding: A = 1, B = 0
+            minor.allele <- ifelse(frq > 0.5, 0, 1);
+            frq <- ifelse(frq > 0.5, 1-frq, frq);
+
+            # add to results
+            res <- append(res, c(frq,minor.allele))
+
+            
+            # check that the SNP is not monomorphic
+            if(!is.na(frq) & frq!=0){
+              mono <- FALSE
+              
+              # create model formula
               if(liv[md] > 0){
                 rhs = paste(paste(covar.list[[md]],collapse="+"),"genotype",paste(ivar.list[[md]],"genotype",sep=":",collapse="+"),sep="+");
               }else if(covar.list[[md]][1]==""){
@@ -591,10 +675,7 @@ RunRegression <- function(mdat){
                 rhs = paste(paste(covar.list[[md]],collapse="+"),"genotype",sep="+");
               }
               lhs = paste(outcome[md], "~");
-              model.formula = as.formula(paste(lhs,rhs));
-              annotvars = unique(c(outcome[md],cvnames,ivnames));
-              model.dat = as.data.frame(getScanVariable(genoData, annotvars, index=keep));
-              names(model.dat)[1] <- outcome[md];
+              model.formula = as.formula(paste(lhs,rhs));              
 
               if(LRtest){
                 # create null model formula for LR tests
@@ -608,71 +689,34 @@ RunRegression <- function(mdat){
                 lhs0 = paste(outcome[md], "~");
                 model.formula0 = as.formula(paste(lhs0,rhs0));
               }
-                            
-              # add genotype data to model data
-              model.dat$genotype <- genotype;
-              model.dat <- na.omit(model.dat);
 
-              ##### genotype counts calculation #####
-              mdat = model.dat;
-              # switch genotype coding back if flipped before - want to count based on A/B coding
+              # make genotype coding so that value is count of minor alleles
               if(minor.allele==0){
-                mdat$genotype <- abs(mdat$genotype-2);
-              }
-
-              if(model.type[md]=="logistic"){
-                if(dosage){
-                  nBB.cc0 <- NA; nAB.cc0 <- NA; nAA.cc0 <- NA; nBB.cc1 <- NA; nAB.cc1 <- NA; nAA.cc1 <- NA;
-                }else{
-                  nBB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==0);
-                  nAB.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==1);
-                  nAA.cc0 <- sum(mdat[,outcome[md]]==0 & mdat[,"genotype"]==2);
-                  nBB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==0);
-                  nAB.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==1);
-                  nAA.cc1 <- sum(mdat[,outcome[md]]==1 & mdat[,"genotype"]==2);
-                }
-
-                # check for monomorphic group
-                if(length(unique(mdat[mdat[,outcome[md]]==0,"genotype"])) > 1){
-                  mono.cc0 <- FALSE
-                }else{
-                  mono.cc0 <- TRUE
-                }
-                if(length(unique(mdat[mdat[,outcome[md]]==1,"genotype"])) > 1){
-                  mono.cc1 <- FALSE
-                }else{
-                  mono.cc1 <- TRUE
-                }
-
-                res <- append(res,c(nAA.cc0, nAB.cc0, nBB.cc0, nAA.cc1, nAB.cc1, nBB.cc1));
-
-              }else if(model.type[md]=="linear"){
-                if(dosage){
-                  nBB <- NA; nAB <- NA; nAA <- NA;
-                }else{
-                  nBB <- sum(mdat[,"genotype"]==0);
-                  nAB <- sum(mdat[,"genotype"]==1);
-                  nAA <- sum(mdat[,"genotype"]==2);
-                }
-                res <- append(res,c(nAA, nAB, nBB));
-              }
-
-              #### loop through all the gene.actions used for model md ####
-              for(ga in gene.action.list[[md]]){
-                mdat = model.dat;
-                # Transform Genotypes for correct gene action
-                mdat$genotype <- TransformGenotype(ga,mdat$genotype)                      
-                # sample size
-                res <- append(res,dim(mdat)[1]);
-                # Run the Regression & get Estimates & Wald Tests & LR Tests
-                res <- append(res,RunRegression(mdat))                
+                model.dat$genotype <- abs(model.dat$genotype-2)
               } 
               
-            } # models loop
+              #### loop through all the gene.actions used for model md ####
+              for(ga in gene.action.list[[md]]){
+                mdat <- model.dat;
+                # Transform Genotypes for correct gene action
+                mdat$genotype <- TransformGenotype(ga,mdat$genotype) 
+                # Run the Regression & get Estimates & Wald Tests & LR Tests
+                res <- append(res,RunRegression(mdat))                
+              }
 
-            # put results from this SNP into the results matrix
-            resm[crow,] = res;
-          } # !is.na(frq)
+            # if monomorphic SNP
+            }else{
+              mono <- TRUE
+              for(ga in gene.action.list[[md]]){
+                # use RunRegression function to fill in the correct # of NA values
+                res <- append(res,RunRegression(model.dat))                
+              }
+            }
+
+          } # models loop
+
+          # put results from this SNP into the results matrix
+          resm[crow,] <- res;
 
         } #SNP in block loop
         if(verbose) message(paste("chr",chr," block",k, "of",nblocks, "completed"));
@@ -692,8 +736,9 @@ RunRegression <- function(mdat){
   res.set=as.data.frame(res.set);
 
   # convert minor.allele coding back to A/B
-  res.set$minor.allele[res.set$minor.allele==1] <- "A";
-  res.set$minor.allele[res.set$minor.allele==0] <- "B";
+  idx <- grep("minor.allele", colnames(res.set))
+  res.set[,idx][res.set[,idx] == 1] <- "A"
+  res.set[,idx][res.set[,idx] == 0] <- "B"
 
   # split the results into separate matrices
   if (!is.null(outfile)) {
@@ -701,8 +746,10 @@ RunRegression <- function(mdat){
     for(j in 1:nModels){
       for(ga in 1:gene.act.num[j]){
         # which columns to pull out of res.set
-        mod.var.set <- c(1:3, grep(paste("model", j, gene.action.list[[j]][ga], sep="."), names(res.set)))
-        mod.var.set <- append(mod.var.set, grep(paste("model", j, "n[[:upper:]]{2}", sep="."), names(res.set)))
+        mod.var.set <- c(1, grep(paste("model", j, "n", sep="."), names(res.set)))
+        mod.var.set <- append(mod.var.set, grep(paste("model", j, "MAF", sep="."), names(res.set)))
+        mod.var.set <- append(mod.var.set, grep(paste("model", j, "minor.allele", sep="."), names(res.set)))        
+        mod.var.set <- append(mod.var.set, grep(paste("model", j, gene.action.list[[j]][ga], sep="."), names(res.set)))        
         mod.res <- res.set[,mod.var.set];
             
         # define models attribute

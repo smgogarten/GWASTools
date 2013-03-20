@@ -244,4 +244,10 @@
     longer compatible with older versions).
   }
 }
+\section{Changes in version 1.5.9}{
+  \itemize{
+    \item assocTestRegression computes allele counts separately for each
+    model.
+  }
+}
 

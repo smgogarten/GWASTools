@@ -38,12 +38,12 @@ assocTestFisherExact(dat, outfile = NULL)
 
   The first five columns of the data-frame are taken from \code{dat}: 
   \item{snpID}{snpID of the SNP}
+  \item{n}{sample size for the regression}
   \item{MAF}{minor allele frequency. Note that calculation of allele frequency for the X chromosome is different than that for the 
   autosomes and the XY (pseudo-autosomal) region.}
   \item{minor.allele}{the minor allele. Takes values "A" or "B".}
-  \item{n}{sample size for the regression}
   \item{regression.warningOrError}{report of different possible warnings or errors from the regression test:  
-  0 if controls are monomorphic (logistic regression only), 1 if cases are monomorphic (logistic refression only), 
+  0 if controls are monomorphic (logistic regression only), 1 if cases are monomorphic (logistic refression only), 2 if all samples are monomorphic, 
   9 if a warning or error occured during model fitting, \code{NA} if none}
   
   \item{Fisher.OR}{odds ratio from the Fisher's Exact test of allele counts. It is the odds of being a case for the minor allele compared to the major allele.}

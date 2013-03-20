@@ -18,26 +18,40 @@ assocTestFisherExact <- function(dat, outfile = NULL){
   allele.dat <- as.data.frame(allele.dat)
   names(allele.dat) <- c("nA.cc0", "nB.cc0", "nA.cc1", "nB.cc1")
 
+
+  # index for column containing minor allele info
+  maidx <- grep("minor.allele", names(dat))
+  
   # results matrix
   res <- matrix(NA, nrow=nsnp, ncol=4)
-
+    
   # perform Fisher's Exact test
   for(i in 1:nsnp){
-    # if minor allele is A
-    if(dat[i,3]=="A"){
-      tmp <- matrix(as.numeric(allele.dat[i,c(3,4,1,2)]), nrow=2)
-    # if minor allele is B  
-    }else if(dat[i,3]=="B"){
-      tmp <- matrix(as.numeric(allele.dat[i,c(4,3,2,1)]), nrow=2)
+    # if all allele counts 0
+    if(is.na(dat[i,maidx])){
+      res[i,] <- rep(NA, 4)
+    }else{
+      # if minor allele is A
+      if(dat[i,maidx]=="A"){
+        tmp <- matrix(as.numeric(allele.dat[i,c(3,4,1,2)]), nrow=2)
+      # if minor allele is B
+      }else if(dat[i,maidx]=="B"){
+        tmp <- matrix(as.numeric(allele.dat[i,c(4,3,2,1)]), nrow=2)
+      }
+      res[i,] <- as.numeric(unlist(fisher.test(tmp))[c(4,2,3,1)])
     }
-    res[i,] <- as.numeric(unlist(fisher.test(tmp))[c(4,2,3,1)])
   }
   res <- as.data.frame(res)
   names(res) <- c("Fisher.OR","Fisher.OR_L95","Fisher.OR_U95","Fisher.pval")
 
+  # index for column containing MAF info
+  mafidx <- grep("MAF", names(dat))
+  # index for column containing warningOrError info
+  weidx <- grep("warningOrError", names(dat))
+ 
   # combine results
-  res <- cbind(dat[1:5], res, allele.dat)
-  names(res)[c(4,5)] <- c("n","regression.warningOrError")
+  res <- cbind(dat[c(1,2,mafidx,maidx,weidx)], res, allele.dat)
+  names(res)[c(2:5)] <- c("n","MAF","minor.allele","regression.warningOrError")
 
   # save results
   if(!is.null(outfile)){
