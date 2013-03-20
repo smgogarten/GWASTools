@@ -135,15 +135,15 @@ RunRegression <- function(mdat){
     if(is.logical(mod)){
       # determine error type
       if(mono){
-       err.type <- 2
+        err.type <- 2
       }else{
         err.type <- 9
       }
       # results entries
       if(liv[md] == 0){
-        tmp <- c(9,rep(NA,6));
+        tmp <- c(err.type,rep(NA,6));
       }else{
-        tmp <- c(9,rep(NA,(4+4*liv[md])));
+        tmp <- c(err.type,rep(NA,(4+4*liv[md])));
       }
     # if any coef are NA
     }else if(!all(!is.na(coef(mod)))){
@@ -213,15 +213,15 @@ RunRegression <- function(mdat){
     if(is.logical(mod)){
       # determine error type
       if(mono){
-       err.type <- 2
+        err.type <- 2
       }else{
         err.type <- 9
       }
       # results entries
       if(liv[md] == 0){
-        tmp <- c(9,rep(NA,7));
+        tmp <- c(err.type,rep(NA,7));
       }else{
-        tmp <- c(9,rep(NA,(4+5*liv[md])));
+        tmp <- c(err.type,rep(NA,(4+5*liv[md])));
       }
     # if any coef are NA
     }else if(!all(!is.na(coef(mod)))){
