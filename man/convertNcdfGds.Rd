@@ -46,6 +46,9 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
   If \code{snp.annot} has columns "rsID", "alleleA", "alleleB", these
   will be stored in the GDS file as "snp.rs.id" and "snp.allele" (the
   latter has the format "A/B").
+
+  Chromosome codes from \code{snp.annot} (for autosomes, X, Y, etc.)
+  will be stored in the GDS file.
 }
 
 \value{

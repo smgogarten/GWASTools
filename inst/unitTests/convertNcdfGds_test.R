@@ -96,3 +96,35 @@ test_checkNcdfGds <- function() {
   
   file.remove(ncfile, gdsfile)
 }
+
+test_convertNcdfGds_chromCodes <- function() {
+  ncfile <- tempfile()
+  simulateGenotypeMatrix(n.snps=10, n.chromosomes=40, n.samples=5,
+                         ncdf.filename=ncfile)
+  nc <- NcdfGenotypeReader(ncfile)
+  
+  # SNP annotation
+  snpdf <- data.frame(snpID=getSnpID(nc),
+                      chromosome=getChromosome(nc),
+                      position=getPosition(nc))
+  snpAnnot <- SnpAnnotationDataFrame(snpdf, autosomeCode=1:38L,
+                                     XchromCode=39L, YchromCode=40L,
+                                     XYchromCode=41L, MchromCode=42L)
+  close(nc)
+  
+  gdsfile <- tempfile()
+  convertNcdfGds(ncfile, gdsfile, snp.annot=snpAnnot)
+
+  if (require(SNPRelate)) {
+    gdsobj <- openfn.gds(gdsfile)
+    option <- snpgdsOption(gdsobj)
+    checkEquals(1, option$autosome.start)
+    checkEquals(38, option$autosome.end)
+    checkEquals(39, option$chromosome.code$X)
+    checkEquals(40, option$chromosome.code$Y)
+    checkEquals(41, option$chromosome.code$XY)
+    checkEquals(42, option$chromosome.code$M)
+    closefn.gds(gdsobj)
+  }
+  file.remove(ncfile, gdsfile)
+}

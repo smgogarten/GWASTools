@@ -248,6 +248,8 @@
   \itemize{
     \item assocTestRegression computes allele counts separately for each
     model.
+    \item convertNcdfGds uses information from a SnpAnnotationDataFrame to store allele
+    and chromosome codes in the GDS file.
   }
 }
 

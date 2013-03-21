@@ -95,8 +95,17 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# check
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
-        genoData <- GenotypeData(NcdfGenotypeReader(ncdf.filename),
-                                 scanAnnot=sample.annot, snpAnnot=snp.annot)
+        if (!is.null(snp.annot)) {
+          nc <- NcdfGenotypeReader(ncdf.filename,
+                                   autosomeCode=autosomeCode(snp.annot),
+                                   XchromCode=XchromCode(snp.annot),
+                                   XYchromCode=XYchromCode(snp.annot),
+                                   YchromCode=YchromCode(snp.annot),
+                                   MchromCode=MchromCode(snp.annot))
+        } else {
+          nc <- NcdfGenotypeReader(ncdf.filename)
+        }
+        genoData <- GenotypeData(nc, scanAnnot=sample.annot, snpAnnot=snp.annot)
         close(genoData)
 
 	# start
@@ -139,7 +148,18 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# add "snp.chromosome"
 	add.gdsn(gfile, "snp.chromosome", get.var.ncdf(nc, "chromosome"), storage="uint8",
 		compress=zipflag, closezip=TRUE)
-
+        # add chromosome codes
+	if (!is.null(snp.annot))
+	{
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.start", min(autosomeCode(snp.annot)))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.end", max(autosomeCode(snp.annot)))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "X", XchromCode(snp.annot))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "XY", XYchromCode(snp.annot))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "Y", YchromCode(snp.annot))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "M", MchromCode(snp.annot))
+                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(snp.annot))
+	}
+        
 	# sync file
 	sync.gds(gfile)
 
