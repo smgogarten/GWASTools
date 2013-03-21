@@ -14,7 +14,8 @@
 #   verbose -- show progress
 #
 
-convertGdsNcdf <- function(gds.filename, ncdf.filename, verbose = TRUE)
+convertGdsNcdf <- function(gds.filename, ncdf.filename,
+                           verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(gds.filename))
@@ -88,13 +89,15 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, verbose = TRUE)
 #
 
 convertNcdfGds <- function(ncdf.filename, gds.filename,
-	sample.annot = NULL, snp.annot = NULL, rsID.col = "rsID",
-        alleleA.col="alleleA", alleleB.col="alleleB",
+	sample.annot = NULL, snp.annot = NULL,
         zipflag = "ZIP.max", verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
+        genoData <- GenotypeData(NcdfGenotypeReader(ncdf.filename),
+                                 scanAnnot=sample.annot, snpAnnot=snp.annot)
+        close(genoData)
 
 	# start
 	if (verbose) message(date(), "\tbegin convertNcdfGds ...\n")
@@ -114,19 +117,21 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# add "snp.id"
 	add.gdsn(gfile, "snp.id", nc$dim$snp$vals, compress=zipflag, closezip=TRUE)
 	# add "snp.rs.id"
-	if (!is.null(snp.annot) & !is.null(snp.annot[[rsID.col]]))
+	if (!is.null(snp.annot) & !is.null(snp.annot[["rsID"]]))
 	{
-		add.gdsn(gfile, "snp.rs.id", snp.annot[[rsID.col]],
+		add.gdsn(gfile, "snp.rs.id", snp.annot[["rsID"]],
 			compress=zipflag, closezip=TRUE)
 	}
         # add "snp.allele"
-	if (!is.null(snp.annot) & !is.null(snp.annot[[alleleA.col]]) &
-            !is.null(snp.annot[[alleleB.col]]))
+	if (!is.null(snp.annot))
 	{
-                allele <- paste(snp.annot[[alleleA.col]],
-                                snp.annot[[alleleB.col]], sep="/")
-		add.gdsn(gfile, "snp.allele", allele,
-			compress=zipflag, closezip=TRUE)
+                if (!is.null(getAlleleA(snp.annot)) & !is.null(getAlleleB(snp.annot)))
+                {
+                         allele <- paste(getAlleleA(snp.annot),
+                                         getAlleleB(snp.annot), sep="/")
+                         add.gdsn(gfile, "snp.allele", allele,
+                                  compress=zipflag, closezip=TRUE)
+                }
 	}
 	# add "snp.position"
 	add.gdsn(gfile, "snp.position", get.var.ncdf(nc, "position"),
@@ -164,14 +169,14 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# add "sample.annot"
 	if (!is.null(sample.annot))
 	{
-		add.gdsn(gfile, "sample.annot", sample.annot, compress=zipflag, closezip=TRUE)
+		add.gdsn(gfile, "sample.annot", getAnnotation(sample.annot), compress=zipflag, closezip=TRUE)
 		if (verbose)
 			message(date(), "\tstore sample.annot\n")
 	}
 	# add "snp.annot"
 	if (!is.null(snp.annot))
 	{
-		add.gdsn(gfile, "snp.annot", snp.annot, compress=zipflag, closezip=TRUE)
+		add.gdsn(gfile, "snp.annot", getAnnotation(snp.annot), compress=zipflag, closezip=TRUE)
 		if (verbose)
 			message(date(), "\tstore snp.annot")
 	}

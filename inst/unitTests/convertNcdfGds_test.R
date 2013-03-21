@@ -6,15 +6,15 @@ test_convertNcdfGds <- function() {
   
   scanID <- getScanID(nc.orig)
   sex <- c(rep("M", 10), rep("F", 10))
-  scandf <- data.frame(scanID, sex)
+  scandf <- ScanAnnotationDataFrame(data.frame(scanID, sex, stringsAsFactors=FALSE))
   snpID <- getSnpID(nc.orig)
   chromosome <- getChromosome(nc.orig)
   position <- getPosition(nc.orig)
-  rs.id <- paste("rs", snpID, sep="")
-  allele.A <- sample(c("A","C","G","T"), nsnp(nc.orig), replace=TRUE)
-  allele.B <- sample(c("A","C","G","T"), nsnp(nc.orig), replace=TRUE)
-  snpdf <- data.frame(snpID, chromosome, position, rs.id, allele.A,
-                      allele.B, stringsAsFactors=FALSE)
+  rsID <- paste("rs", snpID, sep="")
+  alleleA <- sample(c("A","C","G","T"), nsnp(nc.orig), replace=TRUE)
+  alleleB <- sample(c("A","C","G","T"), nsnp(nc.orig), replace=TRUE)
+  snpdf <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position, rsID, alleleA,
+                                             alleleB, stringsAsFactors=FALSE))
   geno <- getGenotype(nc.orig)
   # gds stores missing as 3
   geno[is.na(geno)] <- 3
@@ -22,16 +22,15 @@ test_convertNcdfGds <- function() {
 
   gdsfile <- tempfile()
   convertNcdfGds(ncfile, gdsfile, sample.annot=scandf,
-                 snp.annot=snpdf, rsID.col="rs.id",
-                 alleleA.col="allele.A", alleleB.col="allele.B")
+                 snp.annot=snpdf)
 
   gdsobj <- openfn.gds(gdsfile)
   checkEquals(snpID, read.gdsn(index.gdsn(gdsobj, "snp.id")))
   checkEquals(scanID, read.gdsn(index.gdsn(gdsobj, "sample.id")))
   checkEquals(chromosome, read.gdsn(index.gdsn(gdsobj, "snp.chromosome")))
   checkEquals(position, read.gdsn(index.gdsn(gdsobj, "snp.position")))
-  checkEquals(rs.id, read.gdsn(index.gdsn(gdsobj, "snp.rs.id")))
-  checkEquals(paste(allele.A, allele.B, sep="/"),
+  checkEquals(rsID, read.gdsn(index.gdsn(gdsobj, "snp.rs.id")))
+  checkEquals(paste(alleleA, alleleB, sep="/"),
               read.gdsn(index.gdsn(gdsobj, "snp.allele")))
   checkEquals(geno, read.gdsn(index.gdsn(gdsobj, "genotype")))
 
@@ -70,13 +69,11 @@ test_checkNcdfGds <- function() {
   
   scanID <- getScanID(nc.orig)
   sex <- c(rep("M", 10), rep("F", 10))
-  scandf <- data.frame(scanID, sex)
+  scandf <- ScanAnnotationDataFrame(data.frame(scanID, sex, stringsAsFactors=FALSE))
   snpID <- getSnpID(nc.orig)
   chromosome <- getChromosome(nc.orig)
   position <- getPosition(nc.orig)
-  rs.id <- paste("rs", snpID, sep="")
-  snpdf <- data.frame(snpID, chromosome, position, rs.id,
-                      stringsAsFactors=FALSE)
+  snpdf <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position))
   geno <- getGenotype(nc.orig)
   # gds stores missing as 3
   geno[is.na(geno)] <- 3
@@ -84,7 +81,7 @@ test_checkNcdfGds <- function() {
 
   gdsfile <- tempfile()
   convertNcdfGds(ncfile, gdsfile, sample.annot=scandf,
-                 snp.annot=snpdf, rsID.col="rs.id")
+                 snp.annot=snpdf)
 
   checkTrue(checkNcdfGds(ncfile, gdsfile))
 

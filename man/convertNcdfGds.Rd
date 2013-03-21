@@ -18,8 +18,7 @@
 
 \usage{
 convertNcdfGds(ncdf.filename, gds.filename,
-  sample.annot = NULL, snp.annot = NULL, rsID.col = "rsID",
-  alleleA.col = "alleleA", alleleB.col = "alleleB",
+  sample.annot = NULL, snp.annot = NULL,
   zipflag = "ZIP.max", verbose = TRUE)
 
 convertGdsNcdf(gds.filename, ncdf.filename, verbose = TRUE)
@@ -30,11 +29,8 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 \arguments{
   \item{ncdf.filename}{name of the NetCDF genotype file}
   \item{gds.filename}{name of the GDS file}
-  \item{sample.annot}{a data.frame with sample annotation}
-  \item{snp.annot}{a data.frame with SNP annotation}
-  \item{rsID.col}{the name of the \code{snp.annot} column with rs ID}
-  \item{alleleA.col}{the name of the \code{snp.annot} column with allele A}
-  \item{alleleB.col}{the name of the \code{snp.annot} column with allele B}
+  \item{sample.annot}{a \code{\link{ScanAnnotationDataFrame}} with sample annotation}
+  \item{snp.annot}{a \code{\link{SnpAnnotationDataFrame}} with SNP annotation}
   \item{zipflag}{the compression format for the GDS file, one of "",
     "ZIP", "ZIP.fast", "ZIP.default", or "ZIP.max"}
   \item{verbose}{whether to show progress information}
@@ -46,6 +42,10 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
   genotype files used in this package to the format required by
   \pkg{\link[SNPRelate]{SNPRelate}} for Principal Component Analysis,
   Identity-by-Descent, and Linkage Disequlibrium calculations.
+
+  If \code{snp.annot} has columns "rsID", "alleleA", "alleleB", these
+  will be stored in the GDS file as "snp.rs.id" and "snp.allele" (the
+  latter has the format "A/B").
 }
 
 \value{
@@ -64,13 +64,11 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 
-data(illumina_snp_annot)
-data(illumina_scan_annot)
+data(illuminaScanADF, illuminaSnpADF)
 
 gdsfile <- tempfile()
-convertNcdfGds(ncfile, gdsfile, sample.annot=illumina_scan_annot,
-  snp.annot=illumina_snp_annot, rsID.col="rsID",
-  alleleA.col="allele.A", alleleB.col="allele.B")
+convertNcdfGds(ncfile, gdsfile, sample.annot=illuminaScanADF,
+               snp.annot=illuminaSnpADF)
 
 checkNcdfGds(ncfile, gdsfile)
 
