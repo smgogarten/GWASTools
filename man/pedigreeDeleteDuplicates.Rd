@@ -1,6 +1,6 @@
 \name{pedigreeFindDuplicates}
 \alias{pedigreeFindDuplicates}
-\alias{pedigreeFindDuplicates-deprecated}
+\alias{pedigreeFindDuplicates-defunct}
 \alias{pedigreeDeleteDuplicates}
 
 \title{
@@ -10,7 +10,7 @@ Remove duplicates from a pedigree
 \code{pedigreeDeleteDuplicates} removes duplicates
 from a pedigree.
   
-\code{pedigreeFindDuplicates} is deprecated - use
+\code{pedigreeFindDuplicates} is defunct - use
 \code{\link{pedigreeCheck}} instead.
 }
 \usage{

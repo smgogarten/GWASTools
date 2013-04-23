@@ -1,11 +1,11 @@
 \name{pedigreeClean}
 \alias{pedigreeClean}
-\alias{pedigreeClean-deprecated}
+\alias{pedigreeClean-defunct}
 
 \title{Basic pedigree data checking
 }
 
-\description{This function is deprecated.  Use
+\description{This function is defunct.  Use
   \code{\link{pedigreeCheck}} instead.
 }
 
