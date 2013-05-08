@@ -47,7 +47,7 @@ pedigreePairwiseRelatedness<-
 		individ<-c(1:dim(Yo)[1])
 		mother<-match(Yo$mother,Yo$individ,nomatch=0)
 		father<-match(Yo$father,Yo$individ,nomatch=0)
-		YY<-data.frame(individ,mother,father,stringsAsFactors=F)
+		YY<-data.frame(individ,mother,father,stringsAsFactors=FALSE)
 		
 		#Calculate kinship coefficient for each pair
 		kc<-diag(1/2,n,n)
@@ -69,7 +69,7 @@ pedigreePairwiseRelatedness<-
 		tKC<-KC
 		tKC[row(tKC)>col(tKC)]<-1
 		wunr<-which(tKC==0,arr.ind=TRUE)
-		unr<-data.frame(wunr,stringsAsFactors=F)
+		unr<-data.frame(wunr,stringsAsFactors=FALSE)
 		names(unr)<-c("Individ1","Individ2")
 		out.list<-list(KC,unr)
 		names(out.list)<-c("kinship","unrelated")
@@ -97,13 +97,13 @@ pedigreePairwiseRelatedness<-
 	  mother<-x$mother
 	  father<-x$father
 	
-	XX<-data.frame(individ,mother,father,stringsAsFactors=F)  
+	XX<-data.frame(individ,mother,father,stringsAsFactors=FALSE)  
 	
 	#recode so that individ is 1:number of individuals, mother/father ids correspond
 	individ<-c(1:dim(XX)[1])
 	mother<-match(XX$mother,XX$individ,nomatch=0)
 	father<-match(XX$father,XX$individ,nomatch=0)
-	Y<-data.frame(individ,mother,father,stringsAsFactors=F)
+	Y<-data.frame(individ,mother,father,stringsAsFactors=FALSE)
 	
 	#find offspring,parent pairs directly from pedigree
 	p<-Y[!is.element(Y$mother,0),c("individ","mother")]
@@ -131,7 +131,7 @@ pedigreePairwiseRelatedness<-
             inbreed<-c(inbreed,u[i])
            	pprs<-combn(Y$individ,2)
 	      tp<-t(pprs)
-	      inbprs<-data.frame(tp,stringsAsFactors=F)
+	      inbprs<-data.frame(tp,stringsAsFactors=FALSE)
 	      names(inbprs)<-c("Individ1","Individ2")
          	inbprs$kinship<-dg$kinship[tp]
             inbprs$family<-u[i]
@@ -355,7 +355,7 @@ pedigreePairwiseRelatedness<-
 	
 	pprs<-combn(Y$individ,2)
 	tp<-t(pprs)
-	relprs<-data.frame(tp,stringsAsFactors=F)
+	relprs<-data.frame(tp,stringsAsFactors=FALSE)
 	names(relprs)<-c("Individ1","Individ2")
 	relprs$relation<-rep("Other",dim(pprs)[2])
 	relprs$kinship<-dg$kinship[tp]
