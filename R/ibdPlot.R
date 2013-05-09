@@ -1,23 +1,25 @@
 ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
-                    rel.draw=c("FS", "HS", "FC"), ...) {
+                    rel.draw=c("FS", "Deg2", "Deg3"), ...) {
 
   stopifnot(length(k0) == length(k1))
   if (!is.null(relation)) stopifnot(length(relation) == length(k0))
   if (!is.null(color)) stopifnot(length(color) == length(k0))
-  stopifnot(is.null(rel.draw) | all(rel.draw %in% c("FS", "HS", "FC")))
+  stopifnot(is.null(rel.draw) | all(rel.draw %in% c("FS", "Deg2", "Deg3")))
   
   n <- length(k0)
   if (is.null(color) & is.null(relation)) {
     color <- rep("black", n)
   } else if (is.null(color)) {
     stopifnot(length(relation) == length(k0))
-    stopifnot(all(relation %in% c("Dup", "PO", "FS", "HS", "FC", "U", "Q")))
+    relation[relation %in% c("HS", "HSr", "HSFC", "Av", "GpGc", "DFC")] <- "Deg2"
+    relation[relation %in% c("FC", "HAv", "OAv", "OC")] <- "Deg3"
+    relation[!(relation %in% c("Dup", "PO", "FS", "Deg2", "Deg3", "Q"))] <- "U"
     color <- rep("black", n)
     color[relation == "Dup"] <- "magenta"
     color[relation == "PO"] <- "cyan"
     color[relation == "FS"] <- "red"
-    color[relation == "HS"] <- "blue"
-    color[relation == "FC"] <- "lightgreen"
+    color[relation == "Deg2"] <- "blue"
+    color[relation == "Deg3"] <- "lightgreen"
     color[relation == "Q"] <- "darkgreen"
   }
   

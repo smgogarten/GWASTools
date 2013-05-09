@@ -21,7 +21,7 @@ Plot theoretical and observed identity by descent values and assign relationship
 
 \usage{
 ibdPlot(k0, k1, alpha=0.05, relation=NULL, color=NULL,
-        rel.lwd=2, rel.draw=c("FS", "HS", "FC"), ...)
+        rel.lwd=2, rel.draw=c("FS", "Deg2", "Deg3"), ...)
 
 ibdAreasDraw(alpha=.05, m=0.04, po.w=0.1, po.h=0.1,
              dup.w=0.1, dup.h=0.1, un.w=0.25, un.h=0.25, rel.lwd=2,
@@ -44,7 +44,12 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
   \item{alpha}{significance level - finds 100(1-alpha)\% prediction intervals
     for half-sibs and first cousins and 100(1-alpha)\% prediction ellipse for full-sibs 
   }
-  \item{relation}{A vector of relationships.}
+  \item{relation}{A vector of relationships.  Recognized values are "PO"
+    = parent/offspring, "FS" = full siblings, "HS" = half siblings, "Av"
+    = avuncular, "GpGc" = grandparent-grandchild, "Deg2" = any
+    second-degree, "FC" = first
+    cousins, "HAv"=half-avuncular, "Deg3" = any third degree,
+    "U" = unrelated, and "Q" = unknown.}
 
   \item{color}{A vector of colors for (k0,k1) points.}
 
@@ -52,7 +57,7 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
     first-cousin boundaries.}
 
   \item{rel.draw}{Which theoretical boundaries to plot: one or more of
-  "FS" (full-sib), "HS" (half-sib), "FC" (first cousins).  If
+  "FS" (full-sib), "Deg2" (second-degree), "Deg3" (third-degree).  If
   \code{NULL}, no boundaries are drawn.}
   
   \item{\dots}{Other graphical parameters to pass to \code{\link{plot}} and
@@ -78,21 +83,20 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
 values color coded by expected relationship, typically as deduced from
 pedigree data.  Points are plotted according to their corresponding
 value in the \code{color} vector, and the \code{relation} vector is used
-to make the plot legend.
+to make the plot legend.  In addition to the relationships listed above,
+any relationships output from \code{\link{pedigreePairwiseRelatedness}}
+will be recognized.
 
-Theoretical boundary for full-sibs is indicated by ellipse and boundaries for half-sib and
-first cousin intervals are indicated in orange. For full-sibs, 100(1-alpha)\% prediction 
+Theoretical boundary for full-sibs is indicated by ellipse and
+ boundaries for second and third degree intervals are indicated in orange. For full-sibs, 100(1-alpha)\% prediction 
  ellipse is based on assuming bivariate normal distribution with known
- mean and covariance matrix. For half-sibs and first-cousins, 100(1-alpha)\%
+ mean and covariance matrix. For second degree (half siblings, avuncular,
+ grandparent-grandchild) and third degree (first cousins), 100(1-alpha)\%
  prediction intervals for k1 are based on assuming normal distribution with known mean and
 variance, computed as in Hill and Weir (2011).
 
 \code{ibdAreasDraw} overlays relationship areas on the plot to help
-with analyzing observed relationships. For full-sibs, 100(1-alpha)\% prediction 
- ellipse is based on assuming bivariate normal distribution with known
- mean and covariance matrix. For half-sibs and first-cousins, 100(1-alpha)\%
- prediction intervals for k1 are based on assuming normal distribution with known mean and
-variance.
+with analyzing observed relationships.
 
 \code{ibdAssignRelatedness} identifies relatives based on their (k0, k1) coordinates.
 
@@ -101,7 +105,7 @@ variance.
 \value{
   \code{ibdAssignRelatedness} returns a vector of relationships with
   values "Dup"=duplicate, "PO"=parent-offspring, "FS"=full sibling,
-  "HS"=half-sibling-like, "FC"=first cousin, "U"=unrelated, and
+  "Deg2"=second degree, "Deg3"=third degree, "U"=unrelated, and
   "Q"=unknown.
 }
 
@@ -110,7 +114,11 @@ variance.
 }
 
 \author{Cathy Laurie and Cecelia Laurie}
-\seealso{ \code{\link{relationsMeanVar}} }
+
+\seealso{
+  \code{\link{relationsMeanVar}},
+  \code{\link{pedigreePairwiseRelatedness}},
+}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

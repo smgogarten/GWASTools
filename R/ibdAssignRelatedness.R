@@ -82,8 +82,8 @@ ibdAssignRelatedness <- function(
         asnmt[po.sel] <- "PO"
         asnmt[dup.sel] <- "Dup"
         asnmt[fs.sel] <- "FS"
-        asnmt[hs.sel] <- "HS"
-        asnmt[fc.sel] <- "FC"
+        asnmt[hs.sel] <- "Deg2"
+        asnmt[fc.sel] <- "Deg3"
         asnmt[un.sel] <- "U"
 	return(asnmt)
 }

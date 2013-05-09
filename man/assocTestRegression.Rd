@@ -365,7 +365,7 @@ outfile <- tempfile()
 
 assocTestRegression(genoData,
                     outcome = outcome,
-					model.type = model.type,
+                    model.type = model.type,
                     covar.list = covar.list,
                     ivar.list = ivar.list,
                     gene.action.list = gene.action.list,
@@ -373,7 +373,7 @@ assocTestRegression(genoData,
                     scan.exclude = scan.exclude,
                     CI = 0.95,
                     robust = TRUE,
-					LRtest = TRUE,
+                    LRtest = TRUE,
                     chromosome.set = chr.set,
                     outfile = outfile)
 
