@@ -9,8 +9,8 @@ Plot theoretical and observed identity by descent values and assign relationship
 
 \description{\code{ibdPlot} produces an IBD plot showing observed
   identity by descent values color coded by expected relationship.
-  Theoretical boundaries for full-sib, half-sib, and first-cousins are
- plotted in orange.
+  Theoretical boundaries for full-sibling, second-degree, and
+  third-degree relatives are plotted in orange.
   \code{ibdAreasDraw} overlays relationship areas for IBD analysis on
   the plot.
   \code{ibdAssignRelatedness} identifies observed relatives.
@@ -23,7 +23,7 @@ Plot theoretical and observed identity by descent values and assign relationship
 ibdPlot(k0, k1, alpha=0.05, relation=NULL, color=NULL,
         rel.lwd=2, rel.draw=c("FS", "Deg2", "Deg3"), ...)
 
-ibdAreasDraw(alpha=.05, m=0.04, po.w=0.1, po.h=0.1,
+ibdAreasDraw(alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
              dup.w=0.1, dup.h=0.1, un.w=0.25, un.h=0.25, rel.lwd=2,
 	     xcol=c("cyan","red","blue","lightgreen","magenta","black"))
 
@@ -42,19 +42,17 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
   \item{k1}{A vector of k1 values.}
 
   \item{alpha}{significance level - finds 100(1-alpha)\% prediction intervals
-    for half-sibs and first cousins and 100(1-alpha)\% prediction ellipse for full-sibs 
+    for second and third degree relatives and 100(1-alpha)\% prediction
+    ellipse for full siblings. 
   }
-  \item{relation}{A vector of relationships.  Recognized values are "PO"
-    = parent/offspring, "FS" = full siblings, "HS" = half siblings, "Av"
-    = avuncular, "GpGc" = grandparent-grandchild, "Deg2" = any
-    second-degree, "FC" = first
-    cousins, "HAv"=half-avuncular, "Deg3" = any third degree,
-    "U" = unrelated, and "Q" = unknown.}
+  \item{relation}{A vector of relationships.  Recognized values are "PO"=parent/offspring, "FS"=full siblings, "HS"=half siblings, "Av"=avuncular, "GpGc"=grandparent-grandchild, "Deg2"=any
+    second-degree, "FC"=first
+    cousins, "HAv"=half-avuncular, "Deg3"=any third degree,
+    "U"=unrelated, and "Q"=unknown.}
 
   \item{color}{A vector of colors for (k0,k1) points.}
 
-  \item{rel.lwd}{Line width for theoretical full-sib, half-sib, and
-    first-cousin boundaries.}
+  \item{rel.lwd}{Line width for theoretical full-sib, Deg2, and Deg3 boundaries.}
 
   \item{rel.draw}{Which theoretical boundaries to plot: one or more of
   "FS" (full-sib), "Deg2" (second-degree), "Deg3" (third-degree).  If
@@ -70,7 +68,7 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
 \item{dup.h}{height of duplicate rectangle}
 \item{un.w}{width of unrelated rectangle}
 \item{un.h}{height of unrelated rectangle}
-\item{xcol}{colors for parent-offspring, full-sib, half-sib, first cousin, dup & unrelated areas}
+\item{xcol}{colors for parent-offspring, full-sib, Deg2, Deg3, dup & unrelated areas}
 
 }
 
@@ -117,7 +115,7 @@ with analyzing observed relationships.
 
 \seealso{
   \code{\link{relationsMeanVar}},
-  \code{\link{pedigreePairwiseRelatedness}},
+  \code{\link{pedigreePairwiseRelatedness}}
 }
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

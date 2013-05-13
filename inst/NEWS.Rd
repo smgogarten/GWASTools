@@ -252,4 +252,13 @@
     and chromosome codes in the GDS file.
   }
 }
+\section{Changes in version 1.7.3}{
+  \itemize{
+    \item Changed labeling of IBD plots from "HS" to "Deg2" and "FC" to "Deg3."
+    \item Bug fix in pedigreePairwiseRelatedness - no more warning about
+    multiple values passed to stringsAsFactor.
+    \item pedigreeClean and pedigreeFindDuplicates are now defunct.  Use
+    pedigreeCheck instead.
+  }
+}
 
