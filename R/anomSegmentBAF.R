@@ -26,7 +26,10 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   if (!all(intenScanID == genoScanID)) stop("scan dimensions of intenData and genoData differ")
   
   intid <- intenSnpID
-  if(!all(is.element(snp.ids,intid))) stop("eligible snps not contained in snp ids")
+  if (!all(is.element(snp.ids,intid))) stop("snp.ids has values not present in intenData")
+
+  chrom <- getChromosome(intenData)
+  if (!all(is.element(chrom.ids, chrom))) stop("chrom.ids has values not present in intenData (all values in chrom.ids should be integers)")
 
   anoms<-NULL
   ## compute parameter needed for DNAcopy
@@ -34,7 +37,6 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   sbdry<-getbdry(.05,nperm,max.ones)
 
   sid <- intenScanID
-  chrom <- getChromosome(intenData)
   for(snum in scan.ids){
     sindex <- which(is.element(sid, snum))
     if(length(sindex)==0) stop(paste("Sample ",snum, " does not exist",sep=""))
@@ -48,6 +50,7 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
     ws<-!is.na(baf)
 
     INDEX<-which(sel&ws)
+    if (length(index) == 0) stop("no valid BAF values for SNPs in snp.ids")
     CHR<-chrom[sel&ws]
     BAF<-baf[sel&ws]
 
@@ -70,6 +73,7 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       chr<-c(chr,chrm)
       baf.dat<-c(baf.dat,baf.metric)   
     } #end of chrom loop
+    if (is.null(baf.dat)) stop("no valid BAF values for chromosomes in chrom.ids")
 
     temp.CNA<-CNA(as.vector(baf.dat),chr,index,data.type="logratio",sampleid=snum)
     temp.smooth<-smooth.CNA(temp.CNA,smooth.region=smooth,outlier.SD.scale=4)  #smooth.region,outlier.SD.scale=default

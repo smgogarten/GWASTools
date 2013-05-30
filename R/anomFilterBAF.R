@@ -294,8 +294,9 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
 ##ct.thresh - minimum number of lrr values below lrr.cut needed in order to adjust
 ##frac.thresh - adjust only if (# lrr values below lrr.cut)/(# eligible lrr in interval) > frac.thresh
 
-  # check that intenData has BAF
+  # check that intenData has BAF and LRR
   if (!hasBAlleleFreq(intenData)) stop("BAlleleFreq not found in intenData")
+  if (!hasLogRRatio(intenData)) stop("LogRRatio not found in intenData")
   
   # check that dimensions of intenData and genoData are equal
   intenSnpID <- getSnpID(intenData)
@@ -313,7 +314,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
   } else stop("sex not found in intenData or genoData")
 
   intid <- intenSnpID
-  if(!all(is.element(snp.ids,intid))) stop("eligible snps not contained in snp ids")
+  if (!all(is.element(snp.ids,intid))) stop("snp.ids has values not present in intenData")
 
   sid <- intenScanID
   chrom <- getChromosome(intenData)

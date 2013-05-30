@@ -54,11 +54,13 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   } else stop("sex not found in intenData or genoData")
 
   intid <- intenSnpID
-  if(!all(is.element(snp.ids,intid))) stop("eligible snps not contained in snp ids")
+  if (!all(is.element(snp.ids,intid))) stop("snp.ids has values not present in intenData")
 
+  chrom <- getChromosome(intenData)
+  if (!all(is.element(chrom.ids, chrom))) stop("chrom.ids has values not present in intenData (all values in chrom.ids should be integers)")
+  
   sid <- intenScanID
   male <- sid[!is.na(sex) & sex == "M"]
-  chrom <- getChromosome(intenData)
   
   if(!is.element(class(known.anoms),"data.frame") | !all(is.element(c("scanID","chromosome","left.index","right.index"),names(known.anoms)))){
     stop("known.anoms input needs to be data.frame with variables including scanID, chromosome, left.index, right.index") }
