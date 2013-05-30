@@ -261,4 +261,11 @@
     pedigreeCheck instead.
   }
 }
+\section{Changes in version 1.7.4}{
+  \itemize{
+    \item More informative error messages in anomDetectBAF and
+    anomDetectLOH.
+  }
+}
+
 
