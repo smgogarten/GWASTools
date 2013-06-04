@@ -1,4 +1,4 @@
-ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
+ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
                     rel.draw=c("FS", "Deg2", "Deg3"), ...) {
 
   stopifnot(length(k0) == length(k1))
@@ -7,6 +7,7 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
   stopifnot(is.null(rel.draw) | all(rel.draw %in% c("FS", "Deg2", "Deg3")))
   
   n <- length(k0)
+  ordered.cols <- FALSE
   if (is.null(color) & is.null(relation)) {
     color <- rep("black", n)
   } else if (is.null(color)) {
@@ -14,13 +15,12 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
     relation[relation %in% c("HS", "HSr", "HSFC", "Av", "GpGc", "DFC")] <- "Deg2"
     relation[relation %in% c("FC", "HAv", "OAv", "OC")] <- "Deg3"
     relation[!(relation %in% c("Dup", "PO", "FS", "Deg2", "Deg3", "Q"))] <- "U"
-    color <- rep("black", n)
-    color[relation == "Dup"] <- "magenta"
-    color[relation == "PO"] <- "cyan"
-    color[relation == "FS"] <- "red"
-    color[relation == "Deg2"] <- "blue"
-    color[relation == "Deg3"] <- "lightgreen"
-    color[relation == "Q"] <- "darkgreen"
+    
+    rels <- c("Dup", "PO", "FS", "Deg2", "Deg3", "Q", "U")
+    cols <- c("magenta", "cyan", "red", "blue", "lightgreen", "darkgreen", "black")
+    names(cols) <- rels
+    color <- cols[relation]
+    ordered.cols <- TRUE
   }
   
   # main plot - no data yet
@@ -82,13 +82,16 @@ ibdPlot <- function(k0, k1, alpha=.05, relation=NULL, color=NULL, rel.lwd=2,
  
   # legend
   if (!is.null(relation)) {
-    rel <- unique(relation)
-    col <- unique(color)
-    ord <- order(rel)
-    rel <- rel[ord]
-    col <- col[ord]
-    legend("topright", legend=rel, col=col,
-           pch=rep(1, length(rel)))
+    if (ordered.cols) {
+      rel <- rels[rels %in% unique(relation)]
+      col <- cols[rel]
+    } else {
+      rel <- unique(relation)
+      col <- unique(color)
+      ord <- order(rel)
+      rel <- rel[ord]
+      col <- col[ord]
+    }
+    legend("topright", legend=rel, col=col, pch=1)
   }
-
 }
