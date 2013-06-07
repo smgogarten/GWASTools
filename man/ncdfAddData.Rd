@@ -15,27 +15,27 @@ Genotypic calls and/or associated quantitative variables (e.g. quality score, in
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usage{
-ncdfAddData(path = "", ncdf.filename, 
+ncdfAddData(path = ".", ncdf.filename, 
             snp.annotation, scan.annotation,
             sep.type, skip.num, col.total, col.nums, 
             scan.name.in.file, scan.start.index = 1,
             diagnostics.filename = "ncdfAddData.diagnostics.RData",
             verbose = TRUE)
 
-ncdfAddIntensity(path = "",  ncdf.filename,
+ncdfAddIntensity(path = ".",  ncdf.filename,
                  snp.annotation, scan.annotation, 
                  scan.start.index = 1, n.consecutive.scans = -1,  
                  diagnostics.filename = "ncdfAddIntensity.diagnostics.RData",
                  verbose = TRUE)
 
-ncdfCheckGenotype(path = "", ncdf.filename, 
+ncdfCheckGenotype(path = ".", ncdf.filename, 
                   snp.annotation, scan.annotation, 
                   sep.type, skip.num, col.total, col.nums, 
                   scan.name.in.file, check.scan.index, n.scans.loaded,
                   diagnostics.filename = "ncdfCheckGenotype.diagnostics.RData",
                   verbose = TRUE)
 
-ncdfCheckIntensity(path = "", intenpath = "", ncdf.filename, 
+ncdfCheckIntensity(path = ".", intenpath = ".", ncdf.filename, 
                    snp.annotation, scan.annotation, 
                    sep.type, skip.num, col.total, col.nums, 
                    scan.name.in.file, check.scan.index,

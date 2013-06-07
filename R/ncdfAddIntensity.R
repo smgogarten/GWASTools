@@ -1,4 +1,4 @@
-ncdfAddIntensity <- function(path="",
+ncdfAddIntensity <- function(path=".",
                            ncdf.filename,
                            snp.annotation,
                            scan.annotation, 

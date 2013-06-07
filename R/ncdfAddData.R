@@ -1,4 +1,4 @@
-ncdfAddData <- function(path="", 
+ncdfAddData <- function(path=".", 
                          ncdf.filename, 
                          snp.annotation,
                          scan.annotation, 

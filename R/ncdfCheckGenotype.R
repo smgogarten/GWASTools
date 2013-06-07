@@ -1,4 +1,4 @@
-ncdfCheckGenotype <- function(path="",
+ncdfCheckGenotype <- function(path=".",
                             ncdf.filename, 
                             snp.annotation, 
                             scan.annotation, 
