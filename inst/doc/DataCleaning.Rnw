@@ -1,5 +1,5 @@
 %\VignetteIndexEntry{GWAS Data Cleaning}
-%\VignetteDepends{GWASTools, GWASdata, gdsfmt, SNPRelate}
+%\VignetteDepends{GWASTools, GWASdata, SNPRelate}
 
 \documentclass[11pt]{article}
 \usepackage{fullpage}
@@ -1502,8 +1502,6 @@ IBD calculations using this data format.
 We will convert the genotype NetCDF file to the \Rcode{gds} format with the function \Rcode{convertNcdfGds}.
 
 <<>>=
-library(gdsfmt)
-library(SNPRelate)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 gdsfile <- "tmp_geno.gds"
 convertNcdfGds(ncfile, gdsfile)
@@ -1530,6 +1528,7 @@ considered.
 <<>>=
 sample.sel <- scanAnnot$scanID[scanAnnot$race == "CEU"]
 length(sample.sel)
+library(SNPRelate)
 gdsobj <- openfn.gds(gdsfile)
 ibdobj <- snpgdsIBDMLE(gdsobj, sample.id=sample.sel, snp.id=snp.sel, method="EM")
 closefn.gds(gdsobj)
@@ -1589,9 +1588,10 @@ pedigreeCheck(ped.complete)
 @ 
 
 The revised pedigree passes all checks.  Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
-among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}. The relationships looked for as annotated are:
-U = unrelated, PO = parent/offspring, FS = full siblings, HS =
-half-sibling-like (including avuncular and grandparent-grandchild), and FC = first cousins.
+among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}. The relationships looked for as annotated include:
+unrelated (U), parent/offspring (PO), full siblings (FS), 
+second-degree relatives (half-siblings, avuncular and
+grandparent-grandchild), and third-degree relatives (first cousins).
 Families where mothers and fathers are related are also looked for among the family annotations.
 
 <<>>=
@@ -1612,21 +1612,17 @@ and $k1$.
 <<>>=
 samp <- pData(scanAnnot)[,c("scanID", "subjectID")]
 samp <- samp[match(ibdobj$sample.id, samp$scanID),]
+names(samp) <- c("scanID", "Individ")
 ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
-ibd <- merge(ibd, samp, by.x="sample1", by.y="scanID")
-names(ibd)[names(ibd) == "subjectID"] <- "Individ1"
-ibd <- merge(ibd, samp, by.x="sample2", by.y="scanID")
-names(ibd)[names(ibd) == "subjectID"] <- "Individ2"
-ibd$ii <- paste(ibd$Individ1, ibd$Individ2)
+ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
+ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
+ibd$ii <- paste(pmin(ibd$Individ1, ibd$Individ2),
+                pmax(ibd$Individ1, ibd$Individ2))
 
-relprs$i12 <- paste(relprs$Individ1, relprs$Individ2)
-relprs$i21 <- paste(relprs$Individ2, relprs$Individ1)
-
-ibd <- merge(ibd, relprs[,c("i12","relation")], by.x="ii", by.y="i12", all.x=TRUE)
+relprs$ii <- paste(pmin(relprs$Individ1, relprs$Individ2),
+                   pmax(relprs$Individ1, relprs$Individ2))
+ibd <- merge(ibd, relprs[,c("ii","relation")], all.x=TRUE)
 names(ibd)[names(ibd) == "relation"] <- "exp.rel"
-ibd <- merge(ibd, relprs[,c("i21","relation")], by.x="ii", by.y="i21", all.x=TRUE)
-names(ibd)[names(ibd) == "relation"] <- "rel2"
-ibd$exp.rel[is.na(ibd$exp.rel)] <- ibd$rel2[is.na(ibd$exp.rel)]
 ibd$exp.rel[ibd$Individ1 == ibd$Individ2] <- "Dup"
 ibd$exp.rel[is.na(ibd$exp.rel)] <- "U"
 table(ibd$exp.rel, useNA="ifany")
@@ -1754,21 +1750,17 @@ table(relprs$relation)
 
 samp <- pData(scanAnnot)[,c("scanID", "subjectID")]
 samp <- samp[match(ibdobj$sample.id, samp$scanID),]
+names(samp) <- c("scanID", "Individ")
 ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
-ibd <- merge(ibd, samp, by.x="sample1", by.y="scanID")
-names(ibd)[names(ibd) == "subjectID"] <- "Individ1"
-ibd <- merge(ibd, samp, by.x="sample2", by.y="scanID")
-names(ibd)[names(ibd) == "subjectID"] <- "Individ2"
-ibd$ii <- paste(ibd$Individ1, ibd$Individ2)
+ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
+ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
+ibd$ii <- paste(pmin(ibd$Individ1, ibd$Individ2),
+                pmax(ibd$Individ1, ibd$Individ2))
 
-relprs$i12 <- paste(relprs$Individ1, relprs$Individ2)
-relprs$i21 <- paste(relprs$Individ2, relprs$Individ1)
-
-ibd <- merge(ibd, relprs[,c("i12","relation")], by.x="ii", by.y="i12", all.x=TRUE)
+relprs$ii <- paste(pmin(relprs$Individ1, relprs$Individ2),
+                   pmax(relprs$Individ1, relprs$Individ2))
+ibd <- merge(ibd, relprs[,c("ii","relation")], all.x=TRUE)
 names(ibd)[names(ibd) == "relation"] <- "exp.rel"
-ibd <- merge(ibd, relprs[,c("i21","relation")], by.x="ii", by.y="i21", all.x=TRUE)
-names(ibd)[names(ibd) == "relation"] <- "rel2"
-ibd$exp.rel[is.na(ibd$exp.rel)] <- ibd$rel2[is.na(ibd$exp.rel)]
 ibd$exp.rel[ibd$Individ1 == ibd$Individ2] <- "Dup"
 ibd$exp.rel[is.na(ibd$exp.rel)] <- "U"
 table(ibd$exp.rel, useNA="ifany")
