@@ -93,8 +93,10 @@ gwasExactHW <- function (genoData,
       if(chr == XchromCode(genoData))
         keep <- keep & (getSex(genoData) == "F");
 
-      if(!(chr %in% c(autosomeCode(genoData), XchromCode(genoData), XYchromCode(genoData))))
+      if(chr %in% c(YchromCode(genoData), MchromCode(genoData))) {
         keep <- keep & FALSE;
+        message("HWE test not valid for Y or M; results will be NA")
+      }
 
       # create empty results data.frame
       res.tmp <- NULL;
