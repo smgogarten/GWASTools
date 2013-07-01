@@ -267,5 +267,11 @@
     anomDetectLOH.
   }
 }
+\section{Changes in version 1.7.5}{
+  \itemize{
+    \item gwasExactHW will run on all chromosomes except (Y,M), rather
+    than (autosome,X,XY) only.
+  }
+}
 
 
