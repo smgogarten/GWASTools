@@ -273,5 +273,10 @@
     than (autosome,X,XY) only.
   }
 }
+\section{Changes in version 1.7.6}{
+  \itemize{
+    \item Updated vignette for SNPRelate 0.9.16.
+  }
+}
 
 
