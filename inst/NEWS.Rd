@@ -278,5 +278,10 @@
     \item Updated vignette for SNPRelate 0.9.16.
   }
 }
+\section{Changes in version 1.7.7}{
+  \itemize{
+    \item Changed handling of GxE interaction variables in assocTestRegression.
+  }
+}
 
 
