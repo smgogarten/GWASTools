@@ -1613,8 +1613,6 @@ and $k1$.
 samp <- pData(scanAnnot)[,c("scanID", "subjectID")]
 samp <- samp[match(ibdobj$sample.id, samp$scanID),]
 names(samp) <- c("scanID", "Individ")
-## snpgdsIBDSelection expects character sample.id
-ibdobj$sample.id <- as.character(ibdobj$sample.id)
 ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
 ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
 ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
@@ -1753,8 +1751,6 @@ table(relprs$relation)
 samp <- pData(scanAnnot)[,c("scanID", "subjectID")]
 samp <- samp[match(ibdobj$sample.id, samp$scanID),]
 names(samp) <- c("scanID", "Individ")
-## snpgdsIBDSelection expects character sample.id
-ibdobj$sample.id <- as.character(ibdobj$sample.id)
 ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
 ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
 ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
