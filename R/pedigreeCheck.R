@@ -65,7 +65,8 @@ pedigreeCheck<-function(pedigree)
       if(is.element("factor",cl)) stop("some variables are factors")
       req<-c("family","individ","mother","father","sex")
       ck<-all(is.element(req,names(pedigree)))
-      if(!ck) stop(paste("data frame does not include all required variables: ",req))	
+      if(!ck) stop(paste("data frame does not include all required variables:",
+                         paste(req, collapse=", ")))
 
       mssg<-"All row numbers refer to row in the full pedigree (not just within family). \n Correct current problems and rerun pedigreeCheck.
 There may be additional problems not investigated because of the current problems.\n"
