@@ -60,7 +60,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
     points(pts, type="l", lwd=rel.lwd, col="orange")
   }
 
-  if ("HS" %in% rel.draw) {
+  if ("Deg2" %in% rel.draw) {
     HS<-relationsMeanVar$HalfSibs
     d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
     hsm<-HS$mean[2]
@@ -70,7 +70,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
     segments(x0,y0,x1,y1,lwd=rel.lwd,col="orange")
   }
 
-  if ("FC" %in% rel.draw) {
+  if ("Deg3" %in% rel.draw) {
     C<-relationsMeanVar$FirstCousins
     d<-sdm*sqrt(C$var)
     fcm<-C$mean[2]
