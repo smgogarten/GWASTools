@@ -1,14 +1,14 @@
 ncdfSetMissingGenotypes <- function(
-	parent.ncdf,	# name of the parent netCDF file
-	new.ncdf,		# name of the new netCDF file to create
+	parent.file,	# name of the parent netCDF file
+	new.file,		# name of the new netCDF file to create
         regions, # data frame with regions
-	sample.include=NULL,	# vector of sampleIDs for samples to include in new.ncdf
+	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
         verbose=TRUE
 ) {
 
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
 
-  nc.old <- NcdfGenotypeReader(parent.ncdf)
+  nc.old <- NcdfGenotypeReader(parent.file)
   snpID <- getSnpID(nc.old)
   chrom <- getChromosome(nc.old)
   pos <- getPosition(nc.old)
@@ -25,7 +25,7 @@ ncdfSetMissingGenotypes <- function(
   varpos <- var.def.ncdf("position", "bases", dim=snpdim, missval=-1, prec="integer")
   varchr <- var.def.ncdf("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
   vargeno <- var.def.ncdf("genotype", "num_A_alleles", dim=list(snpdim,sampledim), missval=-1, prec="byte")
-  nc.new <- create.ncdf(new.ncdf, list(varID, varpos, varchr, vargeno))
+  nc.new <- create.ncdf(new.file, list(varID, varpos, varchr, vargeno))
   put.var.ncdf(nc.new, varID, sample.include)
   put.var.ncdf(nc.new, varpos, pos)
   put.var.ncdf(nc.new, varchr, chrom)

@@ -25,7 +25,7 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R 
   LOHfind.R LOHselectAnoms.R anomDetectLOH.R 
   anomSegStats.R anomStatsPlot.R anomIdentifyLowQuality.R
-  ncdfSetMissingGenotypes.R
+  ncdfSetMissingGenotypes.R gdsSetMissingGenotypes.R
   alleleFrequency.R apartSnpSelection.R 
   assocTestCPH.R assocTestFisherExact.R assocTestRegression.R 
   batchChisqTest.R batchFisherTest.R chromIntensityPlot.R duplicateDiscordance.R 
