@@ -284,7 +284,12 @@
   }
 }
 \section{Changes in version 1.7.8}{
-  \itemize
+  \itemize{
+    \item Added gdsSetMissingGenotypes, updated argument names in ncdfSetMissingGenotypes.
     \item Changed colorscheme in manhattanPlot.R.
+    \item Bug fix in ibdPlot - diagonal orange bars are back.
+    \item Bug fix in plinkWrite for writing just one sample.
+    \item Bug fix in printing pedigreeCheck error message.
+  }
 }
 
