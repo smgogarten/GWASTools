@@ -283,5 +283,8 @@
     \item Changed handling of GxE interaction variables in assocTestRegression.
   }
 }
-
+\section{Changes in version 1.7.8}{
+  \itemize
+    \item Changed colorscheme in manhattanPlot.R.
+}
 

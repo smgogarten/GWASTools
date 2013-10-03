@@ -3,13 +3,13 @@ manhattanPlot <- function(p,
 		 chromosome,
 		 ylim = NULL,
 		 trunc.lines = TRUE,
-                          signif = 5e-8,
+         signif = 5e-8,
 		 ...)
 {
     stopifnot(length(p) == length(chromosome))
   
    	logp <- -log(p,10)
-    	N <- length(logp)
+    N <- length(logp)
    	ymax <- log(N,10) + 4
    	if (is.null(ylim)) {
       ylim <- c(0,ymax)
