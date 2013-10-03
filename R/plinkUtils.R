@@ -120,7 +120,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     rdf[,7:(6+nsnp)] <- t(geno)
     # exclude scans
     keep <- !(scanID[i:(i+bsize-1)] %in% scan.exclude)
-    rdf <- rdf[keep,]
+    rdf <- rdf[keep,,drop=FALSE]
     write.table(rdf, pedfile, quote=FALSE, row.names=FALSE, col.names=FALSE, append=app)
     app <- TRUE
     i <- i + bsize

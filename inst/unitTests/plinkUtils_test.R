@@ -68,6 +68,14 @@ test_plinkWrite <- function() {
   checkTrue(allequal(ped, ped.in))
   map.in <- read.table(paste(pedfile, "map", sep="."), as.is=TRUE, header=FALSE)
   checkTrue(allequal(map, map.in))
+
+  ## test with all but one sample excluded
+  plinkWrite(genoData, pedfile, scan.exclude=22:23)
+  ped.in <- as.matrix(read.table(paste(pedfile, "ped", sep="."),
+                       colClasses=rep("character", ncol(ped)),
+                       as.is=TRUE, header=FALSE))
+  checkTrue(allequal(ped[1,,drop=FALSE], ped.in))
+  
   unlink(paste(pedfile, "*", sep=""))
 }
 
