@@ -50,7 +50,7 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
     ws<-!is.na(baf)
 
     INDEX<-which(sel&ws)
-    if (length(index) == 0) stop("no valid BAF values for SNPs in snp.ids")
+    if (length(INDEX) == 0) stop("no valid BAF values for SNPs in snp.ids")
     CHR<-chrom[sel&ws]
     BAF<-baf[sel&ws]
 
