@@ -292,4 +292,9 @@
     \item Bug fix in printing pedigreeCheck error message.
   }
 }
+\section{Changes in version 1.9.1}{
+  \itemize{
+    \item Documentation now located in vignettes/ folder.
+  }
+}
 
