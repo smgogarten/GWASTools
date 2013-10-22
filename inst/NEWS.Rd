@@ -295,6 +295,7 @@
 \section{Changes in version 1.9.1}{
   \itemize{
     \item Documentation now located in vignettes/ folder.
+    \item Added ibdAssignRelationshipsKing.
   }
 }
 

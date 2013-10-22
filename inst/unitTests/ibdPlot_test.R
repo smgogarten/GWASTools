@@ -1,6 +1,8 @@
 test_ibdPlot <- function() {
   k0 <- c(0, 0, 0.25, 0.5, 0.75, 1)
   k1 <- c(0, 1, 0.5, 0.5, 0.25, 0)
+  kc <- c(0.5, 0.25, 0.25, 0.125, 0.063, 0)
+  ibs0 <- c(0, 0, 0.25, 0.5, 0.75, 1)
   relation <- c("Dup", "PO", "FS", "Deg2", "Deg3", "U")
   color <- c("magenta", "cyan", "red", "blue", "lightgreen", "black")
   ibdPlot(k0, k1, relation=relation, color=color)
@@ -9,4 +11,5 @@ test_ibdPlot <- function() {
   ibdPlot(k0, k1)
   ibdAreasDraw()
   checkIdentical(relation, ibdAssignRelatedness(k0,k1))
+  checkIdentical(relation, ibdAssignRelatednessKing(ibs0, kc))
 }
