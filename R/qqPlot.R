@@ -27,7 +27,7 @@ qqPlot <- function(pval, truncate = FALSE, ...)
           }
         }
         plot(x, pval, type = "n", ylim = ylm, ylab = ylb,
-             xlab = substitute(paste(-log[10], "(expected P)")), ...)
+             xlab = expression(paste(-log[10], "(expected P)")), ...)
         polygon(-log10(c(b,rev(b))), -log10(c(upper, rev(lower))), density=NA, col="gray")
         points(x, pval, pch = char, ...)	
 	abline(0,1,col="red")	
