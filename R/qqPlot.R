@@ -15,11 +15,11 @@ qqPlot <- function(pval, truncate = FALSE, ...)
         char <- rep(1,n)
         if(!truncate){
           ylm <- NULL
-          ylb <- substitute(paste(-log[10], "(observed P)"))
+          ylb <- expression(paste(-log[10], "(observed P)"))
         }else{
           maxx <- max(x)+2
           ylm <- c(0,maxx)
-          ylb <- substitute(paste(-log[10], "(observed P) - truncated"))
+          ylb <- expression(paste(-log[10], "(observed P) - truncated"))
           nx <- length(which(pval > maxx))
           if(nx > 0){
             pval[1:nx] <- maxx
