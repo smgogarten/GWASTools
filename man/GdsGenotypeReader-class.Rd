@@ -23,7 +23,7 @@
 
 \description{
   The GdsGenotypeReader class is an extension of the GdsReader class
-  specific to reading genotype data stored in GDS files.
+  specific to reading genotype data stored in GDS files. GDS files with both \code{snp x scan} and \code{scan x snp} dimensions are supported.
 }
 
 \section{Extends}{
@@ -45,7 +45,9 @@
 	\item 'genotype':
 	a matrix of bytes with dimensions ('snp','sample').  The byte values
 	must be the number of A alleles : 2=AA, 1=AB, 0=BB.
+
       }
+        
       The optional variable "snp.allele" stores the A and B alleles in a
       character vector with format "A/B".
       
@@ -53,7 +55,9 @@
       26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
-      
+
+      The constructor automatically detects whether the GDS file is in \code{snp x scan} or \code{scan x snp} order using the dimensions of \code{snp.id} and \code{sample.id}. In the case of GDS files with equal SNP and scan dimensions, \code{genotypeDim} is a required input to the function and can take values \code{"snp,scan"} or \code{"scan,snp"}.
+
       The \code{GdsGenotypeReader} constructor creates and returns a
       GdsGenotypeReader instance pointing to this file.
     }
@@ -118,7 +122,7 @@
       (number of A alleles).  
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
-      represented as \code{NA}.
+      represented as \code{NA}. Genotypes are always returned in SNP x scan order.
     }
     \item{}{
       \code{getVariable(object, varname, snp, scan)}: Extracts the

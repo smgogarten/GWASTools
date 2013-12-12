@@ -1,8 +1,33 @@
 # Methods for GdsGenotypeReader
 
-GdsGenotypeReader <- function(filename, ...) {
+GdsGenotypeReader <- function(filename, genotypeVar, genotypeDim, snpIDvar, scanIDvar, ...) {
   if (missing(filename)) stop("filename is required")
-  new("GdsGenotypeReader", GdsReader(filename), ...)
+  if (missing(genotypeVar)) genotypeVar <- "genotype"
+  if (missing(snpIDvar)) snpIDvar <- "snp.id"
+  if (missing(scanIDvar)) scanIDvar <- "sample.id"
+  
+  # GdsReader does not have ... in its argument
+  tmpobj <- new("GdsReader", GdsReader(filename))
+  
+  # automatic checking for genotypeDim:
+  snpDim <- getDimension(tmpobj, snpIDvar)
+  scanDim <- getDimension(tmpobj, scanIDvar)
+  genoDim <- getDimension(tmpobj, genotypeVar)
+
+  # automatically set genotypeDim if not set
+  if (missing(genotypeDim)) {
+    if (snpDim == scanDim) {
+      genotypeDim <- ""
+    } else if (all(genoDim == c(snpDim, scanDim))) {
+      genotypeDim <- "snp,scan"
+    } else if (all(genoDim == c(scanDim, snpDim))) {
+      genotypeDim <- "scan,snp"
+    } else {
+      genotypeDim <- ""
+    }
+  }
+
+  new("GdsGenotypeReader", tmpobj, genotypeDim=genotypeDim, ...)
 }
 
 setValidity("GdsGenotypeReader",
@@ -37,14 +62,20 @@ setValidity("GdsGenotypeReader",
         return(paste("variable", object@positionVar, "has incorrect dimension"))
       }
       
-      # check that genotype has dimensions [snpID,scanID]
+      
+      #  check that genotype has dimensions [snpID,scanID] or [scanID,snpID]
+      if (!(object@genotypeDim %in% c("snp,scan", "scan,snp")))
+        return("genotype order is not specified: 'snp,scan' or 'scan,snp'")
+      
       scanDim <- getDimension(object, object@scanIDvar)
       genoDim <- getDimension(object, object@genotypeVar)
-      if (length(genoDim) != 2 |
-          !all(genoDim == c(snpDim, scanDim))) {
+      if (length(genoDim) != 2) {
+        return(paste("variable", object@genotypeVar, "has incorrect dimension"))
+      }
+      else if ((object@genotypeDim == "snp,scan" & !all(genoDim == c(snpDim, scanDim))) | 
+               (object@genotypeDim == "scan,snp" & !all(genoDim == c(scanDim, snpDim)))) {
         return(paste("variable", object@genotypeVar, "has incorrect dimensions"))
-      }      
-
+      }
       TRUE
     })
 
@@ -139,10 +170,17 @@ setMethod("getScanID",
  
 setMethod("getGenotype",
           signature(object="GdsGenotypeReader"),
-          function(object, ...) {
-            var <- getVariable(object, object@genotypeVar, ...)
+          function(object, snp=NULL, scan=NULL, ...) {
+            # check if we need to switch snp/scan here for a transposed genotype file
+            if (object@genotypeDim == "scan,snp") {
+              var <- getVariable(object, object@genotypeVar, snp=scan, scan=snp, ...)
+            } else if (object@genotypeDim == "snp,scan"){
+              var <- getVariable(object, object@genotypeVar, snp=snp, scan=scan, ...)
+            }
             # set missing values to NA
             var[var < 0 | var > 2] <- NA
+            # return the transpose if the genotype file is transposed.
+            if (class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
             var
           })
 

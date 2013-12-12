@@ -296,6 +296,7 @@
   \itemize{
     \item Documentation now located in vignettes/ folder.
     \item Added ibdAssignRelationshipsKing.
+    \item Added support for genotype GDS files with scan x snp dimensions in GdsGenotypeReader.
   }
 }
 
