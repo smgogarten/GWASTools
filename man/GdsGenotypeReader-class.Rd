@@ -33,7 +33,7 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GdsGenotypeReader(filename)}:
+      \code{GdsGenotypeReader(filename, genotypeDim)}:
       
       \code{filename} must be the path to a GDS file.  The GDS
       file must contain the following variables:

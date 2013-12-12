@@ -1,6 +1,6 @@
 # Methods for GdsGenotypeReader
 
-GdsGenotypeReader <- function(filename, genotypeVar, genotypeDim, snpIDvar, scanIDvar, ...) {
+GdsGenotypeReader <- function(filename, genotypeDim, genotypeVar, snpIDvar, scanIDvar, ...) {
   if (missing(filename)) stop("filename is required")
   if (missing(genotypeVar)) genotypeVar <- "genotype"
   if (missing(snpIDvar)) snpIDvar <- "snp.id"
@@ -27,7 +27,8 @@ GdsGenotypeReader <- function(filename, genotypeVar, genotypeDim, snpIDvar, scan
     }
   }
 
-  new("GdsGenotypeReader", tmpobj, genotypeDim=genotypeDim, ...)
+  new("GdsGenotypeReader", tmpobj, genotypeDim=genotypeDim, genotypeVar=genotypeVar,
+      snpIDvar=snpIDvar, scanIDvar=scanIDvar, ...)
 }
 
 setValidity("GdsGenotypeReader",
@@ -71,8 +72,7 @@ setValidity("GdsGenotypeReader",
       genoDim <- getDimension(object, object@genotypeVar)
       if (length(genoDim) != 2) {
         return(paste("variable", object@genotypeVar, "has incorrect dimension"))
-      }
-      else if ((object@genotypeDim == "snp,scan" & !all(genoDim == c(snpDim, scanDim))) | 
+      } else if ((object@genotypeDim == "snp,scan" & !all(genoDim == c(snpDim, scanDim))) | 
                (object@genotypeDim == "scan,snp" & !all(genoDim == c(scanDim, snpDim)))) {
         return(paste("variable", object@genotypeVar, "has incorrect dimensions"))
       }
