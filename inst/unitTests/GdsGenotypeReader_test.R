@@ -105,3 +105,50 @@ test_genotypeDim <- function(){
 
   unlink(file)
 }
+
+test_equalGenotypeDim <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  snp <- 1:78
+  chrom <- rep(1:26, each=3)
+  pos <- rep(1001:1026, 3)
+  a <- rep("A", 78)
+  b <- rep("G", 78)
+  alleles <- paste(a, b, sep="/")
+  samp <- 1231:(1231+78-1)
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  add.gdsn(gds, "snp.chromosome", chrom)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  add.gdsn(gds, "genotype", t(geno), storage="bit2") # transpose of geno here for genotypeDim=scan,snp
+  closefn.gds(gds)
+  
+  obj <- GdsGenotypeReader(file, genotypeDim="scan,snp")
+  checkIdentical(obj@genotypeDim, "scan,snp")
+  checkIdentical(snp, getSnpID(obj))
+  checkIdentical(chrom, getChromosome(obj))
+  checkIdentical(pos, getPosition(obj))
+  checkIdentical(a, getAlleleA(obj))
+  checkIdentical(b, getAlleleB(obj))
+  checkIdentical(samp, getScanID(obj))
+  geno[geno == 3] <- NA
+  checkIdentical(geno, getGenotype(obj))
+  
+  sel <- samp %in% sample(samp, 3)
+  checkIdentical(samp[sel], getScanID(obj, sel))
+  close(obj)
+  
+
+  # this should raise an exception - snp and scan dimensions are equal
+  checkException(GdsGenotypeReader(file))
+  # this one will not raise an exception -- it would be the user's fault
+  #checkException(GdsGenotypeReader(file, genotypeDim="snp,scan"))
+  
+  unlink(file)
+  
+}
