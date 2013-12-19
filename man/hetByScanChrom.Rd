@@ -16,7 +16,8 @@ hetByScanChrom(genoData, snp.exclude = NULL,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \arguments{
-\item{genoData}{\code{\link{GenotypeData}} object}
+\item{genoData}{\code{\link{GenotypeData}} object.  Chromosomes are
+  expected to be in contiguous blocks.}
 
 \item{snp.exclude}{ An integer vector containing the id's of SNPs to be excluded. }
 

@@ -17,7 +17,8 @@ assocTestCPH(genoData, event, time.to.event,
 
 \arguments{
   \item{genoData}{\code{\link{GenotypeData}} object, should contain sex and
-    phenotypes in scan annotation}
+    phenotypes in scan annotation.  Chromosomes are
+  expected to be in contiguous blocks.}
   \item{event}{ name of scan variable in genoData for event to analyze}
   \item{time.to.event}{ name of scan variable in genoData for time to event}
   \item{covars}{vector of covariate terms for model

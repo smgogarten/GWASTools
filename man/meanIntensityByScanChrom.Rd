@@ -13,7 +13,8 @@ meanIntensityByScanChrom(intenData, vars = c("X", "Y"),
 
 
 \arguments{
-  \item{intenData}{\code{\link{IntensityData}} object }
+  \item{intenData}{\code{\link{IntensityData}} object.  Chromosomes are
+  expected to be in contiguous blocks.}
   \item{vars}{Character vector with the names of one or two intensity
   variables.}
   \item{snp.exclude}{ An integer vector containing SNPs to be excluded. }

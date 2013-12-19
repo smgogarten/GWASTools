@@ -11,7 +11,8 @@ missingGenotypeByScanChrom(genoData, snp.exclude = NULL,
 
 
 \arguments{
-  \item{genoData}{\code{\link{GenotypeData}} object}
+  \item{genoData}{\code{\link{GenotypeData}} object.  Chromosomes are
+  expected to be in contiguous blocks.}
   \item{snp.exclude}{ A vector of IDs corresponding to the SNPs that should be excluded from the overall missing count.}
   \item{verbose}{Logical value specifying whether to show progress information.}
 }

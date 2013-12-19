@@ -37,7 +37,8 @@ findBAFvariance(sd.by.chrom.window, sd.by.scan.chrom.window,
 }
 
 \arguments{
-  \item{intenData}{A \code{\link{IntensityData}} object}
+  \item{intenData}{A \code{\link{IntensityData}} object.  The order of
+  SNPs is expected to be by chromosome and then by position within chromosome.}
   \item{genoData}{A \code{\link{GenotypeData}} object.  May be omitted
   if \code{incl.miss}, \code{incl.het}, and \code{incl.hom} are all
   \code{TRUE}, as there is no need to distinguish between genotype calls in

@@ -20,7 +20,8 @@ gwasExactHW(genoData,
 
 \arguments{
   \item{genoData}{\code{\link{GenotypeData}} object, should contain sex and
-    phenotypes in scan annotation}
+    phenotypes in scan annotation.  Chromosomes are
+  expected to be in contiguous blocks.}
   
   \item{scan.chromosome.filter}{a logical matrix that can be used to
   exclude some chromosomes, some scans, or some specific scan-chromosome

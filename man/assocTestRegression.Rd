@@ -18,7 +18,9 @@ assocTestRegression(genoData, outcome, model.type,
 }
 
 \arguments{
-  \item{genoData}{\code{\link{GenotypeData}} object, should contain phenotypes and covariates in scan annotation}
+  \item{genoData}{\code{\link{GenotypeData}} object, should contain
+  phenotypes and covariates in scan annotation.  Chromosomes are
+  expected to be in contiguous blocks.}
   
   \item{outcome}{Vector (of length equal to the number of models) of
   names of the outcome variables for each model. These names must be in
