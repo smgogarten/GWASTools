@@ -19,11 +19,10 @@ setValidity("ScanAnnotationDataFrame",
             }
 
             # check format of required columns
-            # scanID should be a unique integer vector
+            # scanID should be a unique vector
             scanID <- getScanID(object)
-            if (length(scanID) != length(unique(scanID)) ||
-                !is.integer(scanID)) {
-              return(paste(object@idCol, "must be a unique integer vector"))
+            if (length(scanID) != length(unique(scanID))) {
+              return(paste(object@idCol, "must be a unique vector"))
             }
             # sex should be M/F
             if (hasSex(object)) {

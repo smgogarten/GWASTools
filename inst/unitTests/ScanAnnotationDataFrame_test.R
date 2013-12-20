@@ -32,8 +32,6 @@ test_ScanAnnotationDataFrame <- function() {
   checkException(ScanAnnotationDataFrame(x))
 
   # bad column format
-  x <- data.frame(scanID=as.character(scanID))
-  checkException(ScanAnnotationDataFrame(x))
   x <- data.frame(scanID=scanID, sex=rep("A",10))
   checkException(ScanAnnotationDataFrame(x))
 

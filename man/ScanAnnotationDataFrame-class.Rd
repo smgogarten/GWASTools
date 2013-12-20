@@ -33,7 +33,7 @@
       \code{data} must be a data.frame containing the scan annotation.
       It must contain at least the following column:
       \itemize{
-	\item "scanID": integer vector containing unique scan ids.
+	\item "scanID": vector containing unique scan ids.
       }
       If a column representing sex is present, it must have the
       following format:
@@ -57,7 +57,7 @@
 
   \describe{
     \item{}{
-      \code{getScanID(object, index)}: A unique integer vector of scan
+      \code{getScanID(object, index)}: A unique vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
@@ -140,7 +140,7 @@ varLabels(scanAnnot)
 
 # add metadata
 meta <- varMetadata(scanAnnot)
-meta["scanID", "labelDescription"] <- "unique integer ID"
+meta["scanID", "labelDescription"] <- "unique scan ID"
 varMetadata(scanAnnot) <- meta
 
 # display data

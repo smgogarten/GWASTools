@@ -218,7 +218,7 @@ providing a DNA sample).
 The miniumum required variables for the scan annotation data object are
 
 \begin{itemize}
-\item{\Rcode{scanID}, a unique integer identifier for each scan}.
+\item{\Rcode{scanID}, a unique identifier for each scan}.
 \item{\Rcode{sex}, coded as ``M''/``F''.  (Note that a
       \Rcode{ScanAnnotationDataFrame} object may be valid without a sex
     variable, but it is required for many \Rpackage{GWASTools} functions.)}
@@ -238,7 +238,7 @@ meta <- varMetadata(scanAnnot)
 meta[c("scanID", "subjectID", "family", "father", "mother",
   "CoriellID", "race", "sex", "status", "genoRunID", "plate",
   "batch", "file"), "labelDescription"] <- 
-   c("unique integer ID for scans", 
+   c("unique ID for scans", 
   "subject identifier (may have multiple scans)",
   "family identifier", 
   "father identifier as subjectID",

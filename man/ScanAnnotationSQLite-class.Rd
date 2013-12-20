@@ -35,7 +35,7 @@
       "Annotation" and "Metadata."  "Annotation" must contain at least the
       following column:
       \itemize{
-	\item "scanID": integer vector containing unique scan ids.
+	\item "scanID": vector containing unique scan ids.
       }
       If a column representing sex is present, it must have the
       following format:
@@ -72,7 +72,7 @@
       \code{nscan(object)}: The number of scans in the database.
     }
     \item{}{
-      \code{getScanID(object, index, condition)}: A unique integer vector of scan
+      \code{getScanID(object, index, condition)}: A unique vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.    The optional
       \code{condition} is a character string with an SQL clause used to
@@ -154,7 +154,7 @@ vars <- getVariableNames(scanAnnot)
 # add metadata
 metadf <- data.frame(varname=vars, description=rep(NA, length(vars)),
   row.names=vars, stringsAsFactors=FALSE)
-metadf["scanID", "description"] <- "integer id"
+metadf["scanID", "description"] <- "unique id"
 writeMetadata(scanAnnot, metadf)
 
 scanID <- getScanID(scanAnnot)

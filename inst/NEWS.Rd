@@ -299,4 +299,10 @@
     \item Added support for genotype GDS files with scan x snp dimensions in GdsGenotypeReader.
   }
 }
+\section{Changes in version 1.9.2}{
+  \itemize{
+    \item ScanAnnotationDataFrame and ScanAnnotationSQLite allow
+    non-integer scanID.
+  }
+}
 
