@@ -303,6 +303,8 @@
   \itemize{
     \item ScanAnnotationDataFrame and ScanAnnotationSQLite allow
     non-integer scanID.
+    \item Fix getAlleleA and getAlleleB in GdsGenotypeReader to work
+    with indels.
   }
 }
 

@@ -152,3 +152,32 @@ test_equalGenotypeDim <- function() {
   unlink(file)
   
 }
+
+test_indels <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  snp <- 1:4
+  chrom <- rep(1, 4)
+  pos <- 101:104
+  a <- c("A", "A", "AA", "AA")
+  b <- c("G", "GG", "G", "GG")
+  alleles <- paste(a, b, sep="/")
+  samp <- 1231:1235
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  add.gdsn(gds, "snp.chromosome", chrom)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  add.gdsn(gds, "genotype", geno, storage="bit2")
+  closefn.gds(gds)
+  
+  obj <- GdsGenotypeReader(file)
+  checkIdentical(a, getAlleleA(obj))
+  checkIdentical(b, getAlleleB(obj))
+  close(obj)
+  unlink(file)
+}

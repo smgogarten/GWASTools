@@ -150,7 +150,7 @@ setMethod("getAlleleA",
           signature(object="GdsGenotypeReader"),
           function(object, index) {
             var <- getVariable(object, object@alleleVar)
-            var <- substr(var, 1, 1)
+            var <- substr(var, 1, regexpr("/", var, fixed=TRUE)-1)
             if (missing(index)) var else var[index]
           })
                            
@@ -158,7 +158,7 @@ setMethod("getAlleleB",
           signature(object="GdsGenotypeReader"),
           function(object, index) {
             var <- getVariable(object, object@alleleVar)
-            var <- substr(var, 3, 3)
+            var <- substr(var, regexpr("/", var, fixed=TRUE)+1, nchar(var))
             if (missing(index)) var else var[index]
           })
                         
