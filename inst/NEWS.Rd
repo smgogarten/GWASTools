@@ -305,6 +305,7 @@
     non-integer scanID.
     \item Fix getAlleleA and getAlleleB in GdsGenotypeReader to work
     with indels.
+    \item Added gdsImputedDosage function.
   }
 }
 

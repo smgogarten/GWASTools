@@ -171,7 +171,7 @@ setMethod("getScanID",
  
 setMethod("getGenotype",
           signature(object="GdsGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, ...) {
+          function(object, snp=NULL, scan=NULL, transpose=TRUE,...) {
             # check if we need to switch snp/scan here for a transposed genotype file
             if (object@genotypeDim == "scan,snp") {
               var <- getVariable(object, object@genotypeVar, snp=scan, scan=snp, ...)
@@ -181,7 +181,7 @@ setMethod("getGenotype",
             # set missing values to NA
             var[var < 0 | var > 2] <- NA
             # return the transpose if the genotype file is transposed.
-            if (class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
+            if (transpose & class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
             var
           })
 

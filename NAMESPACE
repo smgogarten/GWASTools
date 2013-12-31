@@ -68,6 +68,7 @@ export(
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,
     findBAFvariance,
+    gdsImputedDosage,
     gdsSetMissingGenotypes,
     genoClusterPlot,
     genoClusterPlotByBatch,
