@@ -306,8 +306,8 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
 #       snp.df <- snp.df[order(snp.df$snpID), ]
 #     }
     
-    # match snpID to snps in file
-    i_snp <- !((1:nrow(snp.df)) %in% snp.exclude)
+    # get snps to exclude
+    i_snp <- !((1:nsnp) %in% snp.exclude)
     #if (any(is.na(i_snp))) stop("i_snp is NA")
     #i_snp <- i_snp[!is.na(i_snp)]
     
