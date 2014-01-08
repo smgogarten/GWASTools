@@ -118,11 +118,11 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp, scan)}: Extracts genotype values
+      \code{getGenotype(object, snp, scan, transpose=FALSE)}: Extracts genotype values
       (number of A alleles).  
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
-      represented as \code{NA}. Genotypes are always returned in SNP x scan order.
+      represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
       \code{getVariable(object, varname, snp, scan)}: Extracts the

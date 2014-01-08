@@ -92,7 +92,7 @@ test_beagle <- function() {
   unlink(c(gdsfile, snpfile, scanfile))
 }
 
-
+# tests adding only a subset of samples/snps
 test_beagle_subset <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
                           package="GWASdata")
@@ -109,7 +109,7 @@ test_beagle_subset <- function() {
   i_snp_rm <- sample(1:nrow(markers), 5)
   #snp.names <- markers$V1[i_snp_rm] # remove 5 random SNPs
   
-  
+  snp.id.start <- 100
   
   gdsfile <- tempfile()
   snpfile <- tempfile()
@@ -127,7 +127,8 @@ test_beagle_subset <- function() {
       gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
-                       scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim)
+                       scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
+                       snp.id.start=snp.id.start)
       
       dat <- read.table(dosefile, as.is=TRUE, header=TRUE)
       dose <- 2 - as.matrix(dat[,4:ncol(dat)])
@@ -155,6 +156,8 @@ test_beagle_subset <- function() {
       checkIdentical(mark[-i_snp_rm, 2], snpAnnot$position)
       checkIdentical(mark[-i_snp_rm, 3], snpAnnot$alleleA)
       checkIdentical(mark[-i_snp_rm, 4], snpAnnot$alleleB)
+      
+      checkIdentical(1:nsnp(genoData) + as.integer(snp.id.start-1), getSnpID(genoData))
       
       close(genoData)
     }
@@ -237,7 +240,7 @@ test_mach <- function() {
   unlink(c(gdsfile, snpfile, scanfile))
 }
 
-
+# tests adding only a subset of samples/snps
 test_mach_subset <- function() {
   probfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlprob",
                           package="GWASdata")
@@ -262,13 +265,14 @@ test_mach_subset <- function() {
   markers <- read.table(markfile, header=TRUE, stringsAsFactors=FALSE)
   i_snp_rm <- sample(1:nrow(markers), 5)
   #message(paste(i_snp_rm, collapse=" "))
-  #snp.names <- markers$SNP[i_snp_rm] # remove 5 random SNPs the first SNP
+  #snp.names <- markers$SNP[i_snp_rm] # remove 5 random SNPs
   
+  snp.id.start <- 100
   
   files <- c(probfile, dosefile)
   inputs <- c(FALSE, TRUE)
   # 500 lines in file
-  blocks <- c(5000, 200, 499)
+  blocks <- c(5000, 200, 499, 1)
   genoDim <- "snp,scan"
   for (b in blocks) {
     for (i in 1:2) {
@@ -278,7 +282,8 @@ test_mach_subset <- function() {
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        genotypeDim=genoDim,
-                       scan.df=scan.df, snp.exclude=i_snp_rm)
+                       scan.df=scan.df, snp.exclude=i_snp_rm,
+                       snp.id.start=snp.id.start)
       
       #dose <- cbind(dose[i_snp_rm, 2], rep(NA, nrow(dose)-length(i_snp_rm)), dose[i_snp_rm, 1])
       
@@ -313,6 +318,8 @@ test_mach_subset <- function() {
       pos <- read.table(posfile, as.is=TRUE, header=TRUE)
       checkIdentical(pos[-i_snp_rm, 1], snpAnnot$snp)
       checkIdentical(pos[-i_snp_rm, 2], snpAnnot$position)
+
+      checkIdentical(1:nsnp(genoData) + as.integer(snp.id.start-1), getSnpID(genoData))
       
       close(genoData)
       
@@ -382,7 +389,7 @@ test_impute2 <- function() {
 }
 
 
-
+# tests adding only a subset of samples/snps
 test_impute2_subset <- function() {
   probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
                           package="GWASdata")
@@ -401,6 +408,7 @@ test_impute2_subset <- function() {
   # remove 5 random snps
   i_snp_rm <- sample(1:length(snps), 5)
   
+  snp.id.start <- 100
   
   gdsfile <- tempfile()
   snpfile <- tempfile()
@@ -415,7 +423,8 @@ test_impute2_subset <- function() {
     gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile,
-                     scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim)
+                     scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
+                     snp.id.start=snp.id.start)
     
     gds <- GdsGenotypeReader(gdsfile)
     scanAnnot <- getobj(scanfile)
@@ -446,6 +455,8 @@ test_impute2_subset <- function() {
     checkIdentical(scan.df$sampleID, scanAnnot$sampleID)
     checkEquals(scan.df$scanID, scanAnnot$scanID)
     checkEquals(scan.df$scanID, getScanID(genoData))
+    
+    checkIdentical(1:nsnp(genoData) + as.integer(snp.id.start-1), getSnpID(genoData))
     
     close(genoData)
   }

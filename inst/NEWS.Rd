@@ -305,7 +305,12 @@
     non-integer scanID.
     \item Fix getAlleleA and getAlleleB in GdsGenotypeReader to work
     with indels.
+  }
+}
+\section{Changes in version 1.9.3}{
+  \itemize{
     \item Added gdsImputedDosage function.
+    \item GdsGenotypeReader can return transposed genotypes.
   }
 }
 

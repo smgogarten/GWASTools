@@ -58,7 +58,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     if (!is.numeric(snp.exclude)) stop("snp.exclude must be list of integers to include")
     snpID <- 1:(nsnp - length(snp.exclude))
   } else {
-    message("Including all SNPs.")
+    if (verbose) message("Including all SNPs.")
     snpID <- 1:nsnp
     snp.exclude <- numeric()
     #snp.names <- NA
@@ -71,10 +71,10 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     stop("sampleID required in scan.df.")
     if (!("scanID" %in% names(scan.df))) scan.df$scanID <- 1:nrow(scan.df)
   } else if (!is.null(scan.df) & !("scanID" %in% names(scan.df))) {
-    message("scanID mapping not given. Assigning scanIDs automatically.")
+    if (verbose) message("scanID mapping not given. Assigning scanIDs automatically.")
     scan.df$scanID <- 1:nsamp
   } else if (is.null(scan.df)) {
-    message("scan.df not given. Assigning scanIDs automatically.")
+    if (verbose) message("scan.df not given. Assigning scanIDs automatically.")
     scan.df <- data.frame(scanID=1:nsamp, stringsAsFactors=FALSE)
     scan.df$sampleID <- NA
   }
@@ -287,25 +287,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     snps <- snps[,1:3]
     names(snps) <- c("snp", "alleleA", "alleleB")
     if (nrow(snps) != nsnp) stop("SNP number mismatch: ", nsnp, " in genotype file; ", nrow(snps), "in mlinfo file")
-    
-    
-    # add snp name to snp.df
-#     if (all(is.na(snp.df$snpName) & nrow(snps) == nrow(snp.df))) {
-#       # add sequentially
-#       snp.df$snpName <- snps$snpName
-#       snp.df$alleleA <- snps$alleleA
-#       snp.df$alleleB <- snps$alleleB
-#     } else if (all(is.na(snp.df$snpName) & nrow(snps) != nrow(snp.df))) {
-#       stop("mismatch in number of SNPs")
-#     } else if (all(!is.na(snp.df$snpName))) {
-#       # check that the snps in the file are all in the input snp.names
-#       if (!all(snp.df$snpName %in% snps$snpName)){
-#         stop("Given snp.names not all in imputation file.")
-#       }
-#       snp.df <- merge(snp.df, snps, all.x=TRUE)
-#       snp.df <- snp.df[order(snp.df$snpID), ]
-#     }
-    
+        
     # get snps to exclude
     i_snp <- !((1:nsnp) %in% snp.exclude)
     #if (any(is.na(i_snp))) stop("i_snp is NA")
@@ -326,9 +308,6 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     #snp.df <- snp.df[order(snp.df$snpID),]
     snp.df$position <- snp2$position[i_snp]
 
-    # empty vector for sample data
-    #samp.dat <- rep("", nsamp)
-    
     
     # .mldose or .mlprob file
     if (verbose) message ("Reading genotype file...")

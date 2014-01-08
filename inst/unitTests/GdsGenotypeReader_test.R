@@ -30,6 +30,10 @@ test_GdsGenotypeReader <- function() {
   checkIdentical(samp, getScanID(obj))
   geno[geno == 3] <- NA
   checkIdentical(geno, getGenotype(obj))
+  checkIdentical(t(geno), getGenotype(obj, transpose=TRUE))
+  # check a subset
+  checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3)))
+  checkIdentical(t(geno[1:100, 1:3]), getGenotype(obj, snp=c(1,100), scan=c(1,3), transpose=TRUE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
@@ -95,6 +99,10 @@ test_genotypeDim <- function(){
   checkIdentical(samp, getScanID(obj))
   geno[geno == 3] <- NA
   checkIdentical(geno, getGenotype(obj))
+  checkIdentical(t(geno), getGenotype(obj, transpose=TRUE))
+  # check a subset
+  checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3)))
+  checkIdentical(t(geno[1:100, 1:3]), getGenotype(obj, snp=c(1,100), scan=c(1,3), transpose=TRUE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
@@ -102,7 +110,7 @@ test_genotypeDim <- function(){
   
   checkException(GdsGenotypeReader(file, genotypeDim="notavalidstring"))
   checkException(GdsGenotypeReader(file, genotypeDim="snp,scan"))
-
+  
   unlink(file)
 }
 
@@ -138,12 +146,13 @@ test_equalGenotypeDim <- function() {
   checkIdentical(samp, getScanID(obj))
   geno[geno == 3] <- NA
   checkIdentical(geno, getGenotype(obj))
+  checkIdentical(t(geno), getGenotype(obj, transpose=TRUE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
   close(obj)
   
-
+  
   # this should raise an exception - snp and scan dimensions are equal
   checkException(GdsGenotypeReader(file))
   # this one will not raise an exception -- it would be the user's fault
