@@ -167,7 +167,8 @@ setClass("GdsGenotypeReader",
                         YchromCode = "integer",
                         XYchromCode = "integer",
                         MchromCode = "integer",
-                        genotypeDim = "character"),
+                        genotypeDim = "character",
+                        missingValue = "integer"),
          prototype(snpIDvar = "snp.id",
                    chromosomeVar = "snp.chromosome",
                    positionVar = "snp.position",
@@ -179,7 +180,8 @@ setClass("GdsGenotypeReader",
                    YchromCode = 25L,
                    XYchromCode = 24L,
                    MchromCode = 26L,
-                   genotypeDim = ""))
+                   genotypeDim = "",
+                   missingValue = 3))
 
 # GenotypeReader
 # Generic reader class

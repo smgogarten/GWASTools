@@ -179,7 +179,7 @@ setMethod("getGenotype",
               var <- getVariable(object, object@genotypeVar, snp=snp, scan=scan, ...)
             }
             # set missing values to NA
-            var[var < 0 | var > 2] <- NA
+            var[var == object@missingValue] <- NA
             # check about returning transposed results based on @genotyepDim:
             # scan,snp should by default return the transpose of what's in the gds file
             if (!transpose & class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
