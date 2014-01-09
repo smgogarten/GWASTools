@@ -1,8 +1,9 @@
 \name{gdsImputedDosage}
 \alias{gdsImputedDosage}
-\title{Create a GDS file with imputed dosages}
+\alias{gdsCheckImputedDosage}
+\title{Create and check a GDS file with imputed dosages}
 \description{
-  This function creates a GDS file and corresponding
+  These functions create or check a GDS file and corresponding
   annotation for imputed dosages from IMPUTE2, BEAGLE, or MaCH.
 }
 \usage{
@@ -14,6 +15,14 @@ gdsImputedDosage(input.files, gds.filename, chromosome,
                   verbose=TRUE, zipflag="ZIP.max", 
                   genotypeDim="snp,scan",
                   scan.df=NULL, snp.exclude=NULL, snp.id.start=1)
+gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+                      input.files, chromosome,
+                      input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
+                      input.dosage=FALSE, block.size=5000,
+                      verbose=TRUE, 
+                      snp.exclude=NULL,
+                      snp.id.start=1,
+                      tolerance=1e-4)
 }
 \arguments{
   \item{input.files}{A character vector of input files.  The first file
@@ -47,6 +56,11 @@ gdsImputedDosage(input.files, gds.filename, chromosome,
   \item{scan.df}{data frame specifying which samples to include in the output GDS files, with optional scanIDs already assigned. See details.}
   \item{snp.exclude}{vector of integers specifying which SNPs to exclude from the GDS file.}
   \item{snp.id.start}{Starting index for snpID.}
+  \item{genoData}{A \code{\link{GenotypeData}} object from a GDS file created with \code{\link{gdsImputedDosage}}.}
+  \item{snpAnnot}{The \code{\link{SnpAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}
+  \item{scanAnnot}{The \code{\link{ScanAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}  
+  \item{tolerance}{tolerance for checking differences against input files}
+
 }
 \details{
   Input files can contain either imputed dosages or genotype
@@ -93,10 +107,16 @@ sampfile <- system.file("extdata", "imputation", "IMPUTE2", "example.study.sampl
 gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
                   input.type="IMPUTE2", input.dosage=FALSE,
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+
 gds <- GdsGenotypeReader(gdsfile)
 scanAnnot <- getobj(scanfile)
 snpAnnot <- getobj(snpfile)
 genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+
+gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
+                      input.files=c(probfile, sampfile), chromosome=22,
+                      input.type="IMPUTE2", input.dosage=FALSE)
+
 geno <- getGenotype(genoData)
 getVariable(genoData, "alleleA")
 getVariable(genoData, "alleleB")
