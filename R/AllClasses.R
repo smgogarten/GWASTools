@@ -181,7 +181,7 @@ setClass("GdsGenotypeReader",
                    XYchromCode = 24L,
                    MchromCode = 26L,
                    genotypeDim = "",
-                   missingValue = 3))
+                   missingValue = 3L))
 
 # GenotypeReader
 # Generic reader class
