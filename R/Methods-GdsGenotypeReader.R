@@ -26,7 +26,7 @@ GdsGenotypeReader <- function(filename, genotypeDim, genotypeVar, snpIDvar, scan
       genotypeDim <- ""
     }
   }
-  close(tmpobj) # in case it fails the validity method, close and reopen. ugh.
+  close(tmpobj) # in case it fails the validity method, close and reopen
   
   new("GdsGenotypeReader", GdsReader(filename), genotypeDim=genotypeDim, genotypeVar=genotypeVar,
       snpIDvar=snpIDvar, scanIDvar=scanIDvar, ...)

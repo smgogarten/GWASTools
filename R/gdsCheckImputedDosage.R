@@ -100,14 +100,9 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       
       # subset dosage to match this set of samples, snp subsetting was already taken care of
       dosage <- dosage[, i_samp, drop=FALSE]
-      #if(genotypeDim == "snp,scan") {
-      #  start <- c(i_snp, 1)
-      #  count <- c(nrow(dosage), ncol(dosage))
-      #} else if (genotypeDim == "scan,snp") {
-      #  start <- c(1, i_snp)
-      #  count <- c(ncol(dosage), nrow(dosage))
-      #  dosage <- t(dosage)
-      #}
+      
+      # set unphysical dosages to NA
+      dosage[dosage < 0 | dosage > 2] <- NA
       
       snp <- c(i_snp, nrow(dosage))
       scan <- c(1, -1)
@@ -188,6 +183,10 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples")
       dosage <- dosage[, i_samp, drop=FALSE]
       
+      # set unphysical dosages to NA
+      dosage[dosage < 0 | dosage > 2] <- NA
+      
+      
       snp <- c(i_snp, nrow(dosage))
       scan <- c(1, -1)
       
@@ -260,12 +259,15 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
         # get dosage for that sample and reorder to match gds snp ordering.
         dos.samp <- dosage[i_snp, i_dos]
         
+        # set unphysical dosages to NA
+        dos.samp[dos.samp < 0 | dos.samp > 2] <- NA
+        
         snp <- c(1, -1)
         scan <- c(i_samp, 1)
         
         dosage.geno <- getGenotype(genoData, snp=snp, scan=scan)
 
-        if (!isTRUE(all.equal(dos.samp, dosage.geno, tolerance=tolerance))) stop(paste("Dosage not equal between original sample", cnt, "and", min(cnt+block.size, nsnp)))
+        if (!isTRUE(all.equal(dos.samp, dosage.geno, tolerance=tolerance))) stop(paste("Dosage not equal between original sample", cnt, "and", min(cnt+block.size, nsamp)))
         
         cnt <- cnt+1
       }

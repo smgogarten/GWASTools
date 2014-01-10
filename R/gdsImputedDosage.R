@@ -1,4 +1,4 @@
-.probToDosage <- function(probs, BB=TRUE) {
+.probToDosage <- function(probs, BB=TRUE, prob.miss.val=NULL) {
   if (BB & ncol(probs) %% 3 != 0) stop("invalid probability file - there are not 3 columns per row")
   if (!BB & ncol(probs) %% 2 != 0) stop("invalid probability file - there are not 2 columns per row")
 
@@ -12,7 +12,7 @@
 
   # calculate A allele dosage
   dosage <- 2*AAprob + ABprob
-
+  
   return(dosage)
 }
 
@@ -106,6 +106,8 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
                        "snp,scan"="snp.order",
                        "scan,snp"="sample.order")
   put.attr.gdsn(gGeno, geno.order)
+  miss.val <- -1
+  put.attr.gdsn(gGeno, "missing.value", miss.val)
   
   
   # read input file(s)
@@ -178,6 +180,9 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         count <- c(ncol(dosage), nrow(dosage))
         dosage <- t(dosage)
       }
+      
+      # check for missing values
+      dosage[dosage < 0 | dosage > 2] <- miss.val
 
       write.gdsn(gGeno, dosage, start=start, count=count)
       cnt <- cnt + block.size
@@ -262,6 +267,9 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         dosage <- t(dosage)
       }
 
+      # check for missing values
+      dosage[dosage < 0 | dosage > 2] <- miss.val
+      
       write.gdsn(gGeno, dosage, start=start, count=count)
       cnt <- cnt + block.size
       if (genotypeDim == "snp,scan"){
@@ -290,8 +298,6 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         
     # get snps to exclude
     i_snp <- !((1:nsnp) %in% snp.exclude)
-    #if (any(is.na(i_snp))) stop("i_snp is NA")
-    #i_snp <- i_snp[!is.na(i_snp)]
     
     snp.df[, c("snp", "alleleA", "alleleB")] <- NA
     snp.df$snp <- snps$snp[i_snp]
@@ -350,6 +356,9 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         }
         # get dosage for that sample and reorder to match gds snp ordering.
         dos.samp <- dosage[i_snp, i_dos]
+        
+        # check for missing values
+        dos.samp[dos.samp < 0 | dos.samp > 2] <- miss.val
         
         if (genotypeDim == "snp,scan"){
           start <- c(1, i_samp)

@@ -92,6 +92,69 @@ test_beagle <- function() {
   unlink(c(gdsfile, snpfile, scanfile))
 }
 
+
+test_beagle_missing <- function() {
+  probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
+                          package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.dose",
+                          package="GWASdata")
+  markfile <- system.file("extdata", "imputation", "BEAGLE", "hapmap.markers",
+                          package="GWASdata")
+  
+  # subsets of data to read in
+  header <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE, nrow=1)
+  
+  markers <- read.table(markfile, header=FALSE, stringsAsFactors=FALSE)
+  
+  newprobfile <- tempfile()  
+  prob <- read.table(probfile, header=TRUE, stringsAsFactors=FALSE)
+  prob[1, 4:6] <- -1
+  write.table(prob, file=newprobfile, row.names=FALSE, col.names=TRUE)
+  x <- read.table(newprobfile, header=TRUE, stringsAsFactors=FALSE)
+  checkEquals(prob, x)
+  
+  newdosefile <- tempfile()
+  dose <- read.table(dosefile, header=TRUE, stringsAsFactors=FALSE)
+  dose[1, 4] <- -1
+  write.table(dose, file=newdosefile, row.names=FALSE, col.names=TRUE)
+  x <- read.table(newdosefile, header=TRUE, stringsAsFactors=FALSE)
+  checkEquals(dose, x)
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  
+  files <- c(newprobfile, newdosefile)
+  inputs <- c(FALSE, TRUE)
+  # 100 lines in file
+  blocks <- c(5000, 40, 99)
+  for (genoDim in c("snp,scan", "scan,snp")) {
+    for (b in blocks) {
+      for (i in 1:2) {
+        gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+                         input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
+                         snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
+        
+        gds <- GdsGenotypeReader(gdsfile)
+        scanAnnot <- getobj(scanfile)
+        snpAnnot <- getobj(snpfile)
+        genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+        geno <- getGenotype(genoData)
+        
+        dat <- read.table(newdosefile, as.is=TRUE, header=TRUE)
+        dose <- 2 - as.matrix(dat[,4:ncol(dat)])
+        dose[dose < 0 | dose > 2] <- NA
+        dimnames(dose) <- NULL
+        checkEquals(dose, geno, tolerance=0.0001)
+        
+        close(genoData)
+      }
+    }
+  }
+  unlink(c(gdsfile, snpfile, scanfile))
+}
+
+
 # tests adding only a subset of samples/snps
 test_beagle_subset <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
@@ -180,16 +243,9 @@ test_mach <- function() {
   snpfile <- tempfile()
   scanfile <- tempfile()
   
-  # set up scan.df for subsetting later.
   dosages <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE)
-  # remove 5 random samples
-  #i_samp_rm <- sample(1:nrow(dosages), nrow(dosages)-5)
-  #scan.df <- data.frame(sampleID=c("MISSING->MISSING", dosages$V1[i_samp_rm]), stringsAsFactors=FALSE)
-  #scan.df$scanID <- 200:(200+nrow(scan.df)-1)
   
   markers <- read.table(markfile, header=TRUE, stringsAsFactors=FALSE)
-  #i_snp_rm <- sample(1:nrow(markers), 5)
-  #snp.names <- markers$SNP[i_snp_rm] # remove 5 random SNPs the first SNP
   
   
   files <- c(probfile, dosefile)
@@ -239,6 +295,72 @@ test_mach <- function() {
   }
   unlink(c(gdsfile, snpfile, scanfile))
 }
+
+
+test_mach_missing <- function() {
+  probfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlprob",
+                          package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mldose",
+                          package="GWASdata")
+  markfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlinfo",
+                          package="GWASdata")
+  posfile <- system.file("extdata", "imputation", "MaCH", "mach1.snp.position",
+                         package="GWASdata")
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  newprobfile <- tempfile()
+  newdosefile <- tempfile()
+  
+  dosages <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE)
+  dosages[1, 3] <- -1
+  write.table(dosages, file=newdosefile, row.names=FALSE, col.names=FALSE)
+  x <- read.table(newdosefile, stringsAsFactors=FALSE, header=FALSE)
+  checkEquals(x, dosages)
+  
+  # mach probs are AA, AB not AA, AB, BB
+  prob <- read.table(probfile, header=FALSE, stringsAsFactors=FALSE)
+  prob[1, 3:4]  <- -1
+  write.table(prob, file=newprobfile, row.names=FALSE, col.names=FALSE)
+  x <- read.table(newprobfile, stringsAsFactors=FALSE, header=FALSE)
+  checkEquals(x, prob)
+  
+  markers <- read.table(markfile, header=TRUE, stringsAsFactors=FALSE)
+  
+  
+  files <- c(newprobfile, newdosefile)
+  inputs <- c(FALSE, TRUE)
+  # 500 lines in file
+  blocks <- c(5000, 1)
+  genoDim <- c("snp,scan")
+  for (b in blocks) {
+    for (i in 1:2) {
+      gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+                       input.type="MaCH", input.dosage=inputs[i], block.size=b,
+                       snp.annot.filename=snpfile, scan.annot.filename=scanfile,
+                       genotypeDim=genoDim)
+      
+      gds <- GdsGenotypeReader(gdsfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      
+      dat <- read.table(newdosefile, as.is=TRUE, header=FALSE)
+      dose <-  t(as.matrix(dat[,3:ncol(dat)]))
+      dose[dose < 0 | dose > 2] <- NA
+      dimnames(dose) <- NULL
+      checkEquals(dose, geno, tolerance=0.001)
+      
+      close(genoData)
+      
+    }
+  }
+  
+  unlink(c(gdsfile, snpfile, scanfile, newprobfile, newdosefile))
+}
+
 
 # tests adding only a subset of samples/snps
 test_mach_subset <- function() {
@@ -387,6 +509,58 @@ test_impute2 <- function() {
   }
   unlink(c(gdsfile, snpfile, scanfile))
 }
+
+test_impute2_missing <- function() {
+  probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
+                          package="GWASdata")
+  sampfile <- system.file("extdata", "imputation", "IMPUTE2", "example.study.samples",
+                          package="GWASdata")
+  
+  samp <- read.table(sampfile, stringsAsFactors=FALSE, header=TRUE)
+  samp <- samp[-1, ]
+  
+  dos <- read.table(probfile, header=FALSE, stringsAsFactors=FALSE)
+  snps <- dos[, 2]
+  
+  # make a dosage missing
+  newprobfile <- tempfile()
+  dos[1, 6:8] <- -1
+  write.table(dos, file=newprobfile, row.names=FALSE, col.names=FALSE)
+  x <- read.table(newprobfile, stringsAsFactors=FALSE, header=FALSE)
+  checkEquals(x, dos)
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  
+  # 33 lines in file
+  genoDim <- "snp,scan"
+  blocks <- c(5000, 1)
+  for (b in blocks) {
+    # make a normal one
+    gdsImputedDosage(input.files=c(newprobfile, sampfile), gds.filename=gdsfile, chromosome=22,
+                     input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
+                     snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
+    
+    gds <- GdsGenotypeReader(gdsfile)
+    scanAnnot <- getobj(scanfile)
+    snpAnnot <- getobj(snpfile)
+    genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+    geno <- getGenotype(genoData)
+    
+    dat <- read.table(newprobfile, as.is=TRUE, header=FALSE)
+    dose <- GWASTools:::.probToDosage(as.matrix(dat[,6:ncol(dat)]))
+    dose[dose < 0 | dose > 2] <- NA
+    dimnames(dose) <- NULL
+    checkEquals(dose, geno, tolerance=0.0001)
+    
+    close(genoData)
+    
+  }
+
+  unlink(c(gdsfile, snpfile, scanfile, newprobfile))
+}
+
 
 
 # tests adding only a subset of samples/snps
