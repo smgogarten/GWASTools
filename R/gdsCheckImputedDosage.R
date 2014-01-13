@@ -193,7 +193,7 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       dosage.geno <- getGenotype(genoData, snp=snp, scan=scan)
       if (class(dosage.geno) != "matrix") dosage.geno <- matrix(dosage.geno, ncol=nscan(genoData))
       
-      if (!isTRUE(all.equal(dosage.geno, dosage, tolerance=tolerance))) stop(paste("Dosage not equal in original SNPs", cnt, "-", min(nsnp(genoData), cnt + block.size)))
+      if (!isTRUE(all.equal(dosage.geno, dosage, tolerance=tolerance))) stop(paste("Dosage not equal in original SNPs", cnt, "-", min(nsnp, cnt + block.size)))
       
       cnt <- cnt + block.size
 
@@ -247,7 +247,7 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       # loop over samples to add them. Lots of indices here:
       # i_dos tracks the location in the dosage array
       # i_samp finds the location in the gds file/scan.df
-      # i_snp matches the ordering of snps in the dosage array to the ordering of snps in the gdsf ile
+      # i_snp matches the ordering of snps in the dosage array to the ordering of snps in the gds file
       for (i_dos in 1:length(samp.block)) {
         
         # this sample

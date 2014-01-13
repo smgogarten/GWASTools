@@ -237,6 +237,9 @@ test_check_beagle_subset <- function() {
                             input.dosage=inputs[i], block.size=b,
                             snp.exclude=i_snp_rm))
       
+      close(genoData)
+      
+      
       # change an added=FALSE sample
       tmp <- which(!scanAnnot$added)
       i_scan2 <- ifelse(length(tmp) == 1, tmp, sample(tmp, 1))
@@ -524,6 +527,8 @@ test_check_mach_subset <- function() {
                             input.dosage=inputs[i], block.size=b,
                             snp.exclude=i_snp_rm))
       
+      close(genoData)
+      
       # change an added=FALSE sample
       tmp <- which(!scanAnnot$added)
       i_scan2 <- ifelse(length(tmp) == 1, tmp, sample(tmp, 1))
@@ -781,6 +786,8 @@ test_check_impute2_subset <- function() {
                                          input.type="IMPUTE2", 
                                          input.dosage=FALSE, block.size=b,
                                          snp.exclude=i_snp_rm, verbose=FALSE))
+    
+    close(genoData)
     
     # change an added=FALSE sample
     tmp <- which(!scanAnnot$added)
