@@ -284,7 +284,7 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
     # match gds file
     i_gds <- match(i_samp, scanID.gds)
     geno.gds <- getGenotype(genoData, snp=c(1,-1), scan=c(i_gds, 1))
-    if (!(all(is.na(geno.gds)))) stop(paste("genotypes are not NA for", i_samp))
+    if (!(all(is.na(geno.gds)))) stop(paste("genotypes are not NA for added=FALSE sample", i_samp))
   }
   
   
