@@ -160,8 +160,9 @@ setMethod("getSnpID",
 
 setMethod("getChromosome",
           signature(object = "SnpAnnotationSQLite"),
-          function(object, char=FALSE, ...) {
-            var <- getVariable(object, object@chromosomeCol, ...)
+          function(object, index, char=FALSE, ...) {
+            if (missing(index)) index <- TRUE
+            var <- getVariable(object, object@chromosomeCol, index, ...)
             
             # convert to characters
             if (char) {

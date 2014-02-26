@@ -313,4 +313,10 @@
     \item GdsGenotypeReader can return transposed genotypes.
   }
 }
+\section{Changes in version 1.9.4}{
+  \itemize{
+    \item Bug fix in getChromosome method for SnpAnnotationDataFrame
+    (proper behavior of unnamed "index" argument).
+  }
+}
 
