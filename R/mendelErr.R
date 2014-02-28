@@ -48,15 +48,15 @@ mendelList <- function(familyid,
   gender <- rep(1, length(sex))
   gender[sex=="F"] <- 2
    
-  rv <- NULL
+  rv <- list()
   # family loop
   for (fid in levels(factor(familyid))){  # this is looping through all unique family IDs
-    frv <- NULL
+    frv <- list()
     fflag <- familyid==fid  # flag which samples are part of this family
 
     # offspring loop
     for (childid in levels(factor(offspring[fflag]))){  # this is looping through all offspring in this family
-      crv <- NULL
+      crv <- list()
 
       # get index(es) for this child in offspring ID vector
       for (childindex in which(offspring==childid & fflag)){
@@ -92,27 +92,28 @@ mendelList <- function(familyid,
             }
 
             # add offspring/father/mother trio to the results for this child
-            crv <- rbind(crv,data.frame(offspring=res[1], father=res[2], mother=res[3]))
+            crv[[paste(childindex, fatindex, motindex)]] <-
+              data.frame(offspring=res[1], father=res[2], mother=res[3])
           }
         }
       }
+      names(crv) <- NULL
+      crv <- do.call(rbind, crv)
       # add this child's results to the family's
       if (!is.null(crv)){
-        frv <- append(frv, list(crv))
         # name is offspring ID
-        names(frv)[length(frv)] <- childid
+        frv[[as.character(childid)]] <- crv
       }
     }	# loop for offspring
 
     # add this family's results to the rest
-    if (!is.null(frv)){
-      rv <- append(rv, list(frv))
+    if (length(frv) > 0){
       # name is the family ID
-      names(rv)[length(rv)] <- fid
+      rv[[as.character(fid)]] <- frv
     }
   }	# loop for family
 
-  if (!is.null(rv)) class(rv) <- "mendelList"
+  if (length(rv) > 0) class(rv) <- "mendelList" else rv <- NULL
   return(rv)
 }
 
@@ -128,14 +129,16 @@ mendelList <- function(familyid,
 mendelListAsDataFrame <- function(mendel.list)
 {
 	stopifnot(class(mendel.list)=="mendelList")
-	rv <- NULL
+	rv <- list()
         # for all families
 	for (famidx in 1:length(mendel.list)){
           # for all children in that family
           for (childidx in 1:length(mendel.list[[famidx]]))
-            rv <- rbind(rv, mendel.list[[famidx]][[childidx]])
+            rv[[paste(famidx, childidx)]] <- mendel.list[[famidx]][[childidx]]
 	}
-	return(rv)
+        names(rv) <- NULL
+	rv <- do.call(rbind, rv)
+        return(rv)
 }
 
 
@@ -254,7 +257,7 @@ mendelErr <- function(genoData,
 
   # define result data.frame
   if(verbose) message("Preparing data structures...")
-  all.trios <- NULL
+  all.trios <- list()
 
   # set a vector of null genotypes for missing father or mother
   miss.geno <- rep(0, nsnp(genoData))
@@ -356,7 +359,7 @@ mendelErr <- function(genoData,
         }
 
         # bind to other results
-        all.trios <- rbind(all.trios, r)
+        all.trios[[paste(famidx, childidx, i)]] <- r
 
         # info
         if (verbose){
@@ -376,7 +379,8 @@ mendelErr <- function(genoData,
       }
     } # end child (subject) loop
   } # end family loop
-
+  names(all.trios) <- NULL
+  all.trios <- do.call(rbind, all.trios)
 
   # trios, average values for duplicate samples
   if(verbose) message("Averaging over duplicate trios...")

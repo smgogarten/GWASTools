@@ -319,4 +319,12 @@
     (proper behavior of unnamed "index" argument).
   }
 }
+\section{Changes in version 1.9.5}{
+  \itemize{
+    \item Remove defunct functions.
+    \item Improve efficiency of gwasExactHW, mendelErr,
+    assocTestRegression (reduce number of calls to rbind).
+  }
+}
+
 

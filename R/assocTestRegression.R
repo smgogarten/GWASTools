@@ -584,6 +584,7 @@ RunRegression <- function(){
   } # models loop
 
 ############# loop through chromosomes ################
+  res.list <- list() # list to keep results
   for (chr.index in 1:length(chromosome.set)){
     chr <- chromosome.set[chr.index];
 
@@ -788,15 +789,13 @@ RunRegression <- function(){
         if(verbose) message(paste("Chr",chr,"Block",k,"of",nblocks,"Completed"));
 
       } # block loop
-      if(chr==chromosome.set[1]){
-        res.set=resm;
-      }else{
-        res.set=rbind(res.set,resm);
-      }
+      res.list[[paste(chr.index,k)]] <- resm
 
     } # if(n.chr.snp == 0)          
 
   } # chromosome loop
+  names(res.list) <- NULL
+  res.set <- do.call(rbind, res.list)
   colnames(res.set) = nv;
 
   res.set=as.data.frame(res.set);

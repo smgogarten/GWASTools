@@ -67,6 +67,7 @@ gwasExactHW <- function (genoData,
 
     ############# loop through chromosomes ################
     if(verbose) message("Beginning calculations...")
+    res.list <- list() # list to keep results
     for (chr.index in 1:length(chromosome.set)){
       chr <- chromosome.set[chr.index];
 
@@ -97,9 +98,6 @@ gwasExactHW <- function (genoData,
         keep <- keep & FALSE;
         message("HWE test not valid for Y or M; results will be NA")
       }
-
-      # create empty results data.frame
-      res.tmp <- NULL;
 
       ############## loop through blocks ###################
       for(k in 1:nblocks){
@@ -140,26 +138,20 @@ gwasExactHW <- function (genoData,
         exp.het <- 2*aFreq*(1-aFreq)*geno.tot
         f <- 1-(obs.het/exp.het)
 
-        # put in results
-        res <- cbind(res, aFreq, minor.allele, f);
-
         # calculate HW p-val and put in results
         hwePs <- GWASExactHW::HWExact(tmpGenotypeCounts);
-        res <- cbind(res,hwePs);
+        res <- cbind(res,  aFreq, minor.allele, f, hwePs);
 
-        # concatenate results
-        res.tmp <- rbind(res.tmp, res);
+        # add results to list
+        res.list[[paste(chr.index,k)]] <- res
                 
         if(verbose) message(paste("chr",chr," block",k, "of",nblocks, "completed"));
         
       } # block loop
-      if(chr==chromosome.set[1]){
-        res.set = res.tmp;
-      }else{
-        res.set = rbind(res.set, res.tmp);
-      }
       
     } # chromosome loop
+    names(res.list) <- NULL
+    res.set <- do.call(rbind, res.list)
     colnames(res.set) = nv;
 
     # set pvalue to NA for monomorphic SNPs

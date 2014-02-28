@@ -37,9 +37,8 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pseudoautoIntensityPlot.R qqPlot.R qualityScoreByScan.R qualityScoreBySnp.R
   snpCorrelationPlot.R
   ibdAreasDraw.R ibdAssignRelatedness.R ibdPlot.R findRelationsMeanVar.R
-  pedigreeCheck.R pedigreeClean.R pedigreeDeleteDuplicates.R 
-  pedigreeFindDuplicates.R pedigreePairwiseRelatedness.R
-  pedigreeMaxUnrelated.R
+  pedigreeCheck.R pedigreeDeleteDuplicates.R 
+  pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   convertNcdfGds.R convertVcfGds.R ncdfImputedDosage.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
   gdsImputedDosage.R gdsCheckImputedDosage.R
