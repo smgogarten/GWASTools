@@ -25,8 +25,6 @@ pedigreeDeleteDuplicates(pedigree, duplicates)
 
   \item{duplicates}{dataframe with columns "family" (family id) and "individ" (individual id).}
 
-  \item{verbose}{Logical value specifying whether or not to display messages.}	
-
 }
 
 
@@ -39,10 +37,6 @@ pedigreeDeleteDuplicates(pedigree, duplicates)
   pedigree with duplicates removed.
 }
 \value{
-The output of \code{pedigreeFindDuplicates} is a list containing two dataframes:
-\item{dups.mismatch}{A dataframe containing the family id, individual id and number of copies for any duplicates with mismatching pedigree data}
-\item{dups.match}{A dataframe containing the family id, individual id and number of copies for any duplicates with matching pedigree data.}
-
 The output of \code{pedigreeDeleteDuplicates} is a pedigree
 identical to \code{pedigree}, but with duplicates removed.
 }
