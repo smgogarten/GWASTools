@@ -83,6 +83,8 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   RData format in \code{snp.annot.filename} and \code{scan.annot.filename}.
 
   Currently supported input file types are IMPUTE2, BEAGLE, and MaCH.
+  
+  Warning: the code does not yet account for genotype probabilities of (0, 0, 0), (0.33, 0.33, 0.33), or probabilities that do not add to 1.
 }
 \references{
   IMPUTE2: \url{http://mathgen.stats.ox.ac.uk/impute/impute_v2.html}
