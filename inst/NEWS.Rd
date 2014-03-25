@@ -326,5 +326,14 @@
     assocTestRegression (reduce number of calls to rbind).
   }
 }
+\section{Changes in version 1.9.6}{
+  \itemize{
+    \item Revised anomFilterBAF - fewer centromere spanning anomalies
+    that aren't real, corrects some merging issues (previously it would
+    merge sections that really were different split widths).
+    Users should be aware that this will increase running time.
+  }
+}
+
 
 

@@ -26,7 +26,8 @@ anomFilterBAF(intenData, genoData, segments, snp.ids, centromere,
   sd.reg = 2, sd.long = 1, low.frac.used = 0.1, run.size = 10,
   inter.size = 2, low.frac.used.num.mark = 30, very.low.frac.used = 0.01, 
   low.qual.frac.num.mark = 150, lrr.cut = -2, ct.thresh = 10,
-  frac.thresh = 0.1, verbose=TRUE)
+  frac.thresh = 0.1, verbose=TRUE,
+  small.thresh=2.5, dev.sim.thresh=0.1, centSpan.fac=1.25, centSpan.nmark=50)
 
 anomDetectBAF(intenData, genoData, scan.ids, chrom.ids, snp.ids,
   centromere, low.qual.ids = NULL, ...)
@@ -150,6 +151,19 @@ refer to start and end of anomaly,respectively, in position order.
   investigate interval for homozygous deletion only if \code{lrr.cut} and \code{ct.thresh}
   thresholds met and (# LRR values below \code{lrr.cut})/(# eligible SNPs in segment) > \code{frac.thresh}
 }
+\item{small.thresh}{
+  sd.fac threshold use in making merge decisions involving small num.mark segments
+}
+\item{dev.sim.thresh}{
+  relative error threshold for determining similarity in BAF deviations; used in merge decisions
+}
+\item{centSpan.fac}{
+ thresholds increased by this factor when considering filtering/keeping together left and right halves of centromere spanning segments
+} 
+\item{centSpan.nmark}{
+minimum number of markers under which centromere spanning segments are automatically filtered out
+}
+   
 \item{...}{
   arguments to pass to \code{anomFilterBAF}
 }

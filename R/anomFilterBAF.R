@@ -1,11 +1,32 @@
+############
+mergeSeg<-function(segs,snum,ch,cL,cR, base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used,
 
-#############SUB-FUNCTIONS############
-## MERGE contiguous segments that meet a filter
-#  based on number of st.devs from a baseline
-.mergeSeg<-function(segs,snum,ch,cent,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) { 
+  low.frac.used.num.mark,baf.raw,baf.dat,index,braw.base.med,small.thresh, dev.sim.thresh, LRR,snp.ids,intid ) { 
+
 #segs is data.frame of DNAcopy segments from sample snum and chromosome ch
-#cent: centromere position information
-#Pos: position info from netCDF
+
+# cL and cR: left and right indices of centromere for the given chrom ch
+#############################
+runTrue2<-function(ss){
+  if(class(ss)!="logical")stop("input needs to be logical")
+  r<-rle(ss)
+  vals<-r[[2]]
+  lens<-r[[1]]
+  nv<-length(vals)
+  endp<-cumsum(lens)  #end positions of each run
+  stp<-c(1,endp[1:(nv-1)]+1)
+  wt<-which(vals & lens>=2)
+  if(length(wt)==0) return(NULL)
+  endt<-endp[wt]
+  stt<-stp[wt]
+  out<-list(stt,endt)
+  names(out)<-c("start","end")   # start and end of runs of TRUE
+  return(out)
+}
+########################
+
+
+
 if(!is.element(class(segs),"data.frame")) stop("segment data is not a data.frame")
 if(dim(segs)[1]==0)stop("error: no segment info given to merge")
 colm<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex")
@@ -17,97 +38,387 @@ if(!all(segs$chrom==ch))stop("data.frame of segments needs to be from same chrom
 
 sx<-segs$sex[1]
 an<-segs[order(segs$left),]
+
 an$merge<-FALSE
+nms<-names(an)
 if(dim(an)[1]<2) return(an)
+
 frac.used<-an$num.mark/(an$right-an$left+1)
   # denom is total number of markers in between, including intensity only
   # this would make it more likely for frac.used to be smaller
   # would be an unusual anom and would probably not want to merge
   
-  merged.anoms<-NULL
-
   s1<-an$sd.fac>=sd.reg
   s2<-an$num.mark>long.num.mark.thresh & an$sd.fac>=sd.long
   s<-s1|s2
-  s3<-frac.used>low.frac.used
-  ss<-s & s3  # T for ones above threshold and not low.frac
-  r<-rle(ss)
-  vals<-r[[2]]
-  lens<-r[[1]]
-  nv<-length(vals)
-  endp<-cumsum(lens)  #end positions of each run
-  stp<-c(1,endp[1:(nv-1)]+1)
-  wt<-which(vals & lens>=2)
-  if(length(wt)==0) return(an)
-  
-  endt<-endp[wt]
-  stt<-stp[wt]
-  
-  del.merge<-NULL
-  for(i in 1:length(stt)){
-    ind<-stt[i]:endt[i]
-    tmp<-an[ind,]  #set of consecutive anoms
-    
-    ## don't want to merge any anoms with num.mark<5 on either 'edge'
-    ## and do not merge if would create a centromere spanning anom
-    w5<-which(tmp$num.mark>=5)
-    if(length(w5)<=1) next
-    mw5<-min(w5);mx5<-max(w5) 
-    choose<-mw5:mx5
-    nt<-length(choose)
-    if(nt<2) next
-    if(nt==2) { 
-       c<-Pos[tmp[mw5,"right"]]<=cent$left.base[cent$chrom==ch] &
-          Pos[tmp[mx5,"left"]]>=cent$right.base[cent$chrom==ch] 
-       nm<-tmp[mw5,"num.mark"]>=num.mark.thresh & tmp[mx5,"num.mark"]>=num.mark.thresh
-         if(!c & !nm) {
-           del.merge<-c(del.merge,ind[choose])
-           new.left<-an[ind[mw5],"left"]; new.right<-an[ind[mx5],"right"]
-           new.num.mark<-sum(an$num.mark[ind[choose]])
-           new.seg.mean<-sum(an$seg.mean[ind[choose]]*an$num.mark[ind[choose]])/new.num.mark
-           new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
-           names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
-           merged.anoms<-rbind(merged.anoms,new)
+  s3<-frac.used>low.frac.used | an$num.mark >= low.frac.used.num.mark
+  ss<-s & s3  # T for ones above threshold and not low.frac or above threshold and more markers if is low frac
+  out<-runTrue2(ss)
+  if(is.null(out)) return(an)
+  endt<-out$end
+  stt<-out$start
+
+######## determine type: gain (1), loss (2), neutral (3)
+      
+
+## break up sets if 'type' changes
+  selgood<-is.element(intid,snp.ids)
+     stt2<-NULL;endt2<-NULL 
+     for(i in 1:length(stt)){
+       ind<-stt[i]:endt[i]
+       tmp<-an[ind,]  #set of consecutive anoms
+
+       tmp$type<-2
+       for(jk in 1:nrow(tmp)){
+         seg<-tmp[jk,]
+         ledge<-seg$left;redge<-seg$right
+         int<- intid>=intid[ledge] & intid<=intid[redge]  # $left and right are intid values
+         sel<-int&selgood
+         lrrseg<-LRR[sel]
+         medlrr<-median(lrrseg,na.rm=TRUE)
+         sdlrr<-sd(lrrseg,na.rm=TRUE)
+         if(medlrr>0.3*sdlrr) tmp$type[jk]<-3
+         if(medlrr< -0.3*sdlrr) tmp$type[jk]<-1
+       }      
+
+       ts<-tmp$type
+       r<-rle(ts)
+       vals<-r[[2]]
+       lens<-r[[1]]
+       nv<-length(vals)
+       endp<-cumsum(lens)  #end positions of each run
+       stp<-c(1,endp[1:(nv-1)]+1)
+       wt<-which(lens>=2)
+       if(length(wt)==0){endt2<-endt2;stt2<-stt2} else {
+          endt2<-c(endt2,ind[endp[wt]])
+          stt2<-c(stt2,ind[stp[wt]])
+       }
+     }
+     if(is.null(stt2)|is.null(endt2)) return(an)  # after accounting for type, no consec anoms
+     stt<-stt2;endt<-endt2  #stt and endt record sets as we go along
+
+  ## have used 'type' and no longer need it
+   
+########
+
+## break sets up if cross centromere
+
+   if(!is.null(cL) & !is.null(cR)){
+    # skip acrocentric; cL and cR  are indices of intid; left and right are indices of intid
+
+     bk<-NULL
+     for(i in 1:length(stt)){
+       ind<-stt[i]:endt[i]
+       tmp<-an[ind,]  #set of consecutive anoms
+       
+       nn<-nrow(tmp)  # will be at least 2
+       J<-0
+       for(j in 1:(nn-1)){
+         if(tmp$right[j]<=cL & tmp$left[j+1]>=cR) {
+             J<-j; break
          }
-      } else {
-        I<-mx5
-        for(j in mw5:(mx5-1)){
-          if(Pos[an[ind[j],"right"]]<=cent$left.base[cent$chrom==ch] &
-          Pos[an[ind[j+1],"left"]]>=cent$right.base[cent$chrom==ch]) {I<-j;break} 
+       }
+       if(J!=0){bk<-c(i,J); break}
+     }
+
+     if(!is.null(bk)){
+        ii<-bk[1];J<-bk[2]
+        ind<-stt[ii]:endt[ii]
+        if(length(stt)==1){
+           stt2<-c(stt[ii],ind[J+1])
+           endt2<-c(ind[J],endt[ii])
         }
-        
-        set1<-mw5:I ; if(I<mx5) set2<-(I+1):mx5 else set2<-NULL
-        if(length(set1)>=2) { del.merge<-c(del.merge,ind[set1])
-           new.left<-an[ind[mw5],"left"]; new.right<-an[ind[I],"right"]
-           new.num.mark<-sum(an$num.mark[ind[set1]])
-           new.seg.mean<-sum(an$seg.mean[ind[set1]]*an$num.mark[ind[set1]])/new.num.mark
-           new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
-           names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
-           merged.anoms<-rbind(merged.anoms,new)
+        if(length(stt)>1){
+          if(ii==1){
+            stt2<-c(stt[ii],ind[J+1],stt[(ii+1):length(stt)])
+            endt2<-c(ind[J],endt[ii:length(endt)])
+          } else {
+            if(ii==length(stt)){
+              stt2<-c(stt[1:ii],ind[J+1])
+              endt2<-c(endt[1:(ii-1)],ind[J],endt[ii:length(endt)]) 
+            } else { 
+            stt2<-c(stt[1:ii],ind[J+1],stt[(ii+1):length(stt)])
+            endt2<-c(endt[1:(ii-1)],ind[J],endt[ii:length(endt)])  
+            }
+          }  
+        }
+        sdiff<-endt2-stt2+1
+        sel<-sdiff>=2
+        stt<-stt2[sel]; endt<-endt2[sel]   
+     }
+     if(length(stt)==0) return(an) 
+   }
+
+     
+  del.merge<-NULL
+  merged.anoms<-NULL 
+
+  for(i in 1:length(stt)){
+     cnt<-0
+     mrg<-list()
+     ind<-stt[i]:endt[i]
+     tmp<-an[ind,]
+
+## compute baf.dev.med
+    tmp$baf.dev.med<-NA
+    for(jjj in 1:nrow(tmp)){
+         tmp2<-tmp[jjj,]
+         set1<-index>=tmp2$left & index<=tmp2$right # indices that are baf eligible
+         abf<-baf.raw[set1]
+         bf.dev<-abs(abf-braw.base.med)
+         tmp$baf.dev.med[jjj]<-median(bf.dev,na.rm=TRUE)
+    }
+
+       #create strings of T/F depending upon num.mark
+     sel<-tmp$num.mark>=num.mark.thresh
+     tmp$ok<-FALSE
+     tmp$ok[sel]<-TRUE
+
+
+     if(all(tmp$ok)) next # if all intervals meet num.mark threshold, keep separate
+
+     if(all(!tmp$ok)){ # none meet num.mark threshold
+        ss<-tmp$sd.fac>=small.thresh
+        out<-runTrue2(ss)
+        if(!is.null(out)){
+           st<-out$start; ed<-out$end
+           nk<-length(st)
+           for(ii in 1:nk){
+              cnt<-cnt+1
+              mrg[[cnt]]<-st[ii]:ed[ii]  #indicates intervals to merge
+           }
+        }
+    ### ADD CODE for indicating merging results for that set
+        if(length(mrg) !=0){
+          dt<-unlist(mrg)
+          del.merge<-c(del.merge,ind[dt])
+          tpmerge<-NULL
+          for(jj in 1:length(mrg)){
+             x<-mrg[[jj]]
+             a1<-ind[x[1]];a2<-ind[x[length(x)]]  
+             set1<-a1:a2
+             new.left<-an$left[a1];new.right<-an$right[a2]
+             new.num.mark<-sum(an$num.mark[set1])
+             new.seg.mean<-sum(an$seg.mean[set1]*an$num.mark[set1])/new.num.mark
+             new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
+             new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,TRUE,stringsAsFactors=FALSE)
+             names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
+
+             merged.anoms<-rbind(merged.anoms,new)
+
+          }
+        }
+
+      next   # go to next set - which will restart cnt
+     }
+           
+  # find positions of the T's
+    ww<-which(tmp$ok)
+ 
+ # initial block of potential F's in front of first T
+    k1<-ww[1] #position of first T
+
+    if(k1==2){
+       if(tmp$sd.fac[1]>=small.thresh){
+          cnt<-cnt+1;mrg[[cnt]]<-c(1,2)   #merge if only one F before first T and meets thresh
+       }
+    }
+    if(k1==3){
+       if(tmp$sd.fac[k1-1]>=small.thresh & tmp$sd.fac[k1-2]<small.thresh){
+         cnt<-cnt+1
+         mrg[[cnt]]<-c(k1-1,k1)   # FFT with first F not high but second F is
+       } else {
+         if(tmp$sd.fac[k1-1]>=small.thresh & tmp$sd.fac[k1-2]>=small.thresh){
+           cnt<-cnt+1
+           mrg[[cnt]]<-c(k1-2,k1-1) # both F's high - merge them together
          }
-         if(length(set2)>=2) { del.merge<-c(del.merge,ind[set2])
-           new.left<-an[ind[I+1],"left"]; new.right<-an[ind[mx5],"right"]
-           new.num.mark<-sum(an$num.mark[ind[set2]])
-           new.seg.mean<-sum(an$seg.mean[ind[set2]]*an$num.mark[ind[set2]])/new.num.mark
-           new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
-           new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,T,stringsAsFactors=FALSE)
-           names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
-           merged.anoms<-rbind(merged.anoms,new)
+       }
+    }
+    if(k1>3){
+      if(tmp$sd.fac[k1-1]>=small.thresh & tmp$sd.fac[k1-2]<small.thresh){
+         flag<-1;ix<-1:(k1-3)} else {flag<-0; ix<-1:(k1-1)
+      }  # sets of F's to consider looking for consec sd.fac large
+      ss<-tmp$sd.fac[ix]>=small.thresh
+      out<-runTrue2(ss)
+      if(!is.null(out)){
+         st<-out$start; ed<-out$end
+         nk<-length(st)
+         for(ii in 1:nk){
+            cnt<-cnt+1
+            mrg[[cnt]]<-ix[st[ii]:ed[ii]]
          }
-      }#end of else
- } #end of i loop
+      }
+      if(flag==1){
+         cnt<-cnt+1; mrg[[cnt]]<-c(k1-1,k1)  # add on merging the FT to the sets of preceding consec F's that get merged
+      }
+    }
+ # end initial block
+    if(length(ww)>1){
+      for(kk in 2:length(ww)){
+         ki<-ww[kk]
+         kip<-ww[kk-1]
+         df<-ki-kip
+         if(df==1) next  #we have 2 T's consecutive
+         if(df==2){ # TFT configuration
+
+           mnbd<-min(tmp$baf.dev.med[ki],tmp$baf.dev.med[kip])
+           if(mnbd==0) relerr<-10 else relerr<-abs(tmp$baf.dev.med[ki]-tmp$baf.dev.med[kip])/mnbd
+           if(relerr<=dev.sim.thresh){# 
+              cnt<-cnt+1
+              mrg[[cnt]]<-kip:ki
+           } else { #deciding which T interval to merge the F interval with
+              df1<-abs(tmp$baf.dev.med[kip]-tmp$baf.dev.med[kip+1])
+              df2<-abs(tmp$baf.dev.med[ki] - tmp$baf.dev.med[kip+1])
+              cnt<-cnt+1
+              if(df1<df2)mrg[[cnt]]<-kip:(kip+1) else mrg[[cnt]]<-(kip+1):ki 
+           }
+         }
+         if(df==3){ # TFFT configuration
+           sm<-tmp$num.mark[kip+1]+tmp$num.mark[kip+2]
+           mnbd<-min(tmp$baf.dev.med[k1],tmp$baf.dev.med[kip])
+           if(mnbd==0) relerr<-10 else relerr<-abs(tmp$baf.dev.med[ki]-tmp$baf.dev.med[kip])/mnbd
+           if(sm>=num.mark.thresh){              
+                   cnt<-cnt+1; mrg[[cnt]]<-(kip+1):(kip+2)
+           } else {
+               if(relerr<=dev.sim.thresh){ # if the T's similar, merge them with the F's
+                  cnt<-cnt+1
+                  mrg[[cnt]]<-kip:ki
+               } else { # determine which T each F merges with, if any
+                  ws1<-c(kip,kip+1); ws2<-c(kip+2,ki)
+                  if(tmp$sd.fac[kip+1]>=small.thresh){cnt<-cnt+1;mrg[[cnt]]<-ws1}
+                  if(tmp$sd.fac[kip+2]>=small.thresh){cnt<-cnt+1;mrg[[cnt]]<-ws2}
+               }
+            }
+          }
+          if(df>3){  # just look for runs of F's with enough evidence
+            ix<-(kip+1):(ki-1)
+            ss<-tmp$sd.fac[ix]>=small.thresh
+            out<-runTrue2(ss)
+            if(!is.null(out)){
+              st<-out$start; ed<-out$end
+              nk<-length(st)
+              for(ii in 1:nk){
+                cnt<-cnt+1
+                mrg[[cnt]]<-ix[st[ii]:ed[ii]]
+              }
+            }
+          }
+      } # end of loop for 'middle' runs
+    } # end if on length of ww
+
+   # block of potential F's after last T
+    kf<-ww[length(ww)] 
+    kd<-nrow(tmp)- kf   # number of F's after the last T
+    if(kd==1) {
+        if(tmp$sd.fac[kf+1]>=small.thresh){cnt<-cnt+1;mrg[[cnt]]<-c(kf,kf+1) }
+    }
+    if(kd==2){ # TFF  
+      c1<-tmp$sd.fac[kf+1]>=small.thresh
+      c2<-tmp$sd.fac[kf+2]>=small.thresh
+      if(c1&c2){ cnt<-cnt+1; mrg[[cnt]]<-c(kf+1,kf+2)} # still possible for it to get eliminated later if sum of num.mark too small
+      if(c1&!c2) {cnt<-cnt+1; mrg[[cnt]]<-c(kf,kf+1) } 
+    }
+    if(kd>2){
+      c1<-tmp$sd.fac[kf+1]>=small.thresh
+      c2<-tmp$sd.fac[kf+2]>=small.thresh
+      if(c1 & !c2){
+         flag<-1; ix<-(kf+3):nrow(tmp) } else {
+         flag<-0; ix<-(kf+1):nrow(tmp)
+      }
+      ss<-tmp$sd.fac[ix]>=small.thresh
+      out<-runTrue2(ss)
+      if(!is.null(out)){
+         st<-out$start; ed<-out$end
+         nk<-length(st)
+         for(ii in 1:nk){
+            cnt<-cnt+1
+            mrg[[cnt]]<-ix[st[ii]:ed[ii]]
+         }
+      }
+      if(flag==1){
+         cnt<-cnt+1; mrg[[cnt]]<-c(kf,kf+1)  # add on initial TF merge
+      }
+    }
+
+####
+## for given set i, we now have mrg with sets of indices to merge - check/deal with overlaps   
+## although clearly baf.dev.med 'similarity' is not transitive, there is no good way to control the degree of transitivity
+## is have string of overlaps, how to decide which pieces to merge is not easy
+## so most cases, transitivity works well enough
+## i.e. if sets overlap, combine them
+    msets<-length(mrg)
+    if(msets>1){
+      ovlap<-rep(FALSE,msets-1)
+      for(m in 1:(msets-1)){
+        if(length(intersect(mrg[[m]],mrg[[m+1]]))!=0) ovlap[m]<-TRUE
+      }
+      r<-rle(ovlap)
+      vals<-r[[2]]
+      lens<-r[[1]]      
+                   
+      nv<-length(vals)
+      endp<-cumsum(lens)  #end positions of each run
+      stp<-c(1,endp[1:(nv-1)]+1)
+      wT<-which(vals==TRUE)
+      if(length(wT) ==0){ mrg2<-mrg} else {
+        used<-NULL
+        cnt2<-0
+        mrg2<-list()
+        for(kl in 1:length(wT)){
+           cnt2<-cnt2+1
+           s1<-stp[wT[kl]];e1<-endp[wT[kl]]
+           cm<-s1:(e1+1)
+           a<-mrg[cm]
+           used<-c(used,cm)
+           mrg2[[cnt2]]<-unique(c(a,recursive=TRUE))
+        }
+        oth<-setdiff(1:length(mrg),used)
+        if(length(oth)!=0){
+          for(ij in 1:length(oth)){
+            sel<-oth[ij]
+            cnt2<-cnt2+1
+            mrg2[[cnt2]]<-mrg[[sel]]
+          }
+        }
+      } 
+    } else mrg2<-mrg  
+
+
+    ### ADD CODE for indicating merging results for that set
+        if(length(mrg2) !=0){
+          dt<-unlist(mrg2)
+          del.merge<-c(del.merge,ind[dt])
+          tpmerge<-NULL
+          for(jj in 1:length(mrg2)){
+             x<-mrg2[[jj]]
+             a1<-ind[x[1]];a2<-ind[x[length(x)]]
+             set1<-a1:a2
+             new.left<-an$left[a1];new.right<-an$right[a2]
+             new.num.mark<-sum(an$num.mark[set1])
+             new.seg.mean<-sum(an$seg.mean[set1]*an$num.mark[set1])/new.num.mark
+             new.sdfac<-abs(new.seg.mean-base.mean)/base.sd
+             new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,TRUE,stringsAsFactors=FALSE)
+             names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
+
+             merged.anoms<-rbind(merged.anoms,new)
+
+          }
+        }
+          
+  } # end of loop on i (number of sets of consec anoms)     
 
    if(length(del.merge)!=0){
-      tmp<-an[-del.merge,]
-      tmpn<-merged.anoms
-      out<-rbind(tmp,tmpn)
+      tmp<-an[-del.merge,names(merged.anoms)]
+
+      out<-rbind(tmp,merged.anoms)
       out<-out[order(out$left),]
    } else out<-an
+
 return(out)
+          
+                 
 } #end function
-################################
+#########
 
 ###### delHomoRuns ##############
 ## function to possibly narrow segments found containing homo del
@@ -116,7 +427,7 @@ return(out)
 # looking for run of lrr values < lrr.cut then narrow to this run
 # (BAF DNAcopy tends to not segment these well - often occur in longer homozygous runs)
 
-.delHomoRuns<-function(anoms,sid,eligible,intid,LRR,run.size,inter.size,
+delHomoRuns<-function(anoms,sid,eligible,intid,LRR,run.size,inter.size,
    low.frac.used,lrr.cut,ct.thresh,frac.thresh){
 #run.size - min length of run
 #inter.size - number of homozygotes allowed to "interrupt" run
@@ -260,15 +571,16 @@ anoms.rev<-rbind(anoms.rev,an)
  } #end loop on anomalies
 return(anoms.rev)
  }
-###################################################
-########## MAIN FUNCTION ##########################
-##########
+###############################
 anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
    centromere,low.qual.ids=NULL,
   num.mark.thresh=15,long.num.mark.thresh=200,sd.reg=2,sd.long=1,
   low.frac.used=.1,run.size=10,inter.size=2,low.frac.used.num.mark=30,
    very.low.frac.used=.01,low.qual.frac.num.mark=150,
-  lrr.cut= -2,ct.thresh=10,frac.thresh=.1,verbose=TRUE){
+  lrr.cut= -2,ct.thresh=10,frac.thresh=.1,verbose=TRUE,
+
+  small.thresh=2.5, dev.sim.thresh=0.1, centSpan.fac=1.25, centSpan.nmark=50){
+
 ##segments - data.frame to determine which are anomalous
  # names of data.frame must include "scanID","chromosome","num.mark","left.index","right.index","seg.mean"
  # assume have segmented each chromosome (at least all autosomes) for a given sample
@@ -294,9 +606,15 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
 ##ct.thresh - minimum number of lrr values below lrr.cut needed in order to adjust
 ##frac.thresh - adjust only if (# lrr values below lrr.cut)/(# eligible lrr in interval) > frac.thresh
 
-  # check that intenData has BAF and LRR
+ ##small.thresh - sd.fac threshold used in making merge decisions involving small num.mark segments
+ ##dev.sim.thresh - relative error threshold for determining similarity in BAF deviations; used in merge decisions  
+ ## centSpan.fac - thresholds increased by this factor when considering filtering of centromere pieces
+ ## centSpan.nmark - minimum number of markers for centromere cross
+          
+                 
+#############################
+  # check that intenData has BAF
   if (!hasBAlleleFreq(intenData)) stop("BAlleleFreq not found in intenData")
-  if (!hasLogRRatio(intenData)) stop("LogRRatio not found in intenData")
   
   # check that dimensions of intenData and genoData are equal
   intenSnpID <- getSnpID(intenData)
@@ -314,7 +632,9 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
   } else stop("sex not found in intenData or genoData")
 
   intid <- intenSnpID
-  if (!all(is.element(snp.ids,intid))) stop("snp.ids has values not present in intenData")
+
+
+  if(!all(is.element(snp.ids,intid))) stop("eligible snps not contained in snp ids")
 
   sid <- intenScanID
   chrom <- getChromosome(intenData)
@@ -340,6 +660,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
   male<-sid[is.element(sex,"M")] 
   wdel<-is.element(segments$scanID,male)&segments$chrom==XchromCode(intenData)
   anoms<-segments[!wdel,]
+  anoms<-anoms[order(anoms$scanID,anoms$chrom),]
 
   #find unsegmented chromosomes 
   smpchr<-paste(anoms$scanID,anoms$chrom)
@@ -356,6 +677,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
   NS<-length(samples)
   for(i in 1:NS){
      snum<-samples[i]
+
      if(floor(i/10)*10-i==0 & verbose==TRUE){
        message(paste("processing ",i,"th scanID out of ",NS,sep=""))
      }
@@ -378,6 +700,9 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     index<-NULL
     chr<-NULL
     baf.dat<-NULL
+
+    baf.raw<-NULL
+
     uuch<-unique(anoms$chrom)
     uch<-uuch[uuch!=XYchromCode(intenData)]
     for(ch in uch){
@@ -394,6 +719,9 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       index<-c(index,ind)
       chr<-c(chr,chrm)
       baf.dat<-c(baf.dat,baf.metric)   
+      
+      baf.raw<-c(baf.raw,bf)
+     
     } #end of chrom loop
 
     an<-anoms[is.element(anoms$scanID,snum),]
@@ -438,21 +766,29 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     base.sd<-sd(bbase,na.rm=TRUE)
     sd.fac<-abs(an$seg.mean-base.mean)/base.sd
     
+    braw.base<-baf.raw[w.selec]
+    braw.base.med<-median(braw.base,na.rm=TRUE)
+
     if(length(sel.chr)<2){chr.ct<-0} else {chr.ct<-length(sel.chro[keep])}
-    normi<-data.frame(snum,base.mean,base.sd,chr.ct)
-    names(normi)<-c("scanID","base.mean","base.sd","chr.ct")
+
+    normi<-data.frame(snum,base.mean,base.sd,braw.base.med,chr.ct)
+    names(normi)<-c("scanID","base.mean","base.sd","base.baf.med","chr.ct")
+
     normal.info<-rbind(normal.info,normi)
+
 
     an$sd.fac<-sd.fac
     an$sex<-sex[sindex]
 
     anoms2<-rbind(anoms2,an)
+
     ##an is segment/sd.fac info for the given sample
     ## base.mean and base.sd are for the given sample
     ##anoms2 now contains segment info along with sd.fac info - accumulating over samples
 
 
-    ########## Merging and low percentage: sample/chrom ################
+########## Centromere spanning, Merging
+
     an<-an[order(an$chrom,an$left),]
     an.seg.info<-NULL
 
@@ -463,19 +799,126 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     
     an3.fil<-NULL
     for(ch in CHR){
+
       anch<-an[an$chrom==ch,]
       if(dim(anch)[1]==0) next
       nsegs<-dim(anch)[1]
       tp<-data.frame(snum,ch,nsegs)
       names(tp)<-c("scanID","chrom","num.segs")
-      an.seg.info<-rbind(an.seg.info,tp)  
 
-      tmp2<-.mergeSeg(anch,snum,ch,centromere,Pos,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used) ## merged for given samp/chrom
+      an.seg.info<-rbind(an.seg.info,tp) 
 
-      ### modifying breakpoints for potential homo deletions #####       
-        ### delHomoRuns returns original breakpoints for any anom not needing adjustment
+## cent-span code insert here
+      centL<-centromere$left.base[centromere$chrom==ch]
+      centR<-centromere$right.base[centromere$chrom==ch] 
+      cleft<-chrom==ch & Pos<centL & is.element(intid,index) # baf eligible
+      cright<-chrom==ch & Pos>centR & is.element(intid,index)
+      if(sum(cleft) == 0) {cL<-NULL; cR<-NULL} else {
+         cLL<-max(intid[cleft])
+         cRR<-min(intid[cright])
+         cL<-which(intid==cLL)
+         cR<-which(intid==cRR)  # left and right are indices of intid
+         w<-anch$left<=cL & anch$right>=cR
+         if(sum(w)!=0){ # segment spans centromere - will be at most one
+           ach<-anch[w,]
+           anrest<-anch[!w,]
+             # check if segment passes basic filter 
+     
+           s2<-ach$num.mark>=centSpan.nmark & ach$sd.fac>=sd.reg
+           s3<-ach$num.mark>long.num.mark.thresh& ach$sd.fac>=sd.long
+           s<-(s2|s3) 
+           if(!s){anch<-anrest} else {
+  
+ # if passes filter, split into two pieces, one on either side of centromere
+              tmp<-ach  # 
+              tmp$right<-cL
+              tmp2<-ach
+              tmp2$left<-cR
 
-      tst.rev<-.delHomoRuns(tmp2,sid,snp.ids,intid,LRR,
+              tmpmarkers<-intid>=intid[tmp$left] & intid<=intid[tmp$right]
+              tmplrr<-is.element(intid,snp.ids) & tmpmarkers
+              tmpbaf<-index>=tmp$left & index<=tmp$right
+
+              tmp2markers<-intid>=intid[tmp2$left] & intid<=intid[tmp2$right]
+              tmp2baf<-index>=tmp2$left & index<=tmp2$right
+              tmp2lrr<-is.element(intid,snp.ids) & tmp2markers   
+
+
+      # recompute/compute basic features for each piece
+              tmp$num.mark<-sum(tmpbaf)
+              tmp2$num.mark<-sum(tmp2baf)
+              tmp$seg.mean<-mean(baf.dat[tmpbaf],na.rm=TRUE)
+              tmp2$seg.mean<-mean(baf.dat[tmp2baf],na.rm=TRUE)
+              tmp$sd.fac<-abs(tmp$seg.mean-base.mean)/base.sd
+              tmp2$sd.fac<-abs(tmp2$seg.mean-base.mean)/base.sd
+              tmp$frac.used<-tmp$num.mark/sum(tmplrr)
+              tmp2$frac.used<-tmp2$num.mark/sum(tmp2lrr)
+
+      # test each piece for passing (somewhat more stringent) filter
+              s1<-tmp$num.mark>=centSpan.fac*num.mark.thresh
+              if(tmp$num.mark< 3*centSpan.fac* num.mark.thresh){
+                 s2<-tmp$sd.fac>=centSpan.fac*sd.reg & tmp$frac.used>= centSpan.fac* low.frac.used
+              } else {
+                 s2<-tmp$sd.fac>=centSpan.fac*sd.reg
+              } 
+              s3<-tmp$num.mark>long.num.mark.thresh& tmp$sd.fac>=sd.long
+              t1<-(s2|s3) & s1
+
+              s1<-tmp2$num.mark>=centSpan.fac*num.mark.thresh
+              if(tmp2$num.mark< 3* centSpan.fac*num.mark.thresh){
+                 s2<-tmp2$sd.fac>=centSpan.fac*sd.reg & tmp$frac.used>= centSpan.fac*low.frac.used
+              } else {
+                 s2<-tmp2$sd.fac>=centSpan.fac*sd.reg
+              } 
+              s3<-tmp2$num.mark>long.num.mark.thresh& tmp2$sd.fac>=sd.long
+              t2<-(s2|s3) & s1
+
+              if(!t1 & !t2) anch<-anrest   #delete both failed
+              if(t1 & !t2) anch<-rbind(anrest,tmp[,names(anch)]) # delete one fail, keep other OK
+              if(!t1 & t2) anch<-rbind(anrest,tmp2[,names(anch)])
+              if(t1&t2){ # check same type and similar baf.dev (width)
+
+               # gain, loss, neutral
+                tlrr<-LRR[tmplrr]
+                mtlrr<-median(tlrr,na.rm=TRUE); sdtlrr<-sd(tlrr,na.rm=TRUE)
+                tmp$type<-3
+                if(mtlrr> 0.3*sdtlrr) tmp$type<-1
+                if(mtlrr< -0.3*sdtlrr) tmp$type<-2
+              # gain, loss, neutral    
+                t2lrr<-LRR[tmp2lrr]
+                mt2lrr<-median(t2lrr,na.rm=TRUE); sdt2lrr<-sd(t2lrr,na.rm=TRUE)
+                tmp2$type<-3
+                if(mt2lrr> 0.3*sdt2lrr)  tmp2$type<-1
+                if(mt2lrr< -0.3*sdt2lrr) tmp2$type<-2
+                q<-tmp$type==tmp2$type
+
+                br<-baf.raw[tmpbaf]
+                tmp$baf.dev.med<-median(abs(br-braw.base.med),na.rm=TRUE)
+                br2<-baf.raw[tmp2baf]
+                tmp2$baf.dev.med<-median(abs(br2-braw.base.med),na.rm=TRUE)
+
+                mbd<-min(tmp$baf.dev.med,tmp2$baf.dev.med)
+                if(mbd==0) relerr<-1 else relerr<-abs(tmp$baf.dev.med-tmp2$baf.dev.med)/mbd
+                q2<-relerr<=dev.sim.thresh
+
+                if(!q | !q2) { # keep each piece separate
+                  anch<-rbind(anrest,tmp[,names(anch)],tmp2[,names(anch)])
+                }
+               # note at this stage, anch hasn't changed
+              }
+       
+           }
+           if(nrow(anch)==0) next
+           anch<-anch[order(anch$left),] 
+         }
+      }             
+
+
+
+
+      tmp2<-mergeSeg(anch,snum,ch,cL,cR,base.mean,base.sd,sd.reg,sd.long,num.mark.thresh,long.num.mark.thresh,low.frac.used,low.frac.used.num.mark,baf.raw,baf.dat,index,braw.base.med,small.thresh, dev.sim.thresh, LRR,snp.ids,intid ) ## merged for given samp/chrom
+     
+      tst.rev<-delHomoRuns(tmp2,sid,snp.ids,intid,LRR,
         run.size,inter.size,low.frac.used,lrr.cut,ct.thresh,frac.thresh)
 
       diff.right<-tst.rev$old.right-tst.rev$right
@@ -506,21 +949,26 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       colm<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge","homodel.adjust")
       tst.rev<-tst.rev[,colm]
      
- 
-      ######## FILTER ######################
-      s1<-d.keep #will keep any homo dels found
+
+
+    ######## FILTER ######################
+
+       s1<-d.keep #will keep any homo dels found
       s2<-tst.rev$num.mark>=num.mark.thresh& tst.rev$sd.fac>=sd.reg
       s3<-tst.rev$num.mark>long.num.mark.thresh& tst.rev$sd.fac>=sd.long
       s<-which(s2|s3)
       filin<-union(s,d.keep)
       fil<-tst.rev[filin,]
+
       an3.fil<-rbind(an3.fil,fil) #becomes filtered anoms for current sample
     }#end ch loop
 
-    anoms.fil<-rbind(anoms.fil,an3.fil)
-    seg.info<-rbind(seg.info,an.seg.info)
-  } #end of sample loop
 
+    anoms.fil<-rbind(anoms.fil,an3.fil)
+
+    seg.info<-rbind(seg.info,an.seg.info)
+
+  } #end of sample loop
   anoms2<-anoms2[order(anoms2$scanID,anoms2$chrom,anoms2$left),] #raw annotated
   anoms2$left.base <- getPosition(intenData, index=anoms2$left)
     anoms2$right.base <- getPosition(intenData, index=anoms2$right)
@@ -556,7 +1004,8 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     }
     seg.info<-rbind(seg.info,an.seg.info)
   }
- 
+
+
   ## further filtering based on low.frac.used and/or messiness
   if(!is.null(anoms.fil)& dim(anoms.fil)[1]!=0){
     nf<-dim(anoms.fil)[1]  
@@ -593,5 +1042,4 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
 
   return(out)
 } #end of function
-
 
