@@ -17,6 +17,7 @@ test_check_beagle <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   nsnp <- nrow(markers)
   nscan <- ncol(header)-3
@@ -45,7 +46,19 @@ test_check_beagle <- function() {
         gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                               input.files=c(files[i], markfile), chromosome,
                               input.type="BEAGLE", 
-                              input.dosage=inputs[i], block.size=b)
+                              input.dosage=inputs[i], block.size=b,
+                              na.logfile=logfile)
+        
+        log <- read.table(logfile, header=T, sep="\t")
+        geno <- getGenotype(genoData)
+        i1 <- match(log$snpID, getSnpID(genoData))
+        i2 <- match(log$scanID, getScanID(genoData))
+        ind <- matrix(c(i1,i2), ncol=2)
+        ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+        checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+        geno[ind] <- -1
+        checkTrue(all(!is.na(geno)))
+        rm(geno)
         
         geno.orig <- getGenotype(genoData) # for checking later
         close(genoData)
@@ -71,7 +84,7 @@ test_check_beagle <- function() {
         close(genoData)
       }
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -105,6 +118,7 @@ test_check_beagle_missing <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   nsnp <- nrow(markers)
   nscan <- ncol(header)-3
@@ -133,7 +147,19 @@ test_check_beagle_missing <- function() {
       gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile), chromosome,
                             input.type="BEAGLE", 
-                            input.dosage=inputs[i], block.size=b)
+                            input.dosage=inputs[i], block.size=b,
+                            na.logfile=logfile)
+      
+      log <- read.table(logfile, header=T, sep="\t")
+      geno <- getGenotype(genoData)
+      i1 <- match(log$snpID, getSnpID(genoData))
+      i2 <- match(log$scanID, getScanID(genoData))
+      ind <- matrix(c(i1,i2), ncol=2)
+      ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+      checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+      geno[ind] <- -1
+      checkTrue(all(!is.na(geno)))
+      rm(geno)
       
       geno.orig <- getGenotype(genoData) # for checking later
       close(genoData)
@@ -187,6 +213,7 @@ test_check_beagle_subset <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   # random indices to change
   i_snp <- sample(1:nsnp, 1)
@@ -216,7 +243,20 @@ test_check_beagle_subset <- function() {
                             input.files=c(files[i], markfile), chromosome,
                             input.type="BEAGLE", 
                             input.dosage=inputs[i], block.size=b,
-                            snp.exclude=i_snp_rm)
+                            snp.exclude=i_snp_rm,
+                            na.logfile=logfile)
+      
+      # check the log
+      log <- read.table(logfile, header=T, sep="\t")
+      geno <- getGenotype(genoData)
+      i1 <- match(log$snpID, getSnpID(genoData))
+      i2 <- match(log$scanID, getScanID(genoData))
+      ind <- matrix(c(i1,i2), ncol=2)
+      ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+      checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+      geno[ind] <- -1
+      checkTrue(all(!is.na(geno)))
+      rm(geno)
       
       # change it in a random place
       close(genoData)
@@ -264,7 +304,7 @@ test_check_beagle_subset <- function() {
       close(genoData)
     }
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -282,6 +322,7 @@ test_check_mach <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   # set up scan.df for subsetting later.
   dosages <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE)
@@ -316,7 +357,19 @@ test_check_mach <- function() {
         gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                               input.files=c(files[i], markfile, posfile), chromosome,
                               input.type="MaCH", 
-                              input.dosage=inputs[i], block.size=b)
+                              input.dosage=inputs[i], block.size=b, na.logfile=logfile)
+        
+        # check the log
+        log <- read.table(logfile, header=T, sep="\t")
+        geno <- getGenotype(genoData)
+        i1 <- match(log$snpID, getSnpID(genoData))
+        i2 <- match(log$scanID, getScanID(genoData))
+        ind <- matrix(c(i1,i2), ncol=2)
+        ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+        checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+        geno[ind] <- -1
+        checkTrue(all(!is.na(geno)))
+        rm(geno)
         
         geno.orig <- getGenotype(genoData)
         
@@ -345,7 +398,7 @@ test_check_mach <- function() {
         close(genoData)
       }
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -365,6 +418,7 @@ test_check_mach_missing <- function() {
   scanfile <- tempfile()
   newprobfile <- tempfile()
   newdosefile <- tempfile()
+  logfile <- tempfile()
   
   dosages <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE)
   dosages[1, 3] <- -1
@@ -389,7 +443,7 @@ test_check_mach_missing <- function() {
   i_snp <- sample(1:nsnp, 1)
   i_scan <- sample(1:nscan, 1)
   
-  files <- c(probfile, dosefile)
+  files <- c(newprobfile, newdosefile)
   inputs <- c(FALSE, TRUE)
   # 100 lines in file
   blocks <- c(5000, 40, 99)
@@ -409,7 +463,18 @@ test_check_mach_missing <- function() {
       gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile, posfile), chromosome,
                             input.type="MaCH", 
-                            input.dosage=inputs[i], block.size=b)
+                            input.dosage=inputs[i], block.size=b, na.logfile=logfile)
+      # check the log
+      log <- read.table(logfile, header=T, sep="\t")
+      geno <- getGenotype(genoData)
+      i1 <- match(log$snpID, getSnpID(genoData))
+      i2 <- match(log$scanID, getScanID(genoData))
+      ind <- matrix(c(i1,i2), ncol=2)
+      ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+      checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+      geno[ind] <- -1
+      checkTrue(all(!is.na(geno)))
+      rm(geno)
       
       geno.orig <- getGenotype(genoData)
       
@@ -438,7 +503,7 @@ test_check_mach_missing <- function() {
       close(genoData)
     }
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -457,6 +522,7 @@ test_check_mach_subset <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   # set up scan.df for subsetting later.
   dosages <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE)
@@ -506,7 +572,19 @@ test_check_mach_subset <- function() {
                             input.files=c(files[i], markfile, posfile), chromosome,
                             input.type="MaCH", 
                             input.dosage=inputs[i], block.size=b,
-                            snp.exclude=i_snp_rm)
+                            snp.exclude=i_snp_rm, na.logfile=logfile)
+      
+      # check the log
+      log <- read.table(logfile, header=T, sep="\t")
+      geno <- getGenotype(genoData)
+      i1 <- match(log$snpID, getSnpID(genoData))
+      i2 <- match(log$scanID, getScanID(genoData))
+      ind <- matrix(c(i1,i2), ncol=2)
+      ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+      checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+      geno[ind] <- -1
+      checkTrue(all(!is.na(geno)))
+      rm(geno)
       
       # change it in a random place
       close(genoData)
@@ -553,7 +631,7 @@ test_check_mach_subset <- function() {
       close(genoData)
     }
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -575,6 +653,7 @@ test_check_impute2 <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   nsnp <- length(snps)
   nscan <- nrow(samp)
@@ -604,7 +683,18 @@ test_check_impute2 <- function() {
       gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                             input.files=c(probfile, sampfile), chromosome,
                             input.type="IMPUTE2", 
-                            input.dosage=FALSE, block.size=b)
+                            input.dosage=FALSE, block.size=b, na.logfile=logfile)
+      
+      log <- read.table(logfile, header=T, sep="\t")
+      geno <- getGenotype(genoData)
+      i1 <- match(log$snpID, getSnpID(genoData))
+      i2 <- match(log$scanID, getScanID(genoData))
+      ind <- matrix(c(i1,i2), ncol=2)
+      ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+      checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+      geno[ind] <- -1
+      checkTrue(all(!is.na(geno)))
+      rm(geno)
       
       close(genoData)
 
@@ -628,7 +718,7 @@ test_check_impute2 <- function() {
       
     }
   
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -655,6 +745,7 @@ test_check_impute2_missing <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   nsnp <- length(snps)
   nscan <- nrow(samp)
@@ -684,7 +775,19 @@ test_check_impute2_missing <- function() {
     gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
                           input.files=c(probfile, sampfile), chromosome,
                           input.type="IMPUTE2", 
-                          input.dosage=FALSE, block.size=b)
+                          input.dosage=FALSE, block.size=b,
+                          na.logfile=logfile)
+    
+    log <- read.table(logfile, header=T, sep="\t")
+    geno <- getGenotype(genoData)
+    i1 <- match(log$snpID, getSnpID(genoData))
+    i2 <- match(log$scanID, getScanID(genoData))
+    ind <- matrix(c(i1,i2), ncol=2)
+    ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+    checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+    geno[ind] <- -1
+    checkTrue(all(!is.na(geno)))
+    rm(geno)
     
     close(genoData)
     
@@ -708,7 +811,7 @@ test_check_impute2_missing <- function() {
     
   }
   
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }
 
 
@@ -737,6 +840,7 @@ test_check_impute2_subset <- function() {
   gdsfile <- tempfile()
   snpfile <- tempfile()
   scanfile <- tempfile()
+  logfile <- tempfile()
   
   nsnp <- length(snps) - length(i_snp_rm)
   nscan <- nrow(samp)
@@ -766,8 +870,20 @@ test_check_impute2_subset <- function() {
                           input.files=c(probfile, sampfile), chromosome,
                           input.type="IMPUTE2", 
                           input.dosage=FALSE, block.size=b,
-                          snp.exclude=i_snp_rm, verbose=FALSE)
+                          snp.exclude=i_snp_rm, verbose=FALSE,
+                          na.logfile=logfile)
         
+    log <- read.table(logfile, header=T, sep="\t")
+    geno <- getGenotype(genoData)
+    i1 <- match(log$snpID, getSnpID(genoData))
+    i2 <- match(log$scanID, getScanID(genoData))
+    ind <- matrix(c(i1,i2), ncol=2)
+    ind.geno <- arrayInd(which(is.na(geno)), dim(geno))
+    checkTrue(setequal(paste(ind[,1], ind[,2]), paste(ind.geno[,1], ind.geno[,2])))
+    geno[ind] <- -1
+    checkTrue(all(!is.na(geno)))
+    rm(geno)
+    
     # change it in a random place
     close(genoData)
     
@@ -812,5 +928,5 @@ test_check_impute2_subset <- function() {
     
     close(genoData)
   }
-  unlink(c(gdsfile, snpfile, scanfile))
+  unlink(c(gdsfile, snpfile, scanfile, logfile))
 }

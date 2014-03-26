@@ -1,17 +1,34 @@
 .probToDosage <- function(probs, BB=TRUE, prob.miss.val=NULL) {
   if (BB & ncol(probs) %% 3 != 0) stop("invalid probability file - there are not 3 columns per row")
   if (!BB & ncol(probs) %% 2 != 0) stop("invalid probability file - there are not 2 columns per row")
-
+  
+  ## check for missing values here while it's still character strings
+  ## if AA==AB==BB, set to missing
+  
   if (BB) {
     AAprob <- probs[,c(TRUE,FALSE,FALSE),drop=FALSE]
     ABprob <- probs[,c(FALSE,TRUE,FALSE),drop=FALSE]
+    BBprob <- probs[,c(FALSE,FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    i <- AAprob == ABprob & AAprob == BBprob
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    mode(BBprob) <- "numeric"
+    dosage <- (2*AAprob + ABprob) / (AAprob + ABprob + BBprob)
+    dosage[i] <- NA
   } else {
     AAprob <- probs[,c(TRUE,FALSE),drop=FALSE]
     ABprob <- probs[,c(FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    # assumes no missing, or at least, a dosage that doesn't give you -1.
+    # no normalization either, since we don't have the full set of probabilities
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    dosage <- 2*AAprob + ABprob
   }
-
-  # calculate A allele dosage
-  dosage <- 2*AAprob + ABprob
+  
   
   return(dosage)
 }
@@ -50,7 +67,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     if (input.dosage) nsnp <- col.cnt-2 else nsnp <- (col.cnt-2)/2
     nsamp <- line.cnt
   }
-
+  
   
   # assign snp IDs
   if (!is.null(snp.exclude)){
@@ -121,7 +138,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     samples <- read.table(input.files[2], as.is=TRUE, header=FALSE, skip=2)
     names(samples) <- samp.header
     if (nrow(samples) != nsamp) stop("Sample number mismatch: ", nsamp, " in genotype file; ", nrow(samples), "in samples file")
-
+    
     # check for unique ids
     samples$ID <- paste(samples$ID_1, samples$ID_2)
     if (any(duplicated(samples$ID))) stop("Sample ID is duplicated in input sample file")
@@ -133,7 +150,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     } else {
       i_samp <- match(scan.df$sampleID, samples$ID)
     }
-
+    
     # empty matrix for SNP data
     snps <- matrix("", nrow=nsnp, ncol=5)
     
@@ -166,7 +183,6 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       
       # get dosage info
       dat <- dat[, 6:ncol(dat), drop=FALSE]
-      mode(dat) <- "numeric"
       dosage <- .probToDosage(dat)
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples in file")
       
@@ -182,8 +198,8 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       }
       
       # check for missing values
-      dosage[dosage < 0 | dosage > 2] <- miss.val
-
+      dosage[dosage < 0 | dosage > 2 | is.na(dosage)] <- miss.val
+      
       write.gdsn(gGeno, dosage, start=start, count=count)
       cnt <- cnt + block.size
       if (genotypeDim == "snp,scan"){
@@ -191,12 +207,12 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       } else if (genotypeDim == "scan,snp"){
         i_snp <- i_snp + ncol(dosage)
       }
-    
+      
     }
     close(opfile)
-
+    
     scan.df$added[scan.df$sampleID %in% samples$ID] <- TRUE
-
+    
   }
   
   if (input.type == "BEAGLE") {
@@ -205,7 +221,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     snps <- read.table(input.files[2], as.is=TRUE, header=FALSE)
     names(snps) <- c("marker", "position", "alleleA", "alleleB")
     if (nrow(snps) != nsnp) stop("SNP number mismatch: ", nsnp, " in genotype file; ", nrow(snps), "in markers file")
-
+    
     # .dose or .gprobs file
     if (verbose) message ("Reading genotype file...")
     # sample names in header
@@ -249,9 +265,9 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       snp.df$alleleB[i_snp : (i_snp + nrow(dat) - 1)] <- dat[, 3]
       
       dat <- dat[, 4:ncol(dat), drop=FALSE]
-      mode(dat) <- "numeric"
       if (input.dosage) {
         # BEAGLE has B allele dosage
+        mode(dat) <- "numeric"
         dosage <- 2 - dat
       } else { 
         dosage <- .probToDosage(dat)
@@ -266,9 +282,9 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         count <- c(-1, nrow(dosage))
         dosage <- t(dosage)
       }
-
+      
       # check for missing values
-      dosage[dosage < 0 | dosage > 2] <- miss.val
+      dosage[dosage < 0 | dosage > 2 | is.na(dosage)] <- miss.val
       
       write.gdsn(gGeno, dosage, start=start, count=count)
       cnt <- cnt + block.size
@@ -283,11 +299,11 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     
     # keep track of added samples
     scan.df$added[scan.df$sampleID %in% samples$ID] <- TRUE
-
+    
     # add position
     snp.df$position <- snps$position[!((1:nrow(snps)) %in% snp.exclude)]
   }
-
+  
   if (input.type == "MaCH") {
     # .mlinfo file
     if (verbose) message ("Reading SNP files...")
@@ -295,7 +311,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     snps <- snps[,1:3]
     names(snps) <- c("snp", "alleleA", "alleleB")
     if (nrow(snps) != nsnp) stop("SNP number mismatch: ", nsnp, " in genotype file; ", nrow(snps), "in mlinfo file")
-        
+    
     # get snps to exclude
     i_snp <- !((1:nsnp) %in% snp.exclude)
     
@@ -313,7 +329,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     #snp.df <- merge(snp.df, snp2, sort=FALSE, all.x=TRUE)
     #snp.df <- snp.df[order(snp.df$snpID),]
     snp.df$position <- snp2$position[i_snp]
-
+    
     
     # .mldose or .mlprob file
     if (verbose) message ("Reading genotype file...")
@@ -325,14 +341,14 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       #samp.dat[cnt:(cnt+nrow(dat)-1)] <- dat[,1]
       samp.block <- dat[,1]
       dat <- dat[,3:ncol(dat),drop=FALSE]
-      mode(dat) <- "numeric"
       if (input.dosage) {
+        mode(dat) <- "numeric"
         dosage <- t(dat)
       } else {
         dosage <- t(.probToDosage(dat, BB=FALSE))
       }
       if (nrow(dosage) != nsnp) stop("number of dosage rows not equal to number of SNPs")
-            
+      
       # loop over samples to add them. Lots of indices here:
       # i_dos tracks the location in the dosage array
       # i_samp finds the location in the gds file/scan.df
@@ -358,7 +374,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         dos.samp <- dosage[i_snp, i_dos]
         
         # check for missing values
-        dos.samp[dos.samp < 0 | dos.samp > 2] <- miss.val
+        dos.samp[dos.samp < 0 | dos.samp > 2 | is.na(dos.samp)] <- miss.val
         
         if (genotypeDim == "snp,scan"){
           start <- c(1, i_samp)
@@ -373,27 +389,12 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
         cnt <- cnt+1
       }
     }
-#       if(genotypeDim == "snp,scan") {
-#         start <- c(1, cnt)
-#         count <- c(-1, ncol(dosage))
-#       } else if (genotypeDim == "scan,snp") {
-#         start <- c(cnt, 1)
-#         count <- c(ncol(dosage), -1)
-#         dosage <- t(dosage)
-#       }
-# 
-#       write.gdsn(gGeno, dosage, start=start, count=count)
-#       cnt <- cnt + block.size
-
+    
     close(opfile)
     
-
-    #tmp <- as.data.frame(matrix(unlist(strsplit(scan.df$sampleID, "->")), ncol=2, byrow=TRUE))
-    #names(tmp) <- c("ID_1", "ID_2")
-    #scan.df$ID_1 <- tmp$ID_1
-    #scan.df$ID_2 <- tmp$ID_2
+    
   }
-
+  
   # zero out samples that haven't been added
   i_zero <- which(!scan.df$added)
   for (i_samp in i_zero){
@@ -421,7 +422,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
   snp.df$chromosome <- xchr[match(chromosome, xchr.str)]
   snp.df$position <- as.integer(snp.df$position)
   snpAnnot <- SnpAnnotationDataFrame(snp.df)
-
+  
   # add variable data
   if (verbose) message("Writing annotation...")
   # add "sample.id"
@@ -434,7 +435,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
   add.gdsn(gfile, "snp.position", snpAnnot$position, compress=zipflag, closezip=TRUE)
   # add alleles
   add.gdsn(gfile, "snp.allele", paste(snpAnnot$alleleA, snpAnnot$alleleB, sep="/"), compress=zipflag, closezip=TRUE)
-
+  
   
   # close file
   #close.ncdf(nc)

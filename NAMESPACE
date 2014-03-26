@@ -71,6 +71,8 @@ export(
     gdsImputedDosage,
     gdsCheckImputedDosage,
     gdsSetMissingGenotypes,
+    gdsSubset,
+    gdsSubsetCheck,
     genoClusterPlot,
     genoClusterPlotByBatch,
     genotypeToCharacter,

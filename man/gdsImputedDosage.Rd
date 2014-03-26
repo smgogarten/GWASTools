@@ -22,7 +22,8 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
                       verbose=TRUE, 
                       snp.exclude=NULL,
                       snp.id.start=1,
-                      tolerance=1e-4)
+                      tolerance=1e-4,
+                      na.logfile=NULL)
 }
 \arguments{
   \item{input.files}{A character vector of input files.  The first file
@@ -60,15 +61,15 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   \item{snpAnnot}{The \code{\link{SnpAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}
   \item{scanAnnot}{The \code{\link{ScanAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}  
   \item{tolerance}{tolerance for checking differences against input files}
+  \item{na.logfile}{filename for recording snpID and scanID of missing dosages}
 
 }
 \details{
-  Input files can contain either imputed dosages or genotype
-  probabilities, specified by the \code{input.dosage} flag.
-  In either case, the GDS file will store dosage of
-  the A allele in the "genotype" variable.  All SNPs are assumed to be
-  on the same chromosome, which is indicated by the \code{chromosome}
-  argument.
+  Input files can contain either imputed dosages or genotype probabilities, specified by the \code{input.dosage} flag.
+  In either case, the GDS file will store dosage of the A allele in the "genotype" variable.
+  All SNPs are assumed to be on the same chromosome, which is indicated by the \code{chromosome} argument.
+  
+  If the input file contains genotype probabilities for all three genotypes, the dosage is set to missing if the genotype probability strings (before numerical conversion) are equal (e.g., (0,0,0), (0.33, 0.33, 0.33), or (-1, -1, -1)). The dosage is also normalized by the sum of all three genotype probabilities.
 
   The \code{scan.df} argument allows the user to specify what samples should be included in the GDS files and an optional sampleID-scanID mapping. \code{scan.df} is a data frame with required column \code{sampleID}. The function attempts to match the given sampleID in the \code{scan.df} data frame with a unique sampleID in the input files. The format of sampleID is different for different input types:
   \itemize{
@@ -82,9 +83,10 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   Minimal SNP and scan annotation are created from the input files and stored in
   RData format in \code{snp.annot.filename} and \code{scan.annot.filename}.
 
+  If requested with \code{na.logfile}, \code{gdsCheckImputedDosage} will output a file with scanIDs and snpIDs of missing genotype calls.
+  
   Currently supported input file types are IMPUTE2, BEAGLE, and MaCH.
   
-  Warning: the code does not yet account for genotype probabilities of (0, 0, 0), (0.33, 0.33, 0.33), or probabilities that do not add to 1.
 }
 \references{
   IMPUTE2: \url{http://mathgen.stats.ox.ac.uk/impute/impute_v2.html}
@@ -100,6 +102,7 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
 gdsfile <- tempfile()
 snpfile <- tempfile()
 scanfile <- tempfile()
+logfile <- tempfile()
 
 # IMPUTE2
 probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
@@ -117,11 +120,14 @@ genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 
 gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
                       input.files=c(probfile, sampfile), chromosome=22,
-                      input.type="IMPUTE2", input.dosage=FALSE)
+                      input.type="IMPUTE2", input.dosage=FALSE, na.logfile=logfile)
 
 geno <- getGenotype(genoData)
 getVariable(genoData, "alleleA")
 getVariable(genoData, "alleleB")
+
+log <- read.table(logfile)
+head(log)
 
 # association test with imputed dosages
 scanAnnot$status <- sample(0:1, nrow(scanAnnot), replace=TRUE)

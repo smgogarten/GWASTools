@@ -8,7 +8,8 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
                                   verbose=TRUE, 
                                   snp.exclude=NULL,
                                   snp.id.start=1,
-                                  tolerance=1e-4) {
+                                  tolerance=1e-4,
+                                  na.logfile=NULL) {
   
   
   if (missing(snpAnnot)) stop("snp annotation required")
@@ -38,7 +39,10 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
   # check number of snps and scans
   if (nsnp - length(snp.exclude) != nsnp(genoData)) stop("Number of SNPs does not match.")
   if (nrow(scanAnnot) != nscan(genoData)) stop("Number of scans does not match.")
-  
+
+  if (!is.null(na.logfile)){
+    write("scanID\tsnpID", file=na.logfile)
+  }
 
   # read input file(s)
   if (input.type == "IMPUTE2") {
@@ -54,14 +58,6 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
     # check for unique ids
     samples$ID <- paste(samples$ID_1, samples$ID_2)
     if (any(duplicated(samples$ID))) stop("Sample ID is duplicated in input sample file")
-    
-    # select samples
-    #if (all(is.na(scan.df$sampleID))) {
-    #  i_samp <- 1:nrow(samples)
-    #  scan.df$sampleID <- samples$ID
-    #} else {
-    #  i_samp <- match(scan.df$sampleID, samples$ID)
-    #}
     
     i_samp <- match(scanAnnot$sampleID, samples$ID)
     
@@ -101,7 +97,7 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       # subset dosage to match this set of samples, snp subsetting was already taken care of
       dosage <- dosage[, i_samp, drop=FALSE]
       
-      # set unphysical dosages to NA
+      # set unphysical dosages to NA, if any happen to exist
       dosage[dosage < 0 | dosage > 2] <- NA
       
       snp <- c(i_snp, nrow(dosage))
@@ -111,6 +107,13 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       if (!is.matrix(dosage.geno)) dosage.geno <- matrix(dosage.geno, ncol=nscan(genoData), byrow=FALSE)
       
       if (!isTRUE(all.equal(dosage.geno, dosage, tolerance=tolerance))) stop(paste("Dosage not equal between original SNPs", cnt, "and", min(cnt + block.size, nsnp)))
+      
+      # report missing dosages here
+      nas <- arrayInd(which(is.na(dosage.geno)), dim(dosage.geno))
+      if (!is.null(na.logfile) & nrow(nas) > 0){
+        chk <- data.frame(scanID=getScanID(genoData)[nas[, 2]], snpID=getSnpID(genoData)[i_snp - 1 + nas[, 1]])
+        write.table(chk, file=na.logfile, append=T, quote=F, sep="\t", col.names=F, row.names=F)
+      }
       
       cnt <- cnt + block.size
       i_snp <- i_snp + nrow(dosage)
@@ -194,6 +197,13 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
       if (class(dosage.geno) != "matrix") dosage.geno <- matrix(dosage.geno, ncol=nscan(genoData))
       
       if (!isTRUE(all.equal(dosage.geno, dosage, tolerance=tolerance))) stop(paste("Dosage not equal in original SNPs", cnt, "-", min(nsnp, cnt + block.size)))
+
+      # report missing dosages here
+      nas <- arrayInd(which(is.na(dosage.geno)), dim(dosage.geno))
+      if (!is.null(na.logfile) & nrow(nas) > 0){
+        chk <- data.frame(scanID=getScanID(genoData)[nas[, 2]], snpID=getSnpID(genoData)[i_snp - 1 + nas[, 1]])
+        write.table(chk, file=na.logfile, append=T, quote=F, sep="\t", col.names=F, row.names=F)
+      }
       
       cnt <- cnt + block.size
 
@@ -269,6 +279,11 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
 
         if (!isTRUE(all.equal(dos.samp, dosage.geno, tolerance=tolerance))) stop(paste("Dosage not equal between original sample", cnt, "and", min(cnt+block.size, nsamp)))
         
+        nas <- which(is.na(dosage.geno))
+        if (!is.null(na.logfile) & length(nas) > 0){
+          chk <- data.frame(scanID=getScanID(genoData)[i_samp], snpID=getSnpID(genoData)[nas])
+          write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
+        }
         cnt <- cnt+1
       }
     }
@@ -285,6 +300,9 @@ gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot,
     i_gds <- match(i_samp, scanID.gds)
     geno.gds <- getGenotype(genoData, snp=c(1,-1), scan=c(i_gds, 1))
     if (!(all(is.na(geno.gds)))) stop(paste("genotypes are not NA for added=FALSE sample", i_samp))
+    # write to the logfile
+    chk <- data.frame(scanID=getScanID(genoData)[i_gds], snpID=getSnpID(genoData))
+    write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
   }
   
   

@@ -31,6 +31,36 @@ test_probToDosage_mach <- function() {
   checkEquals(dose, test, tolerance=0.001)
 }
 
+
+test_probToDosage_impute2 <- function() {
+
+  mat <- matrix(c('1','0','0'), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(2))
+
+  mat <- matrix(c('0','1','0'), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(1))
+  
+  mat <- matrix(c('0','0','1'), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(0))
+
+  # check missing/equal values
+  mat <- matrix(c('0','0','0'), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(as.numeric(NA)))
+
+  mat <- matrix(c("0.33", "0.33", "0.33"), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(as.numeric(NA)))
+
+  mat <- matrix(c('-1','-1','-1'), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(as.numeric(NA)))
+
+  x <- runif(3)
+  x <- x / sum(x)
+  mat <- matrix(as.character(round(x, digits=4)), nrow=1)
+  checkEquals(GWASTools:::.probToDosage(mat), matrix(2*round(x[1], digits=4) + round(x[2], digits=4)), tolerance=0.000101)
+
+  
+}
+
 test_beagle <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
                           package="GWASdata")
@@ -143,7 +173,7 @@ test_beagle_missing <- function() {
         
         dat <- read.table(newdosefile, as.is=TRUE, header=TRUE)
         dose <- 2 - as.matrix(dat[,4:ncol(dat)])
-        dose[dose < 0 | dose > 2] <- NA
+        dose[dose < 0 | dose > 2 | is.na(dose)] <- NA
         dimnames(dose) <- NULL
         checkEquals(dose, geno, tolerance=0.0001)
         
@@ -349,7 +379,7 @@ test_mach_missing <- function() {
       
       dat <- read.table(newdosefile, as.is=TRUE, header=FALSE)
       dose <-  t(as.matrix(dat[,3:ncol(dat)]))
-      dose[dose < 0 | dose > 2] <- NA
+      dose[dose < 0 | dose > 2 | is.na(dose)] <- NA
       dimnames(dose) <- NULL
       checkEquals(dose, geno, tolerance=0.001)
       
@@ -550,7 +580,7 @@ test_impute2_missing <- function() {
     
     dat <- read.table(newprobfile, as.is=TRUE, header=FALSE)
     dose <- GWASTools:::.probToDosage(as.matrix(dat[,6:ncol(dat)]))
-    dose[dose < 0 | dose > 2] <- NA
+    dose[dose < 0 | dose > 2 | is.na(dose)] <- NA
     dimnames(dose) <- NULL
     checkEquals(dose, geno, tolerance=0.0001)
     
