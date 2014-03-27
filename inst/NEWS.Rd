@@ -334,6 +334,13 @@
     Users should be aware that this will increase running time.
   }
 }
+\section{Changes in version 1.9.7}{
+  \itemize{
+    \item Added gdsSubset and gdsSubsetCheck functions to make a subset GDS file that includes only specified SNPs and scans from an existing GDS file
+    \item Updated gdsImputedDosage and gdsCheckImputedDosage to account for IMPUTE2 gprobs files that have missing values (specified by three equal probability strings)
+    \item Updated gdsCheckImputedDosage to produce optional logfile reporting any missing genotypes
+  }
+}
 
 
 
