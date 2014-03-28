@@ -290,7 +290,7 @@ test_gdsSubset_storage <- function(){
   samp <- 1:20
   nsnp <- length(snp)
   nsamp <- length(samp)
-  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+  geno <- matrix(sample(-1:2, nsnp*nsamp, replace=TRUE),
                  nrow=nsnp, ncol=nsamp)
   add.gdsn(gds, "snp.id", snp)
   node <- add.gdsn(gds, "snp.chromosome", chrom)
@@ -306,6 +306,7 @@ test_gdsSubset_storage <- function(){
   add.gdsn(gds, "sample.id", samp)
   node <- add.gdsn(gds, "genotype", geno, storage="float")
   put.attr.gdsn(node, "snp.order")
+  put.attr.gdsn(node, "missing.value", -1)
   ## add in the same attributes later, when the function is working
   
   closefn.gds(gds)
@@ -327,7 +328,8 @@ test_gdsSubset_storage <- function(){
   gds1 <- openfn.gds(gdsfile)
   gds2 <- openfn.gds(subfile)
   checkTrue(setequal(ls.gdsn(gds1), ls.gdsn(gds2)))
-  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype")), get.attr.gdsn(index.gdsn(gds2, "genotype")))
+  #checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype")), get.attr.gdsn(index.gdsn(gds2, "genotype")))
+  checkEquals(get.attr.gdsn(index.gdsn(gds2, "genotype"))[["missing.value"]], 3)
   checkIdentical(objdesp.gdsn(index.gdsn(gds2, "genotype"))$storage, "Bit2")
   closefn.gds(gds1)
   closefn.gds(gds2)

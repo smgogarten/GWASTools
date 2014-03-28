@@ -107,7 +107,12 @@ gdsSubset <- function(parent.gds,
     
     if (length(attributes) > 0){
       for (attribute in names(attributes)){
-        put.attr.gdsn(node.sub, attribute, attributes[[attribute]])
+        if (attribute == "missing.value" & !is.null(sub.storage) && sub.storage == "bit2"){
+          # hard coded missing value
+          put.attr.gdsn(node.sub, attribute, 3)
+        } else {
+          put.attr.gdsn(node.sub, attribute, attributes[[attribute]])
+        }
       }
     }
     

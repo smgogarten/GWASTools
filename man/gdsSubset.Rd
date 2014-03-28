@@ -35,9 +35,13 @@ gdsSubsetCheck(parent.gds, sub.gds,
 }
 
 \details{
-  \code{gdsSubset} can select a subset of snps for all samples by
-  setting \code{snp.include}, a subset of samples for all snps by setting
-  \code{sample.include}, or a subset of snps and samples with both arguments.
+  \code{gdsSubset} can select a subset of snps for all samples by setting \code{snp.include}, a subset of samples for all snps by setting \code{sample.include}, or a subset of snps and samples with both arguments.
+  The GDS nodes "snp.id", "snp.position", "snp.chromosome", and "sample.id" are copied, as well as any 2-dimensional nodes. Other nodes are not copied.
+  The attributes of the 2-dimensional nodes are also copied to the subset file.
+  If sub.storage is specified, the subset gds file will have a different storage mode for any 2-dimensional array.
+  In the special case where the 2-dimensional node has an attribute named \code{"missing.value"} and the sub.storage type is \code{"bit2"}, the missing.value attribute for the subset node is automatically set to 3.
+  
+  \code{gdsSubsetCheck} checks that a subset GDS file has the expected SNPs and samples of the parent file. It also checks that attributes were similarly copied, except for the above-mentioned special case of \code{missing.value} for \code{sub.storage="bit2"}.
 }
 
 \author{Adrienne Stilp}

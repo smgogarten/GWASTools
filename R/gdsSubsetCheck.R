@@ -138,9 +138,9 @@ gdsSubsetCheck <- function(parent.gds,
       stop(paste("sub GDS has different attributes than parent GDS for", variable))
     }
     # check attribute values
-    for (attribute in names(attributes.parent)) {
+    for (attribute in names(attributes.parent)[]) {
       # these don't have values
-      if (attribute %in% c("snp.order", "sample.order")) next
+      if (attribute %in% c("snp.order", "sample.order", "missing.value")) next
       if (attribute == "storage" & !is.null(sub.storage)) {
         chk(attributes.sub[[attribute]] == sub.storage)
         if (!chk) {
@@ -156,6 +156,18 @@ gdsSubsetCheck <- function(parent.gds,
           stop(paste("sub GDS has different attribute values than parent GDS for", variable))
         }
       }
+    }
+    
+    if ("missing.value" %in% names(attributes.parent)) {
+      parent.miss <- attributes.parent[["missing.value"]]
+    } else {
+      parent.miss <- NA
+    }
+    
+    if ("missing.value" %in% names(attributes.sub)) {
+      sub.miss <- attributes.sub[["missing.value"]]
+    } else {
+      sub.miss <- NA
     }
     
     # check data sample by sample
@@ -179,6 +191,10 @@ gdsSubsetCheck <- function(parent.gds,
       
       vals.parent <- read.gdsn(node.parent, start=start.parent, count=count)[snpsel]
       vals.sub <- read.gdsn(node.sub, start=start.sub, count=count)
+      
+      # set missing values
+      vals.parent[which(vals.parent == parent.miss)] <- NA
+      vals.sub[which(vals.sub == sub.miss)] <- NA
       
       if (length(vals.parent) != length(vals.sub)) {
         closefn.gds(gds)
