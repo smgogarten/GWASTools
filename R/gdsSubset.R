@@ -7,6 +7,7 @@ gdsSubset <- function(parent.gds,
                       snp.include=NULL,
                       sub.storage=NULL,
                       zipflag="ZIP.max",
+                      block.size=5000,
                       verbose=TRUE){
   
   # this function only works for gds files having up to two dimensions, named "snp" and "sample"
@@ -73,6 +74,9 @@ gdsSubset <- function(parent.gds,
   sampID.parent <- sampID
   sampID.sub <- sampID[sampsel]
   
+  snpID.parent <- snpID
+  snpID.sub <- snpID[snpsel]
+  
   # TO DO: check snp.order vs scan.order for snp,scan or scan,snp files
   for (dimname in dimnames){
     
@@ -116,30 +120,61 @@ gdsSubset <- function(parent.gds,
       }
     }
     
-    # add data sample by sample
-    for (i in 1:length(sampID.sub)){
-
-      if (verbose & i %% 10==0) message(paste(dimname, "- sample", i, "of", sum(sampsel)))
+    # if genotypeDim is snp,scan then add data sample by sample (possibly with blocks eventually)
+    # if genotypeDim is scan,snp then add data snp by snp in blocks of block.size
+    if (dimType == "snp,scan"){
       
-      sample <- sampID.sub[i]
-      i.parent <- which(sampID.parent %in% sample)
-      i.sub <- which(sampID.sub %in% sample)
-
-      if (dimType == "scan,snp"){
-        start.parent <- c(i.parent, 1)
-        start.sub <- c(i.sub, 1)
-        count <- c(1, -1)
-      } else {
+      for (i in 1:length(sampID.sub)){
+        
+        if (verbose & i %% 10==0) message(paste(dimname, "- sample", i, "of", sum(sampsel)))
+        
+        sample <- sampID.sub[i]
+        i.parent <- which(sampID.parent %in% sample)
+        i.sub <- which(sampID.sub %in% sample)
+        
         start.parent <- c(1, i.parent)
         start.sub <- c(1, i.sub)
         count <- c(-1, 1)
+        
+        dat <- read.gdsn(node.parent, start=start.parent, count=count)
+        write.gdsn(node.sub, dat[snpsel], start=start.sub, count=count)
+        
       }
-
-      dat <- read.gdsn(node.parent, start=start.parent, count=count)
-      write.gdsn(node.sub, dat[snpsel], start=start.sub, count=count)
+    } else if (dimType == "scan,snp"){
       
+      nblocks <- ceiling(length(snpID.parent) / block.size)
+      i.sub <- 1 # keep track of index in the subset file
+      for (i in 1:nblocks){
+        if (verbose) message(paste(dimname, "- block", i, "of", nblocks))
+        
+        # parent snps in this block:
+        snps <- snpID.parent[(i-1)*block.size + (1:block.size)]
+        snps <- snps[!is.na(snps)] # get rid of NAs from indexing errors
+        # snpsel for this block:
+        snpsel.block <- which(snps %in% snpID.sub)
+        # if there are no snps included, go to the next block
+        if (length(which(snps %in% snpID.sub)) == 0) next
+        
+        # otherwise, continue on: get the parent index to start at
+        start.parent <- c(1, (i-1)*block.size + 1)
+        count.parent <- c(-1, length(snps))
+        
+        # read in the block of genotypes
+        dat <- read.gdsn(node.parent, start=start.parent, count=count.parent, simplify=FALSE)
+        # subset the genotypes for the subset file
+        dat <- dat[, snpsel.block, drop=F]
+        
+        # write them out
+        start.sub <- c(1, i.sub)
+        count <- c(-1, ncol(dat))
+        write.gdsn(node.sub, dat[sampsel, ], start=start.sub, count=count)
+
+        # update parameters
+        #cnt <- cnt + bsize
+        i.sub <- i.sub + ncol(dat)
+      }
     }
-    
+  
     sync.gds(gds.sub)
     
   }

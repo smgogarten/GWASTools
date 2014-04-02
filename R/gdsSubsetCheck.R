@@ -28,7 +28,8 @@ gdsSubsetCheck <- function(parent.gds,
     closefn.gds(gds.sub)
     stop("samples in sub GDS are not the same as sample.include")
   }
-  
+  sampsel <- sampID.parent %in% sample.include
+
   # check snp variables
   snpID.parent <- read.gdsn(index.gdsn(gds, "snp.id"))
   snpID.sub <- read.gdsn(index.gdsn(gds.sub, "snp.id"))
@@ -170,26 +171,35 @@ gdsSubsetCheck <- function(parent.gds,
       sub.miss <- NA
     }
     
-    # check data sample by sample
-    for (i in 1:length(sampID.sub)){
+    if ("sample.order" %in% names(attributes.sub)) dimType <- "scan,snp" else dimType <- "snp,scan"
+    
+    if (dimType == "snp,scan"){
+      if (verbose) message(paste(node.name, "- looping over samples"))
+      id.parent <- sampID.parent
+      id.sub <- sampID.sub
+      selection <- snpsel
+      mod <- 100
+    } else if (dimType == "scan,snp") {
+      if (verbose) message(paste(node.name, "- looping over snps"))
+      id.parent <- snpID.parent
+      id.sub <- snpID.sub
+      selection <- sampsel
+      mod <- 5000
+    }
+    
+    # check element by element
+    for (i in 1:length(id.sub)){
       
-      sample <- sampID.sub[i]
-      i.sub <- which(sampID.sub %in% sample)
-      i.parent <- which(sampID.parent %in% sample)
+      if (verbose & (i %% mod == 0)) message(paste(node.name, "- element", i, "of", length(id.sub)))
       
-      if ("sample.order" %in% names(attributes.sub)) dimType <- "scan,snp" else dimType <- "snp,scan"
+      i.sub <- i
+      i.parent <- which(id.parent %in% id.sub[i])
       
-      if (dimType == "scan,snp"){
-        start.parent <- c(i.parent, 1)
-        start.sub <- c(i.sub, 1)
-        count <- c(1, -1)
-      } else {
-        start.parent <- c(1, i.parent)
-        start.sub <- c(1, i.sub)
-        count <- c(-1, 1)
-      }
+      start.parent <- c(1, i.parent)
+      start.sub <- c(1, i.sub)
+      count <- c(-1, 1)
       
-      vals.parent <- read.gdsn(node.parent, start=start.parent, count=count)[snpsel]
+      vals.parent <- read.gdsn(node.parent, start=start.parent, count=count)[selection]
       vals.sub <- read.gdsn(node.sub, start=start.sub, count=count)
       
       # set missing values
@@ -209,6 +219,8 @@ gdsSubsetCheck <- function(parent.gds,
         stop(paste("values of variable", node.name, "are not the same."))
       }
     }
+    # check data sample by sample
+
   }
   
   closefn.gds(gds)

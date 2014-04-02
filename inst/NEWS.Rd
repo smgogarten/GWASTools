@@ -340,10 +340,11 @@
     \item Updated gdsImputedDosage and gdsCheckImputedDosage to account for IMPUTE2 gprobs files that have missing values (specified by three equal probability strings)
     \item Updated gdsCheckImputedDosage to produce optional logfile reporting any missing genotypes
   }
+}
 \section{Changes in version 1.9.8}{
   \itemize{
     \item updates/bug fixes to gdsSubset/gdsSubsetCheck - different missing value attributes may be set if sub.storage type is different.
-}
+  }
 }
 
 
