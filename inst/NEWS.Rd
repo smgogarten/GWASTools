@@ -346,6 +346,12 @@
     \item updates/bug fixes to gdsSubset/gdsSubsetCheck - different missing value attributes may be set if sub.storage type is different.
   }
 }
+\section{Changes in version 1.9.9}{
+  \itemize{
+  	\item added block size support for GDS files stored with scan,snp dimensions
+    \item gdsSubset and gdsSubsetCheck now operate on the fastest dimension of the GDS file
+  }
+}
 
 
 
