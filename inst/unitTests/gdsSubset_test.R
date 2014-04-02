@@ -133,6 +133,136 @@ test_gdsSubset <- function(){
   unlink(gdsfile)
 }
 
+
+test_gdsSubset_twoNodes <- function(){
+  
+  # simulated data
+  gdsfile <- tempfile()
+  subfile <- tempfile()
+  
+  gds <- createfn.gds(gdsfile)
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  alleles <- c("A", "C", "T", "G")
+  a <- sample(alleles, 260, replace=T)
+  b <- sapply(a, function(x) sample(alleles[!(alleles %in% x)], 1), USE.NAMES=FALSE)
+  alleles <- paste(a, b, sep="/")
+  samp <- 1:20
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno1 <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                  nrow=nsnp, ncol=nsamp)
+  geno2 <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                  nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  node <- add.gdsn(gds, "snp.chromosome", chrom)
+  put.attr.gdsn(node, "autosome.start", 1)
+  put.attr.gdsn(node, "autosome.end", 22)
+  put.attr.gdsn(node, "X", 23)
+  put.attr.gdsn(node, "XY", 24)
+  put.attr.gdsn(node, "Y", 25)
+  put.attr.gdsn(node, "M", 26)
+  put.attr.gdsn(node, "MT", 26)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  node <- add.gdsn(gds, "genotype1", geno1, storage="bit2")
+  put.attr.gdsn(node, "snp.order")
+  node <- add.gdsn(gds, "genotype2", geno2, storage="bit2")
+  put.attr.gdsn(node, "snp.order")
+  
+  
+  closefn.gds(gds)
+  
+  #gds.orig <- GdsReader(gdsfile)
+  #snpID <- getSnpID(gds.orig)
+  #snpsel <- sort(sample(1:length(snpID), 50))
+  #sampID <- getScanID(gds.orig)
+  #sampsel <- sort(sample(1:length(sampID), 10))
+  #close(gds.orig)
+  
+  snpID <- snp
+  snpsel <- sort(sample(1:length(snpID), 50))
+  sampID <- samp
+  sampsel <- sort(sample(1:length(sampID), 10))
+  
+  # subset
+  subfile <- tempfile()
+  gdsSubset(parent.gds=gdsfile, sub.gds=subfile,
+            sample.include=sampID[sampsel],
+            snp.include=snpID[snpsel])
+  
+  
+  # check node values with gdsfmt -- other attributes are checked are checked in other unit tests
+  gds1 <- openfn.gds(gdsfile)
+  gds2 <- openfn.gds(subfile)
+  # genotype1  
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype1")), get.attr.gdsn(index.gdsn(gds2, "genotype1")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype1"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype1"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype1"))[snpsel, sampsel], read.gdsn(index.gdsn(gds2, "genotype1")))
+  # genotype2
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype2")), get.attr.gdsn(index.gdsn(gds2, "genotype2")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype2"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype2"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype2"))[snpsel, sampsel], read.gdsn(index.gdsn(gds2, "genotype2")))
+  # close files
+  closefn.gds(gds1)
+  closefn.gds(gds2)
+  
+  gdsSubsetCheck(parent.gds=gdsfile, sub.gds=subfile, sample.include=sampID[sampsel],
+                 snp.include=snpID[snpsel])
+  unlink(subfile)
+  
+  
+  # check with only sample include
+  subfile <- tempfile()
+  gdsSubset(parent.gds=gdsfile, sub.gds=subfile,
+            sample.include=sampID[sampsel])
+  
+  # check
+  gds1 <- openfn.gds(gdsfile)
+  gds2 <- openfn.gds(subfile)
+  # genotype1  
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype1")), get.attr.gdsn(index.gdsn(gds2, "genotype1")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype1"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype1"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype1"))[, sampsel], read.gdsn(index.gdsn(gds2, "genotype1")))
+  # genotype2
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype2")), get.attr.gdsn(index.gdsn(gds2, "genotype2")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype2"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype2"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype2"))[, sampsel], read.gdsn(index.gdsn(gds2, "genotype2")))
+  # close files
+  closefn.gds(gds1)
+  closefn.gds(gds2)
+  
+  gdsSubsetCheck(parent.gds=gdsfile, sub.gds=subfile, sample.include=sampID[sampsel])
+  unlink(subfile)
+  
+  
+  # check with only snp include
+  subfile <- tempfile()
+  gdsSubset(parent.gds=gdsfile, sub.gds=subfile,
+            snp.include=snpID[snpsel])
+  
+  # check
+  gds1 <- openfn.gds(gdsfile)
+  gds2 <- openfn.gds(subfile)
+  # genotype1  
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype1")), get.attr.gdsn(index.gdsn(gds2, "genotype1")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype1"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype1"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype1"))[snpsel, ], read.gdsn(index.gdsn(gds2, "genotype1")))
+  # genotype2
+  checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype2")), get.attr.gdsn(index.gdsn(gds2, "genotype2")))
+  checkIdentical(objdesp.gdsn(index.gdsn(gds1, "genotype2"))$storage, objdesp.gdsn(index.gdsn(gds2, "genotype2"))$storage)
+  checkIdentical(read.gdsn(index.gdsn(gds1, "genotype2"))[snpsel, ], read.gdsn(index.gdsn(gds2, "genotype2")))
+  # close files
+  closefn.gds(gds1)
+  closefn.gds(gds2)
+  
+  gdsSubsetCheck(parent.gds=gdsfile, sub.gds=subfile, snp.include=snpID[snpsel])
+  unlink(subfile)  
+  unlink(gdsfile)
+}
+
 test_gdsSubset_scansnp <- function(){
   
   # simulated data

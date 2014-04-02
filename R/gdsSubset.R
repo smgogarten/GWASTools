@@ -102,7 +102,7 @@ gdsSubset <- function(parent.gds,
     }
     
     if (is.null(sub.storage)) {
-      storage <- objdesp.gdsn(index.gdsn(gds, "genotype"))$storage
+      storage <- objdesp.gdsn(node.parent)$storage
     } else {
       storage <- sub.storage
     }
