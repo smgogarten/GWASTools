@@ -1,4 +1,4 @@
-qqPlot <- function(pval, truncate = FALSE, ...) 
+qqPlot <- function(pval, truncate = FALSE, ylim = NULL, ...)
 {
 	# pvalue is a vector of p-values
 	# truncate is T/F whether to truncate the y-axis (observed) to the same limits as the x-axis (expected)
@@ -14,7 +14,7 @@ qqPlot <- function(pval, truncate = FALSE, ...)
 
         char <- rep(1,n)
         if(!truncate){
-          ylm <- NULL
+          ylm <- ylim
           ylb <- expression(paste(-log[10], "(observed P)"))
         }else{
           maxx <- max(x)+2
@@ -29,7 +29,7 @@ qqPlot <- function(pval, truncate = FALSE, ...)
         plot(x, pval, type = "n", ylim = ylm, ylab = ylb,
              xlab = expression(paste(-log[10], "(expected P)")), ...)
         polygon(-log10(c(b,rev(b))), -log10(c(upper, rev(lower))), density=NA, col="gray")
-        points(x, pval, pch = char, ...)	
-	abline(0,1,col="red")	
+        points(x, pval, pch = char, ...)
+	abline(0,1,col="red")
 }
 

@@ -92,7 +92,7 @@
   \itemize{
     \item Added chromosome ideograms to chromIntensityPlot and
     anomStatsPlot.  anomStatsPlot has an option to put multiple
-    anomalies on the same plot.    
+    anomalies on the same plot.
   }
 }
 \section{Changes in version 1.3.5}{
@@ -348,10 +348,16 @@
 }
 \section{Changes in version 1.9.9}{
   \itemize{
-  	\item added block size support for GDS files stored with scan,snp dimensions
+    \item added block size support for GDS files stored with scan,snp dimensions
     \item gdsSubset and gdsSubsetCheck now operate on the fastest dimension of the GDS file
   }
 }
+\section{Changes in version 1.11.1}{
+  \itemize{
+    \item Added ylim argument to qqPlot.
+  }
+}
+
 
 
 
