@@ -160,7 +160,7 @@ gdsSubset <- function(parent.gds,
         count.parent <- c(-1, length(snps))
         
         # read in the block of genotypes
-        dat <- read.gdsn(node.parent, start=start.parent, count=count.parent, simplify=FALSE)
+        dat <- read.gdsn(node.parent, start=start.parent, count=count.parent, simplify="none")
         # subset the genotypes for the subset file
         dat <- dat[, snpsel.block, drop=F]
         
