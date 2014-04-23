@@ -11,7 +11,7 @@ Generates a manhattan plot of the results of a genome wide association test.
 \usage{
 manhattanPlot(p, chromosome, 
               ylim = NULL, trunc.lines = TRUE,
-              signif = 5e-8, ...)
+              signif = 5e-8, thinThreshold=NULL, ...)
 }
 
 
@@ -27,6 +27,7 @@ manhattanPlot(p, chromosome,
     lines.}
   \item{signif}{Genome-wide significance level for plotting horizontal
   line.  If \code{signif=NULL}, no line will be drawn.}
+  \item{thinThreshold}{if not \code{NULL},  \code{-log10(pval)} threshold for thinning points.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 
 }
@@ -46,10 +47,13 @@ manhattanPlot(p, chromosome,
   trunctation (if \code{trunc.lines == TRUE}, the default).  If
   \code{ylim == NULL}, the maximum y value is defined as
   \code{log10(length(p)) + 4)}.
+  
+If requested with \code{thinThreshold}, points with p-values \code{< -log10(thinThreshold)} are thinned before plotting. All points with \code{-log10(pval) >= thinThreshold} plus 50,000 points with \code{-log10(pval) < thinThreshold} (randomly selected in uniformly-spaced bins of -log10(pval)) are displayed.
+
+
 }
 
-\author{Cathy Laurie
-}
+\author{Cathy Laurie, Adrienne Stilp}
 
 
 \seealso{\code{\link{snpCorrelationPlot}}
@@ -65,6 +69,7 @@ n <- 1000
 pvals <- sample(-log10((1:n)/n), n, replace=TRUE)
 chromosome <- c(rep(1,400), rep(2,350), rep("X",200), rep("Y",50))
 manhattanPlot(pvals, chromosome, signif=1e-7)
+manhattanPlot(pvals, chromosome, thinThreshold=2)
 }
 
 
