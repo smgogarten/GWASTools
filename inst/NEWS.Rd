@@ -357,6 +357,17 @@
     \item Added ylim argument to qqPlot.
   }
 }
+\section{Changes in version 1.11.3}{
+  \itemize{
+    \item updated gdsSubset for new gdsfmt read.gdsn syntax (also changed in release version)
+  }
+}
+\section{Changes in version 1.11.4}{
+  \itemize{
+    \item added optional thinThreshold argument to manhattanPlot and qqPlot functions
+  }
+}
+
 
 
 
