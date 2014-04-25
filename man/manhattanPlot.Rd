@@ -11,7 +11,7 @@ Generates a manhattan plot of the results of a genome wide association test.
 \usage{
 manhattanPlot(p, chromosome, 
               ylim = NULL, trunc.lines = TRUE,
-              signif = 5e-8, thinThreshold=NULL, ...)
+              signif = 5e-8, thinThreshold=NULL, pointsPerBin=10000, ...)
 }
 
 
@@ -28,6 +28,7 @@ manhattanPlot(p, chromosome,
   \item{signif}{Genome-wide significance level for plotting horizontal
   line.  If \code{signif=NULL}, no line will be drawn.}
   \item{thinThreshold}{if not \code{NULL},  \code{-log10(pval)} threshold for thinning points.}
+  \item{pointsPerBin}{number of points to plot in each bin if \code{thinThreshold} is given. Ignored otherwise.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 
 }
@@ -48,7 +49,7 @@ manhattanPlot(p, chromosome,
   \code{ylim == NULL}, the maximum y value is defined as
   \code{log10(length(p)) + 4)}.
   
-If requested with \code{thinThreshold}, points with p-values \code{< -log10(thinThreshold)} are thinned before plotting. All points with \code{-log10(pval) >= thinThreshold} plus 50,000 points with \code{-log10(pval) < thinThreshold} (randomly selected in uniformly-spaced bins of -log10(pval)) are displayed.
+If requested with \code{thinThreshold}, points with \code{-log10(pval) < thinThreshold} are thinned before plotting. All points with \code{-log10(pval) >= thinThreshold} are displayed. P-values with \code{-log10(pval) < thinThreshold} are sampled such that \code{pointsPerBin} points are randomly selected from 10 bins with uniform spacing in \code{-log10(pval)} space.
 
 
 }

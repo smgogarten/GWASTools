@@ -367,7 +367,11 @@
     \item added optional thinThreshold argument to manhattanPlot and qqPlot functions
   }
 }
-
+\section{Changes in version 1.11.5}{
+  \itemize{
+    \item added pointsPerBin argument to manhattanPlot
+  }
+}
 
 
 
