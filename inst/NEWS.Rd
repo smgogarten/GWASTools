@@ -372,6 +372,11 @@
     \item added pointsPerBin argument to manhattanPlot
   }
 }
+\section{Changes in version 1.11.6}{
+  \itemize{
+    \item bug fix in qqPlot, manhattanPlot when requesting thinning when bins only have 1 point
+  }
+}
 
 
 

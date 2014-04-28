@@ -54,7 +54,7 @@ qqPlot <- function(pval, truncate = FALSE, ylim=NULL, thinThreshold=NULL, ...)
     ind.list <- list()
     for (level in levels(pval.cut)){
       sel <- which(pval.cut == level)
-      ind.list[[level]] <- sample(sel, min(1000, length(sel)))
+      ind.list[[level]] <- sel[sample.int(length(sel), min(1000, length(sel)))]
     }
     ind.list[["max"]] <- which(pval >= thinThreshold)
     ind <- unlist(ind.list, use.names=FALSE)

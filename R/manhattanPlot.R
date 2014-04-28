@@ -24,7 +24,7 @@ manhattanPlot <- function(p,
     ind.list <- list()
     for (level in levels(logp.cut)){
       sel <- which(logp.cut == level)
-      ind.list[[level]] <- sample(sel, min(pointsPerBin, length(sel)))
+      ind.list[[level]] <- sel[sample.int(length(sel), min(1000, length(sel)))]
     }
     ind.list[["max"]] <- which(logp >= thinThreshold)
     ind <- unlist(ind.list, use.names=FALSE)
