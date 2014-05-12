@@ -118,6 +118,7 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
         start <- (i-1)*block.size + 1
         end <- min(i*(block.size), nsnp(genoData))
         count <- end - start + 1
+        if (verbose) message("Block ", i, " of ", nblocks)
 
         geno <- getGenotype(genoData, snp=c(start,count), scan=c(1,-1))
         geno <- geno[snp.index[start:end], scan.index]
