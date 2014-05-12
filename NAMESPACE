@@ -118,6 +118,7 @@ export(
     simulateGenotypeMatrix,
     simulateIntensityMatrix,
     snpCorrelationPlot,
+    vcfWrite,
     allequal,
     getobj,
     saveas,

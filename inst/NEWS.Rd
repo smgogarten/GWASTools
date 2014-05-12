@@ -377,6 +377,11 @@
     \item bug fix in qqPlot, manhattanPlot when requesting thinning when bins only have 1 point
   }
 }
+\section{Changes in version 1.11.7}{
+  \itemize{
+    \item added vcfWrite function to write VCF file from GenotypeData object
+  }
+}
 
 
 
