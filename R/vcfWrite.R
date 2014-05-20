@@ -45,13 +45,22 @@
 vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
                      id.col="snpID", qual.col=NULL, filter.cols=NULL,
                      info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
-                     block.size=1000, verbose=TRUE) {
+                     ref.allele=NULL, block.size=1000, verbose=TRUE) {
     ## fixed fields
     chrom <- getChromosome(genoData, char=TRUE)
     pos <- getPosition(genoData)
     id <- getSnpVariable(genoData, id.col)
-    ref <- getAlleleA(genoData)
-    alt <- getAlleleB(genoData)
+    if (!is.null(ref.allele)) {
+        stopifnot(length(ref.allele) == nsnp(genoData))
+        stopifnot(all(ref.allele %in% c("A", "B")))
+        a <- getAlleleA(genoData)
+        b <- getAlleleB(genoData)
+        ref <- ifelse(ref.allele == "A", a, b)
+        alt <- ifelse(ref.allele == "A", b, a)
+    } else {
+        ref <- getAlleleA(genoData)
+        alt <- getAlleleB(genoData)
+    }
     if (is.null(qual.col)) {
         qual <- rep(".", nsnp(genoData))
     } else {
@@ -121,6 +130,8 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
         if (verbose) message("Block ", i, " of ", nblocks)
 
         geno <- getGenotype(genoData, snp=c(start,count), scan=c(1,-1))
+        ## switch allele coding if ref.allele is B
+        geno[ref.allele[start:end] == "B",] <- 2 - geno[ref.allele[start:end] == "B",]
         geno <- geno[snp.index[start:end], scan.index]
         geno[is.na(geno)] <- "./."
         geno[geno == 2] <- "0/0"

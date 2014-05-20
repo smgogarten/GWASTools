@@ -382,6 +382,11 @@
     \item added vcfWrite function to write VCF file from GenotypeData object
   }
 }
+\section{Changes in version 1.11.8}{
+  \itemize{
+    \item added ref.allele option to vcfWrite to select either A or B as the reference allele for each SNP
+  }
+}
 
 
 

@@ -123,6 +123,30 @@ test_snp.exclude.blocks <- function() {
     unlink(newfile)
 }
 
+test_ref.allele <- function() {
+    require(VariantAnnotation)
+    genoData <- .testGenoData(3,2)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile, ref=rep("A", 3))
+    vcf <- readVcf(newfile, "hg18")
+    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
+    checkIdentical(as.character(ref(vcf)), rep("A", 3))
+    checkIdentical(as.character(unlist(alt(vcf))), rep("G", 3))
+    
+    vcfWrite(genoData, newfile, ref=rep("B", 3))
+    vcf <- readVcf(newfile, "hg18")
+    checkIdentical(geno(vcf)$GT, matrix("1/1", nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
+    checkIdentical(as.character(ref(vcf)), rep("G", 3))
+    checkIdentical(as.character(unlist(alt(vcf))), rep("A", 3))
+    
+    vcfWrite(genoData, newfile, ref=c("A","B","A"))
+    vcf <- readVcf(newfile, "hg18")
+    checkIdentical(geno(vcf)$GT, matrix(c("0/0", "1/1", "0/0"), nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
+    checkIdentical(as.character(ref(vcf)), c("A","G","A"))
+    checkIdentical(as.character(unlist(alt(vcf))), c("G","A","G"))
+    unlink(newfile)
+}
+
 ## convert vcf to gds and return GenotypeData object
 .vcf2gds <- function(vcffile, gdsfile) {
     require(SNPRelate)
