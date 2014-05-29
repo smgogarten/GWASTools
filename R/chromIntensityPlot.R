@@ -131,10 +131,10 @@ chromIntensityPlot <- function(
         gcol <- rep("black", length(chri))
         if (colorGenotypes) {
             genos <- getGenotype(genoData, snp=c(chr.start,chr.count), scan=c(sid,1))
-            gcol[!is.na(genos) & genos == 0] <- "blue"
-            gcol[!is.na(genos) & genos == 1] <- "green"
-            gcol[!is.na(genos) & genos == 2] <- "red"
-            txt.leg <- "red=AA, green=AB, blue=BB, black=missing"
+            gcol[genos %in% 0] <- "#F0027F"
+            gcol[genos %in% 1] <- "#00FF7F"
+            gcol[genos %in% 2] <- "#FF7F00"
+            txt.leg <- "orange=AA, green=AB, fuschia=BB, black=missing"
         } else {
           txt.leg <- ""
         }

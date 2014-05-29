@@ -387,6 +387,11 @@
     \item added ref.allele option to vcfWrite to select either A or B as the reference allele for each SNP
   }
 }
+\section{Changes in version 1.11.9}{
+  \itemize{
+    \item changed colors of BAF plots so points can be more easily distinguished
+  }
+}
 
 
 

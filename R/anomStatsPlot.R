@@ -212,13 +212,13 @@ anomStatsPlot <- function(intenData, genoData,
     # calculate window size if indicated
     if(win.calc){
       win <- win.fixed / this.len		
-    }	
+    }
 
     # color-coding for genotype calls
     gcol <- rep(NA, length(geno))
-    gcol[geno %in% 2] <- "red"
-    gcol[geno %in% 1] <- "green"
-    gcol[geno %in% 0] <- "blue"
+    gcol[geno %in% 2] <- "#FF7F00"
+    gcol[geno %in% 1] <- "#00FF7F"
+    gcol[geno %in% 0] <- "#F0027F"
     gcol[is.na(geno)] <- "black"
     gcol[ne] <- "pink"
     # color-coding for lrr
@@ -334,7 +334,7 @@ anomStatsPlot <- function(intenData, genoData,
     }
               
     # plot BAF
-    mtxt <- paste("red=AA, green=AB, blue=BB, pink=ineligible, black=other missing",
+    mtxt <- paste("orange=AA, green=AB, fuschia=BB, pink=ineligible, black=other missing",
                   "horiz solid red = non-anom median, horiz dashed red = anom median",
                   sep="\n")
     plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n",
