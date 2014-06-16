@@ -392,6 +392,11 @@
     \item changed colors of BAF plots so points can be more easily distinguished
   }
 }
+\section{Changes in version 1.11.10}{
+  \itemize{
+    \item bug fix in gwasExactHW when a block contains only 1 genotype
+  }
+}
 
 
 
