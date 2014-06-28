@@ -146,3 +146,73 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
     ## close output file
     close(con)
 }
+
+
+
+vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
+                     block.size=1000, verbose=TRUE) {
+
+    stopifnot(hasScanVariable(genoData, sample.col))
+    samp.id <- getScanVariable(genoData, sample.col)
+    stopifnot(hasSnpVariable(genoData, id.col))
+    snp.id <- getSnpVariable(genoData, id.col)
+    alleleA <- getAlleleA(genoData)
+
+    ## check
+    
+    ## open VCF
+    vcf <- file(vcf.file, "r")
+
+    ## read until we get the header
+    while (length(s <- readLines(vcf, n=1)) > 0) {
+        if (substr(s, 1, 6) == "#CHROM") {
+            header <- scan(text=s, what=character(), quiet=TRUE)
+            break
+        }
+    }
+    ncol <- length(header)
+    samples <- header[10:ncol]
+
+    check.total <- 0
+    while (length(x <- scan(vcf, what=character(), nlines=block.size, quiet=TRUE)) > 0) {
+        geno.vcf <- matrix(x, ncol=ncol, byrow=TRUE)
+        id <- geno.vcf[,3]
+        ref.vcf <- geno.vcf[,4]
+        geno.vcf <- geno.vcf[,10:ncol]
+      
+        ## take the first 3 characters - GT field for diploid genotypes
+        geno.vcf <- substr(geno.vcf, 1, 3)
+        geno.vcf <- sub("|", "/", geno.vcf, fixed=TRUE)
+        geno.vcf[geno.vcf == "0/0"] <- 2
+        geno.vcf[geno.vcf == "0/1"] <- 1
+        geno.vcf[geno.vcf == "1/0"] <- 1
+        geno.vcf[geno.vcf == "1/1"] <- 0
+        geno.vcf[geno.vcf == "./."] <- NA
+        mode(geno.vcf) <- "integer"
+        dimnames(geno.vcf) <- list(id, samples)
+        
+        ## ## subset on SNPs present in genoData
+        ## ref.vcf <- ref.vcf[id %in% snp.id]
+        ## id <- id[id %in% snp.id]
+        ## samples <- samples[samples %in% samp.id]
+        ## geno.vcf <- geno.vcf[id, samples]
+        
+        count <- nrow(geno.vcf)
+        start.orig <- which(snp.id == id[1])
+        end.orig <- which(snp.id == id[count])
+        count.orig <- end.orig - start.orig + 1
+        geno.orig <- getGenotype(genoData, scan=c(1,-1), snp=c(start.orig,count.orig))
+        dimnames(geno.orig) <- list(snp.id[start.orig:end.orig], samp.id)
+        geno.orig <- geno.orig[rownames(geno.vcf), colnames(geno.vcf)]
+        ref.orig <- alleleA[match(rownames(geno.vcf), snp.id)]
+        allele.switch <- ref.orig != ref.vcf
+        geno.orig[allele.switch,] <- 2 - geno.orig[allele.switch,]
+
+        stopifnot(allequal(geno.vcf, geno.orig))
+
+        check.total <- check.total + count
+        message("Checked ", check.total, " SNPs")
+    }
+
+    close(vcf)
+}

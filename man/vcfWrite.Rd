@@ -1,5 +1,6 @@
 \name{vcfWrite}
 \alias{vcfWrite}
+\alias{vcfCheck}
 \title{Utility to write VCF file}
 \description{
 \code{vcfWrite} creates a VCF file from a \code{\link{GenotypeData}}
@@ -10,6 +11,9 @@ vcfWrite(genoData, vcf.file="out.vcf", sample.col="scanID",
          id.col="snpID", qual.col=NULL, filter.cols=NULL,
          info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
          ref.allele=NULL, block.size=1000, verbose=TRUE)
+
+vcfCheck(genoData, vcf.file, sample.col="scanID",
+         id.col="snpID", block.size=1000, verbose=TRUE)
 }
 \arguments{
   \item{genoData}{A \code{\link{GenotypeData}} object with scan and SNP annotation.}
@@ -28,6 +32,8 @@ vcfWrite(genoData, vcf.file="out.vcf", sample.col="scanID",
 }
 \details{
 	REF will be alleleA and ALT will be alleleB.
+
+	vcfCheck compares the genotypes (diploid only) in a VCF file to the corresponding genotypes in \code{genoData}.  It stops with an error when it detects a discordant genotype.  It assumes that the "ID" column of the VCF file has unique values that can be matched with a column in the SNP annotation, and that all SNPs in the VCF file are present in \code{genoData}.
 }
 \references{
 	The variant call format and VCFtools.
@@ -48,6 +54,7 @@ vcffile <- tempfile()
 vcfWrite(genoData, vcffile, id.col="rsID", info.cols="IntensityOnly")
 vcf <- readVcf(vcffile, "hg18")
 vcf
+vcfCheck(genoData, vcffile, id.col="rsID")
 close(genoData)
 unlink(vcffile)
 }

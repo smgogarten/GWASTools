@@ -397,6 +397,11 @@
     \item bug fix in gwasExactHW when a block contains only 1 genotype
   }
 }
+\section{Changes in version 1.11.11}{
+  \itemize{
+    \item bug fix in added vcfCheck function to compare VCF file to GenotypeData object
+  }
+}
 
 
 

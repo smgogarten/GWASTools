@@ -202,3 +202,20 @@ test_VA <- function() {
     close(genoData)
     unlink(c(gdsfile, newfile))
 }
+
+
+test_vcfCheck <- function() {
+    genoData <- .testGenoData(5,3)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile)            
+    vcfCheck(genoData, newfile)
+    unlink(newfile)
+}
+
+test_vcfCheck_ref <- function() {
+    genoData <- .testGenoData(5,3)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile, ref.allele=c("A","B","A","B","A"))            
+    vcfCheck(genoData, newfile)
+    unlink(newfile)
+}
