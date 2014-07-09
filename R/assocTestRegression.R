@@ -636,7 +636,10 @@ RunRegression <- function(){
 
         # get genotypes for the block
         geno <- getGenotype(genoData, snp=c(snp.start.pos, n.snps.block), scan=c(1,-1))
-        geno <- geno[,keep];
+        if (class(geno) != "matrix"){
+          geno <- t(as.matrix(geno))
+        }
+        geno <- geno[,keep, drop=FALSE];
 
         # check for genotypes/dosages
         if(!dosage){

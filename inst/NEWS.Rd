@@ -402,6 +402,12 @@
     \item bug fix in added vcfCheck function to compare VCF file to GenotypeData object
   }
 }
+\section{Changes in version 1.11.12}{
+  \itemize{
+    \item bug fix in assocTestRegression when a block contains only 1 SNP
+  }
+}
+
 
 
 
