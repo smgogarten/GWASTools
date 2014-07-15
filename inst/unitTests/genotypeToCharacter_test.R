@@ -13,3 +13,18 @@ test_genotypeToCharacter <- function() {
   checkIdentical(c("C/C","G/C","G/G",NA),
                  genotypeToCharacter(g, "G", "C", sort=FALSE))
 }
+
+test_genotypeToCharacter_NA <- function() {
+  A <- c("A", NA, "A", NA)
+  B <- c("C", "C", NA, NA)
+  g <- rep(0,4)
+  checkIdentical(c("C/C","C/C",NA,NA),
+                 genotypeToCharacter(g, A, B))
+  g <- rep(1,4)
+  checkIdentical(c("A/C",NA,NA,NA),
+                 genotypeToCharacter(g, A, B))
+  g <- rep(2,4)
+  checkIdentical(c("A/A",NA,"A/A",NA),
+                 genotypeToCharacter(g, A, B))
+}
+

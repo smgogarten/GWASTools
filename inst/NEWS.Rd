@@ -407,6 +407,12 @@
     \item bug fix in assocTestRegression when a block contains only 1 SNP
   }
 }
+\section{Changes in version 1.11.13}{
+  \itemize{
+    \item in case of missing allele code, return character genotype as
+    NA
+  }
+}
 
 
 
