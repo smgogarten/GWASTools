@@ -28,3 +28,9 @@ test_genotypeToCharacter_NA <- function() {
                  genotypeToCharacter(g, A, B))
 }
 
+test_pasteSorted <- function() {
+    a <- c("a","b")
+    b <- c("b","a")
+    checkIdentical(c("a/b", "a/b"), pasteSorted(a,b))
+    checkIdentical(c("ab", "ab"), pasteSorted(a,b, sep=""))
+}

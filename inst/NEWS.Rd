@@ -413,6 +413,11 @@
     NA
   }
 }
+\section{Changes in version 1.11.14}{
+  \itemize{
+    \item added pasteSorted function
+  }
+}
 
 
 

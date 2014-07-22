@@ -4,7 +4,7 @@
 # Father ID
 # Mother ID
 # sex (1=male, 2=female, other=unknown)
-# phenotype (-9=missing, 0=missing, 1=unaffected, 2=affected) 
+# phenotype (-9=missing, 0=missing, 1=unaffected, 2=affected)
 # genotypes (both alleles e.g. A A for all SNPs ordered according to the map file order
 
 # return genotype matrix or vector in plink format
@@ -12,10 +12,10 @@
                              scan.chromosome.filter = NULL) {
   geno <- getGenotype(genoData, snp=c(1,-1), scan=c(scan.start,scan.count),
                       char=TRUE)
-  
+
   # plink uses "A B" instead of "A/B"
   geno <- gsub("/", " ", geno)
-  
+
   # apply scan-chromosome filter
   if (!is.null(scan.chromosome.filter)) {
     if (length(dim(geno)) < 2) {
@@ -28,7 +28,7 @@
       if (length(badscans) > 0) {
         geno[chr == c, badscans] <- NA
       }
-    }    
+    }
     if (ncol(geno) == 1) {
       geno <- as.vector(geno)
     }
@@ -87,22 +87,22 @@ plinkWrite <- function(genoData, pedFile="testPlink",
   # name of the output_file. This will create two files: output_file.ped and output_file.map
   pedfile <- paste(pedFile,"ped",sep=".")
   mapfile <- paste(pedFile,"map",sep=".")
-  
+
   #######################################################
   # Creating map file
   map.df <- .getPlinkMap(genoData, rs.col, mapdist.col)
   write.table(map.df,mapfile,quote=FALSE,row.names=FALSE,col.names=FALSE,sep="\t")
   # free memory
   rm(map.df)
-  
+
   ######################################################
   # Creating ped file
   nsample <- nscan(genoData)
   nsnp <- nsnp(genoData)
-  
+
   scan.df <- .getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
   scanID <- getScanID(genoData)
-  
+
   # This loop retrives each individuals genotypes from the .nc files and writes them in the ped file. One individual per line
   nBlock <- ceiling(nsample / blockSize)
   lastB <- nsample %% blockSize
@@ -125,7 +125,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     app <- TRUE
     i <- i + bsize
   }
-  
+
   return(invisible(NULL))
 }
 
@@ -133,15 +133,15 @@ plinkWrite <- function(genoData, pedFile="testPlink",
 plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
 	family.col="family", individual.col="scanID", father.col="father", mother.col="mother", phenotype.col=NULL,
 	rs.col="rsID", map.alt=NULL,
-                       check.parents=TRUE, check.sex=TRUE, 
-                       scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE) { 
+                       check.parents=TRUE, check.sex=TRUE,
+                       scan.exclude=NULL, scan.chromosome.filter=NULL, verbose=TRUE) {
 
   # return value - set to FALSE if an error is encountered
   retval <- TRUE
 
   # open log file
   con <- file(logFile, "w")
-  
+
   # name of the plink files
   pedfile <- paste(pedFile,"ped",sep=".")
   mapfile <- paste(pedFile,"map",sep=".")
@@ -174,7 +174,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   mismatch.ncdf <- setdiff(snp.ncdf, snp.plink)
   if (length(c(mismatch.plink, mismatch.ncdf)) > 0 ) {
     p.df <- cbind("file"=rep("ped", length(mismatch.plink)), "snp"=mismatch.plink)
-    n.df <- cbind("file"=rep("netcdf", length(mismatch.ncdf)), "snp"=mismatch.ncdf)    
+    n.df <- cbind("file"=rep("netcdf", length(mismatch.ncdf)), "snp"=mismatch.ncdf)
     mismatch <- rbind(p.df, n.df)
     writeLines("SNPs are not identical", con)
     write.table(mismatch, con, quote=FALSE, col.names=FALSE, row.names=FALSE)
@@ -216,7 +216,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
       retval <- FALSE
       next
     }
-    
+
     # compare sample data
     if (!allequal(scan.df[ind,"family"], x[1])) {
       writeLines(c(paste("family mismatch for sample", x[2], "at line", line),
@@ -257,7 +257,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     # sort allele by character
     a <- x[seq(7,length(x),2)]
     b <- x[seq(8,length(x),2)]
-    geno.plink <- paste(pmin(a,b), pmax(a,b))
+    geno.plink <- pasteSorted(a, b, sep=" ")
     # only check genotypes with matching SNPs
     if (length(mismatch.plink > 0)) geno.plink[snp.plink %in% mismatch.plink] <- NA
     if (length(geno.plink) != length(geno)) {
@@ -301,7 +301,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
                         ncdfMchromCode=26, ncdfUchromCode=27,
                         pedMissingCode=0, verbose=TRUE) {
   # read map file to get SNP annotation
-  map <- read.table(mapFile, as.is=TRUE, comment.char="") 
+  map <- read.table(mapFile, as.is=TRUE, comment.char="")
   names(map)[1:4] <- c("chromosome", "rsID", "mapdist", "position")
 
   # are chromosomes in map file characters or integers?
@@ -331,7 +331,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
   map <- map[order(map$chromosome, map$position),]
   # map new order to plink order
   snpord <- match(map$rsID, snpnames)
- 
+
   # allele conversion
   nsnp <- nrow(map)
   if (ncol(map) >= 6) {
@@ -351,14 +351,14 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
     alleleB <- rep(NA, nsnp)
     findAB <- TRUE
   }
-  
+
   # create integer snpID
   map$snpID <- 1:nsnp
-  
+
   # create netCDF file
   ncdfCreate(snp.annotation=map, ncdf.filename=ncdfFile,
              n.samples=nSamples, variables="genotype")
-  
+
   # create empty scan annotation vectors
   family <- rep(NA, nSamples)
   individ <- rep(NA, nSamples)
@@ -369,7 +369,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
 
   # open netCDF for writing
   nc <- open.ncdf(ncdfFile, write=TRUE)
-  
+
   # read plink file one line at a time
   # for each line, store sample data in annotation and genotype in netCDF
   ped <- file(pedFile, "r")
@@ -387,7 +387,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
     mother[line] <- x[4]
     sex[line] <- x[5]
     phenotype[line] <- x[6]
-  
+
     allele1 <- x[seq(7,length(x),2)]
     allele2 <- x[seq(8,length(x),2)]
     stopifnot(length(allele1) == nsnp)
@@ -429,7 +429,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
 
     # add genotype to netCDF
     put.var.ncdf(nc, "genotype", vals=nA, start=c(1,line), count=c(nsnp,1))
-    
+
   }
 
   # check number of samples read
@@ -442,12 +442,12 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
   if (allequal(individ, suppressWarnings(as.integer(individ))) &
       length(individ) == length(unique(individ))) {
     scanID <- as.integer(individ[1:line])
-  }    
+  }
   # add scanID to netCDF
   put.var.ncdf(nc, "sampleID", vals=scanID, start=1, count=line)
-  
+
   close.ncdf(nc)
-  
+
   # save scan annotation as ScanAnnotationDataFrame
   scan.df <- data.frame(individ, family, father, mother, sex, phenotype, stringsAsFactors=FALSE)
   if (nrow(scan.df) > line) scan.df <- scan.df[1:line,]
@@ -461,7 +461,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
   scan.df$sex <- sexmf
   scanAnnot <- ScanAnnotationDataFrame(scan.df)
   save(scanAnnot, file=scanAnnotFile)
-  
+
   # save snp annotation as SnpAnnotationDataFrame
   if (findAB) {
     map$alleleA <- alleleA

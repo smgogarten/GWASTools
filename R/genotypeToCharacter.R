@@ -1,3 +1,8 @@
+pasteSorted <- function(a, b, sep="/") {
+    paste(pmin(a,b), pmax(a,b), sep=sep)
+}
+
+
 genotypeToCharacter <- function(geno, alleleA=NULL, alleleB=NULL, sort=TRUE) {
   if (is.null(alleleA) | is.null(alleleB)) {
     geno[geno %in% 0] <- "B/B"
@@ -18,7 +23,7 @@ genotypeToCharacter <- function(geno, alleleA=NULL, alleleB=NULL, sort=TRUE) {
     aa <- paste(alleleA, alleleA, sep="/")
     bb <- paste(alleleB, alleleB, sep="/")
     if (sort) {
-      ab <- paste(pmin(alleleA, alleleB), pmax(alleleA, alleleB), sep="/")
+      ab <- pasteSorted(alleleA, alleleB, sep="/")
     } else {
       ab <- paste(alleleA, alleleB, sep="/")
     }

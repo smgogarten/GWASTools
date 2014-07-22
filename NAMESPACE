@@ -40,7 +40,7 @@ export(
     NcdfIntensityReader,
     GenotypeData,
     IntensityData,
-       
+
     ## Ordinary functions (i.e. not generic):
     alleleFrequency,
     anomSegmentBAF,
@@ -107,6 +107,7 @@ export(
     pedigreeDeleteDuplicates,
     pedigreeMaxUnrelated,
     pedigreePairwiseRelatedness,
+    pasteSorted,
     plinkCheck,
     plinkToNcdf,
     plinkWrite,
@@ -125,8 +126,8 @@ export(
     saveas,
     readWriteFirst
 )
-        
-       
+
+
 exportMethods(
     ## Methods associated with the generic functions defined in
     ## this package:
@@ -154,7 +155,7 @@ exportMethods(
     getVariable,
     getVariableNames,
     getX,
-    getY,            
+    getY,
     hasBAlleleFreq,
     hasCoordVariable,
     hasLogRRatio,
@@ -176,7 +177,7 @@ exportMethods(
     YchromCode,
     XYchromCode,
     MchromCode,
-              
+
     ## Methods associated with generic functions defined somewhere else:
     open, close, show
 )
