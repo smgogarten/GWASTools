@@ -418,6 +418,12 @@
     \item added pasteSorted function
   }
 }
+\section{Changes in version 1.11.15}{
+  \itemize{
+    \item allowed truncate to be a numeric value or TRUE in qqPlot
+  }
+}
+
 
 
 

@@ -67,11 +67,13 @@ qqPlot <- function(pval, truncate = FALSE, ylim=NULL, thinThreshold=NULL, ...)
   lower <- qbeta(0.975, a, rev(a))
   
   char <- rep(1,n)
-  if(!truncate){
-    ylm <- ylim
-    ylb <- expression(paste(-log[10], "(observed P)"))
-  }else{
-    maxx <- max(x)+2
+  if(!is.logical(truncate) | truncate){
+    if (is.logical(truncate)){
+      maxx <- max(x)+2  
+    } else {
+      maxx <- min(truncate, max(pval))
+    }
+    
     ylm <- c(0,maxx)
     ylb <- expression(paste(-log[10], "(observed P) - truncated"))
     nx <- length(which(pval > maxx))
@@ -79,6 +81,10 @@ qqPlot <- function(pval, truncate = FALSE, ylim=NULL, thinThreshold=NULL, ...)
       pval[1:nx] <- maxx
       char[1:nx] <- 2
     }
+    
+  } else {
+    ylm <- ylim
+    ylb <- expression(paste(-log[10], "(observed P)"))
   }
   plot(x[ind], pval[ind], type = "n", ylim = ylm, ylab = ylb,
        xlab = expression(paste(-log[10], "(expected P)")), ...)
