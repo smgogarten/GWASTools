@@ -1,3 +1,67 @@
+test_commonSnps <- function() {
+  # first set
+  # snp annotation
+  snpID <- 1:10
+  chrom <- rep(1L, 10)
+  pos <- 101:110
+  rsID <- paste("rs", pos, sep="")
+  alleleA <- rep("A",10)
+  alleleB <- rep("G",10)
+  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
+                      alleleA=alleleA, alleleB=alleleB,
+                      stringsAsFactors=FALSE)
+  snpAnnot1 <- SnpAnnotationDataFrame(snpdf)
+  
+  mgr <- MatrixGenotypeReader(genotype=matrix(0, ncol=5, nrow=10), snpID=snpID,
+    chromosome=chrom, position=pos, scanID=1:5)
+  genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1)
+  
+  # second set
+  # snp annotation
+  snpID <- 1:5
+  chrom <- rep(1L, 5)
+  pos <- as.integer(c(101,103,105,107,109))
+  rsID <- paste("rs", pos, sep="")
+  rsID[2] <- "different"
+  alleleA <- c("A","A","A","G","C")
+  alleleB <- c("G","G","G","A","T")
+  snpdf <- data.frame(snpID=snpID, chromosome=chrom, position=pos, rsID=rsID,
+                      alleleA=alleleA, alleleB=alleleB,
+                      stringsAsFactors=FALSE)
+  snpAnnot2 <- SnpAnnotationDataFrame(snpdf)
+  
+  mgr <- MatrixGenotypeReader(genotype=matrix(0, ncol=5, nrow=5), snpID=snpID,
+    chromosome=chrom, position=pos, scanID=1:5)
+  genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2)
+
+  # match on position
+  snps <- GWASTools:::.commonSnps(genoData1, genoData2, match.snps.on="position")
+  checkEquals(c(1,3,5,7,9), snps$snpID1)
+  checkEquals(1:5, snps$snpID2)
+  
+  # match on position and alleles
+  snps <- GWASTools:::.commonSnps(genoData1, genoData2, match.snps.on=c("position", "alleles"))
+  checkEquals(c(1,3,5,7), snps$snpID1)
+  checkEquals(1:4, snps$snpID2)
+  
+  # match on position and alleles and name
+  snps <- GWASTools:::.commonSnps(genoData1, genoData2, match.snps.on=c("position", "alleles", "name"),
+                      snpName.cols=c("rsID", "rsID"))
+  checkEquals(c(1,5,7), snps$snpID1)
+  checkEquals(c(1,3,4), snps$snpID2)
+
+  # exclude some snps
+  snps <- GWASTools:::.commonSnps(genoData1, genoData2, match.snps.on="position", snp.exclude1=7, snp.exclude=5)
+  checkEquals(c(1,3,5), snps$snpID1)
+  checkEquals(1:3, snps$snpID2)
+  
+  # include some snps
+  snps <- GWASTools:::.commonSnps(genoData1, genoData2, match.snps.on="name", snpName.cols=c("rsID", "rsID"),
+                      snp.include=c("rs101", "rs103", "rs105"))
+  checkEquals(c(1,5), snps$snpID1)
+  checkEquals(c(1,3), snps$snpID2)
+}
+
 
 dp.test <- function(genoData1, scanID1, snpID1,
                     genoData2, scanID2, snpID2, ...) {
@@ -157,7 +221,7 @@ test_discordantPair <- function() {
   snpAnnot1$chromosome <- chrom
   scanAnnot1$sex <- "F"
   mgr <- MatrixGenotypeReader(genotype=geno1, snpID=snpAnnot1$snpID,
-    chromosome=chrom, position=snpAnnot1$pos, scanID=scanAnnot1$scanID)
+    chromosome=chrom, position=snpAnnot1$position, scanID=scanAnnot1$scanID)
   genoData1 <- GenotypeData(mgr, snpAnnot=snpAnnot1, scanAnnot=scanAnnot1)
   
   # expected output (TRUE for discordance)
@@ -255,29 +319,49 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   c.exp <- c(FALSE, FALSE, TRUE, TRUE, FALSE)
   snp.exp <- data.frame(discordant=c(1,0,2,1,0), npair=c(3,2,3,3,1),
     n.disc.subj=c(1,0,2,1,0), discord.rate=c(1,0,2,1,0)/c(3,2,3,3,1))
-  row.names(snp.exp) <- c("rs101","rs103","rs105","rs107","rs109")
+  snp.exp$name <- c("rs101","rs103","rs105","rs107","rs109")
   subj.exp <- list(a=matrix(1/4, 1, 1, dimnames=list(1,4)),
                    b=matrix(1/4, 1, 1, dimnames=list(2,3)),
                    c=matrix(2/4, 1, 1, dimnames=list(3,1)))
   
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2))
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID")
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
+  # test 1a: add a duplicate snp to dataset 2
+  snpdf.dup <- rbind(snpdf, snpdf[5,])
+  snpdf.dup[6,"snpID"] <- 6L
+  snpdf.dup[6,"rsID"] <- "dup"
+  snpAnnot.dup <- SnpAnnotationDataFrame(snpdf.dup)
+  mgr.dup <- MatrixGenotypeReader(genotype=rbind(geno2, geno2[5,]), snpID=snpAnnot.dup$snpID,
+    chromosome=snpAnnot.dup$chromosome, position=snpAnnot.dup$position, scanID=scanID)
+  genoData.dup <- GenotypeData(mgr.dup, snpAnnot=snpAnnot.dup, scanAnnot=scanAnnot2)
+  # matching on name should give same results as before
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData.dup, match.snps.on="name",
+    "subjID", "rsID")
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
+  # matching on position should give extra row
+  snp.exp <- data.frame(discordant=c(1,0,2,1,0,0), npair=c(3,2,3,3,1,1),
+    n.disc.subj=c(1,0,2,1,0,0), discord.rate=c(1,0,2,1,0,0)/c(3,2,3,3,1,1))
+  snp.exp$position <- as.integer(c(101,103,105,107,109,109))
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData.dup, match.snps.on="position",
+    "subjID", "rsID")
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
+  
   # expected output for minor.allele.only
   snp.exp <- data.frame(discordant=c(1,0,2,1,0), npair=c(2,1,2,2,0),
     n.disc.subj=c(1,0,2,1,0), discord.rate=c(1,0,2,1,0)/c(2,1,2,2,0))
-  row.names(snp.exp) <- c("rs101","rs103","rs105","rs107","rs109")
+  snp.exp$name <- c("rs101","rs103","rs105","rs107","rs109")
   subj.exp <- list(c=matrix(2/2, 1, 1, dimnames=list(1,3)),
                    b=matrix(1/3, 1, 1, dimnames=list(3,2)),
                    a=matrix(1/2, 1, 1, dimnames=list(4,1)))
   # switch order to get allele freq from genoData2
-  discord <- duplicateDiscordanceAcrossDatasets(genoData2, genoData1,
-    rep("subjID", 2), rep("rsID", 2), minor.allele.only=TRUE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData2, genoData1, match.snps.on="name",
+    "subjID", "rsID", minor.allele.only=TRUE)
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
-  
+
   # test 2: add a second scan for subject "c" to dataset 2
   scanID <- 1:5
   subjID <- c("c","f","b","a","c")
@@ -290,7 +374,7 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
                    2,0,0,1,1,
                    2,2,2,1,0), ncol=5)
   mgr <- MatrixGenotypeReader(genotype=geno2, snpID=snpAnnot2$snpID,
-    chromosome=snpAnnot2$chrom, position=snpAnnot2$pos, scanID=scanID)
+    chromosome=snpAnnot2$chromosome, position=snpAnnot2$position, scanID=scanID)
   genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
 
   # expected output (TRUE for discordance)
@@ -300,20 +384,20 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   c2.exp <- c(FALSE, FALSE, FALSE, TRUE, FALSE)
   snp.exp <- data.frame(discordant=c(1,1,2,2,0), npair=c(4,4,4,4,4),
     n.disc.subj=c(1,1,2,1,0), discord.rate=c(1,1,2,2,0)/c(4,4,4,4,4))
-  row.names(snp.exp) <- c("rs101","rs103","rs105","rs107","rs109")
+  snp.exp$name <- c("rs101","rs103","rs105","rs107","rs109")
   subj.exp <- list(a=matrix(1/5, 1, 1, dimnames=list(1,4)),
                    b=matrix(1/5, 1, 1, dimnames=list(2,3)),
                    c=matrix(c(3/5, 1/5), 1, 2, dimnames=list(3,c(1,5))))
 
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID", one.pair.per.subj=FALSE)
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
   
   # check only one scan per subject
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=TRUE)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID", one.pair.per.subj=TRUE)
   checkIdentical(discord$discordance.by.snp$discordant, discord$discordance.by.snp$n.disc.subj)
   checkEquals(3, max(discord$discordance.by.snp$npair))
 
@@ -322,24 +406,21 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   snp.include <- c("rs101","rs103","rs105")
   snp.exp <- data.frame(discordant=c(1,1,2), npair=c(4,4,4),
     n.disc.subj=c(1,1,2), discord.rate=c(1,1,2)/c(4,4,4))
-  row.names(snp.exp) <- c("rs101","rs103","rs105")
+  snp.exp$name <- c("rs101","rs103","rs105")
   subj.exp <- list(a=matrix(1/3, 1, 1, dimnames=list(1,4)),
                    b=matrix(1/3, 1, 1, dimnames=list(2,3)),
                    c=matrix(c(2/3, 0), 1, 2, dimnames=list(3,c(1,5))))
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID", snp.include=snp.include, one.pair.per.subj=FALSE)
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
   
   # change the order of the snps
   snp.include <- c("rs103","rs105","rs101")
-  snp.exp <- data.frame(discordant=c(1,2,1), npair=c(4,4,4),
-    n.disc.subj=c(1,2,1), discord.rate=c(1,2,1)/c(4,4,4))
-  row.names(snp.exp) <- c("rs103","rs105","rs101")
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID", snp.include=snp.include, one.pair.per.subj=FALSE)
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
 
   
@@ -348,24 +429,16 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
   excl2 <- 5
   snp.exp <- data.frame(discordant=c(1,1,1,1,0), npair=c(2,2,2,2,2),
     n.disc.subj=c(1,1,1,1,0), discord.rate=c(1,1,1,1,0)/c(2,2,2,2,2))
-  row.names(snp.exp) <- c("rs101","rs103","rs105","rs107","rs109")
+  snp.exp$name <- c("rs101","rs103","rs105","rs107","rs109")
   subj.exp <- list(a=matrix(1/5, 1, 1, dimnames=list(1,4)),
                    c=matrix(3/5, 1, 1, dimnames=list(3,1)))
 
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-    rep("subjID", 2), rep("rsID", 2), scan.exclude1=excl1, scan.exclude2=excl2,
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+    "subjID", "rsID", scan.exclude1=excl1, scan.exclude2=excl2,
                                                 one.pair.per.subj=FALSE)
-  checkIdentical(discord$discordance.by.snp, snp.exp)
+  checkIdentical(discord$discordance.by.snp[,names(snp.exp)], snp.exp)
   checkIdentical(discord$discordance.by.subject, subj.exp)
   
-  
-  # error check - snps not in dataset 2
-  snp.include <- c("rs102", "rs104")
-  checkException({
-    discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2), snp.include=snp.include, one.pair.per.subj=FALSE)
-  })
-
   
   # error check - datasets with no common snps (expect NULL)
   # snp annotation
@@ -389,8 +462,8 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
     chromosome=chrom, position=pos, scanID=scanID)
   genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
   
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+      "subjID", "rsID", one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
 
   
@@ -442,8 +515,8 @@ test_duplicateDiscordanceAcrossDatasets <- function() {
     chromosome=chrom, position=pos, scanID=scanID)
   genoData2 <- GenotypeData(mgr, snpAnnot=snpAnnot2, scanAnnot=scanAnnot2)
   
-  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-      rep("subjID", 2), rep("rsID", 2), one.pair.per.subj=FALSE)
+  discord <- duplicateDiscordanceAcrossDatasets(genoData1, genoData2, match.snps.on="name",
+      "subjID", "rsID", one.pair.per.subj=FALSE)
   checkIdentical(discord, NULL)
 }
 
@@ -675,9 +748,9 @@ test_minorAlleleDetectionAccuracy <- function() {
                     specificity=(rowSums(TN)/(rowSums(TN) + rowSums(FP))),
                     positivePredictiveValue=(rowSums(TP)/(rowSums(TP) + rowSums(FP))),
                     negativePredictiveValue=(rowSums(TN)/(rowSums(TN) + rowSums(FN))))
-  row.names(exp) <- as.character(snpID)
+  exp$name <- snpID
 
-  res <- minorAlleleDetectionAccuracy(genoData1, genoData2,
+  res <- minorAlleleDetectionAccuracy(genoData1, genoData2, match.snps.on="name",
                                       rep("subjID", 2), rep("snpID", 2))
-  checkIdentical(exp, res)
+  checkIdentical(exp, res[,names(exp)])
 }

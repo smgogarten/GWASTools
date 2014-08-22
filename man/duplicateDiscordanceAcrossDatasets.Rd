@@ -10,15 +10,22 @@
 
 \usage{
 duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
-  subjName.cols, snpName.cols,
+  match.snps.on=c("position", "alleles"),
+  subjName.cols, snpName.cols=NULL,
   one.pair.per.subj=TRUE, minor.allele.only=FALSE,
   missing.fail=c(FALSE, FALSE),
-  scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
+  scan.exclude1=NULL, scan.exclude2=NULL, 
+  snp.exclude1=NULL, snp.exclude2=NULL, 
+  snp.include=NULL,
   verbose=TRUE)
 
 minorAlleleDetectionAccuracy(genoData1, genoData2,
-  subjName.cols, snpName.cols, missing.fail=TRUE,
-  scan.exclude1=NULL, scan.exclude2=NULL, snp.include=NULL,
+  match.snps.on=c("position", "alleles"),
+  subjName.cols, snpName.cols=NULL,
+  missing.fail=TRUE,
+  scan.exclude1=NULL, scan.exclude2=NULL, 
+  snp.exclude1=NULL, snp.exclude2=NULL, 
+  snp.include=NULL,
   verbose=TRUE)
 }
 
@@ -27,12 +34,13 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
     first dataset.}
   \item{genoData2}{\code{\link{GenotypeData}} object containing the
     second dataset.}
+  \item{match.snps.on}{One or more of ("position", "alleles", "name") indicating how to match SNPs.  "position" will match SNPs on chromosome and position, "alleles" will also require the same alleles (but A/B designations need not be the same), and "name" will match on the columns give in \code{snpName.cols}.}
   \item{subjName.cols}{2-element character vector indicating the names of the
     annotation variables that will be identical for duplicate scans in
-    the two datasets.}
+    the two datasets.  (Alternatively, one character value that will be recycled).}
   \item{snpName.cols}{2-element character vector indicating the names of the
     annotation variables that will be identical for the same SNPs in the
-    two datasets.}
+    two datasets.  (Alternatively, one character value that will be recycled).}
 \item{one.pair.per.subj}{A logical indicating whether a single pair of
   scans should be randomly selected for each subject with more than 2 scans.}
 \item{minor.allele.only}{A logical indicating whether discordance should be calculated
@@ -49,8 +57,13 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be
   excluded from the second dataset. }
+\item{snp.exclude1}{An integer vector containing the ids of snps to be
+  excluded from the first dataset. }
+\item{snp.exclude2}{An integer vector containing the ids of snps to be
+  excluded from the second dataset. }
   \item{snp.include}{List of SNPs to include in the comparison.  Should
-    match the contents of the columns referred to by \code{snpName.cols}.}
+    match the contents of the columns referred to by \code{snpName.cols}.  
+    Only valid if \code{match.snps.on} includes "name".}
 \item{verbose}{Logical value specifying whether to show progress information.} 
 }
 
@@ -129,32 +142,48 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   \code{\link{duplicateDiscordanceProbability}}}
 
 \examples{
-library(GWASdata)
+# first set
+snp1 <- data.frame(snpID=1:10, chromosome=1L, position=101:110, 
+                   rsID=paste("rs", 101:110, sep=""),
+                   alleleA="A", alleleB="G", stringsAsFactors=FALSE)
+scan1 <- data.frame(scanID=1:3, subjectID=c("A","B","C"), sex="F", stringsAsFactors=FALSE)
+mgr <- MatrixGenotypeReader(genotype=matrix(c(0,1,2), ncol=3, nrow=10), snpID=snp1$snpID,
+                            chromosome=snp1$chromosome, position=snp1$position, scanID=1:3)
+genoData1 <- GenotypeData(mgr, snpAnnot=SnpAnnotationDataFrame(snp1),
+                          scanAnnot=ScanAnnotationDataFrame(scan1))
 
-# dataset 1
-file1 <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc1 <- NcdfGenotypeReader(file1)
-data(affySnpADF, affyScanADF)
-data1 <-  GenotypeData(nc1, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
+# second set
+snp2 <- data.frame(snpID=1:5, chromosome=1L, 
+                   position=as.integer(c(101,103,105,107,107)), 
+                   rsID=c("rs101", "rs103", "rs105", "rs107", "rsXXX"),
+                   alleleA= c("A","C","G","A","A"),
+                   alleleB=c("G","T","A","G","G"),
+                   stringsAsFactors=FALSE)
+scan2 <- data.frame(scanID=1:3, subjectID=c("A","C","C"), sex="F", stringsAsFactors=FALSE)
+mgr <- MatrixGenotypeReader(genotype=matrix(c(1,2,0), ncol=3, nrow=5), snpID=snp2$snpID,
+                            chromosome=snp2$chromosome, position=snp2$position, scanID=1:3)
+genoData2 <- GenotypeData(mgr, snpAnnot=SnpAnnotationDataFrame(snp2),
+                          scanAnnot=ScanAnnotationDataFrame(scan2))
 
-# dataset 2
-file2 <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-nc2 <- NcdfGenotypeReader(file2)
-data(illuminaSnpADF, illuminaScanADF)
-# make alleleA and alleleB NULL since we don't have allele coding for
-# dataset 1 (A/B definitions for both arrays should be the same)
-illuminaSnpADF$alleleA <- NULL
-illuminaSnpADF$alleleB <- NULL
-data2 <-  GenotypeData(nc2, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+  match.snps.on="position",
+  subjName.cols="subjectID")
 
-discord <- duplicateDiscordanceAcrossDatasets(data1, data2,
-             subjName.cols=c("CoriellID", "CoriellID"),
-             snpName.cols=c("rsID", "rsID"))
-minor.acc <- minorAlleleDetectionAccuracy(data1, data2,
-               subjName.cols=c("CoriellID", "CoriellID"),
-               snpName.cols=c("rsID", "rsID"))
-close(data1)
-close(data2)
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+  match.snps.on=c("position", "alleles"),
+  subjName.cols="subjectID")
+
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+  match.snps.on=c("position", "alleles", "name"),
+  subjName.cols="subjectID", 
+  snpName.cols="rsID")
+
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+  subjName.cols="subjectID", 
+  one.pair.per.subj=FALSE)
+
+minorAlleleDetectionAccuracy(genoData1, genoData2, 
+  subjName.cols="subjectID")
 }
 
 \keyword{manip}

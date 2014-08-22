@@ -52,33 +52,39 @@
   return(ids)
 }
 
-.commonSnps <- function(genoData1, genoData2, snpName.cols,
-                        snp.include=NULL) {
+.commonSnps <- function(genoData1, genoData2, match.snps.on, snpName.cols=NULL,
+                       snp.exclude1=NULL, snp.exclude2=NULL, snp.include=NULL) {
 
-  # get snp names
-  snp1 <- getSnpVariable(genoData1, snpName.cols[1])
-  snp2 <- getSnpVariable(genoData2, snpName.cols[2])
-  
-  # find snps common to both datasets if snp.include=NULL
-  if (is.null(snp.include)) {
-    snp.include <- intersect(snp1, snp2)
-    if (length(snp.include) == 0) {
-      return(NULL)
-    }
+  # how are we matching snps?
+  vars1 <- data.frame(snpID=getSnpID(genoData1))
+  vars2 <- data.frame(snpID=getSnpID(genoData2))
+  if ("position" %in% match.snps.on) {
+      vars1[["chromosome"]] <- getChromosome(genoData1)
+      vars1[["position"]] <- getPosition(genoData1)
+      vars2[["chromosome"]] <- getChromosome(genoData2)
+      vars2[["position"]] <- getPosition(genoData2)
   }
-  
-  # find snpIDs of common snps in each dataset
-  snpID1 <- getSnpID(genoData1, match(snp.include, snp1))
-  if (length(snpID1) < length(snp.include)) {
-    stop("some selected snps not found in genoData1")
+  if ("alleles" %in% match.snps.on) {
+      vars1[["alleles"]] <- pasteSorted(getAlleleA(genoData1), getAlleleB(genoData1))
+      vars2[["alleles"]] <- pasteSorted(getAlleleA(genoData2), getAlleleB(genoData2))
   }
-  snpID2 <- getSnpID(genoData2, match(snp.include, snp2))
-  if (length(snpID2) < length(snp.include)) {
-    stop("some selected snps not found in genoData2")
+  if ("name" %in% match.snps.on) {
+      vars1[["name"]] <- getSnpVariable(genoData1, snpName.cols[1])
+      vars2[["name"]] <- getSnpVariable(genoData2, snpName.cols[2])
+  }
+    
+  # exclude snps if requested
+  if (!is.null(snp.exclude1)) vars1 <- vars1[!(getSnpID(genoData1) %in% snp.exclude1),]
+  if (!is.null(snp.exclude2)) vars2 <- vars2[!(getSnpID(genoData2) %in% snp.exclude2),]
+
+  # if snp.include is given, subset on snp name
+  if (!is.null(snp.include)) {
+      vars1 <- vars1[vars1$name %in% snp.include,]
+      vars2 <- vars2[vars2$name %in% snp.include,]
   }
 
-  snps <- data.frame(snpID1, snpID2)
-  row.names(snps) <- snp.include
+  # merge on everything but snpID
+  snps <- merge(vars1, vars2, by=names(vars1)[-1], sort=FALSE, suffixes=c("1", "2"))
   return(snps)
 }
 
@@ -122,7 +128,7 @@
   }
   # get matched snps
   snpIndex <- match(snpID, getSnpID(genoData))
-  if (any(is.na(snpIndex))) stop ("some SNPs not found in genoData") 
+  if (any(is.na(snpIndex))) stop("some SNPs not found in genoData") 
   geno <- geno[snpIndex]
   return(geno)
 }
@@ -162,6 +168,32 @@
   return(data.frame(discordant=discordant, nonmissing=nonmissing))
 }
 
+.initialChecks <- function(genoData1, genoData2, match.snps.on, subjName.cols, snpName.cols) {
+  # check matching criteria
+  stopifnot(all(match.snps.on %in% c("position", "alleles", "name")))
+  if (identical(match.snps.on, "alleles")) stop("cannot match on alleles alone")
+    
+  # check that both genoData objects have subjName, snpName
+  stopifnot(hasScanVariable(genoData1, subjName.cols[1]))
+  stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
+  if ("name" %in% match.snps.on) {
+      if (is.null(snpName.cols)) stop("must specify snpName.cols when matching on name")  
+      stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
+      stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
+  }
+
+  if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
+    if (!hasSex(genoData1)) {
+      stop("sex is required for checking Y chromosome discordance")
+    }
+  }
+}
+
+.checkNameCols <- function(name.cols) {
+    if (length(name.cols) < 2) name.cols <- rep(name.cols, 2)
+    name.cols
+}
+
 # duplicateDiscordanceAcrossDatasets
 # inputs:
 # - list of GenotypeData objects
@@ -170,23 +202,18 @@
 # - vectors of scans to exclude (optional)
 # - vector of snp IDs to include (optional)
 duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
-                                               subjName.cols, snpName.cols,
+                                               match.snps.on=c("position", "alleles"),
+                                               subjName.cols, snpName.cols=NULL,
                                                one.pair.per.subj=TRUE,
                                                minor.allele.only=FALSE,
                                                missing.fail=c(FALSE,FALSE),
-                                               scan.exclude1=NULL,scan.exclude2=NULL,
+                                               scan.exclude1=NULL, scan.exclude2=NULL,
+                                               snp.exclude1=NULL, snp.exclude2=NULL,
                                                snp.include=NULL, verbose=TRUE) {
-  # check that both genoData objects have subjName, snpName
-  stopifnot(hasScanVariable(genoData1, subjName.cols[1]))
-  stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
-  stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
-  stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
 
-  if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
-    if (!hasSex(genoData1)) {
-      stop("sex is required for checking Y chromosome discordance")
-    }
-  }
+  subjName.cols <- .checkNameCols(subjName.cols)  
+  if (!is.null(snpName.cols)) snpName.cols <- .checkNameCols(snpName.cols)  
+  .initialChecks(genoData1, genoData2, match.snps.on, subjName.cols, snpName.cols)
   
   # find duplicate scans
   ids <- .duplicatePairs(genoData1, genoData2, subjName.cols,
@@ -198,10 +225,10 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   }
 
   # find common snps
-  snps <- .commonSnps(genoData1, genoData2, snpName.cols,
-                      snp.include)
-  if (is.null(snps)) {
-    warning("no common snps found; check snpName.cols")
+  snps <- .commonSnps(genoData1, genoData2, match.snps.on, snpName.cols,
+                      snp.exclude1, snp.exclude2, snp.include)
+  if (nrow(snps) == 0) {
+    warning("no common snps found; check match.snps.on and snpName.cols")
     return(NULL)
   }
   
@@ -248,7 +275,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
         discord[res$discordant] <- discord[res$discordant] + 1
         npair[res$nonmissing] <- npair[res$nonmissing] + 1
         nds[res$discordant] <- nds[res$discordant] + 1
-        frac[i,j] <- sum(res$discord) / sum(res$nonmissing)
+        frac[i,j] <- sum(res$discordant) / sum(res$nonmissing)
       }
     }
     # discordance by snp
@@ -261,8 +288,7 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
   names(fracList) <- names(ids)
   
   #n.disc.subj = n.subj.with.at.least.one.discordance
-  snp.res <- data.frame(discordant=discord, npair=npair, n.disc.subj=ndsubj, discord.rate=discord/npair)
-  row.names(snp.res) <- row.names(snps)
+  snp.res <- cbind(snps, discordant=discord, npair=npair, n.disc.subj=ndsubj, discord.rate=discord/npair)
   
   discord.res <- list()
   discord.res$discordance.by.snp <- snp.res
@@ -336,21 +362,16 @@ duplicateDiscordanceAcrossDatasets <- function(genoData1, genoData2,
 
 
 minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
-                                         subjName.cols, snpName.cols,
+                                         match.snps.on=c("position", "alleles"),
+                                         subjName.cols, snpName.cols=NULL,
                                          missing.fail=TRUE,
-                                         scan.exclude1=NULL,scan.exclude2=NULL,
+                                         scan.exclude1=NULL, scan.exclude2=NULL,
+                                         snp.exclude1=NULL, snp.exclude2=NULL,
                                          snp.include=NULL, verbose=TRUE) {
-  # check that both genoData objects have subjName, snpName
-  stopifnot(hasScanVariable(genoData1, subjName.cols[1]))
-  stopifnot(hasSnpVariable(genoData1, snpName.cols[1]))
-  stopifnot(hasScanVariable(genoData2, subjName.cols[2]))
-  stopifnot(hasSnpVariable(genoData2, snpName.cols[2]))
-
-  if ("Y" %in% c(getChromosome(genoData1, char=TRUE))) {
-    if (!hasSex(genoData1)) {
-      stop("sex is required for checking Y chromosome")
-    }
-  }
+    
+  subjName.cols <- .checkNameCols(subjName.cols)  
+  if (!is.null(snpName.cols)) snpName.cols <- .checkNameCols(snpName.cols)
+  .initialChecks(genoData1, genoData2, match.snps.on, subjName.cols, snpName.cols)
   
   # find duplicate scans
   ids <- .duplicatePairs(genoData1, genoData2, subjName.cols,
@@ -362,10 +383,10 @@ minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
   }
 
   # find common snps
-  snps <- .commonSnps(genoData1, genoData2, snpName.cols,
-                      snp.include)
-  if (is.null(snps)) {
-    warning("no common snps found; check snpName.cols")
+  snps <- .commonSnps(genoData1, genoData2, match.snps.on, snpName.cols,
+                      snp.exclude1, snp.exclude2, snp.include)
+  if (nrow(snps) == 0) {
+    warning("no common snps found; check match.snps.on and snpName.cols")
     return(NULL)
   }
   
@@ -405,8 +426,7 @@ minorAlleleDetectionAccuracy <- function(genoData1, genoData2,
   specificity <- trueNeg / (trueNeg + falsePos)
   positivePredictiveValue <- truePos / (truePos + falsePos)
   negativePredictiveValue <- trueNeg / (trueNeg + falseNeg)
-  res <- data.frame(npair, sensitivity, specificity,
-                    positivePredictiveValue, negativePredictiveValue)
-  row.names(res) <- row.names(snps)
+  res <- cbind(snps, npair, sensitivity, specificity,
+               positivePredictiveValue, negativePredictiveValue)
   return(res)
 }

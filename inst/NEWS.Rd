@@ -423,7 +423,11 @@
     \item allowed truncate to be a numeric value or TRUE in qqPlot
   }
 }
-
+\section{Changes in version 1.11.16}{
+  \itemize{
+    \item expanded matching options in duplicateDiscordanceAcrossDatasets
+  }
+}
 
 
 
