@@ -428,6 +428,11 @@
     \item expanded matching options in duplicateDiscordanceAcrossDatasets
   }
 }
+\section{Changes in version 1.11.17}{
+  \itemize{
+    \item removed duplicated .probToDosage function from ncdfImputedDosage.R source file
+  }
+}
 
 
 

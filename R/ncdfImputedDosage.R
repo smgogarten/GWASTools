@@ -1,21 +1,3 @@
-.probToDosage <- function(probs, BB=TRUE) {
-  if (BB & ncol(probs) %% 3 != 0) stop("invalid probability file - there are not 3 columns per row")
-  if (!BB & ncol(probs) %% 2 != 0) stop("invalid probability file - there are not 2 columns per row")
-
-  if (BB) {
-    AAprob <- probs[,c(TRUE,FALSE,FALSE),drop=FALSE]
-    ABprob <- probs[,c(FALSE,TRUE,FALSE),drop=FALSE]
-  } else {
-    AAprob <- probs[,c(TRUE,FALSE),drop=FALSE]
-    ABprob <- probs[,c(FALSE,TRUE),drop=FALSE]
-  }
-
-  # calculate A allele dosage
-  dosage <- 2*AAprob + ABprob
-
-  return(dosage)
-}
-
 ncdfImputedDosage <- function(input.files, ncdf.filename, chromosome,
                               input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
                               input.dosage=FALSE, block.size=5000,
