@@ -27,13 +27,23 @@ test_GdsReader <- function() {
   checkTrue(is(getVariable(obj, "var1"), "vector"))
   checkTrue(is(var3, "matrix"))
   
+  
   # file errors
   checkException(GdsReader())
-  checkException(GdsReader("foo"))
-
+  checkException(GdsReader("foo")) 
+  
   close(obj)
+  
+  # using an existing gds object
+  gds <- openfn.gds(file)
+  obj <- GdsReader(gds)
+  checkIdentical(c("var1", "var2", "var3"), getVariableNames(obj))
+  closefn.gds(gds)
+  
   unlink(file)
 }
+
+
 
 test_GdsReader_attr <- function() {
   file <- tempfile()

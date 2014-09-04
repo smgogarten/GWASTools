@@ -3,8 +3,13 @@
 # constructor
 GdsReader <- function(filename) {
   if (missing(filename)) stop("filename is required")
-  if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
-  handler <- openfn.gds(filename)
+  if (is(filename, 'gds.class')) {
+    handler <- filename
+    filename <- handler$filename
+  } else {
+    if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
+    handler <- openfn.gds(filename)
+  }
   new("GdsReader", filename=filename, handler=handler)
 }
 

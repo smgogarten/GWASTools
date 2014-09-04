@@ -433,6 +433,12 @@
     \item removed duplicated .probToDosage function from ncdfImputedDosage.R source file
   }
 }
+\section{Changes in version 1.11.18}{
+  \itemize{
+    \item patch from Karl Forner to allow use of open gds objects in
+    contructors for GdsReader and GdsGenotypeReader
+  }
+}
 
 
 

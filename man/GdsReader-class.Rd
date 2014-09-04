@@ -21,9 +21,10 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GdsReader(filename)}:
+      \code{GdsReader(filename, ...)}:
 
-      \code{filename} must be the path to a GDS file.
+      \code{filename} must be the path to a GDS file or an already opened 
+      gds object.
 
       The \code{GdsReader} constructor creates and returns a
       GdsReader instance pointing to this file.

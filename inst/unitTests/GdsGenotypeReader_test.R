@@ -50,6 +50,12 @@ test_GdsGenotypeReader <- function() {
   checkIdentical(rep(c(1:22,"X","Y","XY","M"), each=10), chromChar)
   close(obj)
   
+  # check using an existing gds object
+  gds <- openfn.gds(file)
+  obj <- GdsGenotypeReader(gds)
+  checkIdentical(snp, getSnpID(obj))
+  closefn.gds(gds)
+  
   # check exception with incorrect dimensions
   gds <- openfn.gds(file, readonly=FALSE)
   write.gdsn(index.gdsn(gds, "snp.id"), 1:10)

@@ -35,8 +35,8 @@
     \item{}{
       \code{GdsGenotypeReader(filename, genotypeDim)}:
       
-      \code{filename} must be the path to a GDS file.  The GDS
-      file must contain the following variables:
+      \code{filename} must be the path to a GDS file or a gds object.  
+      The GDS file must contain the following variables:
       \itemize{
 	\item 'snp.id': a unique integer vector of snp ids
 	\item 'snp.chromosome':  integer chromosome codes
