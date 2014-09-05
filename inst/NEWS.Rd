@@ -439,6 +439,12 @@
     contructors for GdsReader and GdsGenotypeReader
   }
 }
+\section{Changes in version 1.11.19}{
+  \itemize{
+    \item convertNcdfGds will not write entire snp and sample
+    annotations to file
+  }
+}
 
 
 

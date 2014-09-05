@@ -42,6 +42,7 @@ export(
     IntensityData,
 
     ## Ordinary functions (i.e. not generic):
+    addSampleData,
     alleleFrequency,
     anomSegmentBAF,
     anomFilterBAF,
@@ -64,6 +65,7 @@ export(
     convertGdsNcdf,
     convertNcdfGds,
     convertVcfGds,
+    createDataFile,
     duplicateDiscordance,
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,

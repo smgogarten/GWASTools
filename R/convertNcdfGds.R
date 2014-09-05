@@ -26,7 +26,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename,
 
         # open GDS file
         gdsobj <- openfn.gds(gds.filename)
-        
+
 	# read data from a GDS file
 	snp.id <- read.gdsn(index.gdsn(gdsobj, "snp.id"))
 	if (!is.numeric(snp.id)) snp.id <- 1:length(snp.id)
@@ -45,7 +45,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename,
 
 	# create the NetCDF file
 	ncfile <- create.ncdf(ncdf.filename, list(varID, varpos, varchr, vargeno))
-        
+
 	# add variable data
 	if (verbose) message(date(), "\t\twriting position and chromosome ...\n")
 	put.var.ncdf(ncfile, varpos, read.gdsn(index.gdsn(gdsobj, "snp.position")))
@@ -159,7 +159,7 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
                 put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "M", MchromCode(snp.annot))
                 put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(snp.annot))
 	}
-        
+
 	# sync file
 	sync.gds(gfile)
 
@@ -186,24 +186,10 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# sync file
 	sync.gds(gfile)
 
-	# add "sample.annot"
-	if (!is.null(sample.annot))
-	{
-		add.gdsn(gfile, "sample.annot", getAnnotation(sample.annot), compress=zipflag, closezip=TRUE)
-		if (verbose)
-			message(date(), "\tstore sample.annot\n")
-	}
-	# add "snp.annot"
-	if (!is.null(snp.annot))
-	{
-		add.gdsn(gfile, "snp.annot", getAnnotation(snp.annot), compress=zipflag, closezip=TRUE)
-		if (verbose)
-			message(date(), "\tstore snp.annot")
-	}
-
 	# close files
 	closefn.gds(gfile)
 	close.ncdf(nc)
+        cleanup.gds(gds.filename)
 
 	if (verbose)
 		message(date(), "\tend convertNcdfGds.\n")
@@ -219,7 +205,7 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 #
 #    ncdf.filename  --  netCDF file name of genotype
 #    gds.filename  --  CoreArray gds file name of genotype
-#    
+#
 #############################################################################
 
 checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
@@ -270,7 +256,7 @@ checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 			message(sprintf("The %dth sample error!", i))
                         return(FALSE)
                       }
-		if (i %% 500 == 0) 
+		if (i %% 500 == 0)
 			if (verbose) message(date(), "\t", i, "OK!\n")
 	}
 

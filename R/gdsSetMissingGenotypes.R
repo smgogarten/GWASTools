@@ -5,7 +5,7 @@ gdsSetMissingGenotypes <- function(
 	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
         zipflag = "ZIP.max",
         verbose=TRUE) {
-  
+
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
 
   gds.old <- GdsGenotypeReader(parent.file)
@@ -20,7 +20,7 @@ gdsSetMissingGenotypes <- function(
   }
 
   gfile <- createfn.gds(new.file)
-  
+
   add.gdsn(gfile, "sample.id", sample.include, compress=zipflag, closezip=TRUE)
   add.gdsn(gfile, "snp.id", snpID, compress=zipflag, closezip=TRUE)
   if (hasVariable(gds.old, "snp.rs.id")) {
@@ -40,13 +40,13 @@ gdsSetMissingGenotypes <- function(
   put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "XY", XYchromCode(gds.old))
   put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "Y", YchromCode(gds.old))
   put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "M", MchromCode(gds.old))
-  put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(gds.old))     
+  put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(gds.old))
   sync.gds(gfile)
 
   gGeno <- add.gdsn(gfile, "genotype", storage="bit2",
                     valdim=c(length(snpID), length(sample.include)))
   put.attr.gdsn(gGeno, "snp.order")
-  
+
   ind.old <- which(scanID %in% sample.include)
   for (ind.new in 1:length(sample.include)) {
     if (verbose & ind.new%%10==0) message(paste("sample", ind.new, "of", length(sample.include)))
@@ -64,8 +64,9 @@ gdsSetMissingGenotypes <- function(
     geno[!(geno %in% c(0,1,2))] <- 3
     write.gdsn(gGeno, geno, start=c(1,ind.new), count=c(-1,1))
   }
-  
+
   closefn.gds(gfile)
   close(gds.old)
+  cleanup.gds(new.file)
   return(invisible(NULL))
 }
