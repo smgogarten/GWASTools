@@ -30,7 +30,7 @@ checkIntensityFile <- function(path=".",
         }
 
 	# get sample ids
-	quant.sampid <- getVariable(quantfile, "sampleID", start=1, count=n.scans.loaded)
+	quant.sampid <- getScanID(quantfile, index=1:n.scans.loaded)
 
 	# get snp ids from the netCDF file
 	nc.snpid <- getSnpID(quantfile)
@@ -234,7 +234,7 @@ checkIntensityFile <- function(path=".",
 		# load other intensity variable(s) from ncdf and check against what's in the data file
 		if(m>0) {
 			for(j in 1:m) {
-				z <- getVariable(quantfile, varname=qvars[j], start=c(1,i), count=c(n,1))
+				z <- getVariable(quantfile, varname=qvars[j], snp=c(1,n), scan=c(i,1))
 				z <- z[match(snp2$snpID, nc.snpid)]  # put in the same order as dat
 				dz <- dat[,qvars[j]]
 				if(!all(is.na(z)==is.na(dz)))	{rm(dat); rm(z); inten.chk[[j]][i] <- 0

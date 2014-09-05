@@ -28,7 +28,7 @@ checkGenotypeFile <- function(path=".",
         }
 
 	# get sample and snp ids
-	geno.sampid <- getVariable(genofile, "sampleID", start=1, count=n.scans.loaded)
+	geno.sampid <- getScanID(genofile, index=1:n.scans.loaded)
 	nc.snpid <- getSnpID(genofile)
 	
 	# get sample info and file names
@@ -146,7 +146,7 @@ checkGenotypeFile <- function(path=".",
 		if(!all(snp2$snpName==dat$snp)) { rm(dat); snp.order[i] <- 0; next} else {snp.order[i] <- 1}
 
 		#load genotypes from ncdf
-		geno <- getGenotype(genofile, start=c(1,i), count=c(n,1))
+		geno <- getGenotype(genofile, snp=c(1,n), scan=c(i,1))
 
 		#put in same order as snps in raw data file
 		geno <- geno[match(snp2$snpID, nc.snpid)]
