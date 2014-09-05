@@ -87,10 +87,10 @@ addSampleData <- function(path=".",
     genofile <- .open(filename, file.type)
 
     ## check on variables to read and those in the data file
-    intensity.vars <-  c("quality", "X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq","LogRRatio")
 
     ## check col.nums
     col.nums <- col.nums[!is.na(col.nums)]
+    intensity.vars <-  c("quality", "X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq","LogRRatio")
     if(!all(names(col.nums) %in% c("snp", "sample", "geno", "a1", "a2", intensity.vars))) stop("problem with col.nums vector names")
     if(!is.integer(col.nums)) stop("col.nums vector class is not integer")
     if(!("snp" %in% names(col.nums))) stop("snp id missing in col.nums")

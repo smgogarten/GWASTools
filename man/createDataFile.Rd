@@ -71,7 +71,7 @@ The function creates a shell GDS or netCDF file to which data can subsequently w
 \author{
 Stephanie Gogarten, Cathy Laurie
 }
-\seealso{\code{\link{ncdf}}, \code{\link{ncdfAddData}}, \code{\link{ncdfSubset}}
+\seealso{\pkg{\link{gdsfmt}}, \pkg{\link{ncdf}}, \code{\link{addSampleData}}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -60,6 +60,8 @@ export(
     BAFfromGenotypes,
     batchChisqTest,
     batchFisherTest,
+    checkGenotypeFile,
+    checkIntensityFile,
     checkNcdfGds,
     chromIntensityPlot,
     convertGdsNcdf,
