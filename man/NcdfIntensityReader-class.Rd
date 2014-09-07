@@ -30,7 +30,7 @@
 
 \description{
   The NcdfIntensityReader class is an extension of the NcdfReader class
-  specific to reading genotype data stored in NetCDF files.
+  specific to reading intensity data stored in NetCDF files.
 }
 
 \section{Extends}{
@@ -41,7 +41,7 @@
   \describe{
     \item{}{
       \code{NcdfIntensityReader(filename)}:
-      
+
       \code{filename} must be the path to a NetCDF file.  The NetCDF
       file must contain the following variables:
       \itemize{
@@ -57,7 +57,7 @@
       26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
-      
+
       The NetCDF file should also contain at least one of the following
       variables with dimensions ('snp','sample'):
       \itemize{
@@ -83,7 +83,7 @@
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.  If snp
       and/or is scan omitted, the entire variable is read.
-      
+
       See \code{\link{NcdfReader}} for additional methods.
 
   \describe{
@@ -96,7 +96,7 @@
     \item{}{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
@@ -110,12 +110,12 @@
     \item{}{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getQuality(object)}: Extracts quality scores.
@@ -124,7 +124,7 @@
       represented as \code{NA}.
     }
     \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'quality'.
-      \code{hasQuality(object)}: 
+      \code{hasQuality(object)}:
     }
     \item{}{
       \code{getX(object)}: Extracts X intensity.
@@ -133,7 +133,7 @@
       represented as \code{NA}.
     }
     \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'X'.
-      \code{hasX(object)}: 
+      \code{hasX(object)}:
     }
     \item{}{
       \code{getY(object)}: Extracts Y intensity.
@@ -142,7 +142,7 @@
       represented as \code{NA}.
     }
     \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'Y'.
-      \code{hasY(object)}: 
+      \code{hasY(object)}:
     }
     \item{}{
       \code{getBAlleleFreq(object)}: Extracts B allele frequency.
@@ -151,7 +151,7 @@
       represented as \code{NA}.
     }
     \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'BAlleleFreq'.
-      \code{hasBAlleleFreq(object)}: 
+      \code{hasBAlleleFreq(object)}:
     }
     \item{}{
       \code{getLogRRatio(object)}: Extracts Log R Ratio.
@@ -160,7 +160,7 @@
       represented as \code{NA}.
     }
     \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'LogRRatio'.
-      \code{hasLogRRatio(object)}: 
+      \code{hasLogRRatio(object)}:
     }
     \item{}{
       \code{getVariable(object, varname, snp, scan)}: Returns the
@@ -187,7 +187,7 @@
        chromosome.
      }
      \item{}{
-       \code{MchromCode(object)}: Returns the integer code for 
+       \code{MchromCode(object)}: Returns the integer code for
        mitochondrial SNPs.
      }
   }

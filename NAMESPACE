@@ -18,10 +18,11 @@ exportClasses(
     ScanAnnotationSQLite,
     NcdfReader,
     NcdfGenotypeReader,
+    NcdfIntensityReader,
     GdsReader,
     GdsGenotypeReader,
+    GdsIntensityReader,
     MatrixGenotypeReader,
-    NcdfIntensityReader,
     GenotypeData,
     IntensityData
 )
@@ -34,10 +35,11 @@ export(
     ScanAnnotationSQLite,
     NcdfReader,
     NcdfGenotypeReader,
+    NcdfIntensityReader,
     GdsReader,
     GdsGenotypeReader,
+    GdsIntensityReader,
     MatrixGenotypeReader,
-    NcdfIntensityReader,
     GenotypeData,
     IntensityData,
 

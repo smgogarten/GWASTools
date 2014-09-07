@@ -15,7 +15,7 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-ScanAnnotationDataFrame.R Methods-SnpAnnotationDataFrame.R
   Methods-ScanAnnotationSQLite.R Methods-SnpAnnotationSQLite.R
   Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
-  Methods-GdsReader.R Methods-GdsGenotypeReader.R
+  Methods-GdsReader.R Methods-GdsGenotypeReader.R Methods-GdsIntensityReader.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
   createDataFile.R addSampleData.R checkGenotypeFile.R checkIntensityFile.R

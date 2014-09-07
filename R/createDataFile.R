@@ -47,7 +47,7 @@
     gds <- createfn.gds(filename)
 
     ## add standard variables
-    add.gdsn(gds, "sample.id", storage="integer", valdim=0, compress="") # use valdim=0 then append?
+    add.gdsn(gds, "sample.id", storage="integer", valdim=0, compress="") # use valdim=0 then append
     add.gdsn(gds, "snp.id", snp.annotation$snpID, compress=compress, closezip=TRUE)
     add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
              compress=compress, closezip=TRUE)
@@ -67,7 +67,7 @@
         put.attr.gdsn(geno.node, "snp.order")
     }
     for (v in setdiff(variables, "genotype")) {
-        add.gdsn(gds, v, storage=precision, valdim=c(n.snps, 0), compress=compress)
+        add.gdsn(gds, v, storage=precision, valdim=c(n.snps, 0), compress="")
     }
 
     sync.gds(gds)

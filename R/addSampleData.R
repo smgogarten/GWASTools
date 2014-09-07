@@ -7,6 +7,8 @@
     }
 }
 
+.varmanes <- function(x) UseMethod(".varnames")
+.varnames.gds.class <- function(x) ls.gdsn(x)
 .varnames <- function(genofile) {
     if (is(genofile, "gds.class")) {
         ls.gdsn(genofile)
@@ -50,13 +52,17 @@
 }
 
 .close <- function(genofile) {
+#.close <- function(genofile, compress) {
     if (is(genofile, "gds.class")) {
-        ## finish compression of nodes
-        vars <- .varnames(genofile)
-        vars <- vars[!grepl("^snp", vars)] # snp nodes already compressed
-        for (v in vars) {
-            readmode.gdsn(index.gdsn(genofile, v))
-        }
+        ## ## compress nodes
+        ## vars <- .varnames(genofile)
+        ## vars <- vars[!grepl("^snp", vars)] # snp nodes already compressed
+        ## for (v in vars) {
+        ##     node <- index.gdsn(genofile, v)
+        ##     compression.gdsn(node, compress)
+        ##     readmode.gdsn(node)
+        ## }
+        sync.gds(genofile)
 
         ## close and cleanup
         filename <- genofile$filename
@@ -79,6 +85,7 @@ addSampleData <- function(path=".",
                           scan.name.in.file,
                           scan.start.index = 1,
                           diagnostics.filename = "addSampleData.diagnostics.RData",
+                          #compress = "ZIP.max",
                           verbose = TRUE) {
 
     ## get file type
@@ -218,6 +225,7 @@ addSampleData <- function(path=".",
         }
     }	## end of for loop
     ## finish up
+    #.close(genofile, compress)
     .close(genofile)
     diagnostics <- list(read.file, row.num, samples, sample.match, missg, snp.chk, chk)
     names(diagnostics) <- c("read.file", "row.num", "samples", "sample.match", "missg", "snp.chk", "chk")

@@ -234,10 +234,45 @@ setClass("NcdfIntensityReader",
                    XYchromCode = 24L,
                    MchromCode = 26L))
 
+# GdsIntensityReader
+# Reads intensity data stored in netCDF format
+setClass("GdsIntensityReader",
+         contains = "GdsReader",
+         representation(snpDim = "character",
+                        scanDim = "character",
+                        snpIDvar = "character",
+                        chromosomeVar = "character",
+                        positionVar = "character",
+                        scanIDvar = "character",
+                        qualityVar = "character",
+                        xVar = "character",
+                        yVar = "character",
+                        bafVar = "character",
+                        lrrVar = "character",
+                        autosomeCode = "integer",
+                        XchromCode = "integer",
+                        YchromCode = "integer",
+                        XYchromCode = "integer",
+                        MchromCode = "integer"),
+         prototype(snpIDvar = "snp.id",
+                   chromosomeVar = "snp.chromosome",
+                   positionVar = "snp.position",
+                   scanIDvar = "sample.id",
+                   qualityVar = "quality",
+                   xVar = "X",
+                   yVar = "Y",
+                   bafVar = "BAlleleFreq",
+                   lrrVar = "LogRRatio",
+                   autosomeCode = 1:22,
+                   XchromCode = 23L,
+                   YchromCode = 25L,
+                   XYchromCode = 24L,
+                   MchromCode = 26L))
+
 # IntensityReader
 # Generic reader class
 # Add more Reader classes as necessary
-setClassUnion("IntensityReader", c("NcdfIntensityReader"))
+setClassUnion("IntensityReader", c("NcdfIntensityReader", "GdsIntensityReader"))
 
 # IntensityData
 setClass("IntensityData",
