@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.11.18
+Version: 1.11.19
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -18,8 +18,7 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-GdsReader.R Methods-GdsGenotypeReader.R Methods-GdsIntensityReader.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
-  createDataFile.R addSampleData.R checkGenotypeFile.R checkIntensityFile.R
-  createDataFile_v2.R
+  createDataFile.R checkGenotypeFile.R checkIntensityFile.R
   ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R
   ncdfCreate.R ncdfSubset.R ncdfSubsetCheck.R
   BAFfromClusterMeans.R BAFfromGenotypes.R

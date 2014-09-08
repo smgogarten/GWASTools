@@ -24,7 +24,7 @@ checkIntensityFile <- function(path=".",
         file.type <- match.arg(file.type)
 
         if (file.type == "gds") {
-            stop("not implemented yet")
+            quantfile <- GdsIntensityReader(filename)
         } else if (file.type == "ncdf") {
             quantfile <- NcdfIntensityReader(filename)
         }
@@ -38,7 +38,7 @@ checkIntensityFile <- function(path=".",
 	# get sample info and file names
         stopifnot(all(c("scanID", "scanName", "file") %in% names(scan.annotation)))
 	
-	if(any(!is.element(quant.sampid, scan.annotation$scanID))) stop("some sample id(s) in ncdf file not found in sample annotation dataframe")
+	if(any(!is.element(quant.sampid, scan.annotation$scanID))) stop("some sample id(s) in data file not found in sample annotation dataframe")
 	scan.annotation <- scan.annotation[match(quant.sampid, scan.annotation$scanID),]
 
 	if("inten.file" %in% names(scan.annotation)) {
@@ -119,8 +119,6 @@ checkIntensityFile <- function(path=".",
 	m <- length(qvars)
 
 	inten.chk <- inten.chk[is.element(names(inten.chk), qvars)]	
-
-	if(is.null(end)) end <- nscan(quantfile)
 
 	nsx <- length(check.scan.index)
 

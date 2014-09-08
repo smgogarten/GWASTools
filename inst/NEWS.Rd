@@ -443,6 +443,7 @@
   \itemize{
     \item convertNcdfGds will not write entire snp and sample
     annotations to file
+    \item createDataFile replaces ncdfCreate and ncdfAddData
   }
 }
 

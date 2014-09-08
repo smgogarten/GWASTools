@@ -44,7 +44,6 @@ export(
     IntensityData,
 
     ## Ordinary functions (i.e. not generic):
-    addSampleData,
     alleleFrequency,
     anomSegmentBAF,
     anomFilterBAF,

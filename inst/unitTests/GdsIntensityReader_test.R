@@ -5,18 +5,16 @@
   samp <- illumina_scan_annot
   samp <- samp[samp$file %in% list.files(path),]
   gdsfile <- tempfile()
-  createDataFile(snp, gdsfile, file.type="gds",
-                 variables=c("quality","X","Y"),
-                 n.samples=nrow(samp))
 
-  snp <- snp[,c("snpID", "rsID")]
-  names(snp) <- c("snpID", "snpName")
+  snp <- snp[,c("snpID", "rsID", "chromosome", "position", "alleleA", "alleleB")]
+  names(snp)[1:2] <- c("snpID", "snpName")
   samp <- samp[,c("scanID", "genoRunID", "file")]
   names(samp) <- c("scanID", "scanName", "file")
   col.nums <- as.integer(c(1,2,5,16,17))
   names(col.nums) <- c("snp", "sample", "quality", "X", "Y")
   diagfile <- tempfile()
-  res <- addSampleData(path, gdsfile, file.type="gds", snp, samp, sep.type=",",
+  res <- createDataFile(path, gdsfile, file.type="gds", variables=c("quality","X","Y"),
+                        snp, samp, sep.type=",",
                        skip.num=11, col.total=21, col.nums=col.nums,
                        scan.name.in.file=1, diagnostics.filename=diagfile)
   unlink(diagfile)
