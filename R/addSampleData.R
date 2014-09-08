@@ -7,71 +7,51 @@
     }
 }
 
-.varmanes <- function(x) UseMethod(".varnames")
+.varnames <- function(x) UseMethod(".varnames", x)
 .varnames.gds.class <- function(x) ls.gdsn(x)
-.varnames <- function(genofile) {
-    if (is(genofile, "gds.class")) {
-        ls.gdsn(genofile)
-    } else if (is(genofile, "ncdf")) {
-        names(genofile$var)
-    }
-}
+.varnames.ncdf <- function(x) names(x$var)
 
-.snpid <- function(genofile) {
-    if (is(genofile, "gds.class")) {
-        read.gdsn(index.gdsn(genofile, "snp.id"))
-    } else if (is(genofile, "ncdf")) {
-        genofile$dim$snp$vals
-    }
-}
+.snpid <- function(x) UseMethod(".snpid", x)
+.snpid.gds.class <- function(x) read.gdsn(index.gdsn(x, "snp.id"))
+.snpid.ncdf <- function(x) x$dim$snp$vals
 
-.addDataGds <- function(genofile, dat, sample.id, vars) {
-    append.gdsn(index.gdsn(genofile, "sample.id"), val=sample.id)
+.addData <- function(x, ...) UseMethod(".addData", x)
+.addData.gds.class <- function(x, dat, sample.id, vars, ...) {
+    append.gdsn(index.gdsn(x, "sample.id"), val=sample.id)
     for (v in vars) {
         ## set missing code for genotype
         if (v == "genotype") dat[[v]][is.na(dat[[v]])] <- 3
-        append.gdsn(index.gdsn(genofile, v), val=dat[[v]])
+        append.gdsn(index.gdsn(x, v), val=dat[[v]])
     }
 }
 
-.addDataNcdf <- function(genofile, dat, sample.id, vars, k, n) {
-    put.var.ncdf(genofile, "sampleID", vals=sample.id, start=k, count=1)
+.addData.ncdf <- function(x, dat, sample.id, vars, k, n) {
+    put.var.ncdf(x, "sampleID", vals=sample.id, start=k, count=1)
     for (v in vars) {
         ## set missing code for genotype
         if (v == "genotype") dat[[v]][is.na(dat[[v]])] <- -1
-        put.var.ncdf(genofile, v, vals=dat[[v]], start=c(1,k), count=c(n,1))
+        put.var.ncdf(x, v, vals=dat[[v]], start=c(1,k), count=c(n,1))
     }
 }
 
-.addData <- function(genofile, dat, sample.id, vars, k, n) {
-    if (is(genofile, "gds.class")) {
-        .addDataGds(genofile, dat, sample.id, vars)
-    } else if (is(genofile, "ncdf")) {
-        .addDataNcdf(genofile, dat, sample.id, vars, k, n)
-    }
-}
-
-.close <- function(genofile) {
-#.close <- function(genofile, compress) {
-    if (is(genofile, "gds.class")) {
+.close <- function(x, ...) UseMethod(".close", x)
+.close.gds.class <- function(x) {
         ## ## compress nodes
-        ## vars <- .varnames(genofile)
+        ## vars <- .varnames(x)
         ## vars <- vars[!grepl("^snp", vars)] # snp nodes already compressed
         ## for (v in vars) {
-        ##     node <- index.gdsn(genofile, v)
+        ##     node <- index.gdsn(x, v)
         ##     compression.gdsn(node, compress)
         ##     readmode.gdsn(node)
         ## }
-        sync.gds(genofile)
+    sync.gds(x)
 
-        ## close and cleanup
-        filename <- genofile$filename
-        closefn.gds(genofile)
-        cleanup.gds(filename)
-    } else if (is(genofile, "ncdf")) {
-        close.ncdf(genofile)
-    }
+    ## close and cleanup
+    filename <- x$filename
+    closefn.gds(x)
+    cleanup.gds(filename)
 }
+.close.ncdf <- function(x) close.ncdf(x)
 
 addSampleData <- function(path=".",
                           filename,

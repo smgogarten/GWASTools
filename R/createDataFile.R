@@ -1,4 +1,32 @@
 
+.checkSnpAnnotation <- function(snp.annotation) {
+    ## check that snp annotation has right columns
+    stopifnot(all(c("snpID", "chromosome", "position") %in% names(snp.annotation)))
+
+    ## make sure all snp annotation columns are integers
+    if (!is(snp.annotation$snpID, "integer")) {
+        snp.annotation$snpID <- as.integer(snp.annotation$snpID)
+        warning(paste("coerced snpID to type integer"))
+    }
+    if (!is(snp.annotation$chromosome, "integer")) {
+        snp.annotation$chromosome <- as.integer(snp.annotation$chromosome)
+        warning(paste("coerced chromosome to type integer"))
+    }
+    if (!is(snp.annotation$position, "integer")) {
+        snp.annotation$position <- as.integer(snp.annotation$position)
+        warning(paste("coerced position to type integer"))
+    }
+
+    ## make sure snpID is unique
+    stopifnot(length(snp.annotation$snpID) == length(unique(snp.annotation$snpID)))
+
+    ## make sure snpID is sorted by chromsome and position
+    stopifnot(all(snp.annotation$snpID == sort(snp.annotation$snpID)))
+    sorted <- order(snp.annotation$chromosome, snp.annotation$position)
+    if (!all(snp.annotation$snpID == snp.annotation$snpID[sorted])) {
+        stop("snpID is not sorted by chromosome and position")
+    }
+}
 
 .createNcdf <- function(snp.annotation, filename, variables, n.samples, precision,
                         array.name, genome.build) {
@@ -91,32 +119,7 @@ createDataFile <- function(snp.annotation,
     ## check variables
     stopifnot(all(variables %in% c("genotype", "quality", "X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq", "LogRRatio")))
 
-    ## check that snp annotation has right columns
-    stopifnot(all(c("snpID", "chromosome", "position") %in% names(snp.annotation)))
-
-    ## make sure all snp annotation columns are integers
-    if (!is(snp.annotation$snpID, "integer")) {
-        snp.annotation$snpID <- as.integer(snp.annotation$snpID)
-        warning(paste("coerced snpID to type integer"))
-    }
-    if (!is(snp.annotation$chromosome, "integer")) {
-        snp.annotation$chromosome <- as.integer(snp.annotation$chromosome)
-        warning(paste("coerced chromosome to type integer"))
-    }
-    if (!is(snp.annotation$position, "integer")) {
-        snp.annotation$position <- as.integer(snp.annotation$position)
-        warning(paste("coerced position to type integer"))
-    }
-
-    ## make sure snpID is unique
-    stopifnot(length(snp.annotation$snpID) == length(unique(snp.annotation$snpID)))
-
-    ## make sure snpID is sorted by chromsome and position
-    stopifnot(all(snp.annotation$snpID == sort(snp.annotation$snpID)))
-    sorted <- order(snp.annotation$chromosome, snp.annotation$position)
-    if (!all(snp.annotation$snpID == snp.annotation$snpID[sorted])) {
-        stop("snpID is not sorted by chromosome and position")
-    }
+    .checkSnpAnnotation(snp.annotation)
 
     if (file.type == "gds") {
         ## don't need n.samples since we will use append later
