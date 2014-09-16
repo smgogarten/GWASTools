@@ -3,6 +3,35 @@
 #####
 
 
+.setSCF <- function(scan.chromosome.filter, scanID, chrom, ychrom.code, sex, cvnames, scan.exclude) {
+
+        # set or check scan.chromosome.filter
+        if (is.null(scan.chromosome.filter)) {
+          scan.chromosome.filter <- matrix(TRUE, nrow=length(scanID), ncol=max(chrom),
+                                           dimnames=list(scanID, 1:max(chrom)))
+          if (ncol(scan.chromosome.filter) >= ychrom.code) {
+              scan.chromosome.filter[sex=="F", ychrom.code] <-  FALSE
+          }
+        } else {
+          if(length(scanID) != nrow(scan.chromosome.filter)) stop("number of rows of scan.chromosome.filter does not match number of scans in genoData")
+          if(!all(rownames(scan.chromosome.filter)==scanID)) stop("scan.chromosome.filter rows are out of order")
+          if(!all(is.element(colnames(scan.chromosome.filter), unique(chrom)))) stop("column names of scan.chromosome.filter must be chromosome numbers")
+          if (ncol(scan.chromosome.filter) >= ychrom.code) {
+              if(any(scan.chromosome.filter[sex=="F", ychrom.code])) stop("scan.chromosome.filter must be all FALSE for Y chromosome for females")
+          }
+        }
+	# if sex is in the model, make scan.chromosome.filter=FALSE for all subjects for the Y chr
+	if(is.element("sex", cvnames) & ncol(scan.chromosome.filter) >= ychrom.code) {
+            scan.chromosome.filter[,ychrom.code] <- FALSE
+        }
+
+        if (!is.null(scan.exclude)) {
+          scan.chromosome.filter[(scanID %in% scan.exclude),] <- FALSE
+        }
+
+        return(scan.chromosome.filter)
+}
+
 assocTestCPH <- function(
 	genoData,	# GenotypeData object containing sex and phenotypes
 	event,	# name of variable in genoData for event to analyze
@@ -14,7 +43,7 @@ assocTestCPH <- function(
 	maf.filter = FALSE,  # whether to filter results returned using maf  > 75/2n where n = number of events
 	GxE = NULL,     # name of the covariate to use for E if genotype-by-environment (i.e. SNP:E) model is to be analyzed, in addition to the main effects (E can be a covariate interaction)
 	strata.vars = NULL,  # name of variable to stratify on for a stratified analysis (use NULL if no stratified analysis needed)
-	chromosome.set = NULL, 	# vector of chromosome numbers (corresponding to format of "chromosome" in genoData - i.e. integer codes)	
+	chromosome.set = NULL, 	# vector of chromosome numbers (corresponding to format of "chromosome" in genoData - i.e. integer codes)
 	block.size = 5000,	# number of SNPs from a given chromosome to read in one block from genoData
         verbose = TRUE,
         outfile = NULL
@@ -40,8 +69,8 @@ assocTestCPH <- function(
 
         # chromosome.set check
         if(is.null(chromosome.set)){
-          chromosome.set <- unique(chrom)    
-          allchrom <- TRUE   
+          chromosome.set <- unique(chrom)
+          allchrom <- TRUE
 	} else {
           stopifnot(all(chromosome.set %in% unique(chrom)))
           allchrom <- FALSE
@@ -51,28 +80,12 @@ assocTestCPH <- function(
 
 	if(!all(is.element(sample.dat$sex,c("M","F")))) stop("sex must be coded as M and F")
 
-        # set or check scan.chromosome.filter
-        if (is.null(scan.chromosome.filter)) {
-          scan.chromosome.filter <- matrix(TRUE, nrow=length(scanID), ncol=max(chrom),
-                                           dimnames=list(scanID, 1:max(chrom)))
-          scan.chromosome.filter[sample.dat$sex=="F", YchromCode(genoData)] <-  FALSE
-        } else {
-          if(length(scanID) != nrow(scan.chromosome.filter)) stop("number of rows of scan.chromosome.filter does not match number of scans in genoData")
-          if(!all(rownames(scan.chromosome.filter)==scanID)) stop("scan.chromosome.filter rows are out of order")
-          if(!all(is.element(colnames(scan.chromosome.filter), unique(chrom)))) stop("column names of scan.chromosome.filter must be chromosome numbers")
-          if(any(scan.chromosome.filter[sample.dat$sex=="F", YchromCode(genoData)])) stop("scan.chromosome.filter must be all FALSE for Y chromosome for females")
-        }
-	# if sex is in the model, make scan.chromosome.filter=FALSE for all subjects for the Y chr
-	if(is.element("sex", cvnames))  scan.chromosome.filter[,YchromCode(genoData)] <- FALSE
-
-        if (!is.null(scan.exclude)) {
-          scan.chromosome.filter[(scanID %in% scan.exclude),] <- FALSE
-        }
-       
 	if(!is.null(GxE)) {
           if( length(GxE)!=1 | !is.element(GxE, covars)) stop("GxE should be a single covariate")
         }
 
+        scan.chromosome.filter <- .setSCF(scan.chromosome.filter, scanID, chrom, YchromCode(genoData),
+                                          sample.dat$sex, cvnames, scan.exclude)
 
 	model <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype"))
 	if(!is.null(GxE)) model2 <- as.formula(paste("surv ~ ", paste(covars, collapse=" + "), " + gtype +", GxE, ":gtype", sep=""))
@@ -106,7 +119,7 @@ assocTestCPH <- function(
 	# for model with SNP interaction
 	if(!is.null(GxE)){
 		res2 <- data.frame(index=tmp, snpID=tmp, chr=tmp, maf=tmp, mafx=tmp, warned=tmp, n.events=tmp, ge.lrtest=tmp, ge.pval=tmp)
-		} else { 
+		} else {
 		res2 <- NULL
 	 }
 
@@ -123,7 +136,7 @@ assocTestCPH <- function(
 	####################  Loop over chromosomes  #######################################
 
 	for(chr in chromosome.set){
-		
+
 		sel <- scan.chromosome.filter[, chr]  # logical for selecting samples
 		pheno <- sample.dat[sel,]  # select samples
 
@@ -144,24 +157,24 @@ assocTestCPH <- function(
                 blk[1,"start"] <- cs
 
                 if(nb==1) { blk[1,"count"] <- cn
-		} else { 
+		} else {
 			blk[1:(nb-1), "count"] <- block.size
 			blk[nb, "count"] <- cn -(nb-1)*block.size
 			for(i in 2:nb) blk[i,"start"] <- blk[i-1,"start"] + blk[i-1,"count"]
 		}
- 
-	
+
+
 		###################  Loop over blocks within chromosome ############################
-		
-		for(i in 1:nb){  
+
+		for(i in 1:nb){
 
 			# get genotypic data
 			bs <- blk[i,"start"]; bc <- blk[i,"count"]
                         geno <- getGenotype(genoData, snp=c(bs, bc), scan=c(1,-1))
 			geno <- geno[,sel]  # select samples
-		
+
 			##########################  Loop over SNPs within block  ###############################
-			
+
 			for(j in 1:bc){
 
 				index <- bs + j - 1
@@ -171,7 +184,7 @@ assocTestCPH <- function(
                                 gtype <- geno[j,]
                                 pheno.com <- cbind(pheno, gtype)
                                 pheno.com <- pheno.com[complete.cases(pheno.com),]
-				
+
 				# get MAF
                                 maf <- sum(pheno.com$gtype)/(2*length(pheno.com$gtype))
                                 maf <- min(maf, 1-maf)
@@ -179,19 +192,19 @@ assocTestCPH <- function(
                                 if(chr == XchromCode(genoData)) {  # for X-linked loci
                                         gm <- pheno.com$gtype[pheno.com$sex=="M"]
                                         gf <- pheno.com$gtype[pheno.com$sex=="F"]
-                                        mafx <- (sum(gf) + sum(gm)/2)	/ (2*length(gf) + length(gm))	
-                                        mafx <- min(mafx, 1-mafx)	
+                                        mafx <- (sum(gf) + sum(gm)/2)	/ (2*length(gf) + length(gm))
+                                        mafx <- min(mafx, 1-mafx)
                                 }
-					
+
 				# decide whether to fit the cox model and do so if criterion is met
                                 fit <- !is.na(maf) & maf>0
-                                ne <- sum(pheno.com[,event])	
+                                ne <- sum(pheno.com[,event])
                                 if(maf.filter==TRUE & fit==TRUE) {  # additional maf criterion
                                         fit <- maf*(1-maf) > 75/(2*ne)  # use maf rather than mafx for x chromosome loci here
                                 }
-				#if(chr==XchromCode(genoData)) maf <- mafx  # but record the correct maf in results table	
+				#if(chr==XchromCode(genoData)) maf <- mafx  # but record the correct maf in results table
 
-				if(!fit) {  
+				if(!fit) {
 					res[k,] <- list(index, int.id, chr, maf, mafx, NA, NA, NA, NA, NA, ne)
 					if(!is.null(GxE)){
                                                 res2[k,] <- list(index, int.id, chr, maf, mafx, NA, ne, NA, NA)
@@ -209,29 +222,29 @@ assocTestCPH <- function(
 					}
 					# fit the interaction model
 					if(!is.null(GxE)){
-						cphge <- tryCatch(coxph( model2, data=pheno.com), warning=function(w) TRUE, error=function(e) TRUE)  
+						cphge <- tryCatch(coxph( model2, data=pheno.com), warning=function(w) TRUE, error=function(e) TRUE)
 						if(is.logical(cphge) | is.logical(cph)) {  # i.e. if an error or warning was issued in either model
 							cphge <- TRUE
 							res2[k,] <- list(index, int.id, chr, maf, mafx, cphge, ne, NA, NA)
 						} else {
-							loglik2 <- cphge$loglik[2]	
+							loglik2 <- cphge$loglik[2]
 							lrtest <- -2*(loglik-loglik2)
 							pval <- 1-pchisq(lrtest,1)
 							res2[k,] <- list(index, int.id, chr, maf, mafx, FALSE, ne, lrtest, pval)
 						}
 					} # end GxE if
-						
+
 				}
 				#message(paste("snp", k, "of", nsnp))
-				k <- k + 1		
-										
+				k <- k + 1
+
 			}
 			#########################  End of loop over SNPs within block  ##########################
 			if (verbose) message(paste("block", i, "of", nb, "for chromosome", chr, "and", k-1, "of", nsnp, "SNPs"))
-		}	
+		}
 		######################### End of loop over blocks within chromosome  ####################
 	}
-	##########################  End of loop over chromosomes  #########################			
+	##########################  End of loop over chromosomes  #########################
 
 
     # save the results
@@ -251,7 +264,7 @@ assocTestCPH <- function(
         }
         save(res2, file=fileOut, compress=TRUE);
       }
-      
+
       # save the warnings
       warn <- warnings();
       if (!is.null(warn)) {
@@ -272,5 +285,5 @@ assocTestCPH <- function(
     }
 }
 
-	
+
 

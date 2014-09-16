@@ -446,7 +446,11 @@
     \item createDataFile replaces ncdfCreate and ncdfAddData
   }
 }
-
+\section{Changes in version 1.11.20}{
+  \itemize{
+    \item Fixed bug in assocTestCPH when there is no Y chromosome in the data
+  }
+}
 
 
 
