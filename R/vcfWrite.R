@@ -50,6 +50,9 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
     chrom <- getChromosome(genoData, char=TRUE)
     pos <- getPosition(genoData)
     id <- getSnpVariable(genoData, id.col)
+    ## check for missing values in id
+    id <- as.character(id)
+    id[is.na(id) | id == ""] <- "."
     if (!is.null(ref.allele)) {
         stopifnot(length(ref.allele) == nsnp(genoData))
         stopifnot(all(ref.allele %in% c("A", "B")))
@@ -85,7 +88,7 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
         rm(info.list)
     }
     format <- rep("GT", nsnp(genoData))
-    fixed <- cbind(chrom, pos=as.character(pos), id=as.character(id),
+    fixed <- cbind(chrom, pos=as.character(pos), id=id,
                    ref, alt, qual=as.character(qual), filter,
                    info, format)
     ## subset with snp.exclude
@@ -159,7 +162,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
     alleleA <- getAlleleA(genoData)
 
     ## check
-    
+
     ## open VCF
     vcf <- file(vcf.file, "r")
 
@@ -179,7 +182,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         id <- geno.vcf[,3]
         ref.vcf <- geno.vcf[,4]
         geno.vcf <- geno.vcf[,10:ncol]
-      
+
         ## take the first 3 characters - GT field for diploid genotypes
         geno.vcf <- substr(geno.vcf, 1, 3)
         geno.vcf <- sub("|", "/", geno.vcf, fixed=TRUE)
@@ -190,13 +193,13 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         geno.vcf[geno.vcf == "./."] <- NA
         mode(geno.vcf) <- "integer"
         dimnames(geno.vcf) <- list(id, samples)
-        
+
         ## ## subset on SNPs present in genoData
         ## ref.vcf <- ref.vcf[id %in% snp.id]
         ## id <- id[id %in% snp.id]
         ## samples <- samples[samples %in% samp.id]
         ## geno.vcf <- geno.vcf[id, samples]
-        
+
         count <- nrow(geno.vcf)
         start.orig <- which(snp.id == id[1])
         end.orig <- which(snp.id == id[count])

@@ -451,6 +451,15 @@
     \item Fixed bug in assocTestCPH when there is no Y chromosome in the data
   }
 }
+\section{Changes in version 1.11.21}{
+  \itemize{
+    \item Fixed bug in vcfWrite to output missing data code for ID
+    column
+    \item Data cleaning vignette uses createDataFile instead of
+    ncdfCreate and ncdfAddData
+    \item Data cleaning vignette uses snpgdsOpen and snpgdsClose
+  }
+}
 
 
 

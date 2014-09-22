@@ -84,7 +84,7 @@ test_setInfo <- function() {
 }
 
 test_scan.exclude <- function() {
-    require(VariantAnnotation)    
+    require(VariantAnnotation)
     genoData <- .testGenoData(3,5)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, scan.exclude=c(2,4))
@@ -94,7 +94,7 @@ test_scan.exclude <- function() {
 }
 
 test_snp.exclude <- function() {
-    require(VariantAnnotation)    
+    require(VariantAnnotation)
     genoData <- .testGenoData(5,3)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, snp.exclude=c(2,4))
@@ -104,7 +104,7 @@ test_snp.exclude <- function() {
 }
 
 test_both.exclude <- function() {
-    require(VariantAnnotation)    
+    require(VariantAnnotation)
     genoData <- .testGenoData(4,4)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, scan.exclude=1, snp.exclude=1)
@@ -114,7 +114,7 @@ test_both.exclude <- function() {
 }
 
 test_snp.exclude.blocks <- function() {
-    require(VariantAnnotation)    
+    require(VariantAnnotation)
     genoData <- .testGenoData(10,3)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, snp.exclude=c(2,4), block.size=4)
@@ -132,13 +132,13 @@ test_ref.allele <- function() {
     checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
     checkIdentical(as.character(ref(vcf)), rep("A", 3))
     checkIdentical(as.character(unlist(alt(vcf))), rep("G", 3))
-    
+
     vcfWrite(genoData, newfile, ref=rep("B", 3))
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix("1/1", nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
     checkIdentical(as.character(ref(vcf)), rep("G", 3))
     checkIdentical(as.character(unlist(alt(vcf))), rep("A", 3))
-    
+
     vcfWrite(genoData, newfile, ref=c("A","B","A"))
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix(c("0/0", "1/1", "0/0"), nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
@@ -153,7 +153,7 @@ test_ref.allele <- function() {
     snpgdsVCF2GDS(vcffile, gdsfile)
     gds <- GdsGenotypeReader(gdsfile)
     snp <- data.frame(snpID=getSnpID(gds),
-                      chromosome=getChromosome(gds),
+                      chromosome=as.integer(getChromosome(gds)),
                       position=getPosition(gds),
                       alleleA=getAlleleA(gds),
                       alleleB=getAlleleB(gds),
@@ -207,7 +207,7 @@ test_VA <- function() {
 test_vcfCheck <- function() {
     genoData <- .testGenoData(5,3)
     newfile <- tempfile()
-    vcfWrite(genoData, newfile)            
+    vcfWrite(genoData, newfile)
     vcfCheck(genoData, newfile)
     unlink(newfile)
 }
@@ -215,7 +215,7 @@ test_vcfCheck <- function() {
 test_vcfCheck_ref <- function() {
     genoData <- .testGenoData(5,3)
     newfile <- tempfile()
-    vcfWrite(genoData, newfile, ref.allele=c("A","B","A","B","A"))            
+    vcfWrite(genoData, newfile, ref.allele=c("A","B","A","B","A"))
     vcfCheck(genoData, newfile)
     unlink(newfile)
 }
