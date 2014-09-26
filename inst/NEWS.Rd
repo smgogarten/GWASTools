@@ -460,7 +460,12 @@
     \item Data cleaning vignette uses snpgdsOpen and snpgdsClose
   }
 }
-
+\section{Changes in version 1.11.22}{
+  \itemize{
+    \item convertNcdfGds and convertGdsNcdf will convert files with any
+    variable names (not just genotype)
+  }
+}
 
 
 

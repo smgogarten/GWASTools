@@ -14,7 +14,7 @@
 #   verbose -- show progress
 #
 
-convertGdsNcdf <- function(gds.filename, ncdf.filename,
+convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
                            verbose = TRUE)
 {
 	# check
@@ -33,39 +33,32 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename,
 	sample.id <- read.gdsn(index.gdsn(gdsobj, "sample.id"))
 	if (!is.numeric(sample.id)) sample.id <- 1:length(sample.id)
 
-	# define dimensions
-	snpdim <- dim.def.ncdf("snp", "count", snp.id)
-	sampledim <- dim.def.ncdf("sample", "count", sample.id, unlim=TRUE)
-
-	# define variables
-	varID <- var.def.ncdf("sampleID", "id", dim=sampledim, missval=0, prec="integer")
-	varpos <- var.def.ncdf("position", "bases", dim=snpdim, missval=-1, prec="integer")
-	varchr <- var.def.ncdf("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
-	vargeno <- var.def.ncdf("genotype", "num_A_alleles", dim=list(snpdim,sampledim), missval=-1, prec="byte")
+        snp.annot <- data.frame(snpID=snp.id,
+                                chromosome=read.gdsn(index.gdsn(gdsobj, "snp.chromosome")),
+                                position=read.gdsn(index.gdsn(gdsobj, "snp.position")))
 
 	# create the NetCDF file
-	ncfile <- create.ncdf(ncdf.filename, list(varID, varpos, varchr, vargeno))
+	if (verbose) message(date(), "\t\tCreating NetCDF file ...\n")
+        variables <- ls.gdsn(gdsobj)
+        variables <- variables[!grepl("^sample", variables)]
+        variables <- variables[!grepl("^snp", variables)]
+	ncfile <- .createNcdf(snp.annot, ncdf.filename, variables,
+                              n.samples=length(sample.id),
+                              precision, array.name=NULL, genome.build=NULL)
 
 	# add variable data
-	if (verbose) message(date(), "\t\twriting position and chromosome ...\n")
-	put.var.ncdf(ncfile, varpos, read.gdsn(index.gdsn(gdsobj, "snp.position")))
-	put.var.ncdf(ncfile, varchr, read.gdsn(index.gdsn(gdsobj, "snp.chromosome")))
-
-	# add genotype data
-	if (verbose) message(date(), "\t\twriting genotypes ...\n")
-	node.geno <- index.gdsn(gdsobj, "genotype")
-	ndim <- objdesp.gdsn(index.gdsn(gdsobj, "genotype"))$dim
-	for (i in 1:ndim[2])
-	{
-		geno <- read.gdsn(node.geno, start=c(1, i), count=c(-1, 1))
-		geno[!(geno %in% c(0,1,2))] <- -1
-		put.var.ncdf(ncfile, "genotype", geno, start=c(1,i), count=c(-1,1))
-		if (verbose & (i %% 500 == 0))
-			message(date(), sprintf("\t\twriting %d samples\n", i))
+	if (verbose) message(date(), "\t\tAdding sample data ...\n")
+	for (i in 1:length(sample.id)) {
+                dat <- list()
+                for (v in variables) {
+                    node <- index.gdsn(gdsobj, v)
+                    dat[[v]] <- read.gdsn(node, start=c(1, i), count=c(-1, 1))
+                    if (v == "genotype") dat[[v]][dat[[v]] == 3] <- NA
+                }
+                .addData(ncfile, dat, sample.id[i], variables, i, length(snp.id))
+		if (verbose & (i %% 100 == 0))
+			message(date(), "\twriting sample ", i, "\n")
 	}
-
-	# add sample id
-	put.var.ncdf(ncfile, varID, sample.id)
 
 	# close files
 	close.ncdf(ncfile)
@@ -82,75 +75,44 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename,
 # INPUT:
 #   ncdf.filename  --  the input file name of genotype in netCDF format
 #   gds.filename  --  the output file name of genotype in CoreArray GDS format
-#   sample.annot  --  the annotation of sample
 #   snp.annot  --  the annotation of snp
 #   zipflag  --  specify the compression flag except genotype, see "add.gdsn"
 #   verbose  --  show progress
 #
 
 convertNcdfGds <- function(ncdf.filename, gds.filename,
-	sample.annot = NULL, snp.annot = NULL,
+	snp.annot = NULL, precision="single",
         zipflag = "ZIP.max", verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
-        if (!is.null(snp.annot)) {
-          nc <- NcdfGenotypeReader(ncdf.filename,
-                                   autosomeCode=autosomeCode(snp.annot),
-                                   XchromCode=XchromCode(snp.annot),
-                                   XYchromCode=XYchromCode(snp.annot),
-                                   YchromCode=YchromCode(snp.annot),
-                                   MchromCode=MchromCode(snp.annot))
-        } else {
-          nc <- NcdfGenotypeReader(ncdf.filename)
-        }
-        genoData <- GenotypeData(nc, scanAnnot=sample.annot, snpAnnot=snp.annot)
-        close(genoData)
 
 	# start
 	if (verbose) message(date(), "\tbegin convertNcdfGds ...\n")
 
 	# open netCDF
 	nc <- open.ncdf(ncdf.filename)
+        snpID <- nc$dim$snp$vals
+        chromosome <- get.var.ncdf(nc, "chromosome")
+        position <- get.var.ncdf(nc, "position")
+	if (!is.null(snp.annot)) {
+                stopifnot(allequal(snp.annot$snpID, snpID))
+                stopifnot(allequal(snp.annot$chromosome, chromosome))
+                stopifnot(allequal(snp.annot$position, position))
+                snp.annotation <- pData(snp.annot)
+        } else {
+                snp.annotation <- data.frame(snpID, chromosome, position)
+        }
 
 	# create GDS file
-	gfile <- createfn.gds(gds.filename)
+	if (verbose) message(date(), "\tCreating GDS file ...\n")
+        variables <- setdiff(names(nc$var), c("sampleID", "chromosome", "position"))
+	gfile <- .createGds(snp.annotation, gds.filename, variables,
+                            precision, compress=zipflag)
 
-	# the order of samples
-	sample.order <- 1:nc$dim$sample$len
-
-	# add "sample.id"
-	add.gdsn(gfile, "sample.id", get.var.ncdf(nc, "sampleID")[sample.order],
-		compress=zipflag, closezip=TRUE)
-	# add "snp.id"
-	add.gdsn(gfile, "snp.id", nc$dim$snp$vals, compress=zipflag, closezip=TRUE)
-	# add "snp.rs.id"
-	if (!is.null(snp.annot) & !is.null(snp.annot[["rsID"]]))
-	{
-		add.gdsn(gfile, "snp.rs.id", snp.annot[["rsID"]],
-			compress=zipflag, closezip=TRUE)
-	}
-        # add "snp.allele"
-	if (!is.null(snp.annot))
-	{
-                if (!is.null(getAlleleA(snp.annot)) & !is.null(getAlleleB(snp.annot)))
-                {
-                         allele <- paste(getAlleleA(snp.annot),
-                                         getAlleleB(snp.annot), sep="/")
-                         add.gdsn(gfile, "snp.allele", allele,
-                                  compress=zipflag, closezip=TRUE)
-                }
-	}
-	# add "snp.position"
-	add.gdsn(gfile, "snp.position", get.var.ncdf(nc, "position"),
-		compress=zipflag, closezip=TRUE)
-	# add "snp.chromosome"
-	add.gdsn(gfile, "snp.chromosome", get.var.ncdf(nc, "chromosome"), storage="uint8",
-		compress=zipflag, closezip=TRUE)
         # add chromosome codes
-	if (!is.null(snp.annot))
-	{
+	if (!is.null(snp.annot)) {
                 put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.start", min(autosomeCode(snp.annot)))
                 put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.end", max(autosomeCode(snp.annot)))
                 put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "X", XchromCode(snp.annot))
@@ -164,23 +126,19 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	sync.gds(gfile)
 
 	if (verbose)
-		message(date(), "\tstore sampleID, position, and chromosome.\n")
+		message(date(), "\tAdding sample data...\n")
 
-	# add "genotype", 2 bits to store one genotype
-	nSNP <- nc$dim$snp$len
-	gGeno <- add.gdsn(gfile, "genotype", storage="bit2",
-		valdim=c(nSNP, length(sample.order)))
-	put.attr.gdsn(gGeno, "snp.order")
+	# add samples
+        sample.id <- get.var.ncdf(nc, "sampleID")
 
-	j <- 1
-	for (i in sample.order)
-	{
-		v <- get.var.ncdf(nc, "genotype", start=c(1, i), count=c(-1, 1))
-		v[!(v %in% c(0,1,2))] <- 3
-		write.gdsn(gGeno, v, start=c(1, j), count=c(-1, 1))
-		if (verbose & (j %% 50 == 0))
-			message(date(), "\t", j, "\n")
-		j <- j + 1
+	for (i in 1:length(sample.id)) {
+                dat <- list()
+                for (v in variables) {
+                    dat[[v]] <- get.var.ncdf(nc, v, start=c(1, i), count=c(-1, 1))
+                }
+                .addData(gfile, dat, sample.id[i], variables)
+		if (verbose & (i %% 100 == 0))
+			message(date(), "\twriting sample ", i, "\n")
 	}
 
 	# sync file

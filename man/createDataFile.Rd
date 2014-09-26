@@ -20,29 +20,29 @@ Genotypic calls and/or associated quantitative variables (e.g. quality score, in
 \usage{
 createDataFile(path = ".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
-               sep.type, skip.num, col.total, col.nums, 
+               sep.type, skip.num, col.total, col.nums,
                scan.name.in.file, scan.start.index = 1,
-	       precision="single", compress="ZIP.max", 
+	       precision="single", compress="ZIP.max",
 	       array.name = NULL, genome.build = NULL,
                diagnostics.filename = "createDataFile.diagnostics.RData",
                verbose = TRUE)
 
 %ncdfAddIntensity(path = ".",  filename, file.type=c("gds", "ncdf"),
-%                 snp.annotation, scan.annotation, 
-%                 scan.start.index = 1, n.consecutive.scans = -1,  
+%                 snp.annotation, scan.annotation,
+%                 scan.start.index = 1, n.consecutive.scans = -1,
 %                 diagnostics.filename = "ncdfAddIntensity.diagnostics.RData",
 %                 verbose = TRUE)
 
-checkGenotypeFile(path = ".", filename, file.type=c("gds", "ncdf"), 
-                  snp.annotation, scan.annotation, 
-                  sep.type, skip.num, col.total, col.nums, 
+checkGenotypeFile(path = ".", filename, file.type=c("gds", "ncdf"),
+                  snp.annotation, scan.annotation,
+                  sep.type, skip.num, col.total, col.nums,
                   scan.name.in.file, check.scan.index, n.scans.loaded,
                   diagnostics.filename = "checkGenotypeFile.diagnostics.RData",
                   verbose = TRUE)
 
-checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "ncdf"), 
-                   snp.annotation, scan.annotation, 
-                   sep.type, skip.num, col.total, col.nums, 
+checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "ncdf"),
+                   snp.annotation, scan.annotation,
+                   sep.type, skip.num, col.total, col.nums,
                    scan.name.in.file, check.scan.index,
                    n.scans.loaded, affy.inten = FALSE,
                    diagnostics.filename = "checkIntensityFile.diagnostics.RData",
@@ -72,10 +72,10 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
 \item{snp.annotation}{Snp annotation dataframe with columns "snpID",
   "chromosome",  "position" and "snpName".  snpID should be a unique integer
   vector, sorted with
-  respect to chromosome and position. 
-  snpName should matche the snp ids inside the raw genoypic data files  
+  respect to chromosome and position.
+  snpName should match the snp identifiers inside the raw genoypic data files
   If \code{file.type="gds"},
-  optional columns named "rsID", "alleleA", and "alleleB" will be
+  optional columns  "alleleA", and "alleleB" will be
   written if present.}
 
 \item{scan.annotation}{Scan annotation data.frame with columns "scanID"
@@ -92,7 +92,7 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
   \item{col.total}{Total number of columns in the raw text files.
 }
 
-\item{col.nums}{An integer vector indicating which columns of the raw text 
+\item{col.nums}{An integer vector indicating which columns of the raw text
     file contain variables for input.  \code{names(col.nums)} must be a subset of
     c("snp", "sample", "geno", "a1", "a2", "quality", "X", "Y", "rawX",
     "rawY", "R", "Theta", "BAlleleFreq", "LogRRatio"). The element "snp"
@@ -112,7 +112,7 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
   }
 
 %  \item{n.consecutive.scans}{The number of consecutive "sampleID" indices for which to write intensity values, beginning at scan.start.index (which equals the number of "ALLELE_SUMMARY" files to process). When n.consecutive.scans=-1, all samples from scan.start.index to the total number will be processed.}
-  
+
   \item{check.scan.index}{An integer vector containing the indices of
   the sample dimension of the GDS or netCDF file to check.}
 
@@ -120,7 +120,7 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
 
   \item{affy.inten}{Logical value indicating whether Affy intensities
   are in separate files from quality scores.  If \code{TRUE}, must also specify intenpath.}
-  
+
 \item{precision}{A character value indicating whether floating point
   numbers should be stored as "double" or "single" precision.}
 
@@ -171,7 +171,7 @@ contents of GDS or netCDF files against raw text files.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \value{
-The GDS or netCDF file specified in argument \code{filename} is populated with genotype calls and/or associated quantitative variables. 
+The GDS or netCDF file specified in argument \code{filename} is populated with genotype calls and/or associated quantitative variables.
 A list of diagnostics with the following components is returned. Each vector has one element per raw text file processed.
 \item{read.file}{ A vector indicating whether (1) or not (0) each file was read successfully.}
 \item{row.num}{	A vector of the number of rows read from each file. These should all be the same and equal to the number of rows in the SNP annotation data.frame.}
@@ -228,11 +228,11 @@ library(GWASdata)
 ncfile <- tempfile()
 path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
 data(illumina_snp_annot, illumina_scan_annot)
-snpAnnot <- illumina_snp_annot[,c("snpID", "rsID", "chromosome", 
+snpAnnot <- illumina_snp_annot[,c("snpID", "rsID", "chromosome",
 	                          "position", "alleleA", "alleleB")]
 names(snpAnnot)[2] <-  "snpName"
 # subset of samples for testing
-scanAnnot <- illumina_scan_annot[1:3, c("scanID", "genoRunID", "file")] 
+scanAnnot <- illumina_scan_annot[1:3, c("scanID", "genoRunID", "file")]
 names(scanAnnot)[2] <- "scanName"
 col.nums <- as.integer(c(1,2,12,13))
 names(col.nums) <- c("snp", "sample", "a1", "a2")
@@ -254,7 +254,7 @@ data(affy_snp_annot, affy_scan_annot)
 snpAnnot <- affy_snp_annot[,c("snpID", "probeID", "chromosome", "position")]
 names(snpAnnot)[2] <- "snpName"
 # subset of samples for testing
-scanAnnot <- affy_scan_annot[1:3, c("scanID", "genoRunID", "chpFile")] 
+scanAnnot <- affy_scan_annot[1:3, c("scanID", "genoRunID", "chpFile")]
 names(scanAnnot)[2:3] <- c("scanName", "file")
 col.nums <- as.integer(c(2,3)); names(col.nums) <- c("snp", "geno")
 diagfile <- tempfile()
