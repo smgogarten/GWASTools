@@ -97,7 +97,7 @@ slots for a \Rcode{GenotypeReader} (or \Rcode{IntensityReader})
 object, a \Rcode{SnpAnnotationDataFrame} object, and a
   \Rcode{ScanAnnotationDataFrame} object.  When an object of one of these classes is
 created, it performs checks to ensure that the annotation matches the
-data stored in the NetCDF file and all required information is
+data stored in the data file and all required information is
 present.  The majority of the functions in the \Rpackage{GWASTools} package take
 \Rcode{GenotypeData} or \Rcode{IntensityData} objects as arguments.
 
@@ -307,7 +307,7 @@ cleaning and analysis steps.
 All data files contain variables for \Rcode{scanID}, \Rcode{snpID},
 \Rcode{chromosome}, and \Rcode{position}.
 The \Rcode{scanID} ordering must match the \Rcode{scanID} values as listed
-in the sample annotation object (Section~\ref{create_sampann}). 
+in the sample annotation object (Section~\ref{create_sampann}).
 Since \Rcode{snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the \Rcode{snpID} values listed
 in the SNP annotation object (Section~\ref{create_snpann}).
 To prevent errors in ordering samples or SNPs, the functions in the \Rpackage{GWASTools} package take as arguments R objects
@@ -426,7 +426,7 @@ names(check.geno)
 #   are in the same order in each file.
 table(check.geno$snp.order)
 # 'geno.chk' is a vector indicating whether (1) or not (0) the genotypes
-#   in the netCDF match the text file
+#   match the text file
 table(check.geno$geno.chk)
 @
 
@@ -608,7 +608,7 @@ as well as chromosomal duplications and deletions.  Samples that have a signific
 values are recommended to be filtered out, for the genotype data are not reliable in these situations.
 Because of these applications, the BAF and LRR values are a salient part of the data cleaning steps.
 
-\subsubsection*{Creating the BAF and LRR NetCDF file}
+\subsubsection*{Creating the BAF and LRR  file}
 
 We call \Rcode{createDataFile} again, this time specifying BAlleleFreq
 and LogRRatio in the \Rcode{variables} argument.
@@ -636,7 +636,7 @@ diag.bl <- createDataFile(path = path,
   verbose = FALSE)
 @
 
-\subsubsection*{Reading the BAF and LRR NetCDF file}
+\subsubsection*{Reading the BAF and LRR file}
 
 We also use the \Rcode{GdsIntensityReader} class for BAF/LRR data.
 
@@ -1833,10 +1833,6 @@ dev.off()
 @
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-corr}
 
-<<echo=FALSE, results=hide>>=
-file.remove(gdsfile)
-@
-
 
 \clearpage
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2111,7 +2107,7 @@ close(genoData)
 
 We can set genotypes in anomaly regions to missing for future analyses
 (such as Hardy-Weinberg equilibrium and association tests).  We use
-the function \Rcode{ncdfSetMissingGenotypes} to create a new NetCDF file
+the function \Rcode{gdsSetMissingGenotypes} to create a new GDS file
 with anomaly regions set to \Rcode{NA}.  We recommend inspecting the
 plots from \Rcode{anomStatsPlot} for large anomalies (e.g., $>5$ Mb) to
 identify those anomalies that case genotyping errors.
@@ -2539,7 +2535,7 @@ covariates with significant effects are then included in the final model.
 To run the association test, we call the function
   \Rcode{assocTestRegression}.  (For survival analysis, the function
 \Rcode{assocTestCPH} may be used.)
-We will use the filtered NetCDF file with unique subjects only that we
+We will use the filtered GDS file with unique subjects only that we
 made in section~\ref{sec:filt_anom}.
 Here we use all unique subjects, but we would use the argument \Rcode{scan.exclude} for those samples we wish
 to filter out for the association test (such as low-quality or related
