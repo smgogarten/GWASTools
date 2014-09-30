@@ -70,6 +70,12 @@ wrapper for \Rcode{ncdf} objects.  \Rcode{NcdfGenotypeReader} and
 \Rcode{NcdfIntensityReader} extend \Rcode{NcdfReader} with
 methods specific to genotype and intensity data.  
 
+All NetCDF files created for \Rcode{GWASTools} have two dimensions, one called \Rcode{snp} and one titled \Rcode{sample}.
+Further, all NetCDF files have three variables in common: \Rcode{sampleID, chromosome} and \Rcode{position}.
+The \Rcode{sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
+(genotype calls, for example).
+The index to the SNP probes in the NetCDF file is the \Rcode{snpID}, which is stored as values of the SNP dimension.
+
 \subsection{GDS}
 
 Genomic Data Structure (GDS,
@@ -83,8 +89,16 @@ which computes relatedness and PCA as demonstrated in the ``GWAS Data
 Cleaning'' vignette, so it may be convenient to store data in this
 format from the start.  The \Rcode{GdsReader} class provides a wrapper
 for \Rpackage{gdsfmt} objects with the same API as the
-\Rcode{NcdfReader} class, and the \Rcode{GdsGenotypeReader} class
-provides the same methods as the \Rcode{NcdfGenotypeReader} class.
+\Rcode{NcdfReader} class.  \Rcode{GdsGenotypeReader} and
+\Rcode{GdsIntensityReader} extend \Rcode{GdsReader} with
+methods specific to genotype and intensity data.  
+
+All GDS files created for \Rcode{GWASTools} have variables
+\Rcode{sample.id, snp.id, snp.chromosome}, and \Rcode{snp.position}.
+For genotype files, which store the count of the ``A'' allele in two
+bits, the A and B alleles are stored in the \Rcode{snp.allele}
+variable in the form ``A/B''.  Character SNP identifiers are often
+stored in the variable \Rcode{snp.rs.id}.
 
 \subsection{Matrix}
 
@@ -142,6 +156,8 @@ examples.
 
 PLINK ped/map files can be converted to NetCDF with accompanying SNP
 and scan annotation using the function \Rcode{plinkToNcdf}.
+\Rcode{snpgdsBED2GDS} in the \Rcode{SNPRelate} package converts
+binary PLINK to GDS.
 
 \subsection{VCF}
 

@@ -123,8 +123,8 @@ All of the functions in \Rpackage{GWASTools} require a minimum set of variables 
 \end{itemize}
 
 We create the integer chromosome mapping for a few reasons.  The
-chromosome is stored as an integer in the NetCDF files, so in order to
-link the SNP annotation with the NetCDF file, we use the integer
+chromosome is stored as an integer in the data files, so in order to
+link the SNP annotation with the data file, we use the integer
 values in the annotation as well.
 For convenience when using \Rpackage{GWASTools} functions,
 the chromosome variable is most times assumed to be an integer value.  Thus, for the sex chromosomes, we can simply
@@ -293,36 +293,30 @@ to \Rcode{ScanAnnotationDataFrame} as well.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsection{Creating the NetCDF Files}
+\subsection{Creating the Data Files}
 
 
 The data for genotype calls, allelic intensities and other variables
-such as B Allele Frequency are stored as NetCDF\footnote{\href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}} files.
+such as B Allele Frequency are stored as GDS or NetCDF files.
 This format is used for the ease with which extremely large
 multi-dimensional arrays of data can be stored and accessed, as many
 GWAS datasets are too large to be stored in memory at one time.
-The \Rpackage{GWASTools} package depends on the \Rpackage{ncdf} library, which provides a convenient R interface to create, populate and extract data from NetCDF files.
+We will create three different GDS files to be used in subsequent
+cleaning and analysis steps.
 
-For each study, three different NetCDF files are
-created to be used in subsequent cleaning and analysis steps.
-All NetCDF files created have two dimensions, one called \Rcode{snp} and one titled \Rcode{sample}.  The \Rcode{snp}
-dimension is of the same length as the number of probes that were released from the genotyping center and listed in the
-SNP annotation file.  The
-\Rcode{sample} dimension is of length equal to the number of genotyping scans released as listed in the sample annotation file.
-Further, all NetCDF files have three variables in common: \Rcode{sampleID, chromosome} and \Rcode{position}.
-The \Rcode{sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
-(genotype calls, for example).  The \Rcode{sampleID} ordering must match the \Rcode{scanID} values as listed
-in the sample annotation object (Section~\ref{create_sampann}).
-The index to the SNP probes in the NetCDF file is the \Rcode{snpID}, which is stored as values of the SNP dimension.  Since \Rcode{snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the \Rcode{snpID} values listed
+All data files contain variables for \Rcode{scanID}, \Rcode{snpID},
+\Rcode{chromosome}, and \Rcode{position}.
+The \Rcode{scanID} ordering must match the \Rcode{scanID} values as listed
+in the sample annotation object (Section~\ref{create_sampann}). 
+Since \Rcode{snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the \Rcode{snpID} values listed
 in the SNP annotation object (Section~\ref{create_snpann}).
 To prevent errors in ordering samples or SNPs, the functions in the \Rpackage{GWASTools} package take as arguments R objects
 which will return an error on creation if the sample and SNP
-annotation does not match the NetCDF file.
-We recommend always checking the ordering of these variables before saving new versions of the SNP or sample annotation.
+annotation does not match the data file.
 
-\subsubsection*{Genotype NetCDF Files}
+\subsubsection*{Genotype Files}
 
-The genotype NetCDF files store genotypic data in 0, 1, 2 format
+The genotype files store genotypic data in 0, 1, 2 format
 indicating the number of ``A'' alleles in the genotype
 (i.e. AA=2, AB=1, BB=0 and missing=-1).  The conversion from AB format and forward strand (or other)
 allele formats can be stored in the SNP annotation file.
@@ -330,20 +324,23 @@ allele formats can be stored in the SNP annotation file.
 The genotypic data are stored as a two-dimensional array, where rows are SNPs and columns are samples.
 To store the genotype data, the raw data files are opened and checked to ensure the sample identifier from
 the sample annotation file and the genotype data file match.  If no discrepencies exist, the probes
-listed in the file are checked against the expected list of probes, then ordered and written to the NetCDF file.
+listed in the file are checked against the expected list of probes,
+then ordered and written to the data file.
 This process iterates over each file (sample).  Diagnostics are stored as the process continues so that after the
 data are written one can ensure the function performed as expected.
 
-\subsubsection*{Creating the Genotype NetCDF file}
+\subsubsection*{Creating the Genotype file}
 
-We create a NetCDF file from a set of plain text files containing the
-genotypes, one file per sample. The data are written to the NetCDF file one sample at a time and, simultaneously, the corresponding sample identifier \Rcode{scanID} is written to the \Rcode{sampleID} variable. The \Rcode{file}
+We create a GDS file from a set of plain text files containing the
+genotypes, one file per sample. The data are written to the GDS file
+one sample at a time and, simultaneously, the corresponding sample
+identifier \Rcode{scanID} is written to the sample ID variable. The \Rcode{file}
 variable from the scan annotation
 holds the name of the raw data file for each sample/scan;
 these are the files we must read in to get genotype data for each sample.
 
-The function \Rcode{createDataFile} creates the two dimensions and
-three common variables as described above. It also assigns values of the SNP dimension as \Rcode{snpID} values and populates the \Rcode{chromosome} and \Rcode{position} variables.
+The function \Rcode{createDataFile} creates the common SNP variables
+as described above.
 In this case, we also want the \Rcode{genotype} variable to be created, so the \Rcode{variables} argument must be set to
 \Rcode{"genotype"}.
 \Rcode{col.nums} is an integer vector indicating which columns
@@ -355,7 +352,7 @@ ensure no errors occurred.
 # Define a path to the raw data files
 path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
 
-geno.nc.file <- "tmp.geno.nc"
+geno.file <- "tmp.geno.gds"
 
 # first 3 samples only
 scan.annotation <- illumina_scan_annot[1:3, c("scanID", "genoRunID", "file")]
@@ -370,8 +367,8 @@ names(col.nums) <- c("snp", "sample", "a1", "a2")
 
 diag.geno.file <- "diag.geno.RData"
 diag.geno <- createDataFile(path = path,
-  filename = geno.nc.file,
-  file.type = "ncdf",
+  filename = geno.file,
+  file.type = "gds",
   variables = "genotype",
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation,
@@ -381,8 +378,6 @@ diag.geno <- createDataFile(path = path,
   col.nums = col.nums,
   scan.name.in.file = 1,
   scan.start.index = 1,
-  array.name = "Human1Mv_C",
-  genome.build = "36",
   diagnostics.filename = diag.geno.file,
   verbose = FALSE)
 # Look at the values included in the "diag.geno" object which holds
@@ -401,18 +396,18 @@ table(diag.geno$sample.match)
 #   the raw text file has the expected set of SNP names
 table(diag.geno$snp.chk)
 # `chk' is a vector indicating whether (1) or not (0) all previous
-#   checks were successful and the data were written to the NetCDF file
+#   checks were successful and the data were written to the data file
 table(diag.geno$chk)
 @
 
 Run the function \Rcode{checkGenotypeFile} to check that the
-    NetCDF file contains the same data as the raw data files.
+    GDS file contains the same data as the raw data files.
 
 <<>>=
 check.geno.file <- "check.geno.RData"
 check.geno <- checkGenotypeFile(path = path,
-  filename = geno.nc.file,
-  file.type = "ncdf",
+  filename = geno.file,
+  file.type = "gds",
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation,
   sep.type = ",",
@@ -435,60 +430,61 @@ table(check.geno$snp.order)
 table(check.geno$geno.chk)
 @
 
-\subsubsection*{Reading the Genotype NetCDF file}
+\subsubsection*{Reading the Genotype file}
 
-The \Rcode{NcdfGenotypeReader} class provides a convenient interface for
-    retrieving data from a genotype NetCDF file.  Some of the same
+The \Rcode{GdsGenotypeReader} class provides a convenient interface for
+    retrieving data from a genotype GDS file.  Some of the same
     ``get'' methods that applied to SNP and scan annotation data
-    objects can be used for \Rcode{NcdfGenotypeReader} objects.
+    objects can be used for \Rcode{GdsGenotypeReader} objects.
 
 <<>>=
-(nc <- NcdfGenotypeReader(geno.nc.file))
-nscan(nc)
-nsnp(nc)
-head(getScanID(nc))
-head(getSnpID(nc))
-head(getChromosome(nc))
-head(getPosition(nc))
+(gds <- GdsGenotypeReader(geno.file))
+nscan(gds)
+nsnp(gds)
+head(getScanID(gds))
+head(getSnpID(gds))
+head(getChromosome(gds))
+head(getPosition(gds))
 # genotypes for the first 3 samples and  the first 5 SNPs
-getGenotype(nc, snp=c(1,5), scan=c(1,3))
-close(nc)
+getGenotype(gds, snp=c(1,5), scan=c(1,3))
+close(gds)
 @
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection*{Intensity NetCDF Files}
+\subsubsection*{Intensity Files}
 
-The intensity NetCDF files store quality scores and allelic intensity data for each SNP.
-The normalized X and Y intensities as well as the confidence scores are written to the NetCDF for all
-samples, for all SNPs. (To keep file sizes manageable, a separate NetCDF file will store the B Allele
+The intensity files store quality scores and allelic intensity data for each SNP.
+The normalized X and Y intensities as well as the confidence scores
+are written to the file for all
+samples, for all SNPs. (To keep file sizes manageable, a separate file will store the B Allele
 Frequency and Log R Ratio data.)
 
-Aside from the three variables held in common with all NetCDF files (\Rcode{sampleID, chromosome} and \Rcode{position}),
-the intensity and quality data are written to the intensity NetCDF in a two dimensional format, with SNPs corresponding
+In addition to the sample and SNP identifiers, chromosome, and position,
+the intensity and quality data are written to the intensity file in a two dimensional format, with SNPs corresponding
 to rows and samples corresponding to columns.
 To write the intensity data, the raw data files are opened and the intensities and quality score
 are read.  Like with the genotype data, if all sample and probe identifiers match between the data files
-and the annotation files, the data are populated in the NetCDF and diagnostics are written.
+and the annotation files, the data are populated in the file and diagnostics are written.
 
-\subsubsection*{Creating the Intensity NetCDF file}
+\subsubsection*{Creating the Intensity file}
 
 We call \Rcode{createDataFile} again, this time specifying quality, X,
 and Y in the \Rcode{variables} argument.
 A set of diagnostic values are written and stored in \Rcode{diag.qxy}.
 
 <<>>=
-qxy.nc.file <- "tmp.qxy.nc"
+qxy.file <- "tmp.qxy.gds"
 
 col.nums <- as.integer(c(1,2,5,16,17))
 names(col.nums) <- c("snp", "sample", "quality", "X", "Y")
 
 diag.qxy.file <- "diag.qxy.RData"
 diag.qxy <- createDataFile(path = path,
-  filename = qxy.nc.file,
-  file.type = "ncdf",
+  filename = qxy.file,
+  file.type = "gds",
   variables = c("quality","X","Y"),
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation,
@@ -498,21 +494,19 @@ diag.qxy <- createDataFile(path = path,
   col.nums = col.nums,
   scan.name.in.file = 1,
   scan.start.index = 1,
-  array.name = "Human1Mv_C",
-  genome.build = "36",
   diagnostics.filename = diag.qxy.file,
   verbose = FALSE)
 @
 
 Run the function \Rcode{checkIntensityFile} to check that the
-    NetCDF file contains the same data as the raw data files.
+    GDS file contains the same data as the raw data files.
 
 <<>>=
 check.qxy.file <- "check.qxy.RData"
 check.qxy <- checkIntensityFile(path = path,
   intenpath = path,
-  filename = qxy.nc.file,
-  file.type = "ncdf",
+  filename = qxy.file,
+  file.type = "gds",
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation,
   sep.type = ",",
@@ -526,27 +520,27 @@ check.qxy <- checkIntensityFile(path = path,
   verbose = FALSE)
 @
 
-\subsubsection*{Reading the Intensity NetCDF file}
+\subsubsection*{Reading the Intensity file}
 
-The \Rcode{NcdfIntensityReader} class provides a convenient interface for
-    retrieving data from an intensity NetCDF file.  Its methods are
-    similar to \Rcode{NcdfGenotypeReader}.
+The \Rcode{GdsIntensityReader} class provides a convenient interface for
+    retrieving data from an intensity GDS file.  Its methods are
+    similar to \Rcode{GdsGenotypeReader}.
 
 <<>>=
-(nc <- NcdfIntensityReader(qxy.nc.file))
-nscan(nc)
-nsnp(nc)
-head(getScanID(nc))
-head(getSnpID(nc))
-head(getChromosome(nc))
-head(getPosition(nc))
+(gds <- GdsIntensityReader(qxy.file))
+nscan(gds)
+nsnp(gds)
+head(getScanID(gds))
+head(getSnpID(gds))
+head(getChromosome(gds))
+head(getPosition(gds))
 # quality score for the first 3 samples and  the first 5 SNPs
-getQuality(nc, snp=c(1,5), scan=c(1,3))
+getQuality(gds, snp=c(1,5), scan=c(1,3))
 # X intensity for the first 3 samples and  the first 5 SNPs
-getX(nc, snp=c(1,5), scan=c(1,3))
+getX(gds, snp=c(1,5), scan=c(1,3))
 # Y intensity for the first 3 samples and  the first 5 SNPs
-getY(nc, snp=c(1,5), scan=c(1,3))
-close(nc)
+getY(gds, snp=c(1,5), scan=c(1,3))
+close(gds)
 @
 
 
@@ -554,9 +548,9 @@ close(nc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsubsection*{B Allele Frequency and Log R Ratio NetCDF Files}\label{sec:baf_lrr}
+\subsubsection*{B Allele Frequency and Log R Ratio Files}\label{sec:baf_lrr}
 
-The B Allele Frequency (BAF) and Log R Ratio (LRR) NetCDF file stores these values for every sample by SNP.
+The B Allele Frequency (BAF) and Log R Ratio (LRR) file stores these values for every sample by SNP.
 For Illumina data, these values are
 calculated by the BeadStudio software and may be provided by the genotyping center.
 For a thorough explanation and presentation of an application of these values, please refer to
@@ -614,25 +608,21 @@ as well as chromosomal duplications and deletions.  Samples that have a signific
 values are recommended to be filtered out, for the genotype data are not reliable in these situations.
 Because of these applications, the BAF and LRR values are a salient part of the data cleaning steps.
 
-In addition to the three variables held in common with all NetCDF files (\Rcode{sampleID, chromosome} and \Rcode{position}),
-the BAF and LRR values are written to this NetCDF in a two dimensional format,
-with SNPs corresponding to rows and samples corresponding to columns.
-
 \subsubsection*{Creating the BAF and LRR NetCDF file}
 
 We call \Rcode{createDataFile} again, this time specifying BAlleleFreq
 and LogRRatio in the \Rcode{variables} argument.
 
 <<>>=
-bl.nc.file <- "tmp.bl.nc"
+bl.file <- "tmp.bl.gds"
 
 col.nums <- as.integer(c(1,2,20,21))
 names(col.nums) <- c("snp", "sample", "BAlleleFreq", "LogRRatio")
 
 diag.bl.file <- "diag.bl.RData"
 diag.bl <- createDataFile(path = path,
-  filename = bl.nc.file,
-  file.type = "ncdf",
+  filename = bl.file,
+  file.type = "gds",
   variables = c("BAlleleFreq","LogRRatio"),
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation,
@@ -642,57 +632,55 @@ diag.bl <- createDataFile(path = path,
   col.nums = col.nums,
   scan.name.in.file = 1,
   scan.start.index = 1,
-  array.name = "Human1Mv_C",
-  genome.build = "36",
   diagnostics.filename = diag.bl.file,
   verbose = FALSE)
 @
 
 \subsubsection*{Reading the BAF and LRR NetCDF file}
 
-We also use the \Rcode{NcdfIntensityReader} class for BAF/LRR data.
+We also use the \Rcode{GdsIntensityReader} class for BAF/LRR data.
 
 <<>>=
-(nc <- NcdfIntensityReader(bl.nc.file))
-getBAlleleFreq(nc, snp=c(1,5), scan=c(1,3))
-getLogRRatio(nc, snp=c(1,5), scan=c(1,3))
-close(nc)
+(gds <- GdsIntensityReader(bl.file))
+getBAlleleFreq(gds, snp=c(1,5), scan=c(1,3))
+getLogRRatio(gds, snp=c(1,5), scan=c(1,3))
+close(gds)
 @
 
 
 <<echo=FALSE, results=hide>>=
-file.remove(geno.nc.file, qxy.nc.file, bl.nc.file)
+file.remove(geno.file, qxy.file, bl.file)
 file.remove(diag.geno.file, diag.qxy.file, diag.bl.file)
 file.remove(check.geno.file, check.qxy.file)
 @
 
-\subsection{Combining NetCDF files with SNP and Scan annotation}
+\subsection{Combining data files with SNP and Scan annotation}
 
 The \Rcode{GenotypeData} and \Rcode{IntensityData} objects combine SNP
-and scan annotation with NetCDF files, ensuring that scanID, snpID,
+and scan annotation with GDS (or NetCDF) files, ensuring that scanID, snpID,
 chromosome, and position are consistent.
 The constructor for a \Rcode{GenotypeData} object takes a
-\Rcode{NcdfGenotypeReader} object as its first argument.
+\Rcode{GdsGenotypeReader} object as its first argument.
 Either or both of the
 \Rcode{scanAnnot} and \Rcode{snpAnnot} slots may be empty
 (\Rcode{NULL}), but if annotation objects are provided to the
-constructor, the relevant columns will be checked against the NetCDF
+constructor, the relevant columns will be checked against the data
 file during object creation.
 
 <<>>=
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(genofile)
-# only NetCDF file
-genoData <- GenotypeData(nc)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(genofile)
+# only GDS file
+genoData <- GenotypeData(gds)
 # with scan annotation
-genoData <- GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <- GenotypeData(gds, scanAnnot=scanAnnot)
 # with scan and SNP annotation
-genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genoData <- GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 genoData
 @
 
 \Rcode{GenotypeData} objects have methods in common with
-\Rcode{NcdfGenotypeReader}, \Rcode{SnpAnnotationDataFrame}, and \Rcode{ScanAnnotationDataFrame},
+\Rcode{GdsGenotypeReader}, \Rcode{SnpAnnotationDataFrame}, and \Rcode{ScanAnnotationDataFrame},
 along with methods to access variables in the annotation slots.
 
 <<>>=
@@ -718,25 +706,23 @@ close(genoData)
 @
 
 \Rcode{IntensityData} objects behave in the same way as
-\Rcode{GenotypeData} objects, but take a \Rcode{NcdfIntensityReader}
+\Rcode{GenotypeData} objects, but take a \Rcode{GdsIntensityReader}
 object as the first argument.
 
 <<>>=
 # quality score, X and X intensity
-qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-nc <- NcdfIntensityReader(qxyfile)
-qxyData <- IntensityData(NcdfIntensityReader(qxyfile),
-                         snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+qxyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+gds <- GdsIntensityReader(qxyfile)
+qxyData <- IntensityData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 qxyData
 getQuality(qxyData, snp=c(1,5), scan=c(1,5))
 getX(qxyData, snp=c(1,5), scan=c(1,5))
 getY(qxyData, snp=c(1,5), scan=c(1,5))
 close(qxyData)
 # BAF/LRR
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-nc <- NcdfIntensityReader(blfile)
-blData <- IntensityData(NcdfIntensityReader(blfile),
-                        snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+gds <- GdsIntensityReader(blfile)
+blData <- IntensityData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 blData
 getBAlleleFreq(blData, snp=c(1,5), scan=c(1,5))
 getLogRRatio(blData, snp=c(1,5), scan=c(1,5))
@@ -788,11 +774,11 @@ SNP, one element that holds the sex counts, and one element that holds
 the fraction of missing calls.
 
 <<>>=
-# open the netCDF file and create a GenotypeData object
-ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(ncfile)
+# open the GDS file and create a GenotypeData object
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(gdsfile)
 # sex is required for this function, so we need the scan annotation
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+genoData <-  GenotypeData(gds, scanAnnot=scanAnnot)
 # Calculate the number of missing calls for each snp over all samples
 #     for each sex separately
 miss <- missingGenotypeBySnpSex(genoData)
@@ -1150,12 +1136,12 @@ quality scores, and a \Rcode{GenotypeData} object, to determine which
 scans have missing genotypes and should be omitted from the calculation.
 
 <<>>=
-qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-qualNC <- NcdfIntensityReader(qxyfile)
-qualData <- IntensityData(qualNC, scanAnnot=scanAnnot)
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genoNC <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genoNC, scanAnnot=scanAnnot)
+qxyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+qualGDS <- GdsIntensityReader(qxyfile)
+qualData <- IntensityData(qualGDS, scanAnnot=scanAnnot)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+genoGDS <- GdsGenotypeReader(genofile)
+genoData <- GenotypeData(genoGDS, scanAnnot=scanAnnot)
 qual.results <- qualityScoreByScan(qualData, genoData)
 close(qualData)
 @
@@ -1198,9 +1184,9 @@ one matrix for each chromosome containing the standard
 deviation of BAF at each window in each scan.
 
 <<>>=
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blNC <- NcdfIntensityReader(blfile)
-blData <- IntensityData(blNC, scanAnnot=scanAnnot)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+blGDS <- GdsIntensityReader(blfile)
+blData <- IntensityData(blGDS, scanAnnot=scanAnnot)
 nbins <- rep(12, 3)
 slidingBAF12 <- sdByScanChromWindow(blData, genoData, nbins=nbins)
 names(slidingBAF12)
@@ -1238,9 +1224,6 @@ chrom <- as.integer(res12bin4sd[, "chromosome"])
 chrom[res12bin4sd[, "chromosome"] == "X"] <- 23
 bincode <- paste("Bin", res12bin4sd[, "bin"], sep = " ")
 chromIntensityPlot(blData, scanID, chrom, info=bincode, ideogram=FALSE)
-@
-
-<<>>=
 close(blData)
 @
 
@@ -1357,10 +1340,10 @@ from the function.  Note that ``X'' and ``Y'' in the list names refer
 to the X and Y intensity values and not to the chromosomes.
 
 <<>>=
-qxyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-intenNC <- NcdfIntensityReader(qxyfile)
-inten.by.chrom <- meanIntensityByScanChrom(intenNC)
-close(intenNC)
+qxyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+intenGDS <- GdsIntensityReader(qxyfile)
+inten.by.chrom <- meanIntensityByScanChrom(intenGDS)
+close(intenGDS)
 names(inten.by.chrom)
 @
 
@@ -1444,21 +1427,10 @@ estimation (MLE) of the IBD probabilities \Rcode{k1} and \Rcode{k0}
 \footnote{Weir, B. S., Anderson, A. D. \& Hepler, A. B. Genetic relatedness analysis: modern data and new challenges.
 \textit{Nature Reviews Genetics} \textbf{7}, 771-780 (October 2006).},
 and then graphs \Rcode{k1} versus \Rcode{k0}. The calculations are done
-using the \Rpackage{gdsfmt} and \Rpackage{SNPRelate} packages developed as part
-of the GENEVA project.   \Rpackage{gdsfmt} is a library that uses a file
-format similar to the NetCDF files, and \Rpackage{SNPRelate} performs the
-IBD calculations using this data format.
+using the \Rpackage{SNPRelate} package.
 
 
 \subsubsection*{IBD Using Maximum Likelihood Estimation (MLE)}
-
-We will convert the genotype NetCDF file to the \Rcode{gds} format with the function \Rcode{convertNcdfGds}.
-
-<<>>=
-ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-gdsfile <- "tmp_geno.gds"
-convertNcdfGds(ncfile, gdsfile)
-@
 
 SNP selection for the IBD estimation analysis has proved to be a salient component of the analysis.
 One may consider choosing SNPs based upon patterns of linkage, minor allele frequency or position along the genome.
@@ -1482,6 +1454,7 @@ considered.
 sample.sel <- scanAnnot$scanID[scanAnnot$race == "CEU"]
 length(sample.sel)
 library(SNPRelate)
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
 gdsobj <- snpgdsOpen(gdsfile)
 ibdobj <- snpgdsIBDMLE(gdsobj, sample.id=sample.sel, snp.id=snp.sel, method="EM")
 snpgdsClose(gdsobj)
@@ -1612,9 +1585,9 @@ threshold; we choose 15 kb here.
 
 <<>>=
 # Allele frequency calculation in YRI samples
-# open the NetCDF file and create a GenotypeData object
-nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+# open the GDS file and create a GenotypeData object
+gds <- GdsGenotypeReader(gdsfile)
+genoData <-  GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 # sample selection - unduplicated YRI samples
 sample.excl <- scanAnnot$scanID[scanAnnot$race != "YRI" | scanAnnot$duplicated]
 length(sample.excl)
@@ -1982,13 +1955,13 @@ out during the final analysis.
 Create an \texttt{IntensityData} object and a \texttt{GenotypeData} object.
 
 <<>>=
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+blgds <- GdsIntensityReader(blfile)
+blData <-  IntensityData(blgds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+genogds <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(genogds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 @
 
 Identify some low quality samples by looking at the standard deviation of BAF.
@@ -2154,10 +2127,10 @@ anom.filt <- stats[,c("scanID", "chromosome", "left.base", "right.base")]
 anom.filt$whole.chrom <- FALSE
 # select unique subjects
 subj <- scanAnnot$scanID[!scanAnnot$duplicated]
-subj.filt.ncdf <- "subj_filt.ncdf"
-ncdfSetMissingGenotypes(genofile, subj.filt.ncdf, anom.filt, sample.include=subj)
-(nc <- NcdfGenotypeReader(subj.filt.ncdf))
-close(nc)
+subj.filt.file <- "subj_filt.gds"
+gdsSetMissingGenotypes(genofile, subj.filt.file, anom.filt, sample.include=subj)
+(gds <- GdsGenotypeReader(subj.filt.file))
+close(gds)
 @
 
 
@@ -2198,9 +2171,9 @@ group.
 <<>>=
 snp.excl <- snpAnnot$snpID[snpAnnot$missing.n1 == 1]
 length(snp.excl)
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genoNC <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+genoGDS <- GdsGenotypeReader(genofile)
+genoData <- GenotypeData(genoGDS, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 dupdisc <- duplicateDiscordance(genoData, subjName.col="subjectID",
   scan.exclude=scan.excl, snp.exclude=snp.excl)
 names(dupdisc)
@@ -2369,9 +2342,9 @@ snp$err.rate <- snp$mendel.err.count /
   snp$mendel.err.sampsize
 snp <- snp[order(snp$err.rate, decreasing=TRUE),]
 snp <- snp[1:9,]
-xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-xyNC <- NcdfIntensityReader(xyfile)
-xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+xyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+xyGDS <- GdsIntensityReader(xyfile)
+xyData <- IntensityData(xyGDS, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 pdf(file="DataCleaning-mendel.pdf")
 par(mfrow = c(3,3))
 mtxt <- paste("SNP", snp$rsID, "\nMendelian Error Rate",
@@ -2574,9 +2547,9 @@ samples). Typically, we do not filter out SNPs for the association test -- we ru
 cause some SNPs to return significant p-values for association.
 
 <<>>=
-genoNC <- NcdfGenotypeReader(subj.filt.ncdf)
-subjAnnot <- scanAnnot[scanAnnot$scanID %in% getScanID(genoNC),]
-genoData <- GenotypeData(genoNC, scanAnnot=subjAnnot)
+genoGDS <- GdsGenotypeReader(subj.filt.file)
+subjAnnot <- scanAnnot[scanAnnot$scanID %in% getScanID(genoGDS),]
+genoData <- GenotypeData(genoGDS, scanAnnot=subjAnnot)
 assoc <- assocTestRegression(genoData, outcome="status", covar.list=c(""),
   ivar.list=c(""), model.type="logistic", robust=TRUE,
   chromosome.set=c(24:26))
@@ -2630,12 +2603,12 @@ allequal(snp$snpID, assoc$snpID)
 snp$pval <- assoc$model.1.additive.LR.pval.G
 snp <- snp[order(snp$pval),]
 snp <- snp[1:9,]
-xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-xyNC <- NcdfIntensityReader(xyfile)
-xyData <- IntensityData(xyNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genoNC <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+xyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+xyGDS <- GdsIntensityReader(xyfile)
+xyData <- IntensityData(xyGDS, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+genoGDS <- GdsGenotypeReader(genofile)
+genoData <- GenotypeData(genoGDS, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 pdf(file="DataCleaning-cluster.pdf")
 par(mfrow = c(3,3))
 mtxt <- paste("SNP", snp$rsID, "\np =", format(snp$pval, digits=4))
@@ -2649,7 +2622,7 @@ close(genoData)
 The cluster plots show that some of the SNPs have poor cluster plots, indicating genotyping artifacts.   In a real association study, the evidence from such SNPs would be discounted.
 
 <<echo=FALSE, results=hide>>=
-unlink(subj.filt.ncdf)
+unlink(subj.filt.file)
 @
 
 
