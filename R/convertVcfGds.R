@@ -155,7 +155,7 @@ convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, zipflag="ZIP.
 	close(opfile)
 	# close files
 	closefn.gds(gfile)
-        cleanup.gds(gds.filename)
+        cleanup.gds(gds.filename, verbose=verbose)
 
 	if (verbose) message(date(), "\tDone.\n")
 

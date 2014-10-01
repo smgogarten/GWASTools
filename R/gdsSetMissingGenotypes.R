@@ -67,6 +67,6 @@ gdsSetMissingGenotypes <- function(
 
   closefn.gds(gfile)
   close(gds.old)
-  cleanup.gds(new.file)
+  cleanup.gds(new.file, verbose=verbose)
   return(invisible(NULL))
 }

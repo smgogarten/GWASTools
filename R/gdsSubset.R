@@ -181,5 +181,5 @@ gdsSubset <- function(parent.gds,
 
   closefn.gds(gds)
   closefn.gds(gds.sub)
-  cleanup.gds(sub.gds)
+  cleanup.gds(sub.gds, verbose=verbose)
 }

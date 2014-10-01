@@ -11,7 +11,7 @@
 #
 #############################################################################
 batchFisherTest <- function(genoData,
-                             batchVar, 
+                             batchVar,
                              chrom.include = 1:22,
                              sex.include = c("M", "F"),
                            scan.exclude = NULL,
@@ -32,16 +32,16 @@ batchFisherTest <- function(genoData,
             length(sex.include) > 1) {
           stop("sex chromosome batch tests cannot be done for both sexes combined")
         }
-        
+
         batch <- getScanVariable(genoData, batchVar)
         sex <- getSex(genoData)
         scanID <- getScanID(genoData)
-        
+
         # exclude scans
         if (!is.null(scan.exclude)) {
           batch[scanID %in% scan.exclude] <- NA
         }
-        
+
 	id <- levels(factor(batch))
         nBatch <- length(id)
 	if (nBatch < 2)
@@ -53,7 +53,7 @@ batchFisherTest <- function(genoData,
         ychr <- chrom[chromIndex] == YchromCode(genoData)
         snpID <- getSnpID(genoData, index=chromIndex)
         nSnp <- length(snpID)
-        
+
 	# prepare data
         ave <- double(nBatch)
         names(ave) <- id
@@ -94,7 +94,7 @@ batchFisherTest <- function(genoData,
                           gA[(xchr | ychr) & gA == 2] <- 1
                         }
 			nA[, i] <- nA[, i] + gA
-                        
+
 			gB <- 2-geno
                         gB[is.na(geno)] <- 0
                         if (sex[iSamp] == "M") {
@@ -112,7 +112,7 @@ batchFisherTest <- function(genoData,
                            dimnames=list(snpID, c("nA","nB")))
         # minor allele counts
         minorCounts <- rowMin(nAlleles)
-        
+
 	if (verbose)
 		message(date(), "\tStart ...")
 
@@ -150,7 +150,7 @@ batchFisherTest <- function(genoData,
                     }
                   }
                 }
-                
+
 		# save
                 if (return.by.snp) {
                   Pval.Batch[,i] <- pval
@@ -161,19 +161,19 @@ batchFisherTest <- function(genoData,
                   }
                   Exp.Batch[,i] <- .minExpFreq(n1A, n1B, n2A, n2B)
                 }
-                
+
                 # odds ratio goes from 0 to infinity
                 # rescale so it is between 0 and 1 for computing mean
                 # then take inverse so mean odds ratios are > 1
                 ave[i] <- 1/mean(pmin(or, 1/or), na.rm=TRUE)
   	        # genomic inflation factor
-		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / qchisq(0.5,df=2)
+		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / 1.39
 
 		if (verbose)
 			message(date(), "\t", i, "/", nBatch, "\t", id[i])
 
                 # if there are only 2 batches, no need to repeat calculation twice
-                if (nBatch == 2) {               
+                if (nBatch == 2) {
                   ave[i+1] <- ave[i]
                   lambda[i+1] <- lambda[i]
                   if (return.by.snp) {
@@ -198,7 +198,7 @@ batchFisherTest <- function(genoData,
         } else {
           fisher.batch <- list("mean.or"=ave, "lambda"=lambda)
         }
-        
+
 	if (verbose)
 		message(date(), "\t", "End ...")
 

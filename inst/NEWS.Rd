@@ -466,11 +466,6 @@
     variable names (not just genotype)
   }
 }
-\section{Changes in version 1.11.23}{
-  \itemize{
-    \item Use qschisq instead of hard-coded values in batchChisqTest and batchFisherTest.
-  }
-}
 
 
 

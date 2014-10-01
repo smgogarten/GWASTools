@@ -61,25 +61,10 @@ When a new column is added to an AnnotationDataFrame, we also add a
 column to the metadata describing what that data means.
 The SNP and scan AnnotationDataFrame objects are stored in R data objects (.RData files) which can be directly loaded into R.
 
-%% The raw and called genotype data are stored in the Network Common Data Format (NetCDF).
-%% NetCDF is a set of software libraries and machine-independent data
-%% formats, designed specifically for large sets of array-oriented scientific data,
-%% and its use is widespread in those sciences that require very large data
-%% sets. It is maintained by the \href{http://www.unidata.ucar.edu/software/netcdf/}{Unidata program
-%% at the University Corporation for Atmospheric Research} (UCAR).
-%% This portable binary file format is convenient since it allows for efficient multi-dimensional arrayed data
-%% (although we only use up to two dimensions).
-
 The raw and called genotype data can be stored in the Genomic Data
 Structure (GDS) format
 (\href{http://corearray.sourceforge.net}{http://corearray.sourceforge.net}),
-or the Network Common Data Format (NetCDF) (\href{http://www.unidata.ucar.edu/software/netcdf/}).
-
-%% In the \Rpackage{GWASTools} package, access to the NetCDF files is provided by
-%% the \Rcode{NcdfGenotypeReader} and \Rcode{NcdfIntensityReader} classes.
-%% These classes are built on top of the \Rpackage{ncdf} package and provide access
-%% to a standard set of variables defined for GWAS data.
-
+or the Network Common Data Format (NetCDF) (\href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}).
 In the \Rpackage{GWASTools} package, access to the GDS files is provided by
 the \Rcode{GdsGenotypeReader} and \Rcode{GdsIntensityReader} classes.
 These classes are built on top of the \Rpackage{gdsfmt} package and provide access
@@ -1421,49 +1406,28 @@ In most studies, there are discrepancies between pedigrees provided and relatedn
 relationships so that analyses assuming all subjects are unrelated can use a filtered subset of samples.
 From our experience, it is difficult to accurately estimate low levels of relatedness, but higher levels can be more
 reliably determined. Users are encouraged to employ analyses which take into accounts the IBD estimates themselves
-rather than discrete relationship coefficients for any relationships. This step calculates identity by descent (IBD)
-estimates for each population group using an expectation-maximization (EM) approach for maximum likelihood
-estimation (MLE) of the IBD probabilities \Rcode{k1} and \Rcode{k0}
-\footnote{Weir, B. S., Anderson, A. D. \& Hepler, A. B. Genetic relatedness analysis: modern data and new challenges.
-\textit{Nature Reviews Genetics} \textbf{7}, 771-780 (October 2006).},
-and then graphs \Rcode{k1} versus \Rcode{k0}. The calculations are done
-using the \Rpackage{SNPRelate} package.
+rather than discrete relationship coefficients for any relationships.
 
-
-\subsubsection*{IBD Using Maximum Likelihood Estimation (MLE)}
-
-SNP selection for the IBD estimation analysis has proved to be a salient component of the analysis.
-One may consider choosing SNPs based upon patterns of linkage, minor allele frequency or position along the genome.
-Here we simply use autosomal SNPs with missing call rate less than 0.05 to include in the
-MLE IBD estimation.
+The \Rpackage{SNPRelate} package includes three methods for
+calculating IBD: maximum likelihood
+estimation (MLE), which is accurate but computationally intensive,
+PLINK Method of Moments (MoM), which is faster but does not perform
+well with multiple ancestry groups analyzed together, and KING, which
+is robust to population structure\footnote{Manichaikul et al, Robust relationship inference in genome-wide association studies, Bioinformatics, 26(22):2867–2873, 2010}.
+This example will use the KING method.
 
 <<>>=
-snp.auto <- pData(snpAnnot)[snpAnnot$chromosome < 23, ]
-snp.auto.nonmiss <- snp.auto[snp.auto$missing.n1 < 0.05, ]
-snp.sel <- snp.auto.nonmiss$snpID
-length(snp.sel)
-@
-
-Next, we perform the IBD estimation for the CEU population group.
-The \Rcode{snpgdsIBDMLE} function gives square matrices with rows and columns equal to the number of
-samples where entries are the \Rcode{k0} and \Rcode{k1} coefficient estimates, respectively, for each pairwise combination
-of samples. Note for larger studies this is a significant analysis since every possible pair of samples must be
-considered.
-
-<<>>=
-sample.sel <- scanAnnot$scanID[scanAnnot$race == "CEU"]
-length(sample.sel)
 library(SNPRelate)
 gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
 gdsobj <- snpgdsOpen(gdsfile)
-ibdobj <- snpgdsIBDMLE(gdsobj, sample.id=sample.sel, snp.id=snp.sel, method="EM")
+ibdobj <- snpgdsIBDKING(gdsobj)
 snpgdsClose(gdsobj)
 names(ibdobj)
-dim(ibdobj$k0)
-ibdobj$k0[1:5,1:5]
+dim(ibdobj$kinship)
+ibdobj$kinship[1:5,1:5]
 @
 
-We can now find the expected relationships between samples in the CEU group based on the pedigree data
+We find the expected relationships between samples based on the pedigree data
 that is stored in the sample annotation file. We will create a subset of the sample annotation that has one line per
 sample and columns that hold family, father and mother ids, where an entry of \Rcode{0} indicates no familial data.
 Then the function \Rcode{pedigreeCheck} is called, which
@@ -1472,8 +1436,7 @@ singleton families, mothers/fathers whose sex does not match,
 impossible relationships, subfamilies, or missing entries.
 
 <<>>=
-ped <- pData(scanAnnot)[scanAnnot$race == "CEU",
-  c("family", "subjectID", "father", "mother", "sex")]
+ped <- pData(scanAnnot)[,c("family", "subjectID", "father", "mother", "sex")]
 dim(ped)
 names(ped) <- c("family", "individ", "father", "mother", "sex")
 ped[1:5, ]
@@ -1502,13 +1465,16 @@ ped.complete <- rbind(uni.ped, parent)
 
 There are multiple subfamilies identified, so we will need to
     assign new family IDs to the subfamilies.
+One subfamily has two unrelated people (likely
+    founders), so we remove this family from the pedigree.
 
 <<>>=
+ped.complete <- ped.complete[ped.complete$family != 58,]
 subf <- chk$subfamilies.ident
 table(subf$family)
 subf.ids <- subf$individ[subf$subfamily == 2]
 newfam <- ped.complete$individ %in% subf.ids
-ped.complete$family[newfam] <- ped.complete$family[newfam] + 10000
+ped.complete$family[newfam] <- paste0(ped.complete$family[newfam], "-2")
 table(ped.complete$family)
 pedigreeCheck(ped.complete)
 @
@@ -1542,11 +1508,9 @@ names(samp) <- c("scanID", "Individ")
 ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
 ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
 ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
-ibd$ii <- paste(pmin(ibd$Individ1, ibd$Individ2),
-                pmax(ibd$Individ1, ibd$Individ2))
+ibd$ii <- pasteSorted(ibd$Individ1, ibd$Individ2)
 
-relprs$ii <- paste(pmin(relprs$Individ1, relprs$Individ2),
-                   pmax(relprs$Individ1, relprs$Individ2))
+relprs$ii <- pasteSorted(relprs$Individ1, relprs$Individ2)
 ibd <- merge(ibd, relprs[,c("ii","relation")], all.x=TRUE)
 names(ibd)[names(ibd) == "relation"] <- "exp.rel"
 ibd$exp.rel[ibd$Individ1 == ibd$Individ2] <- "Dup"
@@ -1554,158 +1518,28 @@ ibd$exp.rel[is.na(ibd$exp.rel)] <- "U"
 table(ibd$exp.rel, useNA="ifany")
 
 # assign observed relationships
-ibd$obs.rel <- ibdAssignRelatedness(ibd$k0, ibd$k1)
+ibd$obs.rel <- ibdAssignRelatednessKing(ibd$IBS0, ibd$kinship)
 table(ibd$obs.rel, useNA="ifany")
 @
 
  Now the pedigree information is in the proper format for the
 IBD estimates to be plotted for each pair of samples, color coded by expected relationship.
-The orange line segments span the values for the expected \Rcode{k0}, \Rcode{k1} values, $\pm$2 standard deviations.
 
 <<fig=TRUE>>=
-ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
-  main="HapMap CEU IBD Estimates \nEM Algorithm")
+## thresholds for assigning relationships using kinship coefficients
+## in table 1 of Manichaikul (2010)
+cut.dup <- 1/(2^(3/2))
+cut.deg1 <- 1/(2^(5/2))
+cut.deg2 <- 1/(2^(7/2))
+cut.deg3 <- 1/(2^(9/2))
+cols <- c(Dup="magenta", PO="cyan", U="black")
+
+plot(ibd$IBS0, ibd$kinship, col=cols[ibd$exp.rel],
+     xlab="Fraction of IBS=0", ylab="Kinship coefficient")
+abline(h=c(cut.deg1, cut.deg2, cut.deg3, cut.dup), lty=2, col="gray")
+legend("topright", legend=names(cols), col=cols, pch=1)
 @
 
-
-
-
-
-\subsubsection*{IBD Using Method of Moments (MoM)}
-
-IBD analysis can also be performed using the PLINK Method of Moments (MoM) approach. For the MoM approach, we use
-a selection of autosomal SNPs with missing call rate less than 5
-percent and minor allele frequency $>0$ that are spaced at least 15 kb apart.
-
-
-We calculate the allele frequency in the set of samples that will be
-analyzed (in this case, YRI samples).
-The function \Rcode{apartSnpSelection} randomly selects SNPs for which no pair of SNPs is closer than a user specified
-threshold; we choose 15 kb here.
-
-<<>>=
-# Allele frequency calculation in YRI samples
-# open the GDS file and create a GenotypeData object
-gds <- GdsGenotypeReader(gdsfile)
-genoData <-  GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
-# sample selection - unduplicated YRI samples
-sample.excl <- scanAnnot$scanID[scanAnnot$race != "YRI" | scanAnnot$duplicated]
-length(sample.excl)
-afreq <- alleleFrequency(genoData, scan.exclude=sample.excl)
-close(genoData)
-# Add allele frequency to SNP annotation
-afreq <- afreq[,"all"] # males and females combined
-snpAnnot$A.freq.yri <- afreq
-varMetadata(snpAnnot)["A.freq.yri", "labelDescription"] <-
-  "frequency of allele A in YRI subjects"
-# Initial selection: autosomal SNPs with low missing call rate and MAF>0
-init.sel <- snpAnnot$missing.n1 < 0.05 & snpAnnot$chromosome < 23 &
-  afreq > 0 & afreq < 1
-sum(init.sel)
-# Call the function to select SNPs no closer than 15000 bases
-set.seed(1001)
-n <- 15000
-rsnp2 <- apartSnpSelection(snpAnnot$chromosome, snpAnnot$position,
-                           min.dist=n, init.sel=init.sel)
-sum(rsnp2)
-# Add the SNP selection to the SNP annotation file
-snpAnnot$r15kb <- rsnp2
-varMetadata(snpAnnot)["r15kb", "labelDescription"] <- paste(
-  "Logical indicator for autosomal SNPs with missing.n1<0.05",
-  "and YRI MAF>0, at least 15 kb apart")
-@
-
-We now use the function \Rcode{snpgdsIBDMoM} to perform IBD
-    for the YRI samples using the PLINK MoM approach.
-
-<<>>=
-sample.sel <- scanAnnot$scanID[scanAnnot$race == "YRI"]
-snp.sel <- snpAnnot$snpID[snpAnnot$r15kb]
-gdsobj <- snpgdsOpen(gdsfile)
-ibdobj <- snpgdsIBDMoM(gdsobj, sample.id=sample.sel, snp.id=snp.sel)
-snpgdsClose(gdsobj)
-dim(ibdobj$k0)
-ibdobj$k0[1:5,1:5]
-@
-
-We can now find the expected relationships between samples in the YRI group based on the pedigree data
-that is stored in the sample annotation file.
-We will create a subset of the sample annotation that has one line per sample and columns that hold family, father
-and mother ids, where an entry of \Rcode{0} indicates no familial data.
-As before, we use the function \Rcode{pedigreeCheck} to check for
-pedigree errors.
-
-<<>>=
-ped <- pData(scanAnnot)[scanAnnot$race == "YRI",
-  c("family", "subjectID", "father", "mother", "sex")]
-dim(ped)
-names(ped) <- c("family", "individ", "father", "mother", "sex")
-ped[1:5, ]
-(chk <- pedigreeCheck(ped))
-@
-
-As with the Europeans, we remove duplicates and fix subfamilies.
-In studies with family data, sorting pedigree inconsistencies
-is a convoluted task and it is important to utilize automated methods to help detect any inconsistencies.
-
-<<>>=
-dups <- chk$duplicates
-uni.ped <- pedigreeDeleteDuplicates(ped, dups)
-(chk <- pedigreeCheck(uni.ped))
-@
-
-There is a subfamily with two unrelated people (likely
-    founders), so we remove this family from the pedigree.
-
-<<>>=
-subf <- chk$subfamilies.ident
-uni.ped <- uni.ped[!(uni.ped$family %in% subf$family),]
-table(uni.ped$family)
-pedigreeCheck(uni.ped)
-@
-
-Now from the verified sample list excluding duplicate samples, we can calculate the expected relationships
-among the samples by calling the function \Rcode{pedigreePairwiseRelatedness}.
-
-<<>>=
-rels <- pedigreePairwiseRelatedness(uni.ped)
-length(rels$inbred.fam)
-relprs <- rels$relativeprs
-relprs[1:5,]
-table(relprs$relation)
-
-samp <- pData(scanAnnot)[,c("scanID", "subjectID")]
-samp <- samp[match(ibdobj$sample.id, samp$scanID),]
-names(samp) <- c("scanID", "Individ")
-ibd <- snpgdsIBDSelection(ibdobj, kinship.cutoff=1/32)
-ibd <- merge(ibd, samp, by.x="ID1", by.y="scanID")
-ibd <- merge(ibd, samp, by.x="ID2", by.y="scanID", suffixes=c("1","2"))
-ibd$ii <- paste(pmin(ibd$Individ1, ibd$Individ2),
-                pmax(ibd$Individ1, ibd$Individ2))
-
-relprs$ii <- paste(pmin(relprs$Individ1, relprs$Individ2),
-                   pmax(relprs$Individ1, relprs$Individ2))
-ibd <- merge(ibd, relprs[,c("ii","relation")], all.x=TRUE)
-names(ibd)[names(ibd) == "relation"] <- "exp.rel"
-ibd$exp.rel[ibd$Individ1 == ibd$Individ2] <- "Dup"
-ibd$exp.rel[is.na(ibd$exp.rel)] <- "U"
-table(ibd$exp.rel, useNA="ifany")
-
-# assign observed relationships
-ibd$obs.rel <- ibdAssignRelatedness(ibd$k0, ibd$k1)
-table(ibd$obs.rel, useNA="ifany")
-@
-
- Now the pedigree information is in the proper format for the
-IBD estimates to be plotted for each pair of samples, color coded by expected relationship.
-Several samples in the YRI population show higher than expected relatedness.\footnote{A
-second generation human haplotype map of over 3.1 million SNPs, supplementary information. The International HapMap
-Consortium, \textit{Nature} \textbf{449}, 851-861 (18 October 2007).}
-
-<<fig=TRUE>>=
-ibdPlot(ibd$k0, ibd$k1, relation=ibd$exp.rel,
-  main="HapMap YRI IBD Estimates \nPLINK MOM Approach")
-@
 
 
 
@@ -2124,7 +1958,8 @@ anom.filt$whole.chrom <- FALSE
 # select unique subjects
 subj <- scanAnnot$scanID[!scanAnnot$duplicated]
 subj.filt.file <- "subj_filt.gds"
-gdsSetMissingGenotypes(genofile, subj.filt.file, anom.filt, sample.include=subj)
+gdsSetMissingGenotypes(genofile, subj.filt.file, anom.filt,
+                       sample.include=subj, verbose=FALSE)
 (gds <- GdsGenotypeReader(subj.filt.file))
 close(gds)
 @

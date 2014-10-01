@@ -139,8 +139,8 @@
     }
 }
 
-.close <- function(x) UseMethod(".close", x)
-.close.gds.class <- function(x) {
+.close <- function(x, ...) UseMethod(".close", x)
+.close.gds.class <- function(x, verbose) {
     vars <- ls.gdsn(x)
     vars <- vars[!grepl("^snp", vars)] # snp nodes already done
     for (v in vars) readmode.gdsn(index.gdsn(x, v))
@@ -149,9 +149,9 @@
     ## close and cleanup
     filename <- x$filename
     closefn.gds(x)
-    cleanup.gds(filename)
+    cleanup.gds(filename, verbose=verbose)
 }
-.close.ncdf <- function(x) close.ncdf(x)
+.close.ncdf <- function(x, ...) close.ncdf(x)
 
 createDataFile <- function(path=".",
                            filename,
@@ -300,7 +300,7 @@ createDataFile <- function(path=".",
         }
     }	## end of for loop
     ## finish up
-    .close(genofile)
+    .close(genofile, verbose=verbose)
     diagnostics <- list(read.file, row.num, samples, sample.match, missg, snp.chk, chk)
     names(diagnostics) <- c("read.file", "row.num", "samples", "sample.match", "missg", "snp.chk", "chk")
     save(diagnostics, file=diagnostics.filename)

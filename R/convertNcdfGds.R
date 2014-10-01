@@ -147,7 +147,7 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	# close files
 	closefn.gds(gfile)
 	close.ncdf(nc)
-        cleanup.gds(gds.filename)
+        cleanup.gds(gds.filename, verbose=verbose)
 
 	if (verbose)
 		message(date(), "\tend convertNcdfGds.\n")

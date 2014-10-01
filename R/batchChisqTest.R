@@ -29,7 +29,7 @@
 }
 
 batchChisqTest <- function(genoData,
-                             batchVar, 
+                             batchVar,
                              chrom.include = 1:22,
                              sex.include = c("M", "F"),
                            scan.exclude = NULL,
@@ -50,7 +50,7 @@ batchChisqTest <- function(genoData,
             length(sex.include) > 1) {
           stop("sex chromosome batch tests cannot be done for both sexes combined")
         }
-        
+
         batch <- getScanVariable(genoData, batchVar)
         sex <- getSex(genoData)
         scanID <- getScanID(genoData)
@@ -59,7 +59,7 @@ batchChisqTest <- function(genoData,
         if (!is.null(scan.exclude)) {
           batch[scanID %in% scan.exclude] <- NA
         }
-        
+
 	id <- levels(factor(batch))
         nBatch <- length(id)
 	if (nBatch < 2)
@@ -71,7 +71,7 @@ batchChisqTest <- function(genoData,
         ychr <- chrom[chromIndex] == YchromCode(genoData)
         snpID <- getSnpID(genoData, index=chromIndex)
         nSnp <- length(snpID)
-        
+
 	# prepare data
         ave <- double(nBatch)
         names(ave) <- id
@@ -107,7 +107,7 @@ batchChisqTest <- function(genoData,
                           gA[(xchr | ychr) & gA == 2] <- 1
                         }
 			nA[, i] <- nA[, i] + gA
-                        
+
 			gB <- 2-geno
                         gB[is.na(geno)] <- 0
                         if (sex[iSamp] == "M") {
@@ -125,7 +125,7 @@ batchChisqTest <- function(genoData,
                            dimnames=list(snpID, c("nA","nB")))
         # minor allele counts
         minorCounts <- rowMin(nAlleles)
-        
+
 	if (verbose)
 		message(date(), "\tStart ...")
 
@@ -165,11 +165,11 @@ batchChisqTest <- function(genoData,
                 # mean chisq
                 ave[i] <- mean(rv, na.rm=TRUE)
   	        # genomic inflation factor
-                lambda[i] <- median(rv, na.rm=TRUE) / qchisq(0.5,df=1)
+                lambda[i] <- median(rv, na.rm=TRUE) / 0.456
 
 		if (verbose)
 			message(date(), "\t", i, "/", nBatch, "\t", id[i])
-                
+
                 # if there are only 2 batches, no need to repeat calculation twice
                 if (nBatch == 2) {
                   ave[i+1] <- ave[i]
@@ -181,7 +181,7 @@ batchChisqTest <- function(genoData,
                   break
                 }
 	}
-        
+
         if (return.by.snp) {
           res <- list("mean.chisq"=ave, "lambda"=lambda, "chisq"=Chi.Batch, "allele.counts"=nAlleles, "min.exp.freq"=Exp.Batch)
         } else {
