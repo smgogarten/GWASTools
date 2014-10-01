@@ -37,7 +37,7 @@ check2batches <- function(nc) {
   checkTrue(all(0 <= exp.or.rs[!is.na(exp.or.rs)] & exp.or.rs[!is.na(exp.or.rs)] <= 1))
   exp.ave <- rep(1/mean(exp.or.rs, na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -93,7 +93,7 @@ check4batches <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- 1/mean(pmin(exp.or[,i], 1/exp.or[,i]), na.rm=TRUE)
-    exp.lam[i] <-  median(-2*log(exp.pval[,i]), na.rm=TRUE) / 1.39
+    exp.lam[i] <-  median(-2*log(exp.pval[,i]), na.rm=TRUE) / qchisq(0.5, 2)
   }
 
   # test function
@@ -187,7 +187,7 @@ checkAuto <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -242,7 +242,7 @@ checkXYM <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -295,7 +295,7 @@ checkXF <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -358,7 +358,7 @@ checkFileOut <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -412,7 +412,7 @@ checkExclude <- function(nc) {
   exp.or[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(1/mean(pmin(exp.or, 1/exp.or), na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / 1.39, 2)
+  exp.lam <- rep(median(-2*log(exp.pval), na.rm=TRUE) / qchisq(0.5, 2), 2)
   names(exp.lam) <- exp.batch
 
   # test function

@@ -33,7 +33,7 @@ check2batches <- function(nc) {
   exp.chisq[pmin(rowSums(nA), rowSums(nB)) == 0] <- NA
   exp.ave <- rep(mean(exp.chisq, na.rm=TRUE), 2)
   names(exp.ave) <- exp.batch
-  exp.lam <- rep(median(exp.chisq, na.rm=TRUE) / 0.456, 2)
+  exp.lam <- rep(median(exp.chisq, na.rm=TRUE) / qchisq(0.5, 1), 2)
   names(exp.lam) <- exp.batch
 
   # test function
@@ -85,7 +85,7 @@ check4batches <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function
@@ -138,7 +138,7 @@ checkNoYates <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function
@@ -193,7 +193,7 @@ checkAuto <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function
@@ -252,7 +252,7 @@ checkXYM <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function
@@ -309,7 +309,7 @@ checkXF <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function
@@ -376,7 +376,7 @@ checkFileOut <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
   
   # test function
@@ -431,7 +431,7 @@ checkExclude <- function(nc) {
   names(exp.lam) <- exp.batch
   for (i in 1:nbatch) {
     exp.ave[i] <- mean(exp.chisq[,i], na.rm=TRUE)
-    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / 0.456
+    exp.lam[i] <- median(exp.chisq[,i], na.rm=TRUE) / qchisq(0.5, 1)
   }
 
   # test function

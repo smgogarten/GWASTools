@@ -165,7 +165,7 @@ batchChisqTest <- function(genoData,
                 # mean chisq
                 ave[i] <- mean(rv, na.rm=TRUE)
   	        # genomic inflation factor
-                lambda[i] <- median(rv, na.rm=TRUE) / 0.456
+                lambda[i] <- median(rv, na.rm=TRUE) / qchisq(0.5, 1)
 
 		if (verbose)
 			message(date(), "\t", i, "/", nBatch, "\t", id[i])

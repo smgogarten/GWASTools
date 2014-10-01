@@ -167,7 +167,7 @@ batchFisherTest <- function(genoData,
                 # then take inverse so mean odds ratios are > 1
                 ave[i] <- 1/mean(pmin(or, 1/or), na.rm=TRUE)
   	        # genomic inflation factor
-		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / 1.39
+		lambda[i] <- median(-2*log(pval), na.rm=TRUE) / qchisq(0.5, 2)
 
 		if (verbose)
 			message(date(), "\t", i, "/", nBatch, "\t", id[i])
