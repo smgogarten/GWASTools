@@ -20,7 +20,7 @@ test_checkGenotypeFile_ncdf <- function() {
                          scan.name.in.file=-1, check.scan.index=1:3,
                          n.scans.loaded=3, diagnostics.filename=diagfile)
   checkTrue(all(res$chk == 1))
-  checkTrue(all(res$snp.order == 1))
+  checkTrue(all(res$snp.chk == 1))
   checkTrue(all(res$geno.chk == 1))
   
   # now change a file and see if it detects the difference
@@ -72,7 +72,7 @@ test_checkGenotypeFile_gds <- function() {
                          scan.name.in.file=-1, check.scan.index=1:3,
                          n.scans.loaded=3, diagnostics.filename=diagfile)
   checkTrue(all(res$chk == 1))
-  checkTrue(all(res$snp.order == 1))
+  checkTrue(all(res$snp.chk == 1))
   checkTrue(all(res$geno.chk == 1))
   
   # now change a file and see if it detects the difference

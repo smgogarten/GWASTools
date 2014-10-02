@@ -24,7 +24,7 @@ test_convertNcdfGds <- function() {
   checkEquals(scanID, getScanID(gds))
   checkEquals(chromosome, getChromosome(gds))
   checkEquals(position, getPosition(gds))
-  checkEquals(snpName, getVariable(gds, "snp.rs.id"))
+  #checkEquals(snpName, getVariable(gds, "snp.rs.id"))
   checkEquals(alleleA, getAlleleA(gds))
   checkEquals(alleleB, getAlleleB(gds))
   checkEquals(geno, getGenotype(gds))

@@ -1,6 +1,6 @@
 \name{createDataFile}
 \alias{createDataFile}
-%\alias{ncdfAddIntensity}
+\alias{createAffyIntensityFile}
 \alias{checkGenotypeFile}
 \alias{checkIntensityFile}
 
@@ -20,31 +20,30 @@ Genotypic calls and/or associated quantitative variables (e.g. quality score, in
 \usage{
 createDataFile(path = ".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
-               sep.type, skip.num, col.total, col.nums,
-               scan.name.in.file, scan.start.index = 1,
+               sep.type, skip.num, col.total, col.nums, scan.name.in.file,
 	       precision="single", compress="ZIP.max",
 	       array.name = NULL, genome.build = NULL,
                diagnostics.filename = "createDataFile.diagnostics.RData",
                verbose = TRUE)
 
-%ncdfAddIntensity(path = ".",  filename, file.type=c("gds", "ncdf"),
-%                 snp.annotation, scan.annotation,
-%                 scan.start.index = 1, n.consecutive.scans = -1,
-%                 diagnostics.filename = "ncdfAddIntensity.diagnostics.RData",
-%                 verbose = TRUE)
+createAffyIntensityFile(path = ".",  filename, file.type=c("gds", "ncdf"),
+                        snp.annotation, scan.annotation,
+	                precision="single", compress="ZIP.max",
+	                array.name = NULL, genome.build = NULL,
+                 	diagnostics.filename = "createAffyIntensityFile.diagnostics.RData",
+                 	verbose = TRUE)
 
 checkGenotypeFile(path = ".", filename, file.type=c("gds", "ncdf"),
                   snp.annotation, scan.annotation,
-                  sep.type, skip.num, col.total, col.nums,
-                  scan.name.in.file, check.scan.index, n.scans.loaded,
+                  sep.type, skip.num, col.total, col.nums, scan.name.in.file, 
+		  check.scan.index, n.scans.loaded,
                   diagnostics.filename = "checkGenotypeFile.diagnostics.RData",
                   verbose = TRUE)
 
-checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "ncdf"),
+checkIntensityFile(path = ".", filename, file.type=c("gds", "ncdf"),
                    snp.annotation, scan.annotation,
-                   sep.type, skip.num, col.total, col.nums,
-                   scan.name.in.file, check.scan.index,
-                   n.scans.loaded, affy.inten = FALSE,
+                   sep.type, skip.num, col.total, col.nums, scan.name.in.file, 
+		   check.scan.index, n.scans.loaded, affy.inten = FALSE,
                    diagnostics.filename = "checkIntensityFile.diagnostics.RData",
                    verbose = TRUE)
 }
@@ -56,10 +55,6 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
 \arguments{
 
   \item{path}{Path to the raw text files.
-}
-
-  \item{intenpath}{Path to the raw text files containing intensity, if
-    "inten.file" is given in scan.annotation.
 }
 
 \item{filename}{The name of the genotype GDS or netCDF file to create}
@@ -108,18 +103,12 @@ checkIntensityFile(path = ".", intenpath = ".", filename, file.type=c("gds", "nc
   \item{scan.name.in.file}{An indicator for the presence of sample name within the file. A value of 1 indicates a column with repeated values of the sample name (Illumina format), -1 indicates sample name embedded in a column heading (Affymetrix format) and 0 indicates no sample name inside the raw data file.
 }
 
-  \item{scan.start.index}{A numeric value containing the index of the sample dimension of the GDS or netCDF file at which to begin writing.
-  }
-
-%  \item{n.consecutive.scans}{The number of consecutive "sampleID" indices for which to write intensity values, beginning at scan.start.index (which equals the number of "ALLELE_SUMMARY" files to process). When n.consecutive.scans=-1, all samples from scan.start.index to the total number will be processed.}
-
   \item{check.scan.index}{An integer vector containing the indices of
   the sample dimension of the GDS or netCDF file to check.}
 
   \item{n.scans.loaded}{Number of scans loaded in the GDS or netCDF file.}
 
-  \item{affy.inten}{Logical value indicating whether Affy intensities
-  are in separate files from quality scores.  If \code{TRUE}, must also specify intenpath.}
+  \item{affy.inten}{Logical value indicating whether intensity files are in Affymetrix format (two lines per SNP).}
 
 \item{precision}{A character value indicating whether floating point
   numbers should be stored as "double" or "single" precision.}
@@ -160,8 +149,8 @@ The genotype calls in the raw text file may be either one column of diploid call
 
 While each raw text file is being read, the functions check for errors and irregularities and records the results in a list of vectors. If any problem is detected, that raw text file is skipped.
 
-%\code{ncdfAddIntensity} uses \code{scan.start.index} and \code{n.consecutive.scans} to identify the set of integer sample ids for input (from the netCDF file). It then uses the sample annotation data.frame to identify the corresponding sample names and "ALLELE_SUMMARY" file names to read.
-%The "ALLELE_SUMMARY" files have two rows per SNP, one for X (A allele) and one for Y (B allele). These are reformatted to one row per SNP and and ordered according to the SNP integer id in the netCDF file. The correspondence between SNP names in the "ALLELE_SUMMARY" file and the SNP integer ids is made using the SNP annotation data.frame.
+\code{createAffyIntensityFile} create an intensity data file from Affymetrix "ALLELE_SUMMARY" files.
+The "ALLELE_SUMMARY" files have two rows per SNP, one for X (A allele) and one for Y (B allele). These are reformatted to one row per SNP and and ordered according to the SNP integer id. The correspondence between SNP names in the "ALLELE_SUMMARY" file and the SNP integer ids is made using the SNP annotation data.frame.
 
 \code{checkGenotypeFile} and \code{checkIntensityFile} check the
 contents of GDS or netCDF files against raw text files.
@@ -238,12 +227,13 @@ col.nums <- as.integer(c(1,2,12,13))
 names(col.nums) <- c("snp", "sample", "a1", "a2")
 diagfile <- tempfile()
 res <- createDataFile(path, ncfile, file.type="ncdf", variables="genotype",
-                     snpAnnot, scanAnnot, sep.type=",",
-                     skip.num=11, col.total=21, col.nums=col.nums,
-                     scan.name.in.file=1, diagnostics.filename=diagfile)
+                      snpAnnot, scanAnnot, sep.type=",",
+                      skip.num=11, col.total=21, col.nums=col.nums,
+                      scan.name.in.file=1, diagnostics.filename=diagfile)
 
 file.remove(diagfile)
 file.remove(ncfile)
+
 
 #############
 # Affymetrix - genotype file
@@ -259,17 +249,46 @@ names(scanAnnot)[2:3] <- c("scanName", "file")
 col.nums <- as.integer(c(2,3)); names(col.nums) <- c("snp", "geno")
 diagfile <- tempfile()
 res <- createDataFile(path, ncfile, file.type="ncdf", variables="genotype",
-                     snpAnnot, scanAnnot, sep.type="\t",
-                     skip.num=1, col.total=6, col.nums=col.nums,
-                     scan.name.in.file=-1, diagnostics.filename=diagfile)
+                      snpAnnot, scanAnnot, sep.type="\t",
+                      skip.num=1, col.total=6, col.nums=col.nums,
+                      scan.name.in.file=-1, diagnostics.filename=diagfile)
 file.remove(diagfile)
 
 # check
 diagfile <- tempfile()
-res <- checkGenotypeFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot, sep.type="\t",
-                       skip.num=1, col.total=6, col.nums=col.nums,
-                       scan.name.in.file=-1, check.scan.index=1:3,
-                       n.scans.loaded=3, diagnostics.filename=diagfile)
+res <- checkGenotypeFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot, 
+                        sep.type="\t", skip.num=1, col.total=6, col.nums=col.nums,
+			scan.name.in.file=-1, 
+			check.scan.index=1:3, n.scans.loaded=3, 
+			diagnostics.filename=diagfile)
+file.remove(diagfile)
+file.remove(ncfile)
+
+
+#############
+# Affymetrix - intensity file
+#############
+ncfile <- tempfile()
+path <- system.file("extdata", "affy_raw_data", package="GWASdata")
+data(affy_snp_annot, affy_scan_annot)
+snpAnnot <- affy_snp_annot[,c("snpID", "probeID", "chromosome", "position")]
+names(snpAnnot)[2] <- "snpName"
+# subset of samples for testing
+scanAnnot <- affy_scan_annot[1:3, c("scanID", "genoRunID", "alleleFile")]
+names(scanAnnot)[2:3] <- c("scanName", "file")
+diagfile <- tempfile()
+res <- createAffyIntensityFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot, 
+		     	       diagnostics.filename=diagfile)
+file.remove(diagfile)
+
+# check
+diagfile <- tempfile()
+res <- checkIntensityFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot,
+                          sep.type="\t", skip.num=1, col.total=2, 
+			  col.nums=setNames(as.integer(c(1,2,2)), c("snp", "X", "Y")),
+		  	  scan.name.in.file=-1, affy.inten=TRUE,
+                          check.scan.index=1:3, n.scans.loaded=3, 
+		   	  diagnostics.filename=diagfile)
 file.remove(diagfile)
 file.remove(ncfile)
 }

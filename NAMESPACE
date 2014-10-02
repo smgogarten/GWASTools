@@ -69,6 +69,7 @@ export(
     convertNcdfGds,
     convertVcfGds,
     createDataFile,
+    createAffyIntensityFile,
     duplicateDiscordance,
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,

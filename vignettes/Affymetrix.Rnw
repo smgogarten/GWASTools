@@ -26,7 +26,7 @@
 
 \section{Overview}
 This vignette describes how to prepare Affymetrix data for use in
-GWASTools.  After following the examples here for prepapring the data,
+GWASTools.  After following the examples here for preparing the data,
 the analysis procedure is the same as presented in
 the GWAS Data Cleaning vignette.
 
@@ -44,8 +44,8 @@ All of the functions in GWASTools require a minimum set of variables in the SNP 
 
 
 We create the integer chromosome mapping for a few reasons.  The
-chromosome is stored as an integer in the NetCDF files, so in order to
-link the SNP annotation with the NetCDF file, we use the integer
+chromosome is stored as an integer in the NetCDF or GDS files, so in order to
+link the SNP annotation with the NetCDF/GDS file, we use the integer
 values in the annotation as well.
 For convenience when using GWASTools functions,
 the chromosome variable is most times assumed to be an integer value.  Thus, for the sex chromosomes, we can simply
@@ -140,66 +140,27 @@ varMetadata(scanAnnot) <- meta
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\section{Creating the NetCDF Files}
+\section{Creating the Data Files}
 
 
-The data for genotype calls, allelic intensities and other variables such as BAlleleFrequency are stored as NetCDF files. 
-More information on the NetCDF file format in general can be found at \\ \href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}.
-The GWASTools package depends on the ncdf library.
-Documentation for the ncdf R library can be found at \\
-\href{http://cran.r-project.org/web/packages/ncdf/ncdf.pdf}{http://cran.r-project.org/web/packages/ncdf/ncdf.pdf}.
-The ncdf library provides a convenient R interface to create, populate and extract data from NetCDF files. 
+The data for genotype calls, allelic intensities and other variables
+such as BAlleleFrequency are stored as NetCDF or GDS files. 
 
-For each study, three different NetCDF files are  
-created to be used in subsequent cleaning and analysis steps.   
-This format is used for the ease with which multi-dimensional arrays of data can be stored and accessed.
-
-All NetCDF files created have two dimensions, one called {\tt snp} and one titled {\tt sample}.  The {\tt snp}
-dimension is of the same length as the number of probes that were released from the genotyping center and listed in the
-SNP annotation file.  The 
-{\tt sample} dimension is of length equal to the number of genotyping scans released as listed in the sample annotation file.
-Further, all NetCDF files have three variables in common: {\tt sampleID, chromosome} and {\tt position}.
-The {\tt sampleID} is used for indexing the columns of the two dimensional values stored in the NetCDF files
-(genotype calls, for example).  The {\tt sampleID} ordering must match the {\tt scanID} values as listed
-in the sample annotation file, see Section~\ref{create_sampann}.
-The index to the SNP probes in the NetCDF file is the {\tt snpID}, which is stored as values of the SNP dimension.  Since {\tt snpID} is in chromosome and position order, these variables also provide a check on ordering and are often used to select subsets of SNPs for analysis.  Analogous to the sample ordering, these values must match the {\tt snpID} values listed
-in the SNP annotation file, see \ref{create_snpann}.
-To prevent errors in ordering samples or SNPs, the functions in the GWASTools package take as arguments R objects
-which will return an error on creation if the sample and SNP
-annotation does not match the NetCDF file.
-We recommend always checking the ordering of these variables before writing new versions of the SNP or sample annotation
-data files.
 
 \subsection*{Genotype NetCDF Files}
 
-The genotype NetCDF files store genotypic data in 0, 1, 2 format
+The genotype files store genotypic data in 0, 1, 2 format
 indicating the number of ``A'' alleles in the genotype 
 (i.e. AA=2, AB=1, BB=0 and missing=-1).  The conversion from AB format and forward strand (or other)
 allele formats can be stored in the SNP annotation file.
 
-The genotypic data are stored as a two-dimensional array, where rows are SNPs and columns are samples.
-To store the genotype data, the raw data files are opened and checked to ensure the sample identifier from
-the sample annotation file and the genotype data file match.  If no discrepencies exist, the probes
-listed in the file are checked against the expected list of probes, then ordered and written to the NetCDF file.
-This process iterates over each file (sample).  Diagnostics are stored as the process continues so that after the
-data are written one can ensure the function performed as expected.   
-
 \subsection*{Creating the Genotype NetCDF file}
-                                     
-
-  
-The first step in creating a NetCDF file is to create a `shell' NetCDF file to which the 
-data will be written.  The function {\tt ncdfCreate} creates the two dimensions and 
-three common variables as described above. It also assigns values of the SNP dimension as {\tt snpID} values and populates the {\tt chromosome} and {\tt position} variables.
-
-In this case, we also want the {\tt genotype} variable to be created, so the {\tt vars} argument must be set to 
-{\tt "genotype"}. In the interest of computational feasibility, only 3 samples will be written in this step.
-
+               
 <<>>=
-geno.nc.file <- "tmp.geno.nc"
+geno.file <- "tmp.geno.nc"
 # get snp annotation data frame for function
 snp <- affy_snp_annot[,c("snpID", "chromosome", "position")]
-ncdfCreate(ncdf.filename = geno.nc.file,
+ncdfCreate(ncdf.filename = geno.file,
        snp.annotation = snp,
        variables = c("genotype"),
        array.name = "AffyGenomeWideSNP_6",
@@ -245,7 +206,7 @@ ensure no errors occurred.
 <<>>=
 diag.geno.file <- "diag.geno.RData"
 diag.geno <- ncdfAddData(path = path,
-  ncdf.filename = geno.nc.file, 
+  ncdf.filename = geno.file, 
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation, 
   sep.type = "\t",
@@ -283,7 +244,7 @@ Although the diagnostic values indicated no issues, we will open
 
   
 <<>>=
-(genofile <- NcdfGenotypeReader(geno.nc.file))
+(genofile <- NcdfGenotypeReader(geno.file))
 # Take out genotype data for the first 3 samples and 
 #   the first 5 SNPs
 (genos <- getGenotype(genofile, snp=c(1,5), scan=c(1,3)))
@@ -297,7 +258,7 @@ Run the function {\tt ncdfCheckGenotype} to check that the
 <<>>=
 check.geno.file <- "check.geno.RData"
 check.geno <- ncdfCheckGenotype(path = path,
-  ncdf.filename = geno.nc.file, 
+  ncdf.filename = geno.file, 
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation, 
   sep.type = "\t",
@@ -357,10 +318,10 @@ along with the X, Y and quality variables; the {\tt vars} argument is set to wri
 For a reasonable computation time, we will create the file to hold data for 3 samples only.
 
 <<>>=
-qxy.nc.file <- "tmp.qxy.nc"
+qxy.file <- "tmp.qxy.nc"
 # get snp annotation data frame for function
 snp <- affy_snp_annot[,c("snpID", "chromosome", "position")]
-ncdfCreate(ncdf.filename = qxy.nc.file,
+ncdfCreate(ncdf.filename = qxy.file,
        snp.annotation = snp,
        variables = c("quality","X","Y"),
        array.name = "AffyGenomeWideSNP_6",
@@ -406,7 +367,7 @@ A set of diagnostic values are written and stored in {\tt diag.qual}.
 <<>>=
 diag.qual.file <- "diag.qual.RData"
 diag.qual <- ncdfAddData(path = path,
-  ncdf.filename = qxy.nc.file, 
+  ncdf.filename = qxy.file, 
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation, 
   sep.type = "\t",
@@ -428,7 +389,7 @@ scan.annotation <- affy_scan_annot[1:3, c("scanID", "genoRunID", "alleleFile")]
 names(scan.annotation) <- c("scanID", "scanName", "file")
 diag.xy.file <- "diag.xy.RData"
 diag.xy <- ncdfAddIntensity(path = path,
-  ncdf.filename = qxy.nc.file, 
+  ncdf.filename = qxy.file, 
   snp.annotation = snp.annotation, 
   scan.annotation = scan.annotation, 
   scan.start.index = 1, 
@@ -443,7 +404,7 @@ We will open
  
 <<>>=
 # Open the NetCDF file we just created
-(intenfile <- NcdfIntensityReader(qxy.nc.file))
+(intenfile <- NcdfIntensityReader(qxy.file))
 # Take out the normalized X intensity values for the first 
 #     5 SNPs for the first 3 samples
 (xinten <- getX(intenfile, snp=c(1,5), scan=c(1,3)))
@@ -461,7 +422,7 @@ names(scan.annotation) <- c("scanID", "scanName", "file", "inten.file")
 check.qxy.file <- "check.qxy.RData"
 check.qxy <- ncdfCheckIntensity(path = path,
   intenpath = path,
-  ncdf.filename = qxy.nc.file, 
+  ncdf.filename = qxy.file, 
   snp.annotation = snp.annotation,
   scan.annotation = scan.annotation, 
   sep.type = "\t",
@@ -562,10 +523,10 @@ along with the BAlleleFrequency and LogRRatio variables.
 In order to allow for a reasonable computation time, we will create the file to hold data for 3 samples only.
 
 <<>>=
-bl.nc.file <- "tmp.bl.nc"
+bl.file <- "tmp.bl.nc"
 # get snp annotation data frame for function
 snp <- affy_snp_annot[,c("snpID", "chromosome", "position")]
-ncdfCreate(ncdf.filename = bl.nc.file,
+ncdfCreate(ncdf.filename = bl.file,
        snp.annotation = snp,
        variables = c("BAlleleFreq","LogRRatio"),
        array.name = "AffyGenomeWideSNP_6",
@@ -584,16 +545,16 @@ For more detail regarding the {\tt BAFfromGenotypes} function, please see the fu
 After the function is complete, we will look at a few values to ensure the file was created successfully.
 
 <<>>=
-xyNC <- NcdfIntensityReader(qxy.nc.file)
-genoNC <- NcdfGenotypeReader(geno.nc.file)
+xyNC <- NcdfIntensityReader(qxy.file)
+genoNC <- NcdfGenotypeReader(geno.file)
 BAFfromGenotypes(xyNC, genoNC,
-           bl.ncdf.filename = bl.nc.file, 
+           bl.ncdf.filename = bl.file, 
            min.n.genotypes = 0,
            call.method ="by.study")
 close(xyNC)
 close(genoNC)
 # Open the NetCDF file we just created
-(blfile <- NcdfIntensityReader(bl.nc.file))
+(blfile <- NcdfIntensityReader(bl.file))
 # Look at the BAlleleFrequency values for the first 5 SNPs
 (baf <- getBAlleleFreq(blfile, snp=c(1,5), scan=c(1,3)))
 # Close the NetCDF file
@@ -603,7 +564,7 @@ close(blfile)
 
 
 <<echo=FALSE, results=hide>>=
-file.remove(geno.nc.file, qxy.nc.file, bl.nc.file)
+file.remove(geno.file, qxy.file, bl.file)
 file.remove(diag.geno.file, diag.qual.file, diag.xy.file)
 file.remove(check.geno.file, check.qxy.file)
 @ 

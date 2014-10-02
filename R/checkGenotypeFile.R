@@ -36,7 +36,7 @@ checkGenotypeFile <- function(path=".",
 	
 	if(any(!is.element(geno.sampid, scan.annotation$scanID))) stop("some sample id(s) in ncdf file not found in sample annotation dataframe")
 	scan.annotation <- scan.annotation[match(geno.sampid, scan.annotation$scanID),]
-	files <- paste(path, scan.annotation$file, sep="/")
+	files <- file.path(path, scan.annotation$file)
 
 	# check col.nums vector
         col.nums <- col.nums[!is.na(col.nums)]
@@ -74,7 +74,7 @@ checkGenotypeFile <- function(path=".",
 	chk <- rep(NA,fn)			# final check on data ready to load into ncdf
 
 	# new diagnostics
-	snp.order <- rep(NA,fn)
+	## snp.order <- rep(NA,fn)
 	geno.chk <- rep(NA,fn)
 
 	if(is.null(end)) end <- nscan(genofile)
@@ -86,9 +86,9 @@ checkGenotypeFile <- function(path=".",
 
 
 		# save at each iteration in case of crash
-		diagnostics <- list(read.file, row.num, sample.names, sample.match, missg, snp.chk, chk, snp.order, geno.chk)
+		diagnostics <- list(read.file, row.num, sample.names, sample.match, missg, snp.chk, chk, geno.chk)
 		names(diagnostics) <- c("read.file", "row.num", "sample.names", "sample.match", "missg", "snp.chk", "chk",
-					 "snp.order", "geno.chk")
+					 "geno.chk")
 		save(diagnostics, file=diagnostics.filename)
 
 		#read in the file for one sample and keep columns of interest; skip to next file if there is a read error (using function "try")
@@ -121,7 +121,7 @@ checkGenotypeFile <- function(path=".",
 		if(any(duplicated(dat$snp))) {snp.chk[i] <- 0; rm(dat); next} 
 
 		#check that all expected snps are present
-		if(any(!is.element(dat$snp,snp.annotation$snpName))) {snp.chk[i] <- 0; rm(dat); next} else snp.chk[i] <- 1
+		if(!setequal(dat$snp,snp.annotation$snpName)) {snp.chk[i] <- 0; rm(dat); next} else snp.chk[i] <- 1
 
 		#make diploid genotypes if necessary
                 if(!is.element("geno", names(dat)) && is.element("a1", names(dat)) && is.element("a2", names(dat))) {
@@ -137,19 +137,20 @@ checkGenotypeFile <- function(path=".",
 
 		#Using the first raw data file to make it this far, put the int.ids in same order as in raw data
 		#	(expecting all to be in this order)
-		if(!exists("snp2")) {
-			row.names(snp.annotation) <- snp.annotation$snpName
-			snp2 <- snp.annotation[dat$snp, ]
-		}
+                dat <- dat[match(snp.annotation$snpName, dat$snp),]
+		## if(!exists("snp2")) {
+		## 	row.names(snp.annotation) <- snp.annotation$snpName
+		## 	snp2 <- snp.annotation[dat$snp, ]
+		## }
 
 		# check to be sure snp ids are in the same order in each file
-		if(!all(snp2$snpName==dat$snp)) { rm(dat); snp.order[i] <- 0; next} else {snp.order[i] <- 1}
+		## if(!all(snp2$snpName==dat$snp)) { rm(dat); snp.order[i] <- 0; next} else {snp.order[i] <- 1}
 
 		#load genotypes from ncdf
 		geno <- getGenotype(genofile, snp=c(1,n), scan=c(i,1))
 
 		#put in same order as snps in raw data file
-		geno <- geno[match(snp2$snpID, nc.snpid)]
+		## geno <- geno[match(snp2$snpID, nc.snpid)]
 					
 		# convert to AB type
 		abtype <- rep(NA, n)
@@ -164,7 +165,7 @@ checkGenotypeFile <- function(path=".",
 			} else {rm(dat); rm(geno); rm(abtype); geno.chk[i] <- 0; next}
 
 		chk[i] <- 1	# made it this far
-		rm(dat)
+		if (exists("dat")) rm(dat)
 		# to monitor progress
 		if(verbose & i%%10==0) {
 			rate <- (Sys.time()-start)/10
@@ -176,9 +177,9 @@ checkGenotypeFile <- function(path=".",
 
 	}	# end of loop
 
-	diagnostics <- list(read.file, row.num, sample.names, sample.match, missg, snp.chk, chk, snp.order, geno.chk)
+	diagnostics <- list(read.file, row.num, sample.names, sample.match, missg, snp.chk, chk,geno.chk)
 	names(diagnostics) <- c("read.file", "row.num", "sample.names", "sample.match", "missg", "snp.chk", "chk",
-					 "snp.order", "geno.chk")
+					"geno.chk")
 	save(diagnostics, file=diagnostics.filename)
 
 	close(genofile)

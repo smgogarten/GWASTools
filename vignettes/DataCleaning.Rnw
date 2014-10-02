@@ -362,7 +362,6 @@ diag.geno <- createDataFile(path = path,
   col.total = 21,
   col.nums = col.nums,
   scan.name.in.file = 1,
-  scan.start.index = 1,
   diagnostics.filename = diag.geno.file,
   verbose = FALSE)
 # Look at the values included in the "diag.geno" object which holds
@@ -478,7 +477,6 @@ diag.qxy <- createDataFile(path = path,
   col.total = 21,
   col.nums = col.nums,
   scan.name.in.file = 1,
-  scan.start.index = 1,
   diagnostics.filename = diag.qxy.file,
   verbose = FALSE)
 @
@@ -489,7 +487,6 @@ Run the function \Rcode{checkIntensityFile} to check that the
 <<>>=
 check.qxy.file <- "check.qxy.RData"
 check.qxy <- checkIntensityFile(path = path,
-  intenpath = path,
   filename = qxy.file,
   file.type = "gds",
   snp.annotation = snp.annotation,
@@ -616,7 +613,6 @@ diag.bl <- createDataFile(path = path,
   col.total = 21,
   col.nums = col.nums,
   scan.name.in.file = 1,
-  scan.start.index = 1,
   diagnostics.filename = diag.bl.file,
   verbose = FALSE)
 @

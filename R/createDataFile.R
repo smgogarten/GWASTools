@@ -99,8 +99,9 @@
     add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
              compress=compress, closezip=TRUE)
     add.gdsn(gds, "snp.position", snp.annotation$position, compress=compress, closezip=TRUE)
-    if ("snpName" %in% names(snp.annotation))
-        add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress, closezip=TRUE)
+    ## comment out until propblem with large character vectors in gdsfmt is fixed
+    ## if ("snpName" %in% names(snp.annotation))
+    ##     add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress, closezip=TRUE)
     sync.gds(gds)
 
     ## add selected variables
@@ -130,12 +131,12 @@
     }
 }
 
-.addData.ncdf <- function(x, dat, sample.id, vars, k, n) {
-    put.var.ncdf(x, "sampleID", vals=sample.id, start=k, count=1)
+.addData.ncdf <- function(x, dat, sample.id, vars, sample.index) {
+    put.var.ncdf(x, "sampleID", vals=sample.id, start=sample.index, count=1)
     for (v in vars) {
         ## set missing code for genotype
         if (v == "genotype") dat[[v]][is.na(dat[[v]])] <- -1
-        put.var.ncdf(x, v, vals=dat[[v]], start=c(1,k), count=c(n,1))
+        put.var.ncdf(x, v, vals=dat[[v]], start=c(1,sample.index), count=c(-1,1))
     }
 }
 
@@ -164,7 +165,6 @@ createDataFile <- function(path=".",
                            col.total,
                            col.nums,
                            scan.name.in.file,
-                           scan.start.index = 1,
                            precision = "single",
                            compress = "ZIP.max",
                            array.name = NULL,
@@ -228,8 +228,6 @@ createDataFile <- function(path=".",
 
     ## add data to file one sample (file) at a time
 
-    k <- scan.start.index
-
     if (verbose) start <- Sys.time()	# to keep track of the rate of file processing
     for(i in 1:fn){
 
@@ -286,9 +284,8 @@ createDataFile <- function(path=".",
         ## Load data into file
         vars <- intersect(c("genotype", intensity.vars), names(dat))
         if (i == 1) message("adding variables: ", paste(vars, collapse=", "))
-        .addData(genofile, dat, sample.nums[i], vars, k, n)
+        .addData(genofile, dat, sample.nums[i], vars, i)
 
-        k <- k+1	# sample dimension indicator
         chk[i] <- 1	# made it this far
         rm(dat)
         ## to monitor progress

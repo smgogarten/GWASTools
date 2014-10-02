@@ -55,7 +55,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
                     dat[[v]] <- read.gdsn(node, start=c(1, i), count=c(-1, 1))
                     if (v == "genotype") dat[[v]][dat[[v]] == 3] <- NA
                 }
-                .addData(ncfile, dat, sample.id[i], variables, i, length(snp.id))
+                .addData(ncfile, dat, sample.id[i], variables, i)
 		if (verbose & (i %% 100 == 0))
 			message(date(), "\twriting sample ", i, "\n")
 	}
