@@ -51,13 +51,10 @@ gdsSubsetCheck(parent.gds, sub.gds,
 
 \author{Adrienne Stilp}
 
-\seealso{\pkg{\link{gdsfmt}}, \code{\link{convertNcdfGds}}}
+\seealso{\pkg{\link{gdsfmt}}, \code{\link{createDataFile}}}
 
 \examples{
-ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-gdsfile <- tempfile()
-convertNcdfGds(ncdf.filename=ncfile, gds.filename=gdsfile)
-
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
 gds <- GdsGenotypeReader(gdsfile)
 sample.sel <- getScanID(gds, index=1:10)
 snp.sel <- getSnpID(gds, index=1:100)
@@ -67,7 +64,7 @@ subfile <- tempfile()
 gdsSubset(gdsfile, subfile, sample.include=sample.sel, snp.include=snp.sel)
 gdsSubsetCheck(gdsfile, subfile, sample.include=sample.sel, snp.include=snp.sel)
 
-file.remove(c(gdsfile, subfile))
+file.remove(subfile)
 }
 
 \keyword{manip}

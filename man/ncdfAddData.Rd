@@ -5,9 +5,11 @@
 \alias{ncdfCheckIntensity}
 
 \title{
-Write genotypic calls and/or associated metrics to a netCDF file
+Write genotypic calls and/or associated metrics to a netCDF file - deprecated
 }
 \description{
+Deprecated - use \code{\link{createDataFile}}, \code{\link{createAffyIntensityFile}}, \code{\link{checkGenotypeFile}}, \code{\link{checkIntensityFile}}.
+
 Genotypic calls and/or associated quantitative variables (e.g. quality score, intensities) are read from text files and written to an existing netCDF file in which those variables were defined previously.
 }
 
@@ -201,6 +203,7 @@ A list of diagnostics with the following components is returned. Each vector has
 
 
 \examples{
+\dontrun{
 library(GWASdata)
 
 #############
@@ -309,5 +312,6 @@ res <- ncdfCheckIntensity(path, intenpath, ncfile, snpAnnot, scanAnnot, sep.type
   
 file.remove(diagfile)
 file.remove(ncfile)
+}
 }
 \keyword{manip}

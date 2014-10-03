@@ -355,10 +355,6 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
   # create integer snpID
   map$snpID <- 1:nsnp
 
-  # create netCDF file
-  ncdfCreate(snp.annotation=map, ncdf.filename=ncdfFile,
-             n.samples=nSamples, variables="genotype")
-
   # create empty scan annotation vectors
   family <- rep(NA, nSamples)
   individ <- rep(NA, nSamples)
@@ -367,8 +363,9 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
   sex <- rep(NA, nSamples)
   phenotype <- rep(NA, nSamples)
 
-  # open netCDF for writing
-  nc <- open.ncdf(ncdfFile, write=TRUE)
+  # create netCDF file
+  nc <- .createNcdf(snp.annotation=map, filename=ncdfFile, variables="genotype",
+                    n.samples=nSamples)
 
   # read plink file one line at a time
   # for each line, store sample data in annotation and genotype in netCDF

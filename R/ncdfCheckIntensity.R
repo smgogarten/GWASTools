@@ -14,6 +14,8 @@ ncdfCheckIntensity <- function(path=".",
                              diagnostics.filename = "ncdfCheckIntensity.diagnostics.RData",
                              verbose = TRUE) {
 
+    .Deprecated("checkIntensityFile")
+    
 # v4 - add ballelefreq and logrratio and argument N, fix rm snp
 
 	# sx is vector of sample indices to check

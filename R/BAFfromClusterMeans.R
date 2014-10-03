@@ -32,7 +32,7 @@ BAFfromClusterMeans <- function(intenData,
       genofile <- .createGds(snp.annotation, filename, variables, precision, compress)
   } else if (file.type == "ncdf") {
       genofile <- .createNcdf(snp.annotation, filename, variables, nscan(intenData),
-                              precision, array.name=NULL, genome.build=NULL)
+                              precision)
   }
 
 
@@ -83,7 +83,7 @@ BAFfromClusterMeans <- function(intenData,
 
     # write to file
     dat <- list("BAlleleFreq"=baf, "LogRRatio"=lrr)
-    .addData(genofile, dat, scanID[i], variables, i)
+    .addData(genofile, variables, dat, scanID[i], i)
   }
   .close(genofile, verbose=verbose)
   return(invisible(NULL))

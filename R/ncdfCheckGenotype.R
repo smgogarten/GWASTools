@@ -12,6 +12,8 @@ ncdfCheckGenotype <- function(path=".",
                             diagnostics.filename = "ncdfCheckGenotype.diagnostics.RData",
                             verbose = TRUE) {
 		
+    .Deprecated("checkGenotypeFile")
+    
 	# sx is vector of sample indices to check
 	# N is the number of samples loaded so far
 

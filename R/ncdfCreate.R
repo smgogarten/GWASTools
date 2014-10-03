@@ -12,6 +12,8 @@ ncdfCreate <- function(snp.annotation,
 # v3 adds BAlleleFreq and LogRRatio
 # v4 changes missing value for varchrom to -1 and for all quant variables to -9999
 
+    .Deprecated("createDataFile")
+    
         # check variables
         stopifnot(all(variables %in% c("genotype", "quality", "X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq", "LogRRatio")))
         

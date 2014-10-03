@@ -27,13 +27,13 @@
 }
 
 .addDataBySnp <- function(x, ...) UseMethod(".addDataBySnp", x)
-.addDataBySnp.gds.class <- function(x, dat, vars, snp.start, snp.count) {
+.addDataBySnp.gds.class <- function(x, vars, dat, snp.start, snp.count) {
     for (v in vars) {
         write.gdsn(index.gdsn(x, v), val=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
     }
 }
 
-.addDataBySnp.ncdf <- function(x, dat, vars, snp.start, snp.count) {
+.addDataBySnp.ncdf <- function(x, vars, dat, snp.start, snp.count) {
     for (v in vars) {
         put.var.ncdf(x, v, vals=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
     }
@@ -79,7 +79,7 @@ BAFfromGenotypes <- function(
       genofile <- .createGdsBySnp(intenScanID, snp.annotation, filename, variables, precision, compress)
   } else if (file.type == "ncdf") {
       genofile <- .createNcdf(snp.annotation, filename, variables, nscan(intenData),
-                              precision, array.name=NULL, genome.build=NULL)
+                              precision)
       put.var.ncdf(genofile, "sampleID", vals=intenScanID)
   }
 
@@ -197,7 +197,7 @@ BAFfromGenotypes <- function(
 	} # end for loop through SNPs within block.size
 
         dat <- list("BAlleleFreq"=BAF, "LogRRatio"=LRR)
-        .addDataBySnp(genofile, dat, variables, snp.start=m, snp.count=n)
+        .addDataBySnp(genofile, variables, dat, snp.start=m, snp.count=n)
 
 	m <- m+n
 

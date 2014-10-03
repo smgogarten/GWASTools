@@ -3,10 +3,12 @@
 
 
 \title{
-Write genotypic calls and/or associated metrics to a netCDF file.
+Write genotypic calls and/or associated metrics to a netCDF file - deprecated
 }
 
 \description{
+Deprecated - use \code{\link{createDataFile}}
+
 The function creates a shell netCDF file to which data can subsequently written. 
 }
 
@@ -70,11 +72,13 @@ Cathy Laurie
 
 
 \examples{
+\dontrun{
 library(GWASdata)
 data(affy_snp_annot)
 ncfile <- tempfile()
 ncdfCreate(affy_snp_annot, ncfile, variables="genotype", n.samples=5)
 file.remove(ncfile)
+}
 }
 
 \keyword{manip}

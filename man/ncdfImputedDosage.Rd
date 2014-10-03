@@ -63,7 +63,7 @@ ncdfImputedDosage(input.files, ncdf.filename, chromosome,
   MaCH: \url{http://www.sph.umich.edu/csg/abecasis/MACH/tour/imputation.html}
 }
 \author{Stephanie Gogarten}
-\seealso{\code{\link{ncdfCreate}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
+\seealso{\code{\link{createDataFile}}, \code{\link{NcdfGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
 \examples{
 ncfile <- tempfile()
 snpfile <- tempfile()

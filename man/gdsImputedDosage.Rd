@@ -97,7 +97,7 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   MaCH: \url{http://www.sph.umich.edu/csg/abecasis/MACH/tour/imputation.html}
 }
 \author{Adrienne Stilp, Stephanie Gogarten}
-\seealso{\code{GdsGenotypeReader}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
+\seealso{\code{\link{createDataFile}}, \code{\link{GdsGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
 \examples{
 gdsfile <- tempfile()
 snpfile <- tempfile()

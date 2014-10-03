@@ -12,6 +12,8 @@ ncdfAddData <- function(path=".",
                          verbose = TRUE)
 {
 
+    .Deprecated("createDataFile")
+    
 	genofile <- open.ncdf(ncdf.filename, write=TRUE)
 		
 	# check on variables to read and those in the ncdf

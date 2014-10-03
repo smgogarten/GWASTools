@@ -59,12 +59,9 @@ genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
 genoNC <- NcdfGenotypeReader(genofile)
 genoData <- GenotypeData(genoNC, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
 
-# create netCDF file to hold BAF/LRR data
-blfile <- tempfile()
-ncdfCreate(affy_snp_annot, blfile, variables=c("BAlleleFreq","LogRRatio"), n.samples=nsamp)
-
 # calculate BAF and LRR
-BAFfromGenotypes(xyData, genoData, blfile, min.n.genotypes=2,
+blfile <- tempfile()
+BAFfromGenotypes(xyData, genoData, blfile, file.type="ncdf", min.n.genotypes=2,
                  call.method="by.plate", plate.name="plate")
 
 blNC <- NcdfIntensityReader(blfile)

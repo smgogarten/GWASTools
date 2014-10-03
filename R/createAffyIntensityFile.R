@@ -89,7 +89,7 @@ createAffyIntensityFile <- function(path=".",
         dat <- dat[match(snp.names,dat$probe.id),]
 
         ## Load data into file
-        .addData(genofile, dat, sample.nums[i], variables, i)
+        .addData(genofile, variables, dat, sample.nums[i], i)
 
         chk[i] <- 1	## made it this far
         rm(dat)

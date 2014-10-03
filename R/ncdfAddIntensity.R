@@ -12,7 +12,7 @@ ncdfAddIntensity <- function(path=".",
 	# n.consecutive.scans is the number of consecutive scans for which to load intensity data (default of -1 means load them all)
 	# ncdf.filename is the file in which to load the intensity data
 
-		
+    .Deprecated("createAffyIntensityFile")
 		
 	# open ncdf for writing			
         genofile <- open.ncdf(ncdf.filename, write=TRUE)

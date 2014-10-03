@@ -28,7 +28,8 @@
 This vignette describes how to prepare Affymetrix data for use in
 GWASTools.  After following the examples here for preparing the data,
 the analysis procedure is the same as presented in
-the GWAS Data Cleaning vignette.
+the GWAS Data Cleaning vignette.  For a description of the file
+formats (NetCDF and GDS), see the Data Formats vignette.
 
 
 \section{Creating the SNP Annotation Data Object}
@@ -316,7 +317,7 @@ check.qual <- checkIntensityFile(path = path,
 <<>>=
 xy.file <- "tmp.xy.gds"
 
-# we need the allele files instead of chip files
+# we need the allele files instead of CHP files
 scan.annotation <- affy_scan_annot[1:3, c("scanID", "genoRunID", "alleleFile")]
 names(scan.annotation) <- c("scanID", "scanName", "file")
 
@@ -448,10 +449,11 @@ xyData <- IntensityData(GdsIntensityReader(xy.file),
 genoData <- GenotypeData(GdsGenotypeReader(geno.file),
                          snpAnnot=snpAnnot)
 BAFfromGenotypes(xyData, genoData,
-           filename = bl.file, 
-           file.type = "gds",
-           min.n.genotypes = 0,
-           call.method ="by.study")
+                 filename = bl.file, 
+                 file.type = "gds",
+                 min.n.genotypes = 0,
+                 call.method ="by.study",
+                 verbose = FALSE)
 close(xyData)
 close(genoData)
 # Open the file we just created

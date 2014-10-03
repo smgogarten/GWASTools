@@ -46,8 +46,9 @@
     }
 }
 
-.createNcdf <- function(snp.annotation, filename, variables, n.samples, precision,
-                        array.name, genome.build) {
+.createNcdf <- function(snp.annotation, filename, variables, n.samples,
+                        precision="single",
+                        array.name=NULL, genome.build=NULL) {
 
     ## Create the netCDF file and load snp annotation
     ## Define dimensions
@@ -122,7 +123,7 @@
 }
 
 .addData <- function(x, ...) UseMethod(".addData", x)
-.addData.gds.class <- function(x, dat, sample.id, vars, ...) {
+.addData.gds.class <- function(x, vars, dat, sample.id, ...) {
     append.gdsn(index.gdsn(x, "sample.id"), val=sample.id)
     for (v in vars) {
         ## set missing code for genotype
@@ -131,7 +132,7 @@
     }
 }
 
-.addData.ncdf <- function(x, dat, sample.id, vars, sample.index) {
+.addData.ncdf <- function(x, vars, dat, sample.id, sample.index) {
     put.var.ncdf(x, "sampleID", vals=sample.id, start=sample.index, count=1)
     for (v in vars) {
         ## set missing code for genotype
@@ -284,7 +285,7 @@ createDataFile <- function(path=".",
         ## Load data into file
         vars <- intersect(c("genotype", intensity.vars), names(dat))
         if (i == 1) message("adding variables: ", paste(vars, collapse=", "))
-        .addData(genofile, dat, sample.nums[i], vars, i)
+        .addData(genofile, vars, dat, sample.nums[i], i)
 
         chk[i] <- 1	# made it this far
         rm(dat)
