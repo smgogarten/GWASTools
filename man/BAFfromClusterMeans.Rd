@@ -3,58 +3,62 @@
 \title{B Allele Frequency & Log R Ratio Calculation}
 \description{
   This function calculates the B allele frequency and the log R ratio
-  values from the mean R and theta values for each cluster.  The values are written to a netCDF file which is assumed to exist with proper variables and size.
+  values from the mean R and theta values for each cluster.
 }
 
 
 \usage{
-BAFfromClusterMeans(intenData, bl.ncdf.filename,
+BAFfromClusterMeans(intenData, filename, file.type = c("gds", "ncdf"),
                     clusterMeanVars = c("tAA","tAB","tBB","rAA","rAB","rBB"),
+	            precision="single", compress="ZIP.max",
                     verbose = TRUE)
 }
 \arguments{
   \item{intenData}{\code{\link{IntensityData}} object holding the X and
     Y intensity data from which the B allele frequency and log R ratio
     are calculated. }
-  \item{bl.ncdf.filename}{ The filepath for a previously created netCDF file to hold the B allele frequency and log R ratio values. }
+\item{filename}{The name of the genotype GDS or netCDF file to create}
+
+\item{file.type}{The type of file to create ("gds" or "ncdf")}
+
   \item{clusterMeanVars}{Character vector indicating the names of the
     cluster mean columns in the SNP annotation of intenData.  Must be in order
     (tAA,tAB,tBB,rAA,rAB,rBB).}
+
+\item{precision}{A character value indicating whether floating point
+  numbers should be stored as "double" or "single" precision.}
+
+\item{compress}{The compression level for variables in a GDS file (see
+\code{\link{add.gdsn}} for options.}
+
   \item{verbose}{Logical value specifying whether to show progress information.}
 }
 \details{
-  Because this function can take a considerable amount of time and space, sufficient attention should be given to the value used for \code{block.size}.  The file specified by \code{bl.ncdf.filename} is assumed to have variables 'BAlleleFreq' and 'LogRRatio' to which the proper values are written.
-}
-\value{
-  The netCDF file stored in the \code{bl.ncdf.filename} path is populated with values of B allele frequency and the log R ratio at the completion of this function.  
+  This function calculates the B allele frequency and the log R ratio
+  values from the mean R and theta values for each cluster and writes them to a GDS or NetCDF file.
 }
 \author{ Stephanie Gogarten, Caitlin McHugh }
 \references{Peiffer D.A., Le J.M., Steemers F.J., Chang W., Jenniges T., and et al. High-resolution genomic profiling of chromosomal aberrations using infinium whole-genome genotyping. Genome Research, 16:1136-1148, 2006.}
 \seealso{\code{\link{IntensityData}}, \code{\link{BAFfromClusterMeans}}}
 \examples{
-# create IntensityData object from netCDF
+# create IntensityData object from GDS
 library(GWASdata)
-xyfile <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
-xyNC <- NcdfIntensityReader(xyfile)
+xyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+xy <- GdsIntensityReader(xyfile)
 data(illuminaSnpADF)
-xyData <- IntensityData(xyNC, snpAnnot=illuminaSnpADF)
-nsamp <- nscan(xyData)
+xyData <- IntensityData(xy, snpAnnot=illuminaSnpADF)
 
-# create netCDF file to hold BAF/LRR data
+# calculate BAF and LRR and store in GDS file
 blfile <- tempfile()
-ncdfCreate(pData(illuminaSnpADF), blfile, variables=c("BAlleleFreq","LogRRatio"), n.samples=nsamp)
-
-# calculate BAF and LRR
-BAFfromClusterMeans(xyData, blfile, verbose=FALSE)
+BAFfromClusterMeans(xyData, blfile, file.type="gds", verbose=FALSE)
 
 # read output
-blNC <- NcdfIntensityReader(blfile)
-blData <- IntensityData(blNC)
-baf <- getBAlleleFreq(blData)
-lrr <- getLogRRatio(blData)
+bl <- GdsIntensityReader(blfile)
+baf <- getBAlleleFreq(bl)
+lrr <- getLogRRatio(bl)
 
-close(xyNC)
-close(blNC)
+close(xy)
+close(bl)
 file.remove(blfile)
 }
 \keyword{ datagen }

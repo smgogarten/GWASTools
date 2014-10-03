@@ -4,24 +4,19 @@ test_BAFfromClusterMeans <- function() {
   data(illuminaSnpADF)
   snpAnnot <- illuminaSnpADF
   xyData <- IntensityData(xyNC, snpAnnot=snpAnnot)
-  nsamp <- length(getScanID(xyData))
   
   # fake ncdf file
   blfile <- tempfile()
-  ncdfCreate(pData(snpAnnot), blfile, variables=c("BAlleleFreq","LogRRatio"),
-                  n.samples=nsamp)
-
-  BAFfromClusterMeans(xyData, blfile, verbose=FALSE)
+  BAFfromClusterMeans(xyData, blfile, file.type="gds", verbose=FALSE)
 
   # read output
-  blNC <- NcdfIntensityReader(blfile)
-  blData <- IntensityData(blNC)
-  baf <- getBAlleleFreq(blData)
-  lrr <- getLogRRatio(blData)
+  bl <- GdsIntensityReader(blfile)
+  baf <- getBAlleleFreq(bl)
+  lrr <- getLogRRatio(bl)
 
   checkIdentical(c(0,1), range(baf, na.rm=TRUE))
   
   close(xyNC)
-  close(blNC)
+  close(bl)
   file.remove(blfile)
 }

@@ -1,17 +1,55 @@
-# assumes bl.ncdf.filename has already been created with the right
-# variables and dimensions
 
-BAFfromGenotypes <- 
-function(
+## since we calculate BAF/LRR by SNP, need to add data by snp
+.createGdsBySnp <- function(sample.id, snp.annotation, filename, variables, precision,
+                       compress) {
+
+    ## define precision for gds
+    precision <- ifelse(precision == "double", "float64", "float32")
+
+    ## create gds file
+    gds <- createfn.gds(filename)
+
+    ## add standard variables
+    add.gdsn(gds, "sample.id", sample.id, compress=compress, closezip=TRUE)
+    add.gdsn(gds, "snp.id", snp.annotation$snpID, compress=compress, closezip=TRUE)
+    add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
+             compress=compress, closezip=TRUE)
+    add.gdsn(gds, "snp.position", snp.annotation$position, compress=compress, closezip=TRUE)
+    sync.gds(gds)
+
+    ## add selected variables
+    for (v in variables) {
+        add.gdsn(gds, v, storage=precision, valdim=c(nrow(snp.annotation), length(sample.id)))
+    }
+
+    sync.gds(gds)
+    gds
+}
+
+.addDataBySnp <- function(x, ...) UseMethod(".addDataBySnp", x)
+.addDataBySnp.gds.class <- function(x, dat, vars, snp.start, snp.count) {
+    for (v in vars) {
+        write.gdsn(index.gdsn(x, v), val=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
+    }
+}
+
+.addDataBySnp.ncdf <- function(x, dat, vars, snp.start, snp.count) {
+    for (v in vars) {
+        put.var.ncdf(x, v, vals=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
+    }
+}
+
+BAFfromGenotypes <- function(
 		intenData, 
 		genoData, 
-		bl.ncdf.filename, 
+		filename,
+                file.type=c("gds", "ncdf"),
 		min.n.genotypes = 2, 
 		call.method = c("by.plate", "by.study"),
 		plate.name = "plate",
 		block.size = 5000, 
-		verbose = TRUE)
-{
+                precision = "single", compress = "ZIP.max",
+		verbose = TRUE) {
 				
   # check that dimensions of intenData and genoData are equal
   intenSnpID <- getSnpID(intenData)
@@ -31,11 +69,19 @@ function(
     } else stop("call.method==by.plate but plate.name not found in intenData or genoData")
   }
 	
-  # new output file
-  ncbl <- open.ncdf(bl.ncdf.filename, write=TRUE)
+  ## get file type
+  file.type <- match.arg(file.type)
 
-  put.var.ncdf(ncbl, "sampleID", intenScanID, start=1, count=-1) # write scanID to the new ncdf file
-
+  ## create data file
+  snp.annotation <- getSnpVariable(intenData, c("snpID", "chromosome", "position"))
+  variables <- c("BAlleleFreq", "LogRRatio")
+  if (file.type == "gds") {
+      genofile <- .createGdsBySnp(intenScanID, snp.annotation, filename, variables, precision, compress)
+  } else if (file.type == "ncdf") {
+      genofile <- .createNcdf(snp.annotation, filename, variables, nscan(intenData),
+                              precision, array.name=NULL, genome.build=NULL)
+      put.var.ncdf(genofile, "sampleID", vals=intenScanID)
+  }
 
   # make a matrix of T/F indicating which plates the samples are on
   N <- length(intenScanID)
@@ -150,14 +196,14 @@ function(
 		
 	} # end for loop through SNPs within block.size
 
-        put.var.ncdf(ncbl, "BAlleleFreq", BAF, start=c(m,1), count=c(n,-1))
-        put.var.ncdf(ncbl, "LogRRatio", LRR, start=c(m,1), count=c(n,-1))
+        dat <- list("BAlleleFreq"=BAF, "LogRRatio"=LRR)
+        .addDataBySnp(genofile, dat, variables, snp.start=m, snp.count=n)
 
 	m <- m+n
 
       } # end for loop through number of block.sizes
 
-  close.ncdf(ncbl)
+  .close(genofile, verbose=verbose)
   return(invisible(NULL))
 }
 			

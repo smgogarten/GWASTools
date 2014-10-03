@@ -1,8 +1,9 @@
 
 BAFfromClusterMeans <- function(intenData,
-                           bl.ncdf.filename,
-                           clusterMeanVars = c("tAA","tAB","tBB","rAA","rAB","rBB"),
-                           verbose = TRUE)
+                                filename, file.type=c("gds", "ncdf"),
+                                clusterMeanVars = c("tAA","tAB","tBB","rAA","rAB","rBB"),
+                                precision = "single", compress = "ZIP.max",
+                                verbose = TRUE)
 {
   # check that cluster means are in intenData
   stopifnot(all(hasSnpVariable(intenData, clusterMeanVars)))
@@ -21,14 +22,22 @@ BAFfromClusterMeans <- function(intenData,
   slopeB <- (rBB - rAB) / (tBB - tAB)
   interceptB <- rAB - slopeB*tAB
   
-  # new output file
-  ncbl <- open.ncdf(bl.ncdf.filename, write=TRUE)
+  ## get file type
+  file.type <- match.arg(file.type)
 
-  # write scanID to new ncdf file
-  scanID <- getScanID(intenData)
-  put.var.ncdf(ncbl, "sampleID", scanID, start=1, count=-1)
+  ## create data file
+  snp.annotation <- getSnpVariable(intenData, c("snpID", "chromosome", "position"))
+  variables <- c("BAlleleFreq", "LogRRatio")
+  if (file.type == "gds") {
+      genofile <- .createGds(snp.annotation, filename, variables, precision, compress)
+  } else if (file.type == "ncdf") {
+      genofile <- .createNcdf(snp.annotation, filename, variables, nscan(intenData),
+                              precision, array.name=NULL, genome.build=NULL)
+  }
+
 
   # loop over samples
+  scanID <- getScanID(intenData)
   nScan <- length(scanID)
   nSnp <- length(tAA)
   for (i in 1:nScan) { 
@@ -72,10 +81,10 @@ BAFfromClusterMeans <- function(intenData,
     # log R Ratio
     lrr <- log2(r/rexp)
 
-    # write to ncdf
-    put.var.ncdf(ncbl, "BAlleleFreq", baf, start=c(1,i), count=c(-1,1))
-    put.var.ncdf(ncbl, "LogRRatio", lrr, start=c(1,i), count=c(-1,1))
+    # write to file
+    dat <- list("BAlleleFreq"=baf, "LogRRatio"=lrr)
+    .addData(genofile, dat, scanID[i], variables, i)
   }
-  x <- close.ncdf(ncbl)
+  .close(genofile, verbose=verbose)
   return(invisible(NULL))
 }

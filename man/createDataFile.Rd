@@ -214,7 +214,7 @@ library(GWASdata)
 #############
 # Illumina - genotype file
 #############
-ncfile <- tempfile()
+gdsfile <- tempfile()
 path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
 data(illumina_snp_annot, illumina_scan_annot)
 snpAnnot <- illumina_snp_annot[,c("snpID", "rsID", "chromosome",
@@ -226,19 +226,19 @@ names(scanAnnot)[2] <- "scanName"
 col.nums <- as.integer(c(1,2,12,13))
 names(col.nums) <- c("snp", "sample", "a1", "a2")
 diagfile <- tempfile()
-res <- createDataFile(path, ncfile, file.type="ncdf", variables="genotype",
+res <- createDataFile(path, gdsfile, file.type="gds", variables="genotype",
                       snpAnnot, scanAnnot, sep.type=",",
                       skip.num=11, col.total=21, col.nums=col.nums,
                       scan.name.in.file=1, diagnostics.filename=diagfile)
 
 file.remove(diagfile)
-file.remove(ncfile)
+file.remove(gdsfile)
 
 
 #############
 # Affymetrix - genotype file
 #############
-ncfile <- tempfile()
+gdsfile <- tempfile()
 path <- system.file("extdata", "affy_raw_data", package="GWASdata")
 data(affy_snp_annot, affy_scan_annot)
 snpAnnot <- affy_snp_annot[,c("snpID", "probeID", "chromosome", "position")]
@@ -248,7 +248,7 @@ scanAnnot <- affy_scan_annot[1:3, c("scanID", "genoRunID", "chpFile")]
 names(scanAnnot)[2:3] <- c("scanName", "file")
 col.nums <- as.integer(c(2,3)); names(col.nums) <- c("snp", "geno")
 diagfile <- tempfile()
-res <- createDataFile(path, ncfile, file.type="ncdf", variables="genotype",
+res <- createDataFile(path, gdsfile, file.type="gds", variables="genotype",
                       snpAnnot, scanAnnot, sep.type="\t",
                       skip.num=1, col.total=6, col.nums=col.nums,
                       scan.name.in.file=-1, diagnostics.filename=diagfile)
@@ -256,19 +256,19 @@ file.remove(diagfile)
 
 # check
 diagfile <- tempfile()
-res <- checkGenotypeFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot, 
+res <- checkGenotypeFile(path, gdsfile, file.type="gds", snpAnnot, scanAnnot, 
                         sep.type="\t", skip.num=1, col.total=6, col.nums=col.nums,
 			scan.name.in.file=-1, 
 			check.scan.index=1:3, n.scans.loaded=3, 
 			diagnostics.filename=diagfile)
 file.remove(diagfile)
-file.remove(ncfile)
+file.remove(gdsfile)
 
 
 #############
 # Affymetrix - intensity file
 #############
-ncfile <- tempfile()
+gdsfile <- tempfile()
 path <- system.file("extdata", "affy_raw_data", package="GWASdata")
 data(affy_snp_annot, affy_scan_annot)
 snpAnnot <- affy_snp_annot[,c("snpID", "probeID", "chromosome", "position")]
@@ -277,20 +277,20 @@ names(snpAnnot)[2] <- "snpName"
 scanAnnot <- affy_scan_annot[1:3, c("scanID", "genoRunID", "alleleFile")]
 names(scanAnnot)[2:3] <- c("scanName", "file")
 diagfile <- tempfile()
-res <- createAffyIntensityFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot, 
+res <- createAffyIntensityFile(path, gdsfile, file.type="gds", snpAnnot, scanAnnot, 
 		     	       diagnostics.filename=diagfile)
 file.remove(diagfile)
 
 # check
 diagfile <- tempfile()
-res <- checkIntensityFile(path, ncfile, file.type="ncdf", snpAnnot, scanAnnot,
+res <- checkIntensityFile(path, gdsfile, file.type="gds", snpAnnot, scanAnnot,
                           sep.type="\t", skip.num=1, col.total=2, 
 			  col.nums=setNames(as.integer(c(1,2,2)), c("snp", "X", "Y")),
 		  	  scan.name.in.file=-1, affy.inten=TRUE,
                           check.scan.index=1:3, n.scans.loaded=3, 
 		   	  diagnostics.filename=diagfile)
 file.remove(diagfile)
-file.remove(ncfile)
+file.remove(gdsfile)
 }
 
 \keyword{manip}

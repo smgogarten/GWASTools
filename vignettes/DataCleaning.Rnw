@@ -406,9 +406,6 @@ check.geno <- checkGenotypeFile(path = path,
 # Look at the values included in the "check.geno" object which holds
 #   all output from the function call
 names(check.geno)
-# 'snp.order' is a vector indicating whether (1) or not (0) the snp ids
-#   are in the same order in each file.
-table(check.geno$snp.order)
 # 'geno.chk' is a vector indicating whether (1) or not (0) the genotypes
 #   match the text file
 table(check.geno$geno.chk)

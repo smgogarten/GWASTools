@@ -9,39 +9,44 @@ test_BAFfromGenotypes <- function() {
   genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
   genoNC <- NcdfGenotypeReader(genofile)
   genoData <- GenotypeData(genoNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
-  nsamp <- length(getScanID(genoData))
   
   # fake ncdf file
   blfile <- tempfile()
-  ncdfCreate(pData(snpAnnot), blfile, variables=c("BAlleleFreq","LogRRatio"),
-                  n.samples=nsamp)
-
-  BAFfromGenotypes(xyData, genoData, blfile,
-                   call.method="by.plate", plate.name="plate")
+  BAFfromGenotypes(xyData, genoData, blfile, file.type="gds",
+                   call.method="by.plate", plate.name="plate", verbose=FALSE)
+  blfile2 <- tempfile()
+  BAFfromGenotypes(xyData, genoData, blfile2, file.type="ncdf",
+                   call.method="by.plate", plate.name="plate", verbose=FALSE)
 
   # read output
-  blNC <- NcdfIntensityReader(blfile)
-  blData <- IntensityData(blNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  bl <- GdsIntensityReader(blfile)
+  blData <- IntensityData(bl, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+  blNC <- NcdfIntensityReader(blfile2)
+  blData2 <- IntensityData(blNC, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
   baf <- getBAlleleFreq(blData)
   lrr <- getLogRRatio(blData)
+  baf2 <- getBAlleleFreq(blData2)
+  lrr2 <- getLogRRatio(blData2)
+  checkEquals(baf, baf2)
+  checkEquals(lrr, lrr2)
 
   checkIdentical(c(0,1), range(baf, na.rm=TRUE))
   close(blData)
+  close(blData2)
 
   # by study
-  BAFfromGenotypes(xyData, genoData, blfile,
+  BAFfromGenotypes(xyData, genoData, blfile, file.type="ncdf",
                    call.method="by.study")
 
   # read output
   blNC <- NcdfIntensityReader(blfile)
-  blData <- IntensityData(blNC)
-  baf <- getBAlleleFreq(blData)
-  lrr <- getLogRRatio(blData)
+  baf <- getBAlleleFreq(blNC)
+  lrr <- getLogRRatio(blNC)
 
   checkIdentical(c(0,1), range(baf, na.rm=TRUE))
   
   close(xyData)
   close(genoData)
-  close(blData)
-  file.remove(blfile)
+  close(blNC)
+  file.remove(blfile, blfile2)
 }
