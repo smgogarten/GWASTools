@@ -49,9 +49,9 @@ The result is a matrix containing the heterozygosity rates with scans as
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \examples{
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
-genoData <- GenotypeData(nc)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
+genoData <- GenotypeData(gds)
 het <- hetByScanChrom(genoData)
 close(genoData)
 }

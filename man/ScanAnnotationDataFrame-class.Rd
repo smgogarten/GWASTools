@@ -127,8 +127,8 @@
 
 \examples{
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(illumina_scan_annot)
+scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
 
 scanID <- getScanID(scanAnnot)
 sex <- getSex(scanAnnot)

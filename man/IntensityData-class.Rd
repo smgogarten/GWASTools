@@ -64,7 +64,7 @@
     \item{}{
       \code{IntensityData(data, snpAnnot=NULL, scanAnnot=NULL)}:
 
-      \code{data} must be an \code{\link{NcdfIntensityReader}} object.
+      \code{data} must be a \code{\link{GdsIntensityReader}} or \code{\link{NcdfIntensityReader}} object.
 
       \code{snpAnnot}, if not \code{NULL}, must be a
       \code{\link{SnpAnnotationDataFrame}} or \code{\link{SnpAnnotationSQLite}} object.
@@ -243,23 +243,22 @@
   \code{\link{ScanAnnotationDataFrame}},
   \code{\link{ScanAnnotationSQLite}},
   \code{\link{ScanAnnotationDataFrame}},
-  \code{\link{NcdfReader}},
+  \code{\link{GdsIntensityReader}},
   \code{\link{NcdfIntensityReader}},
   \code{\link{GenotypeData}}
 }
 
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
-nc <- NcdfIntensityReader(file)
+file <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+gds <- GdsIntensityReader(file)
 
 # object without annotation
-intenData <- IntensityData(nc)
+intenData <- IntensityData(gds)
 
 # object with annotation
-data(affySnpADF)
-data(affyScanADF)
-intenData <-  IntensityData(nc, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
+data(illuminaSnpADF, illuminaScanADF)
+intenData <-  IntensityData(gds, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
 
 # dimensions
 nsnp(intenData)

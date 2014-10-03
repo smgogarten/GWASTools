@@ -223,26 +223,26 @@
   \code{\link{SnpAnnotationSQLite}},
   \code{\link{ScanAnnotationDataFrame}},
   \code{\link{ScanAnnotationSQLite}},
-  \code{\link{NcdfGenotypeReader}},
   \code{\link{GdsGenotypeReader}},
+  \code{\link{NcdfGenotypeReader}},
   \code{\link{MatrixGenotypeReader}},
   \code{\link{IntensityData}}
 }
 
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
 
 # object without annotation
-genoData <- GenotypeData(nc)
+genoData <- GenotypeData(gds)
 
 # object with annotation
 data(illuminaSnpADF)
 data(illuminaScanADF)
 # need to rebuild old SNP annotation object to get allele methods
 snpAnnot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
-genoData <-  GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
+genoData <-  GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
 
 # dimensions
 nsnp(genoData)

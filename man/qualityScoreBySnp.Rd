@@ -41,13 +41,13 @@ qualityScoreBySnp(intenData, genoData, scan.exclude = NULL,
 
 
 \examples{
-qualfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
-qualnc <- NcdfIntensityReader(qualfile)
-qualData <- IntensityData(qualnc)
+qualfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+qual <- GdsIntensityReader(qualfile)
+qualData <- IntensityData(qual)
 
-genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genonc)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <- GenotypeData(geno)
 
 quality <- qualityScoreBySnp(qualData, genoData)
 close(qualData)

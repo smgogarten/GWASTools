@@ -284,16 +284,15 @@ accurate determination of baseline information.
 }
 \examples{
 library(GWASdata)
-data(illuminaScanADF)
-data(illuminaSnpADF)
+data(illuminaScanADF, illuminaSnpADF)
 
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+bl <- GdsIntensityReader(blfile)
+blData <-  IntensityData(bl, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 # segment BAF
 scan.ids <- illuminaScanADF$scanID[1:2]
@@ -310,5 +309,8 @@ filt <- anomFilterBAF(blData, genoData, segments=seg, snp.ids=snp.ids,
 # alternatively, run both steps at once
 anom <- anomDetectBAF(blData, genoData, scan.ids=scan.ids, chrom.ids=chrom.ids,
                       snp.ids=snp.ids, centromere=centromeres.hg18)
+
+close(blData)
+close(genoData)
 }
 \keyword{manip}

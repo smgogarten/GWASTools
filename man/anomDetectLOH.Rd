@@ -263,16 +263,15 @@ See references in \code{\link{segment}} in the package \pkg{\link{DNAcopy}}.
 }
 \examples{
 library(GWASdata)
-data(illuminaScanADF)
-data(illuminaSnpADF)
+data(illuminaScanADF, illuminaSnpADF)
 
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+bl <- GdsIntensityReader(blfile)
+blData <-  IntensityData(bl, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 scan.ids <- illuminaScanADF$scanID[1:2]
 chrom.ids <- unique(illuminaSnpADF$chromosome)
@@ -284,5 +283,8 @@ known.anoms <- data.frame("scanID"=scan.ids[1],"chromosome"=21,
 
 LOH.anom <- anomDetectLOH(blData, genoData, scan.ids=scan.ids,
   chrom.ids=chrom.ids, snp.ids=snp.ids, known.anoms=known.anoms)
+
+close(blData)
+close(genoData)
 }
 \keyword{manip}

@@ -14,13 +14,10 @@
   from Genome Wide Association studies, and a set of functions for data
   cleaning and analysis that operate on those classes.
 
-  Genotype and intensity data are stored in NetCDF files, so it is
+  Genotype and intensity data are stored in external files (GDS or NetCDF), so it is
   possible to analyze data sets that are too large to be contained in
-  memory.  The \code{\link{NcdfReader}} class provides a generic
-  interface to the NetCDF files (utilizing the \pkg{\link{ncdf}} package), and the
-  \code{\link{NcdfGenotypeReader}} and \code{\link{NcdfIntensityReader}}
-  classes provide specific methods to access genotype and intensity
-  data.
+  memory.  The \code{GenotypeReader} class and \code{IntensityReader}
+  class unions provide a common interface for GDS and NetCDF files.
 
   Two sets of classes for annotation are provided.  
   \code{\link{SnpAnnotationDataFrame}} and 
@@ -42,7 +39,7 @@
 \author{
   Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew
   P. Conomos, Cecelia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng,
-  Jess Shen, Rohit Swarnkar
+  Jess Shen, Rohit Swarnkar, Adrienne Stilp
   
   Maintainer: Stephanie M. Gogarten \email{sdmorris@u.washington.edu}
 }

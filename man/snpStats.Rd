@@ -43,11 +43,10 @@ asSnpMatrix(genoData, snpNames="snpID", scanNames="scanID",
 \examples{
 library(snpStats)
 library(GWASdata)
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
-data(affySnpADF)
-data(affyScanADF)
-genoData <-  GenotypeData(nc, snpAnnot=affySnpADF, scanAnnot=affyScanADF)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
+data(illuminaSnpADF, illuminaScanADF)
+genoData <-  GenotypeData(gds, snpAnnot=illuminaSnpADF, scanAnnot=illuminaScanADF)
 snpmat <- asSnpMatrix(genoData, snpNames="rsID", scanNames="scanID")
 snpmat
 as(snpmat[1:5, 1:5], "character")
@@ -59,5 +58,6 @@ c21 <- which(chr == 21)
 snpmat <- asSnpMatrix(genoData, snpNames="rsID", scanNames="scanID",
                       snp=c(c21[1], length(c21)))
 snpmat
+close(genoData)
 }
 \keyword{manip}

@@ -52,12 +52,12 @@ rows and 2 columns ("M" for males and "F" for females).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
 
 # need scan annotation with sex
-data(affyScanADF)
-genoData <- GenotypeData(nc, scanAnnot=affyScanADF)
+data(illuminaScanADF)
+genoData <-  GenotypeData(gds, scanAnnot=illuminaScanADF)
 
 het <- hetBySnpSex(genoData)
 close(genoData)

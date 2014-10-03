@@ -67,9 +67,9 @@ by a map at 60-kb resolution. Genome Res. 7: 307-314.
 \examples{
 library(GWASdata)
 data(illuminaScanADF)
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-intenData <-  IntensityData(blnc, scanAnnot=illuminaScanADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+blgds <- GdsIntensityReader(blfile)
+intenData <-  IntensityData(blgds, scanAnnot=illuminaScanADF)
 
 scanID <- getScanID(illuminaScanADF, index=1)
 pseudoautoIntensityPlot(intenData=intenData, scan.ids=scanID)

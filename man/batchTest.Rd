@@ -113,10 +113,10 @@ the function.
 
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
-data(affyScanADF)
-genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
+data(illuminaScanADF)
+genoData <-  GenotypeData(gds, scanAnnot=illuminaScanADF)
 
 # autosomes only, sexes combined (default)
 res.chisq <- batchChisqTest(genoData, batchVar="plate")
@@ -132,6 +132,8 @@ head(res.chisq$chisq)
 res.fisher <- batchFisherTest(genoData, batchVar="status",
   chrom.include=23, sex.include="F", return.by.snp=TRUE)
 qqPlot(res.fisher$pval)
+
+close(genoData)
 }
 
 \keyword{htest}

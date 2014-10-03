@@ -46,15 +46,15 @@ qualityScoreByScan(intenData, genoData,
 
 \examples{
 library(GWASdata)
-qualfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
-qualnc <- NcdfIntensityReader(qualfile)
+qualfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+qual <- GdsIntensityReader(qualfile)
 # need scan annotation with sex
-data(affyScanADF)
-qualData <- IntensityData(qualnc, scanAnnot=affyScanADF)
+data(illuminaScanADF)
+qualData <- IntensityData(qual, scanAnnot=illuminaScanADF)
 
-genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genonc, scanAnnot=affyScanADF)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <- GenotypeData(geno, scanAnnot=illuminaScanADF)
 
 quality <- qualityScoreByScan(qualData, genoData)
 close(qualData)

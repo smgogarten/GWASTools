@@ -201,7 +201,7 @@
 }
 
 \examples{
-file <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
+file <- system.file("extdata", "illumina_qxy.nc", package="GWASdata")
 nc <- NcdfIntensityReader(file)
 
 # dimensions

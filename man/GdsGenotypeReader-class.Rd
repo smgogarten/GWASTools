@@ -158,8 +158,8 @@
 }
 
 \examples{
-library(SNPRelate)
-gds <- GdsGenotypeReader(snpgdsExampleFileName())
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
 
 # dimensions
 nsnp(gds)

@@ -170,8 +170,8 @@
 
 \examples{
 library(GWASdata)
-data(affy_snp_annot)
-snpAnnot <- SnpAnnotationDataFrame(affy_snp_annot)
+data(illumina_snp_annot)
+snpAnnot <- SnpAnnotationDataFrame(illumina_snp_annot)
 
 # list columns
 varLabels(snpAnnot)

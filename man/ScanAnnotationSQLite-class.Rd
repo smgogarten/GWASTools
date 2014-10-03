@@ -145,8 +145,8 @@ library(GWASdata)
 dbpath <- tempfile()
 scanAnnot <- ScanAnnotationSQLite(dbpath)
 
-data(affy_scan_annot)
-writeAnnotation(scanAnnot, affy_scan_annot)
+data(illumina_scan_annot)
+writeAnnotation(scanAnnot, illumina_scan_annot)
 
 # list columns
 vars <- getVariableNames(scanAnnot)

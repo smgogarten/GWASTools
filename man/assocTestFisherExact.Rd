@@ -68,10 +68,13 @@ assocTestFisherExact(dat, outfile = NULL)
 
 # run assocTestRegression
 library(GWASdata)
-data(affyScanADF)
-ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
+data(illuminaScanADF)
+scanAnnot <- illuminaScanADF
+
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(gdsfile)
+genoData <-  GenotypeData(gds, scanAnnot=scanAnnot)
+
 mydat <- assocTestRegression(genoData, outcome="status",
   model.type="logistic", chromosome.set=22)
 
@@ -87,5 +90,6 @@ outfile <- "chr22test.FisherExact.RData"
 fisher.res <- getobj(outfile)
 head(fisher.res)
 unlink(outfile)
+close(genoData)
 }
 

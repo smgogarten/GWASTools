@@ -137,13 +137,13 @@ findBAFvariance(sd.by.chrom.window, sd.by.scan.chrom.window,
 library(GWASdata)
 data(illuminaScanADF)
 
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-blData <- IntensityData(blnc, scanAnnot=illuminaScanADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+bl <- GdsIntensityReader(blfile)
+blData <-  IntensityData(bl, scanAnnot=illuminaScanADF)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <- GenotypeData(genonc, scanAnnot=illuminaScanADF)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=illuminaScanADF)
 
 nbins <- rep(8, 3) # need bins for chromosomes 21,22,23
 baf.sd <- sdByScanChromWindow(blData, genoData, nbins=nbins)

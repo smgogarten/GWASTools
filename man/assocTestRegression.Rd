@@ -329,8 +329,8 @@ Warning messages:
 # desiged to eliminate duplicated individuals
 # and scans with missing values of sex
 library(GWASdata)
-data(affy_scan_annot)
-scanAnnot <- ScanAnnotationDataFrame(affy_scan_annot)
+data(illumina_scan_annot)
+scanAnnot <- ScanAnnotationDataFrame(illumina_scan_annot)
 samp.chr.matrix <- matrix(TRUE,nrow(scanAnnot),26)
 dup <- duplicated(scanAnnot$subjectID)
 samp.chr.matrix[dup | is.na(scanAnnot$sex),] <- FALSE
@@ -346,9 +346,9 @@ scanAnnot$blood.pressure[scanAnnot$case.cntl.status==1] <- rnorm(sum(scanAnnot$c
 scanAnnot$blood.pressure[scanAnnot$case.cntl.status==0] <- rnorm(sum(scanAnnot$case.cntl.status==0),mean=90,sd=5)
 
 # create data object
-ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(ncfile)
-genoData <-  GenotypeData(nc, scanAnnot=scanAnnot)
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(gdsfile)
+genoData <-  GenotypeData(gds, scanAnnot=scanAnnot)
 
 # set regression variables and models
 outcome <- c("case.cntl.status","blood.pressure")

@@ -195,8 +195,8 @@ library(GWASdata)
 dbpath <- tempfile()
 snpAnnot <- SnpAnnotationSQLite(dbpath)
 
-data(affy_snp_annot)
-writeAnnotation(snpAnnot, affy_snp_annot)
+data(illumina_snp_annot)
+writeAnnotation(snpAnnot, illumina_snp_annot)
 
 # list columns
 vars <- getVariableNames(snpAnnot)

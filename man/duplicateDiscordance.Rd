@@ -59,10 +59,10 @@ duplicateDiscordance(genoData, subjName.col,
   
 \examples{
 library(GWASdata)
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(file)
-data(affyScanADF)
-genoData <-  GenotypeData(nc, scanAnnot=affyScanADF)
+file <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(file)
+data(illuminaScanADF)
+genoData <-  GenotypeData(gds, scanAnnot=illuminaScanADF)
 
 disc <- duplicateDiscordance(genoData, subjName.col="subjectID")
 

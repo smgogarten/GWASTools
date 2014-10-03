@@ -103,13 +103,13 @@ autosomes uses the total number of segments and eligible SNPs across all autosom
 library(GWASdata)
 data(illuminaScanADF, illuminaSnpADF)
 
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-blData <-  IntensityData(blnc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+bl <- GdsIntensityReader(blfile)
+blData <-  IntensityData(bl, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 
 # initial scan for low quality with median SD
 baf.sd <- sdByScanChromWindow(blData, genoData)

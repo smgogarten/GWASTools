@@ -75,13 +75,14 @@ chromosome. For the Log R Ratio plot, the y-axis has been given the range of (-2
 \examples{
 library(GWASdata)
 data(illuminaScanADF)
-blfile <- system.file("extdata", "illumina_bl.nc", package="GWASdata")
-blnc <- NcdfIntensityReader(blfile)
-intenData <-  IntensityData(blnc, scanAnnot=illuminaScanADF)
 
-genofile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
-genonc <- NcdfGenotypeReader(genofile)
-genoData <-  GenotypeData(genonc, scanAnnot=illuminaScanADF)
+blfile <- system.file("extdata", "illumina_bl.gds", package="GWASdata")
+bl <- GdsIntensityReader(blfile)
+intenData <-  IntensityData(bl, scanAnnot=illuminaScanADF)
+
+genofile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+geno <- GdsGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=illuminaScanADF)
 
 scanID <- getScanID(illuminaScanADF, index=1)
 chromIntensityPlot(intenData=intenData, scan.ids=scanID,

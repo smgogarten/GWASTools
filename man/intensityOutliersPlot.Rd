@@ -34,17 +34,17 @@ intensityOutliersPlot(mean.intensities, sex, outliers,
 \examples{
 # calculate mean intensity
 library(GWASdata)
-file <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
-nc <- NcdfIntensityReader(file)
-data(affyScanADF)
-intenData <- IntensityData(nc, scanAnnot=affyScanADF)
+file <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+gds <- GdsIntensityReader(file)
+data(illuminaScanADF)
+intenData <- IntensityData(gds, scanAnnot=illuminaScanADF)
 meanInten <- meanIntensityByScanChrom(intenData)
 intenMatrix <- meanInten$mean.intensity
 
 # find outliers
 outliers <- list()
-sex <- affyScanADF$sex
-id <- affyScanADF$scanID
+sex <- illuminaScanADF$sex
+id <- illuminaScanADF$scanID
 allequal(id, rownames(intenMatrix))
 for (i in colnames(intenMatrix)) {
   if (i != "X") {
@@ -68,5 +68,6 @@ for (i in colnames(intenMatrix)) {
 
 par(mfrow=c(2,4))
 intensityOutliersPlot(intenMatrix, sex, outliers)
+close(intenData)
 }
 \keyword{hplot}

@@ -7,7 +7,7 @@ import(ncdf)
 import(GWASExactHW)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocTestCPH
-importFrom(sandwich, vcovHC) # used in assocTestRegression
+importFrom(sandwich, vcovHC, vcovHC.default) # used in assocTestRegression
 importFrom(lmtest, lrtest, lrtest.default) # used in assocTestRegression
 importFrom(quantsmooth, paintCytobands, lengthChromosome) # used to plot ideograms
 

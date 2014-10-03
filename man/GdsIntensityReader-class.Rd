@@ -201,7 +201,7 @@
 }
 
 \examples{
-\dontrun{
+file <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
 gds <- GdsIntensityReader(file)
 
 # dimensions
@@ -222,7 +222,6 @@ x <- getX(gds, snp=c(1,-1), scan=c(1,1))
 x <- getX(gds, snp=c(100,10), scan=c(1,5))
 
 close(gds)
-}
 }
 
 \keyword{methods}

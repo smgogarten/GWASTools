@@ -45,10 +45,11 @@ list will be mean and sd for the sum of the intensity variables:
 
 \seealso{\code{\link{IntensityData}}, \code{\link{mean}}, \code{\link{sd}}}
 \examples{
-file <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
-nc <- NcdfIntensityReader(file)
-intenData <- IntensityData(nc)
+file <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
+gds <- GdsIntensityReader(file)
+intenData <- IntensityData(gds)
 
 meanInten <- meanIntensityByScanChrom(intenData)
+close(intenData)
 }
 \keyword{univar}

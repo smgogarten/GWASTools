@@ -147,7 +147,7 @@
 }
 
 \examples{
-file <- system.file("extdata", "affy_geno.nc", package="GWASdata")
+file <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
 nc <- NcdfGenotypeReader(file)
 
 # dimensions
