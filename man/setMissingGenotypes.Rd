@@ -1,23 +1,15 @@
-\name{ncdfSetMissingGenotypes}
-\alias{ncdfSetMissingGenotypes}
-\alias{gdsSetMissingGenotypes}
-\title{Write a new netCDF or GDS file, setting certain SNPs to missing - deprecated}
+\name{setMissingGenotypes}
+\alias{setMissingGenotypes}
+\title{Write a new netCDF or GDS file, setting certain SNPs to missing}
 
 \description{
-Deprecated - use \code{\link{setMissingGenotypes}}
-
-  \code{ncdfSetMissingGenotypes} copies an existing netCDF genotype file to a new
-  one, setting SNPs in specified regions to missing.
-  \code{gdsSetMissingGenotypes} copies an existing GDS genotype file to a new
+  \code{setMissingGenotypes} copies an existing GDS or netCDF genotype file to a new
   one, setting SNPs in specified regions to missing.
 }
 
 \usage{
-ncdfSetMissingGenotypes(parent.file, new.file, regions,
-                        sample.include=NULL, verbose=TRUE)
-gdsSetMissingGenotypes(parent.file, new.file, regions,
-                       sample.include=NULL,
-                       zipflag="ZIP.max", verbose=TRUE)
+setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
+                    sample.include=NULL, zipflag="ZIP.max", verbose=TRUE)
 }
 
 \arguments{
@@ -26,6 +18,7 @@ gdsSetMissingGenotypes(parent.file, new.file, regions,
   \item{regions}{Data.frame of chromosome regions with columns
   \code{"scanID", "chromosome", "left.base", "right.base",
   "whole.chrom"}.}
+  \item{file.type}{The type of \code{parent.file} and \code{new.file} ("gds" or "ncdf")}
   \item{sample.include}{Vector of sampleIDs to include in \code{new.file}}
   \item{zipflag}{the compression format for the GDS file, one of "",
       "ZIP", "ZIP.fast", "ZIP.default", or "ZIP.max"}
@@ -33,7 +26,7 @@ gdsSetMissingGenotypes(parent.file, new.file, regions,
 }
 
 \details{
-  \code{ncdfSetMissingGenotypes} and \code{gdsSetMissingGenotypes} remove chromosome regions by setting
+  \code{setMissingGenotypes} removes chromosome regions by setting
   SNPs that fall within the anomaly regions to \code{NA} (i.e., the missing value
   in the netCDF/GDS file).  Optionally, entire samples may be excluded from
   the netCDF/GDS file as well: if the \code{sample.include} argument is
@@ -47,25 +40,23 @@ gdsSetMissingGenotypes(parent.file, new.file, regions,
 
 \author{Stephanie Gogarten}
 
-\seealso{\code{\link{ncdfSubset}}, \code{\link{anomSegStats}} for
+\seealso{\code{\link{ncdfSubset}}, \code{\link{gdsSubset}}, \code{\link{anomSegStats}} for
   chromosome anomaly regions
 }
 
 \examples{
-\dontrun{
-ncfile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
-nc <- NcdfGenotypeReader(ncfile)
-sample.sel <- getScanID(nc, index=1:10)
-close(nc)
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- GdsGenotypeReader(gdsfile)
+sample.sel <- getScanID(gds, index=1:10)
+close(gds)
 
 regions <- data.frame("scanID"=sample.sel[1:3], "chromosome"=c(21,22,23),
   "left.base"=c(14000000, 30000000, NA), "right.base"=c(28000000, 450000000, NA),
   whole.chrom=c(FALSE, FALSE, TRUE))
 
-newnc <- tempfile()
-ncdfSetMissingGenotypes(ncfile, newnc, regions, sample.include=sample.sel)
-file.remove(newnc)
-}
+newgds <- tempfile()
+setMissingGenotypes(gdsfile, newgds, regions, file.type="gds", sample.include=sample.sel)
+file.remove(newgds)
 }
 
 \keyword{manip}

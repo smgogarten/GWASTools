@@ -6,6 +6,8 @@ gdsSetMissingGenotypes <- function(
         zipflag = "ZIP.max",
         verbose=TRUE) {
 
+.Deprecated("setMissingGenotypes")
+    
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
 
   gds.old <- GdsGenotypeReader(parent.file)

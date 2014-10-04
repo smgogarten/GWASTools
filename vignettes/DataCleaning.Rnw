@@ -1934,7 +1934,7 @@ close(genoData)
 
 We can set genotypes in anomaly regions to missing for future analyses
 (such as Hardy-Weinberg equilibrium and association tests).  We use
-the function \Rcode{gdsSetMissingGenotypes} to create a new GDS file
+the function \Rcode{setMissingGenotypes} to create a new GDS file
 with anomaly regions set to \Rcode{NA}.  We recommend inspecting the
 plots from \Rcode{anomStatsPlot} for large anomalies (e.g., $>5$ Mb) to
 identify those anomalies that case genotyping errors.
@@ -1951,8 +1951,8 @@ anom.filt$whole.chrom <- FALSE
 # select unique subjects
 subj <- scanAnnot$scanID[!scanAnnot$duplicated]
 subj.filt.file <- "subj_filt.gds"
-gdsSetMissingGenotypes(genofile, subj.filt.file, anom.filt,
-                       sample.include=subj, verbose=FALSE)
+setMissingGenotypes(genofile, subj.filt.file, anom.filt,
+                    file.type="gds", sample.include=subj, verbose=FALSE)
 (gds <- GdsGenotypeReader(subj.filt.file))
 close(gds)
 @

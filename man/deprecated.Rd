@@ -18,6 +18,8 @@
     \item{ncdfAddIntensityData: \code{\link{createAffyIntensityFile}}}
     \item{ncdfCheckGenotype: \code{\link{checkGenotypeFile}}}
     \item{ncdfCheckIntensity: \code{\link{checkIntensityFile}}}
+    \item{ncdfSetMissingGenotypes: \code{\link{setMissingGenotypes}}}
+    \item{gdsSetMissingGenotypes: \code{\link{setMissingGenotypes}}}
 
   }
 }

@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.11.30
+Version: 1.11.31
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -19,18 +19,21 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
   createDataFile.R createAffyIntensityFile.R checkGenotypeFile.R checkIntensityFile.R
-  ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R
-  ncdfCreate.R ncdfSubset.R ncdfSubsetCheck.R
+  setMissingGenotypes.R
+  ncdfCreate.R ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R
+  ncdfSubset.R ncdfSubsetCheck.R gdsSubset.R gdsSubsetCheck.R
+  ncdfSetMissingGenotypes.R gdsSetMissingGenotypes.R
+  ncdfImputedDosage.R gdsImputedDosage.R gdsCheckImputedDosage.R
+  plinkUtils.R snpStats.R vcfWrite.R
+  convertNcdfGds.R convertVcfGds.R 
   BAFfromClusterMeans.R BAFfromGenotypes.R
   sdByScanChromWindow.R medianSdOverAutosomes.R meanSdByChromWindow.R findBAFvariance.R
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R
   LOHfind.R LOHselectAnoms.R anomDetectLOH.R
   anomSegStats.R anomStatsPlot.R anomIdentifyLowQuality.R
-  ncdfSetMissingGenotypes.R gdsSetMissingGenotypes.R
   alleleFrequency.R apartSnpSelection.R
   assocTestCPH.R assocTestFisherExact.R assocTestRegression.R
   batchChisqTest.R batchFisherTest.R chromIntensityPlot.R duplicateDiscordance.R
-  plinkUtils.R snpStats.R
   duplicateDiscordanceAcrossDatasets.R duplicateDiscordanceProbability.R
   genoClusterPlot.R genoClusterPlotByBatch.R gwasExactHW.R hetByScanChrom.R
   hetBySnpSex.R intensityOutliersPlot.R manhattanPlot.R mendelErr.R
@@ -40,8 +43,6 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   ibdAreasDraw.R ibdAssignRelatedness.R ibdPlot.R findRelationsMeanVar.R
   pedigreeCheck.R pedigreeDeleteDuplicates.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
-  convertNcdfGds.R convertVcfGds.R ncdfImputedDosage.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
-  gdsImputedDosage.R gdsCheckImputedDosage.R
-  gdsSubset.R gdsSubsetCheck.R
-  vcfWrite.R
+  
+  

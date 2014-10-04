@@ -6,6 +6,8 @@ ncdfSetMissingGenotypes <- function(
         verbose=TRUE
 ) {
 
+.Deprecated("setMissingGenotypes")
+    
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
 
   nc.old <- NcdfGenotypeReader(parent.file)

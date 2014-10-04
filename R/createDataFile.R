@@ -82,8 +82,8 @@
     genofile
 }
 
-.createGds <- function(snp.annotation, filename, variables, precision,
-                       compress) {
+.createGds <- function(snp.annotation, filename, variables, precision="single",
+                       compress="ZIP.max") {
 
     ## define precision for gds
     precision <- ifelse(precision == "double", "float64", "float32")
