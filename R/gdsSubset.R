@@ -6,7 +6,7 @@ gdsSubset <- function(parent.gds,
                       sample.include=NULL,
                       snp.include=NULL,
                       sub.storage=NULL,
-                      zipflag="ZIP.max",
+                      compress="ZIP.max",
                       block.size=5000,
                       verbose=TRUE){
 
@@ -41,15 +41,15 @@ gdsSubset <- function(parent.gds,
   ## TO DO: copy attributes for all
 
   # add sample.id
-  node <- add.gdsn(gds.sub, "sample.id", sampID[sampsel], compress=zipflag, closezip=TRUE, check=TRUE)
+  node <- add.gdsn(gds.sub, "sample.id", sampID[sampsel], compress=compress, closezip=TRUE, check=TRUE)
 
   # add snp info
-  add.gdsn(gds.sub, "snp.id", snpID[snpsel], compress=zipflag, closezip=TRUE, check=TRUE)
+  add.gdsn(gds.sub, "snp.id", snpID[snpsel], compress=compress, closezip=TRUE, check=TRUE)
 
-  add.gdsn(gds.sub, "snp.position", read.gdsn(index.gdsn(gds, "snp.position"))[snpsel], compress=zipflag, closezip=TRUE, check=TRUE)
+  add.gdsn(gds.sub, "snp.position", read.gdsn(index.gdsn(gds, "snp.position"))[snpsel], compress=compress, closezip=TRUE, check=TRUE)
 
   node.parent <- index.gdsn(gds, "snp.chromosome")
-  node.sub <- add.gdsn(gds.sub, "snp.chromosome", read.gdsn(node.parent)[snpsel], compress=zipflag, closezip=TRUE, check=TRUE, storage="uint8")
+  node.sub <- add.gdsn(gds.sub, "snp.chromosome", read.gdsn(node.parent)[snpsel], compress=compress, closezip=TRUE, check=TRUE, storage="uint8")
   attributes <- get.attr.gdsn(node.parent)
   if (length(attributes) > 0){
     for (attribute in names(attributes)){
@@ -61,11 +61,11 @@ gdsSubset <- function(parent.gds,
 
   # alleles if they exist?
   if ("snp.allele" %in% dimnames.parent){
-    add.gdsn(gds.sub, "snp.allele", read.gdsn(index.gdsn(gds, "snp.allele"))[snpsel], compress=zipflag, closezip=TRUE, check=TRUE)
+    add.gdsn(gds.sub, "snp.allele", read.gdsn(index.gdsn(gds, "snp.allele"))[snpsel], compress=compress, closezip=TRUE, check=TRUE)
   }
   # rsID if it exists
   if ("snp.rs.id" %in% dimnames.parent){
-    add.gdsn(gds.sub, "snp.rs.id", read.gdsn(index.gdsn(gds, "snp.rs.id"))[snpsel], compress=zipflag, closezip=TRUE, check=TRUE)
+    add.gdsn(gds.sub, "snp.rs.id", read.gdsn(index.gdsn(gds, "snp.rs.id"))[snpsel], compress=compress, closezip=TRUE, check=TRUE)
   }
 
   # other dimensions

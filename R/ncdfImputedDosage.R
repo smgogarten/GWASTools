@@ -5,6 +5,8 @@ ncdfImputedDosage <- function(input.files, ncdf.filename, chromosome,
                               scan.annot.filename="dosage.scan.RData",
                               verbose=TRUE) {
   
+  .Deprecated("imputedDosageFile")
+  
   # arguments: input type (impute2, beagle, mach), probs or dosages
   input.type <- match.arg(input.type)
   

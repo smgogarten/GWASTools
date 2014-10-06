@@ -76,13 +76,13 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
 #   ncdf.filename  --  the input file name of genotype in netCDF format
 #   gds.filename  --  the output file name of genotype in CoreArray GDS format
 #   snp.annot  --  the annotation of snp
-#   zipflag  --  specify the compression flag except genotype, see "add.gdsn"
+#   compress  --  specify the compression flag except genotype, see "add.gdsn"
 #   verbose  --  show progress
 #
 
 convertNcdfGds <- function(ncdf.filename, gds.filename,
 	snp.annot = NULL, precision="single",
-        zipflag = "ZIP.max", verbose = TRUE)
+        compress = "ZIP.max", verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(ncdf.filename))
@@ -109,7 +109,7 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	if (verbose) message(date(), "\tCreating GDS file ...\n")
         variables <- setdiff(names(nc$var), c("sampleID", "chromosome", "position"))
 	gfile <- .createGds(snp.annotation, gds.filename, variables,
-                            precision, compress=zipflag)
+                            precision, compress=compress)
 
         # add chromosome codes
 	if (!is.null(snp.annot)) {

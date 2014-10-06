@@ -5,14 +5,14 @@
 	Extract SNP data from a VCF file
 }
 \usage{
-convertVcfGds(vcf.filename, gds.filename, nblock=1024, zipflag="ZIP.max",
+convertVcfGds(vcf.filename, gds.filename, nblock=1024, compress="ZIP.max",
 	      verbose=TRUE)
 }
 \arguments{
 	\item{vcf.filename}{the file name of VCF format}
 	\item{gds.filename}{the output gds file}
 	\item{nblock}{the buffer lines}
-	\item{zipflag}{the compression format for the GDS file, one of "",
+	\item{compress}{the compression format for the GDS file, one of "",
 	  "ZIP", "ZIP.fast", "ZIP.default", or "ZIP.max"}
 	\item{verbose}{whether to show progress information}
 }

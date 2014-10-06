@@ -20,6 +20,9 @@
     \item{ncdfCheckIntensity: \code{\link{checkIntensityFile}}}
     \item{ncdfSetMissingGenotypes: \code{\link{setMissingGenotypes}}}
     \item{gdsSetMissingGenotypes: \code{\link{setMissingGenotypes}}}
+    \item{ncdfImputedDosage: \code{\link{imputedDosageFile}}}
+    \item{gdsImputedDosage: \code{\link{imputedDosageFile}}}
+    \item{gdsCheckImputedDosage: \code{\link{checkImputedDosageFile}}}
 
   }
 }

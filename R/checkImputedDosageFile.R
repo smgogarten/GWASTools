@@ -1,17 +1,17 @@
 
 
 ## genoData needs snpAnnot and scanAnnot attached.
-gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot, 
-                                  input.files, chromosome,
-                                  input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                                  input.dosage=FALSE, block.size=5000,
-                                  verbose=TRUE, 
-                                  snp.exclude=NULL,
-                                  snp.id.start=1,
-                                  tolerance=1e-4,
-                                  na.logfile=NULL) {
-
-  .Deprecated("checkImputedDosageFile")
+checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot, 
+                                   input.files, chromosome,
+                                   input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
+                                   input.dosage=FALSE, 
+                                   snp.exclude=NULL,
+                                   snp.id.start=1,
+                                   tolerance=1e-4,
+                                   na.logfile=NULL,
+                                   block.size=5000,
+                                   verbose=TRUE) {
+  
   
   if (missing(snpAnnot)) stop("snp annotation required")
   if (missing(scanAnnot)) stop("scan annotation required")

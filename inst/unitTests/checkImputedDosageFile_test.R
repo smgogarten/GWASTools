@@ -33,7 +33,7 @@ test_check_beagle <- function() {
   genoDim <- "snp,scan"
     for (b in blocks) {
       for (i in 1:2) {
-        gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+        imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
                          verbose=FALSE)
@@ -43,7 +43,7 @@ test_check_beagle <- function() {
         snpAnnot <- getobj(snpfile)
         genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 
-        gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+        checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                               input.files=c(files[i], markfile), chromosome,
                               input.type="BEAGLE", 
                               input.dosage=inputs[i], block.size=b,
@@ -76,7 +76,7 @@ test_check_beagle <- function() {
         geno <- getGenotype(genoData)
         
         checkException(checkEquals(geno.orig, geno)) # make sure they actualy are different
-        checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+        checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                              input.files=c(files[i], markfile), chromosome,
                                              input.type="BEAGLE", 
                                              input.dosage=inputs[i], block.size=b))
@@ -134,7 +134,7 @@ test_check_beagle_missing <- function() {
   genoDim <- "snp,scan"
   for (b in blocks) {
     for (i in 1:2) {
-      gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
                        verbose=FALSE)
@@ -144,7 +144,7 @@ test_check_beagle_missing <- function() {
       snpAnnot <- getobj(snpfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
       
-      gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile), chromosome,
                             input.type="BEAGLE", 
                             input.dosage=inputs[i], block.size=b,
@@ -177,7 +177,7 @@ test_check_beagle_missing <- function() {
       geno <- getGenotype(genoData)
       
       checkException(checkEquals(geno.orig, geno)) # make sure they actualy are different
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                            input.files=c(files[i], markfile), chromosome,
                                            input.type="BEAGLE", 
                                            input.dosage=inputs[i], block.size=b))
@@ -228,7 +228,7 @@ test_check_beagle_subset <- function() {
     for (i in 1:2) {
       
       # test reading snp.names and scan.df
-      gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
@@ -239,7 +239,7 @@ test_check_beagle_subset <- function() {
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
       
-      gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile), chromosome,
                             input.type="BEAGLE", 
                             input.dosage=inputs[i], block.size=b,
@@ -271,7 +271,7 @@ test_check_beagle_subset <- function() {
       
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile), chromosome,
                             input.type="BEAGLE", 
                             input.dosage=inputs[i], block.size=b,
@@ -294,7 +294,7 @@ test_check_beagle_subset <- function() {
       # check exception
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                            input.files=c(files[i], markfile), chromosome,
                                            input.type="BEAGLE", 
                                            input.dosage=inputs[i], block.size=b,
@@ -344,7 +344,7 @@ test_check_mach <- function() {
   genoDim <- "snp,scan"
     for (b in blocks) {
       for (i in 1:2) {
-        gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+        imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="MaCH", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                          genotypeDim=genoDim, verbose=FALSE)
@@ -354,7 +354,7 @@ test_check_mach <- function() {
         snpAnnot <- getobj(snpfile)
         genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
         
-        gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+        checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                               input.files=c(files[i], markfile, posfile), chromosome,
                               input.type="MaCH", 
                               input.dosage=inputs[i], block.size=b, na.logfile=logfile)
@@ -389,7 +389,7 @@ test_check_mach <- function() {
         geno <- getGenotype(genoData)
         
         checkException(checkEquals(geno, geno.orig))
-        checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+        checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                              input.files=c(files[i], markfile, posfile), chromosome,
                                              input.type="MaCH", 
                                              input.dosage=inputs[i], block.size=b))
@@ -450,7 +450,7 @@ test_check_mach_missing <- function() {
   genoDim <- "snp,scan"
   for (b in blocks) {
     for (i in 1:2) {
-      gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        genotypeDim=genoDim, verbose=FALSE)
@@ -460,7 +460,7 @@ test_check_mach_missing <- function() {
       snpAnnot <- getobj(snpfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
       
-      gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile, posfile), chromosome,
                             input.type="MaCH", 
                             input.dosage=inputs[i], block.size=b, na.logfile=logfile)
@@ -494,7 +494,7 @@ test_check_mach_missing <- function() {
       geno <- getGenotype(genoData)
       
       checkException(checkEquals(geno, geno.orig))
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                            input.files=c(files[i], markfile, posfile), chromosome,
                                            input.type="MaCH", 
                                            input.dosage=inputs[i], block.size=b))
@@ -556,7 +556,7 @@ test_check_mach_subset <- function() {
     for (i in 1:2) {
       
       # test reading snp.names and scan.df
-      gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
@@ -568,7 +568,7 @@ test_check_mach_subset <- function() {
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
       
-      gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile, posfile), chromosome,
                             input.type="MaCH", 
                             input.dosage=inputs[i], block.size=b,
@@ -599,7 +599,7 @@ test_check_mach_subset <- function() {
       
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(files[i], markfile, posfile), chromosome,
                             input.type="MaCH", 
                             input.dosage=inputs[i], block.size=b,
@@ -621,7 +621,7 @@ test_check_mach_subset <- function() {
       # check exception
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                            input.files=c(files[i], markfile, posfile), chromosome,
                                            input.type="MaCH", 
                                            input.dosage=inputs[i], block.size=b,
@@ -669,7 +669,7 @@ test_check_impute2 <- function() {
     for (b in blocks) {
         
       # make a normal one
-      gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
                        verbose=FALSE)
@@ -680,7 +680,7 @@ test_check_impute2 <- function() {
       snpAnnot <- getobj(snpfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
       
-      gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                             input.files=c(probfile, sampfile), chromosome,
                             input.type="IMPUTE2", 
                             input.dosage=FALSE, block.size=b, na.logfile=logfile)
@@ -708,7 +708,7 @@ test_check_impute2 <- function() {
       
       gds <- GdsGenotypeReader(gdsfile)
       genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-      checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+      checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                            input.files=c(probfile, sampfile), chromosome,
                                            input.type="IMPUTE2", 
                                            input.dosage=FALSE, block.size=b))
@@ -761,7 +761,7 @@ test_check_impute2_missing <- function() {
   for (b in blocks) {
     
     # make a normal one
-    gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+    imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
                      verbose=FALSE)
@@ -772,7 +772,7 @@ test_check_impute2_missing <- function() {
     snpAnnot <- getobj(snpfile)
     genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
     
-    gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+    checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                           input.files=c(probfile, sampfile), chromosome,
                           input.type="IMPUTE2", 
                           input.dosage=FALSE, block.size=b,
@@ -801,7 +801,7 @@ test_check_impute2_missing <- function() {
     
     gds <- GdsGenotypeReader(gdsfile)
     genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-    checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+    checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                          input.files=c(probfile, sampfile), chromosome,
                                          input.type="IMPUTE2", 
                                          input.dosage=FALSE, block.size=b))
@@ -855,7 +855,7 @@ test_check_impute2_subset <- function() {
   for (b in blocks) {
     
     # now the subset of samples/snps
-    gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+    imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                      scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
@@ -866,7 +866,7 @@ test_check_impute2_subset <- function() {
     gds <- GdsGenotypeReader(gdsfile)
     genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
     
-    gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+    checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                           input.files=c(probfile, sampfile), chromosome,
                           input.type="IMPUTE2", 
                           input.dosage=FALSE, block.size=b,
@@ -897,7 +897,7 @@ test_check_impute2_subset <- function() {
     
     gds <- GdsGenotypeReader(gdsfile)
     genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-    checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+    checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                          input.files=c(probfile, sampfile), chromosome,
                                          input.type="IMPUTE2", 
                                          input.dosage=FALSE, block.size=b,
@@ -919,7 +919,7 @@ test_check_impute2_subset <- function() {
     # check exception
     gds <- GdsGenotypeReader(gdsfile)
     genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-    checkException(gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
+    checkException(checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                                          input.files=c(probfile, sampfile), chromosome,
                                          input.type="IMPUTE2", 
                                          input.dosage=FALSE, block.size=b,

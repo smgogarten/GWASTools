@@ -61,6 +61,162 @@ test_probToDosage_impute2 <- function() {
   
 }
 
+test_beagle_ncdf <- function() {
+  probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
+                        package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.dose",
+                      package="GWASdata")
+  markfile <- system.file("extdata", "imputation", "BEAGLE", "hapmap.markers",
+                      package="GWASdata")
+
+  ncfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+
+  files <- c(probfile, dosefile)
+  inputs <- c(FALSE, TRUE)
+  # 100 lines in file
+  blocks <- c(5000, 40, 99)
+  for (b in blocks) {
+    for (i in 1:2) {
+      imputedDosageFile(input.files=c(files[i], markfile), filename=ncfile, file.type="ncdf", chromosome=22,
+                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+
+      nc <- NcdfGenotypeReader(ncfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      alleleA <- getVariable(genoData, "alleleA")
+      alleleB <- getVariable(genoData, "alleleB")
+      checkIdentical(snpAnnot$alleleA, alleleA)
+      checkIdentical(snpAnnot$alleleB, alleleB)
+  
+      dat <- read.table(dosefile, as.is=TRUE, header=TRUE)
+      dose <- 2 - as.matrix(dat[,4:ncol(dat)])
+      dimnames(dose) <- NULL
+      checkEquals(dose, geno, tolerance=0.0001)
+      checkIdentical(names(dat)[-1:-3], scanAnnot$sampleID)
+
+      mark <- read.table(markfile, as.is=TRUE, header=FALSE)
+      checkIdentical(mark[,1], snpAnnot$snp)
+      checkIdentical(mark[,2], snpAnnot$position)
+      checkIdentical(mark[,3], snpAnnot$alleleA)
+      checkIdentical(mark[,4], snpAnnot$alleleB)
+
+      close(genoData)
+    }
+  }
+  
+  unlink(c(ncfile, snpfile, scanfile))
+}
+
+test_mach_ncdf <- function() {
+  probfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlprob",
+                          package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mldose",
+                          package="GWASdata")
+  markfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlinfo",
+                          package="GWASdata")
+  posfile <- system.file("extdata", "imputation", "MaCH", "mach1.snp.position",
+                          package="GWASdata")
+
+  ncfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+
+  files <- c(probfile, dosefile)
+  inputs <- c(FALSE, TRUE)
+  # 500 lines in file
+  blocks <- c(5000, 200, 499)
+  for (b in blocks) {
+    for (i in 1:2) {
+      imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=ncfile, file.type="ncdf", chromosome=22,
+                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+
+      nc <- NcdfGenotypeReader(ncfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      alleleA <- getVariable(genoData, "alleleA")
+      alleleB <- getVariable(genoData, "alleleB")
+      checkIdentical(as.character(snpAnnot$alleleA), alleleA)
+      checkIdentical(as.character(snpAnnot$alleleB), alleleB)
+  
+      dat <- read.table(dosefile, as.is=TRUE, header=FALSE)
+      ## samples <- as.data.frame(matrix(unlist(strsplit(dat[,1], "->")), ncol=2, byrow=TRUE))
+      ## checkIdentical(scanAnnot$ID_1, samples[,1])
+      ## checkIdentical(scanAnnot$ID_2, samples[,2])
+      checkIdentical(scanAnnot$sampleID, dat[,1])
+      dose <-  t(as.matrix(dat[,3:ncol(dat)]))
+      dimnames(dose) <- NULL
+      checkEquals(dose, geno, tolerance=0.001)
+
+      mark <- read.table(markfile, as.is=TRUE, header=TRUE)
+      checkIdentical(mark[,1],snpAnnot$snp)
+      checkIdentical(mark[,2], snpAnnot$alleleA)
+      checkIdentical(mark[,3], snpAnnot$alleleB)
+
+      pos <- read.table(posfile, as.is=TRUE, header=TRUE)
+      checkIdentical(pos[,1],snpAnnot$snp)
+      checkIdentical(pos[,2], snpAnnot$position)
+
+      close(genoData)
+    }
+  }
+  
+  unlink(c(ncfile, snpfile, scanfile))
+}
+
+test_impute2_ncdf <- function() {
+  probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
+                          package="GWASdata")
+  sampfile <- system.file("extdata", "imputation", "IMPUTE2", "example.study.samples",
+                          package="GWASdata")
+
+  ncfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+
+  # 33 lines in file
+  blocks <- c(5000, 10, 32)
+  for (b in blocks) {
+    imputedDosageFile(input.files=c(probfile, sampfile), filename=ncfile, file.type="ncdf", chromosome=22,
+                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
+                      snp.annot.filename=snpfile, scan.annot.filename=scanfile)
+
+    nc <- NcdfGenotypeReader(ncfile)
+    scanAnnot <- getobj(scanfile)
+    snpAnnot <- getobj(snpfile)
+    genoData <- GenotypeData(nc, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+    geno <- getGenotype(genoData)
+    alleleA <- getVariable(genoData, "alleleA")
+    alleleB <- getVariable(genoData, "alleleB")
+    checkIdentical(snpAnnot$alleleA, alleleA)
+    checkIdentical(snpAnnot$alleleB, alleleB)
+  
+    dat <- read.table(probfile, as.is=TRUE, header=FALSE)
+    dose <- GWASTools:::.probToDosage(as.matrix(dat[,6:ncol(dat)]))
+    dimnames(dose) <- NULL
+    checkEquals(dose, geno, tolerance=0.0001)
+    checkIdentical(dat[,1],snpAnnot$snp)
+    checkIdentical(dat[,2], snpAnnot$rsID)
+    checkIdentical(dat[,3], snpAnnot$position)
+    checkIdentical(dat[,4], snpAnnot$alleleA)
+    checkIdentical(dat[,5], snpAnnot$alleleB)
+
+    samp <- read.table(sampfile, as.is=TRUE, header=FALSE, skip=2)
+    checkIdentical(paste(samp[,1], samp[,2]), scanAnnot$sampleID)
+
+    close(genoData)
+  }
+  
+  unlink(c(ncfile, snpfile, scanfile))
+}
+
 test_beagle <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
                           package="GWASdata")
@@ -87,7 +243,7 @@ test_beagle <- function() {
   for (genoDim in c("snp,scan", "scan,snp")) {
     for (b in blocks) {
       for (i in 1:2) {
-        gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+        imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
         
@@ -161,7 +317,7 @@ test_beagle_missing <- function() {
   for (genoDim in c("snp,scan", "scan,snp")) {
     for (b in blocks) {
       for (i in 1:2) {
-        gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+        imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
         
@@ -217,7 +373,7 @@ test_beagle_subset <- function() {
     for (i in 1:2) {
       
       # test reading snp.names and scan.df
-      gdsImputedDosage(input.files=c(files[i], markfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
@@ -285,7 +441,7 @@ test_mach <- function() {
   for (genoDim in c("snp,scan", "scan,snp")) {
     for (b in blocks) {
       for (i in 1:2) {
-        gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+        imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="MaCH", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                          genotypeDim=genoDim)
@@ -366,7 +522,7 @@ test_mach_missing <- function() {
   genoDim <- c("snp,scan")
   for (b in blocks) {
     for (i in 1:2) {
-      gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        genotypeDim=genoDim)
@@ -429,7 +585,7 @@ test_mach_subset <- function() {
   for (b in blocks) {
     for (i in 1:2) {
       # test scan.df and snp.names
-      gdsImputedDosage(input.files=c(files[i], markfile, posfile), gds.filename=gdsfile,
+      imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds",
                        chromosome=22,
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
@@ -504,7 +660,7 @@ test_impute2 <- function() {
   for (genoDim in c("snp,scan", "scan,snp")) {
     for (b in blocks) {
       # make a normal one
-      gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+      imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
       
@@ -568,7 +724,7 @@ test_impute2_missing <- function() {
   blocks <- c(5000, 1)
   for (b in blocks) {
     # make a normal one
-    gdsImputedDosage(input.files=c(newprobfile, sampfile), gds.filename=gdsfile, chromosome=22,
+    imputedDosageFile(input.files=c(newprobfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim)
     
@@ -624,7 +780,7 @@ test_impute2_subset <- function() {
   for (b in blocks) {
     
     # now the subset of samples/snps
-    gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+    imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                      scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,

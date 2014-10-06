@@ -436,7 +436,7 @@
 \section{Changes in version 1.11.18}{
   \itemize{
     \item patch from Karl Forner to allow use of open gds objects in
-    contructors for GdsReader and GdsGenotypeReader
+    constructors for GdsReader and GdsGenotypeReader
   }
 }
 \section{Changes in version 1.11.19}{
@@ -466,6 +466,13 @@
     variable names (not just genotype)
   }
 }
-
-
-
+\section{Changes in version 1.11.31}{
+  \itemize{
+    \item setMissingGenotypes replaces ncdfSetMissingGenotypes and gdsSetMissingGenotypes
+  }
+}
+\section{Changes in version 1.11.32}{
+  \itemize{
+    \item imputedDosageFile replaces ncdfImputedDosage and gdsImputedDosage
+  }
+}

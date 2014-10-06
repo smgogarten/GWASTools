@@ -5,11 +5,11 @@
 #   vcf.filename -- the file name of VCF format
 #   gds.filename -- the output gds file
 #   nblock -- the number of lines in buffer
-#   zipflag -- the compression method for sample and snp annotations
+#   compress -- the compression method for sample and snp annotations
 #   verbose -- show information
 #
 
-convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, zipflag="ZIP.max",
+convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, compress="ZIP.max",
 	verbose=TRUE)
 {
 	# check
@@ -93,19 +93,19 @@ convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, zipflag="ZIP.
 	gfile <- createfn.gds(gds.filename)
 
 	# add "sample.id"
-	add.gdsn(gfile, "sample.id", seq.int(1, length(samp.id)), compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "sample.id", seq.int(1, length(samp.id)), compress=compress, closezip=TRUE)
 	# add "sample.name"
-	add.gdsn(gfile, "sample.name", samp.id, compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "sample.name", samp.id, compress=compress, closezip=TRUE)
 	# add "snp.id"
-	add.gdsn(gfile, "snp.id", seq.int(1, length(chr)), compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "snp.id", seq.int(1, length(chr)), compress=compress, closezip=TRUE)
 	# add "snp.rs.id"
-	add.gdsn(gfile, "snp.rs.id", snp.rs, compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "snp.rs.id", snp.rs, compress=compress, closezip=TRUE)
 	# add "snp.position"
-	add.gdsn(gfile, "snp.position", position, compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "snp.position", position, compress=compress, closezip=TRUE)
 	# add "snp.chromosome"
-	add.gdsn(gfile, "snp.chromosome", chr, storage="uint8", compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "snp.chromosome", chr, storage="uint8", compress=compress, closezip=TRUE)
 	# add "snp.allele"
-	add.gdsn(gfile, "snp.allele", snp.allele, compress=zipflag, closezip=TRUE)
+	add.gdsn(gfile, "snp.allele", snp.allele, compress=compress, closezip=TRUE)
 
 	# sync file
 	sync.gds(gfile)

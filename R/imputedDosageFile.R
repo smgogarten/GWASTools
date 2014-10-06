@@ -1,20 +1,137 @@
-gdsImputedDosage <- function(input.files, gds.filename, chromosome,
+.probToDosage <- function(probs, BB=TRUE, prob.miss.val=NULL) {
+  if (BB & ncol(probs) %% 3 != 0) stop("invalid probability file - there are not 3 columns per row")
+  if (!BB & ncol(probs) %% 2 != 0) stop("invalid probability file - there are not 2 columns per row")
+  
+  ## check for missing values here while it's still character strings
+  ## if AA==AB==BB, set to missing
+  
+  if (BB) {
+    AAprob <- probs[,c(TRUE,FALSE,FALSE),drop=FALSE]
+    ABprob <- probs[,c(FALSE,TRUE,FALSE),drop=FALSE]
+    BBprob <- probs[,c(FALSE,FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    i <- AAprob == ABprob & AAprob == BBprob
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    mode(BBprob) <- "numeric"
+    dosage <- (2*AAprob + ABprob) / (AAprob + ABprob + BBprob)
+    dosage[i] <- NA
+  } else {
+    AAprob <- probs[,c(TRUE,FALSE),drop=FALSE]
+    ABprob <- probs[,c(FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    # assumes no missing, or at least, a dosage that doesn't give you -1.
+    # no normalization either, since we don't have the full set of probabilities
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    dosage <- 2*AAprob + ABprob
+  }
+  
+  return(dosage)
+}
+
+.createGdsDosage <- function(snp.df, scan.df, filename, genotypeDim, miss.val, precision="single",
+                             compress="ZIP.max") {
+    
+  # define precision for gds
+  precision <- ifelse(precision == "double", "float64", "float32")
+
+  # create GDS
+  gfile <- createfn.gds(filename)
+  
+  add.gdsn(gfile, "snp.id", snp.df$snpID, compress=compress, closezip=TRUE)
+  add.gdsn(gfile, "sample.id", scan.df$scanID, compress=compress, closezip=TRUE)
+  
+  n <- add.gdsn(gfile, name="description")
+  put.attr.gdsn(n, "FileFormat", "IMPUTED_DOSAGE")
+  
+  geno.valdim <- switch(genotypeDim,
+                        "snp,scan"=c(length(snp.df$snpID), length(scan.df$scanID)),
+                        "scan,snp"=c(length(scan.df$scanID), length(snp.df$snpID)))
+  gGeno <- add.gdsn(gfile, "genotype", valdim=geno.valdim, storage=precision)
+  
+  geno.order <- switch(genotypeDim,
+                       "snp,scan"="snp.order",
+                       "scan,snp"="sample.order")
+  put.attr.gdsn(gGeno, geno.order)
+  put.attr.gdsn(gGeno, "missing.value", miss.val)
+  
+  sync.gds(gfile)
+  gfile
+}
+
+.createNcdfDosage <- function(snp.df, scan.df, filename, miss.val, precision="single") {
+  # define dimensions
+  snpdim <- dim.def.ncdf("snp", "count", snp.df$snpID)
+  sampledim <- dim.def.ncdf("sample", "count", scan.df$scanID, unlim=TRUE)
+  chardim <- dim.def.ncdf("nchar", "", 1)
+
+  # define variables
+  varID <- var.def.ncdf("sampleID", "id", dim=sampledim, missval=0, prec="integer")
+  varpos <- var.def.ncdf("position", "bases", dim=snpdim, missval=-1, prec="integer")
+  varchr <- var.def.ncdf("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
+  varA <- var.def.ncdf("alleleA", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
+  varB <- var.def.ncdf("alleleB", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
+  vargeno <- var.def.ncdf("genotype", "A_allele_dosage", dim=list(snpdim,sampledim), missval=miss.val, prec=precision)
+
+  # create the NetCDF file
+  nc <- create.ncdf(filename, list(varID, varpos, varchr, varA, varB, vargeno))
+  
+  put.var.ncdf(nc, varID, scan.df$scanID)
+
+  nc
+}
+
+
+.addDosage <- function(x, ...) UseMethod(".addDosage", x)
+.addDosage.gds.class <- function(x, dosage, start, count) {
+    write.gdsn(index.gdsn(x, "genotype"), dosage, start=start, count=count)
+}
+
+.addDosage.ncdf <- function(x, dosage, start, count) {
+    put.var.ncdf(x, "genotype", dosage, start=start, count=count)
+}
+
+.addSnpVars <- function(x, ...) UseMethod(".addSnpVars", x)
+.addSnpVars.gds.class <- function(x, snpAnnot, compress) {
+  add.gdsn(x, "snp.chromosome", snpAnnot$chromosome, compress=compress, closezip=TRUE)
+  add.gdsn(x, "snp.position", snpAnnot$position, compress=compress, closezip=TRUE)
+  add.gdsn(x, "snp.allele", paste(snpAnnot$alleleA, snpAnnot$alleleB, sep="/"), compress=compress, closezip=TRUE)
+  
+}
+.addSnpVars.ncdf <- function(x, snpAnnot, ...) {
+  put.var.ncdf(x, "position", snpAnnot$position)
+  put.var.ncdf(x, "chromosome", snpAnnot$chromosome)
+  put.var.ncdf(x, "alleleA", snpAnnot$alleleA)
+  put.var.ncdf(x, "alleleB", snpAnnot$alleleB)
+}
+
+
+imputedDosageFile <- function(input.files, filename, chromosome,
                              input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                             input.dosage=FALSE, block.size=5000,
+                             input.dosage=FALSE, 
+                             file.type=c("gds", "ncdf"),
                              snp.annot.filename="dosage.snp.RData",
                              scan.annot.filename="dosage.scan.RData",
-                             verbose=TRUE, zipflag="ZIP.max", genotypeDim="snp,scan",
+                             precision="single",
+                             compress="ZIP.max",
+                             genotypeDim="snp,scan",
                              scan.df=NULL,
                              snp.exclude=NULL,
-                             snp.id.start=1) {
-
-  .Deprecated("imputedDosageFile")
+                             snp.id.start=1,
+                             block.size=5000,
+                             verbose=TRUE) {
   
   # arguments: input type (impute2, beagle, mach), probs or dosages
   input.type <- match.arg(input.type)
   
-  # check zipflag
-  if (!(zipflag %in% c("", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"))) stop("zipflag must be one of ZIP, ZIP.fast, ZIP.default, ZIP.max")
+  ## get file type
+  file.type <- match.arg(file.type)
+
+  # check compress
+  if (!(compress %in% c("", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"))) stop("compress must be one of ZIP, ZIP.fast, ZIP.default, ZIP.max")
   
   # determine number of SNPs and samples
   if (verbose) message("Determining number of SNPs and samples...")
@@ -71,27 +188,14 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
   #snpID <- 1:nsnp
   #scanID <- 1:nsamp
   
-  # create GDS
-  gfile <- createfn.gds(gds.filename)
-  
-  add.gdsn(gfile, "snp.id", snp.df$snpID, compress=zipflag, closezip=TRUE)
-  add.gdsn(gfile, "sample.id", scan.df$scanID, compress=zipflag, closezip=TRUE)
-  
-  n <- add.gdsn(gfile, name="description")
-  put.attr.gdsn(n, "FileFormat", "IMPUTED_DOSAGE")
-  
-  geno.valdim <- switch(genotypeDim,
-                        "snp,scan"=c(length(snp.df$snpID), length(scan.df$scanID)),
-                        "scan,snp"=c(length(scan.df$scanID), length(snp.df$snpID)))
-  gGeno <- add.gdsn(gfile, "genotype", valdim=geno.valdim, storage="float32")
-  
-  geno.order <- switch(genotypeDim,
-                       "snp,scan"="snp.order",
-                       "scan,snp"="sample.order")
-  put.attr.gdsn(gGeno, geno.order)
+  ## create data file
   miss.val <- -1
-  put.attr.gdsn(gGeno, "missing.value", miss.val)
-  
+  if (file.type == "gds") {
+      gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress)
+  } else if (file.type == "ncdf") {
+      gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
+  }
+
   
   # read input file(s)
   # valid for GDS and NCDF mostly.
@@ -166,7 +270,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       # check for missing values
       dosage[dosage < 0 | dosage > 2 | is.na(dosage)] <- miss.val
       
-      write.gdsn(gGeno, dosage, start=start, count=count)
+      .addDosage(gfile, dosage, start=start, count=count)
       cnt <- cnt + block.size
       if (genotypeDim == "snp,scan"){
         i_snp <- i_snp + nrow(dosage)
@@ -252,7 +356,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
       # check for missing values
       dosage[dosage < 0 | dosage > 2 | is.na(dosage)] <- miss.val
       
-      write.gdsn(gGeno, dosage, start=start, count=count)
+      .addDosage(gfile, dosage, start=start, count=count)
       cnt <- cnt + block.size
       if (genotypeDim == "snp,scan"){
         i_snp <- i_snp + nrow(dosage)
@@ -350,7 +454,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
           count <- c(1, -1)
         }
         # write all snps for that sample
-        write.gdsn(gGeno, dos.samp, start=start, count=count)
+        .addDosage(gfile, dos.samp, start=start, count=count)
         scan.df$added[i_samp] <- TRUE
         cnt <- cnt+1
       }
@@ -373,7 +477,7 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
     }
     dos.samp <- rep(-1, nrow(snp.df))
     # write all snps for that sample
-    write.gdsn(gGeno, dos.samp, start=start, count=count)
+    .addDosage(gfile, dos.samp, start=start, count=count)
   }
   
   # set up annotation
@@ -388,27 +492,13 @@ gdsImputedDosage <- function(input.files, gds.filename, chromosome,
   snp.df$chromosome <- xchr[match(chromosome, xchr.str)]
   snp.df$position <- as.integer(snp.df$position)
   snpAnnot <- SnpAnnotationDataFrame(snp.df)
-  
+    
   # add variable data
   if (verbose) message("Writing annotation...")
-  # add "sample.id"
-  #add.gdsn(gfile, "sample.id", scanAnnot$scanID, compress=zipflag, closezip=TRUE)  
-  # add "snp.id"
-  #add.gdsn(gfile, "snp.id", snpAnnot$snpID, compress=zipflag, closezip=TRUE)
-  # add "snp.chromosome"
-  add.gdsn(gfile, "snp.chromosome", snpAnnot$chromosome, compress=zipflag, closezip=TRUE)
-  # add "snp.position"
-  add.gdsn(gfile, "snp.position", snpAnnot$position, compress=zipflag, closezip=TRUE)
-  # add alleles
-  add.gdsn(gfile, "snp.allele", paste(snpAnnot$alleleA, snpAnnot$alleleB, sep="/"), compress=zipflag, closezip=TRUE)
-  
+  .addSnpVars(gfile, snpAnnot, compress)
   
   # close file
-  #close.ncdf(nc)
-  closefn.gds(gfile)
-  
-  # clean up gds file
-  cleanup.gds(gds.filename, verbose=verbose)
+  .close(gfile, verbose=verbose)
   
   # save annotation
   save(snpAnnot, file=snp.annot.filename)

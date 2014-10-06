@@ -17,7 +17,7 @@
 
 \usage{
 convertNcdfGds(ncdf.filename, gds.filename, snp.annot = NULL,
-  precision = "single", zipflag = "ZIP.max", verbose = TRUE)
+  precision = "single", compress = "ZIP.max", verbose = TRUE)
 
 convertGdsNcdf(gds.filename, ncdf.filename,
   precision = "single", verbose = TRUE)
@@ -35,7 +35,7 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 \item{precision}{A character value indicating whether floating point
   numbers should be stored as "double" or "single" precision.}
 
-  \item{zipflag}{the compression format for the GDS file, one of "",
+  \item{compress}{the compression format for the GDS file, one of "",
     "ZIP", "ZIP.fast", "ZIP.default", or "ZIP.max"}
   \item{verbose}{whether to show progress information}
 }

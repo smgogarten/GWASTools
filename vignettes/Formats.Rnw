@@ -147,7 +147,7 @@ with the annotation data frame classes, these classes have
 \subsection{Plain text}
 
 Data in plain text format (for example, FinalReport files
-produced by Illumina's GenomeStudio) can be converted to NetCDF files
+produced by Illumina's GenomeStudio) can be converted to NetCDF or GDS files
 using the function \Rcode{createDataFile}.  See
 the ``GWAS Data Cleaning'' and ``Preparing Affymetrix Data'' vignettes for
 examples.
@@ -167,8 +167,8 @@ GDS or NetCDF.  See the ``Converting VCF data'' vignette for examples.
 \subsection{Imputed genotypes}
 
 Genotype probabilities or dosages from IMPUTE2, BEAGLE, or MaCH can be
-converted into A allele dosage and stored in NetCDF with the functions
-\Rcode{ncdfImputedDosage} or in GDS with \Rcode{gdsImputedDosage} .
+converted into A allele dosage and stored in NetCDF or GDS with the function
+\Rcode{imputedDosageFile}.
 
 \section{Output}
 

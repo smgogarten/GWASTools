@@ -1,31 +1,28 @@
-\name{gdsImputedDosage}
-\alias{gdsImputedDosage}
-\alias{gdsCheckImputedDosage}
-\title{Create and check a GDS file with imputed dosages - deprecated}
+\name{imputedDosageFile}
+\alias{imputedDosageFile}
+\alias{checkImputedDosageFile}
+\title{Create and check a GDS or NetCDF file with imputed dosages}
 \description{
-Deprecated - use \code{\link{imputedDosageFile}}, \code{\link{checkImputedDosageFile}}
-
-  These functions create or check a GDS file and corresponding
+  These functions create or check a GDS or NetCDF file and corresponding
   annotation for imputed dosages from IMPUTE2, BEAGLE, or MaCH.
 }
 \usage{
-gdsImputedDosage(input.files, gds.filename, chromosome,
+imputedDosageFile(input.files, filename, chromosome,
                   input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                  input.dosage=FALSE, block.size=5000,
+                  input.dosage=FALSE, file.type=c("gds", "ncdf"),
                   snp.annot.filename="dosage.snp.RData",
                   scan.annot.filename="dosage.scan.RData",
-                  verbose=TRUE, zipflag="ZIP.max", 
+                  precision="single", compress="ZIP.max", 
                   genotypeDim="snp,scan",
-                  scan.df=NULL, snp.exclude=NULL, snp.id.start=1)
-gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot, 
-                      input.files, chromosome,
-                      input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                      input.dosage=FALSE, block.size=5000,
-                      verbose=TRUE, 
-                      snp.exclude=NULL,
-                      snp.id.start=1,
-                      tolerance=1e-4,
-                      na.logfile=NULL)
+                  scan.df=NULL, snp.exclude=NULL, snp.id.start=1,
+                  block.size=5000, verbose=TRUE)
+checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
+                       input.files, chromosome,
+                       input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
+                       input.dosage=FALSE,
+                       snp.exclude=NULL, snp.id.start=1,
+                       tolerance=1e-4, na.logfile=NULL,
+                       block.size=5000, verbose=TRUE)
 }
 \arguments{
   \item{input.files}{A character vector of input files.  The first file
@@ -39,7 +36,7 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
       all SNPs
     }
   }
-  \item{gds.filename}{Character string with name of output GDS
+  \item{filename}{Character string with name of output GDS or NetCDF
     file.}
   \item{chromosome}{Chromosome corresponding to the SNPs in the genotype
     file.  Character codes will be mapped to integer values as follows:
@@ -49,26 +46,31 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   \item{input.dosage}{Logical for whether the genotype file
     (\code{input.files[1]}) contains dosages.  If \code{FALSE} (default), the
     genotype file is assumed to contain genotype probabilities.}
-  \item{block.size}{Number of lines to read at once.}
+
+  \item{file.type}{The type of file to create ("gds" or "ncdf")}
+
   \item{snp.annot.filename}{Output .RData file for storing a \code{\link{SnpAnnotationDataFrame}}.}
   \item{scan.annot.filename}{Output .RData file for storing a
     \code{\link{ScanAnnotationDataFrame}}.}
-  \item{verbose}{Logical for whether to print progress messages.}
+  \item{precision}{A character value indicating whether floating point
+  numbers should be stored as "double" or "single" precision.}
+  \item{compress}{compression method for GDS nodes, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
   \item{genotypeDim}{character string specifying genotype dimensions of gds file. Either "snp,scan" or "scan,snp"}
-  \item{zipflag}{compression method for GDS nodes, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
   \item{scan.df}{data frame specifying which samples to include in the output GDS files, with optional scanIDs already assigned. See details.}
   \item{snp.exclude}{vector of integers specifying which SNPs to exclude from the GDS file.}
   \item{snp.id.start}{Starting index for snpID.}
-  \item{genoData}{A \code{\link{GenotypeData}} object from a GDS file created with \code{\link{gdsImputedDosage}}.}
-  \item{snpAnnot}{The \code{\link{SnpAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}
-  \item{scanAnnot}{The \code{\link{ScanAnnotationDataFrame}} created by \code{\link{gdsImputedDosage}}}  
+  \item{block.size}{Number of lines to read at once.}
+  \item{verbose}{Logical for whether to print progress messages.}
+  \item{genoData}{A \code{\link{GenotypeData}} object from a GDS file created with \code{\link{imputedDosageFile}}.}
+  \item{snpAnnot}{The \code{\link{SnpAnnotationDataFrame}} created by \code{\link{imputedDosageFile}}}
+  \item{scanAnnot}{The \code{\link{ScanAnnotationDataFrame}} created by \code{\link{imputedDosageFile}}}  
   \item{tolerance}{tolerance for checking differences against input files}
   \item{na.logfile}{filename for recording snpID and scanID of missing dosages}
 
 }
 \details{
   Input files can contain either imputed dosages or genotype probabilities, specified by the \code{input.dosage} flag.
-  In either case, the GDS file will store dosage of the A allele in the "genotype" variable.
+  In either case, the GDS/NetCDF file will store dosage of the A allele in the "genotype" variable.
   All SNPs are assumed to be on the same chromosome, which is indicated by the \code{chromosome} argument.
   
   If the input file contains genotype probabilities for all three genotypes, the dosage is set to missing if the genotype probability strings (before numerical conversion) are equal (e.g., (0,0,0), (0.33, 0.33, 0.33), or (-1, -1, -1)). The dosage is also normalized by the sum of all three genotype probabilities.
@@ -85,7 +87,7 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   Minimal SNP and scan annotation are created from the input files and stored in
   RData format in \code{snp.annot.filename} and \code{scan.annot.filename}.
 
-  If requested with \code{na.logfile}, \code{gdsCheckImputedDosage} will output a file with scanIDs and snpIDs of missing genotype calls.
+  If requested with \code{na.logfile}, \code{checkImputedDosageFile} will output a file with scanIDs and snpIDs of missing genotype calls.
   
   Currently supported input file types are IMPUTE2, BEAGLE, and MaCH.
   
@@ -99,9 +101,8 @@ gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
   MaCH: \url{http://www.sph.umich.edu/csg/abecasis/MACH/tour/imputation.html}
 }
 \author{Adrienne Stilp, Stephanie Gogarten}
-\seealso{\code{\link{createDataFile}}, \code{\link{GdsGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
+\seealso{\code{\link{createDataFile}}, \code{\link{GdsGenotypeReader}}, \code{\link{NcdfGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
 \examples{
-\dontrun{
 gdsfile <- tempfile()
 snpfile <- tempfile()
 scanfile <- tempfile()
@@ -112,7 +113,7 @@ probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study
                         package="GWASdata")
 sampfile <- system.file("extdata", "imputation", "IMPUTE2", "example.study.samples",
                         package="GWASdata")
-gdsImputedDosage(input.files=c(probfile, sampfile), gds.filename=gdsfile, chromosome=22,
+imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, chromosome=22,
                   input.type="IMPUTE2", input.dosage=FALSE,
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
@@ -121,7 +122,7 @@ scanAnnot <- getobj(scanfile)
 snpAnnot <- getobj(snpfile)
 genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
 
-gdsCheckImputedDosage(genoData, snpAnnot, scanAnnot,
+checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
                       input.files=c(probfile, sampfile), chromosome=22,
                       input.type="IMPUTE2", input.dosage=FALSE, na.logfile=logfile)
 
@@ -146,15 +147,15 @@ probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unpha
                       package="GWASdata")
 markfile <- system.file("extdata", "imputation", "BEAGLE", "hapmap.markers",
                     package="GWASdata")
-gdsImputedDosage(input.files=c(probfile, markfile), gds.filename=gdsfile, chromosome=22,
-                  input.type="BEAGLE", input.dosage=FALSE,
+imputedDosageFile(input.files=c(probfile, markfile), filename=gdsfile, chromosome=22,
+                  input.type="BEAGLE", input.dosage=FALSE, file.type="gds",
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
 # BEAGLE - dosage
 dosefile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.dose",
                     package="GWASdata")
-gdsImputedDosage(input.files=c(dosefile, markfile), gds.filename=gdsfile, chromosome=22,
-                  input.type="BEAGLE", input.dosage=TRUE,
+imputedDosageFile(input.files=c(dosefile, markfile), filename=gdsfile, chromosome=22,
+                  input.type="BEAGLE", input.dosage=TRUE, file.type="gds",
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
 
@@ -165,18 +166,17 @@ markfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlinfo",
                         package="GWASdata")
 posfile <- system.file("extdata", "imputation", "MaCH", "mach1.snp.position",
                         package="GWASdata")
-gdsImputedDosage(input.files=c(probfile, markfile, posfile), gds.filename=gdsfile, chromosome=22,
-                  input.type="MaCH", input.dosage=FALSE,
+imputedDosageFile(input.files=c(probfile, markfile, posfile), filename=gdsfile, chromosome=22,
+                  input.type="MaCH", input.dosage=FALSE, file.type="gds",
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
 # MaCH - dosage
 dosefile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mldose",
                         package="GWASdata")
-gdsImputedDosage(input.files=c(dosefile, markfile, posfile), gds.filename=gdsfile, chromosome=22,
-                  input.type="MaCH", input.dosage=TRUE,
+imputedDosageFile(input.files=c(dosefile, markfile, posfile), filename=gdsfile, chromosome=22,
+                  input.type="MaCH", input.dosage=TRUE,  file.type="gds",
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
 unlink(c(gdsfile, snpfile, scanfile))
-}
 }
 \keyword{manip}

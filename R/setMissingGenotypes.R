@@ -4,7 +4,7 @@ setMissingGenotypes <- function(
         regions, # data frame with regions
         file.type = c("gds", "ncdf"),
 	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
-        zipflag = "ZIP.max",
+        compress = "ZIP.max",
         verbose=TRUE) {
 
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
@@ -39,7 +39,7 @@ setMissingGenotypes <- function(
           snp.annotation$alleleA <- getAlleleA(old)
           snp.annotation$alleleB <- getAlleleB(old)
       }
-      gfile <- .createGds(snp.annotation, new.file, "genotype", compress=zipflag)
+      gfile <- .createGds(snp.annotation, new.file, "genotype", compress=compress)
       put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.start", min(autosomeCode(old)))
       put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.end", max(autosomeCode(old)))
       put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "X", XchromCode(old))

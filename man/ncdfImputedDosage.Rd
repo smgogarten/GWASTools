@@ -1,7 +1,9 @@
 \name{ncdfImputedDosage}
 \alias{ncdfImputedDosage}
-\title{Create a NetCDF file with imputed dosages}
+\title{Create a NetCDF file with imputed dosages - deprecated}
 \description{
+Deprecated - use \code{\link{imputedDosageFile}}
+	   
   This function creates a NetCDF file and corresponding
   annotation for imputed dosages from IMPUTE2, BEAGLE, or MaCH.
 }
@@ -65,6 +67,7 @@ ncdfImputedDosage(input.files, ncdf.filename, chromosome,
 \author{Stephanie Gogarten}
 \seealso{\code{\link{createDataFile}}, \code{\link{NcdfGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
 \examples{
+\dontrun{
 ncfile <- tempfile()
 snpfile <- tempfile()
 scanfile <- tempfile()
@@ -130,5 +133,6 @@ ncdfImputedDosage(input.files=c(dosefile, markfile, posfile), ncdf.filename=ncfi
                   snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
 unlink(c(ncfile, snpfile, scanfile))
+}
 }
 \keyword{manip}

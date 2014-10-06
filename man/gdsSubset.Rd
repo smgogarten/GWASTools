@@ -14,7 +14,7 @@
 gdsSubset(parent.gds, sub.gds,
           sample.include=NULL, snp.include=NULL,
           sub.storage=NULL,
-          zipflag="ZIP.max",
+          compress="ZIP.max",
           block.size=5000,
           verbose=TRUE)
 
@@ -30,7 +30,7 @@ gdsSubsetCheck(parent.gds, sub.gds,
   \item{sample.include}{Vector of sampleIDs to include in \code{sub.gds}}
   \item{snp.include}{Vector of snpIDs to include in \code{sub.gds}}
   \item{sub.storage}{storage type for the subset file; defaults to original storage type}
-  \item{zipflag}{compression for GDS file, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
+  \item{compress}{compression for GDS file, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
   \item{block.size}{for GDS files stored with scan,snp dimensions, the number of SNPs to read from the parent file at a time. Ignored for snp,scan dimensions.}
   \item{verbose}{Logical value specifying whether to show progress information.}
 
