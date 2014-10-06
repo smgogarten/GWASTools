@@ -151,6 +151,7 @@ exportMethods(
     getGenotype,
     getLogRRatio,
     getMetadata,
+    getNodeDescription,
     getPosition,
     getQuality,
     getQuery,

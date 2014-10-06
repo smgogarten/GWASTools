@@ -399,7 +399,7 @@
 }
 \section{Changes in version 1.11.11}{
   \itemize{
-    \item bug fix in added vcfCheck function to compare VCF file to GenotypeData object
+    \item added vcfCheck function to compare VCF file to GenotypeData object
   }
 }
 \section{Changes in version 1.11.12}{
@@ -409,8 +409,7 @@
 }
 \section{Changes in version 1.11.13}{
   \itemize{
-    \item in case of missing allele code, return character genotype as
-    NA
+    \item in case of missing allele code, return character genotype as NA
   }
 }
 \section{Changes in version 1.11.14}{
@@ -474,5 +473,12 @@
 \section{Changes in version 1.11.32}{
   \itemize{
     \item imputedDosageFile replaces ncdfImputedDosage and gdsImputedDosage
+  }
+}
+\section{Changes in version 1.11.33}{
+  \itemize{
+    \item Allow getting variables from sub-nodes in a GDS file (e.g., getVariable(GdsReader, "snp.annot/qual")).
+    \item Add getNodeDescription method to GdsReader.
+    \item Added examples of converting from PLINK and VCF in Formats vignette.
   }
 }

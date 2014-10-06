@@ -9,6 +9,7 @@ setGeneric("getDimensionNames", function(object, varname, ...) standardGeneric("
 setGeneric("getGenotype", function(object, ...) standardGeneric("getGenotype"))
 setGeneric("getLogRRatio", function(object, ...) standardGeneric("getLogRRatio"))
 setGeneric("getMetadata", function(object, ...) standardGeneric("getMetadata"))
+setGeneric("getNodeDescription", function(object, varname, ...) standardGeneric("getNodeDescription"))
 setGeneric("getPosition", function(object, ...) standardGeneric("getPosition"))
 setGeneric("getQuality", function(object, ...) standardGeneric("getQuality"))
 setGeneric("getQuery", function(object, statement, ...) standardGeneric("getQuery"))

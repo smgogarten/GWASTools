@@ -1,5 +1,5 @@
 %\VignetteIndexEntry{Data formats in GWASTools}
-%\VignetteDepends{GWASTools}
+%\VignetteDepends{GWASTools, SNPRelate}
 \documentclass[11pt]{article}
 \usepackage{fullpage}
 \usepackage{Sweave}
@@ -152,17 +152,117 @@ using the function \Rcode{createDataFile}.  See
 the ``GWAS Data Cleaning'' and ``Preparing Affymetrix Data'' vignettes for
 examples.
 
+
 \subsection{PLINK}
 
 PLINK ped/map files can be converted to NetCDF with accompanying SNP
 and scan annotation using the function \Rcode{plinkToNcdf}.
-\Rcode{snpgdsBED2GDS} in the \Rcode{SNPRelate} package converts
-binary PLINK to GDS.
+\Rcode{plinkToNcdf} will automatically convert between the sex
+chromosome codes used by PLINK and the default codes used by
+\Rpackage{GWASTools}.
+
+\Rcode{snpgdsBED2GDS} in the \Rpackage{SNPRelate} package converts
+binary PLINK to GDS.  \Rcode{snpgdsBED2GDS} is significantly faster than
+\Rcode{plinkToNcdf}, and the resulting GDS file may be used with
+\Rpackage{SNPRelate} as well.  The option \Rcode{cvt.snpid="int"} is required to
+generate integer snpIDs.  Chromosome codes are not converted.
+
+<<>>=
+library(GWASTools)
+library(SNPRelate)
+bed.fn <- system.file("extdata", "plinkhapmap.bed", package="SNPRelate")
+fam.fn <- system.file("extdata", "plinkhapmap.fam", package="SNPRelate")
+bim.fn <- system.file("extdata", "plinkhapmap.bim", package="SNPRelate")
+gdsfile <- "snps.gds"
+snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, gdsfile, family=TRUE,
+              cvt.snpid="int", verbose=FALSE)
+@ 
+
+Now that the file has been created, we can access it in
+\Rpackage{GWASTools} using the \Rcode{GdsGenotypeReader} class.  We
+create sample and SNP annotation from the variables stored in the GDS file.
+Note that PLINK sex chromosome coding is different from the
+\Rpackage{GWASTools} default, so specify codes if your file contains Y
+or pseudoautosomal SNPs.
+
+<<>>=
+(gds <- GdsGenotypeReader(gdsfile, YchromCode=24L, XYchromCode=25L))
+scanID <- getScanID(gds)
+father <- getVariable(gds, "sample.annot/father")
+mother <- getVariable(gds, "sample.annot/mother")
+sex <- getVariable(gds, "sample.annot/sex")
+sex <- c("1"="M", "2"="F", "0"=NA)[sex] # sex must be coded as M/F
+phenotype <- getVariable(gds, "sample.annot/phenotype")
+scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID, father, mother, 
+                                                sex, phenotype,
+                                                stringsAsFactors=FALSE))
+
+snpID <- getSnpID(gds)
+chromosome <- as.integer(getChromosome(gds))
+position <- getPosition(gds)
+alleleA <- getAlleleA(gds)
+alleleB <- getAlleleB(gds)
+rsID <- getVariable(gds, "snp.rs.id")
+snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position,
+                                              rsID, alleleA, alleleB,
+                                              stringsAsFactors=FALSE),
+                                   YchromCode=24L, XYchromCode=25L)
+
+genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+getGenotype(genoData, snp=c(1,5), scan=c(1,5))
+
+close(genoData)
+@ 
+
+<<echo=FALSE, results=hide>>=
+unlink(gdsfile)
+@ 
+
 
 \subsection{VCF}
 
 Bi-allelic SNP data from Variant Call Format (VCF) can be converted to
-GDS or NetCDF.  See the ``Converting VCF data'' vignette for examples.
+GDS using the function \Rcode{snpgdsVCF2GDS} in the \Rcode{SNPRelate} package.
+
+<<>>=
+library(GWASTools)
+library(SNPRelate)
+vcffile <- system.file("extdata", "sequence.vcf", package="SNPRelate")
+gdsfile <- "snps.gds"
+snpgdsVCF2GDS(vcffile, gdsfile, verbose=FALSE)
+@ 
+
+Now that the file has been created, we can access it in
+\Rpackage{GWASTools} using the \Rcode{GdsGenotypeReader} class.  We
+create a \Rcode{SnpAnnotationDataFrame} from the variables stored in the GDS file.
+
+<<>>=
+(gds <- GdsGenotypeReader(gdsfile))
+getScanID(gds)
+
+snpID <- getSnpID(gds)
+chromosome <- as.integer(getChromosome(gds))
+position <- getPosition(gds)
+alleleA <- getAlleleA(gds)
+alleleB <- getAlleleB(gds)
+rsID <- getVariable(gds, "snp.rs.id")
+qual <- getVariable(gds, "snp.annot/qual")
+filter <- getVariable(gds, "snp.annot/filter")
+snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID, chromosome, position,
+                                              rsID, alleleA, alleleB,
+                                              qual, filter,
+                                              stringsAsFactors=FALSE))
+
+genoData <- GenotypeData(gds, snpAnnot=snpAnnot)
+getGenotype(genoData)
+
+close(genoData)
+@ 
+
+<<echo=FALSE, results=hide>>=
+unlink(gdsfile)
+@ 
+
 
 \subsection{Imputed genotypes}
 
@@ -170,12 +270,18 @@ Genotype probabilities or dosages from IMPUTE2, BEAGLE, or MaCH can be
 converted into A allele dosage and stored in NetCDF or GDS with the function
 \Rcode{imputedDosageFile}.
 
+
 \section{Output}
 
 \subsection{PLINK}
 
 A \Rcode{GenotypeData} object can be written to PLINK ped/map files
 with the function \Rcode{plinkWrite}.
+
+\subsection{VCF}
+
+A \Rcode{GenotypeData} object can be written to VCF
+with the function \Rcode{vcfWrite}.
 
 \subsection{snpStats}
 

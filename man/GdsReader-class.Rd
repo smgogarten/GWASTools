@@ -7,6 +7,7 @@
 \alias{close,GdsReader-method}
 \alias{show,GdsReader-method}
 \alias{getDimension,GdsReader-method}
+\alias{getNodeDescription,GdsReader-method}
 \alias{getVariableNames,GdsReader-method}
 \alias{hasVariable,GdsReader-method}
 \alias{getVariable,GdsReader-method}
@@ -65,6 +66,9 @@
     \item{}{
       \code{getDimension(object, varname)}: Returns dimension
       for GDS variable \code{varname}.
+    }
+    \item{}{
+      \code{getNodeDescription(object, varname)}: Returns description for GDS variable \code{varname}.
     }
     \item{}{
       \code{getAttribute(object, attname, varname)}: Returns the

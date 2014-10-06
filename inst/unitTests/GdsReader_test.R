@@ -59,3 +59,20 @@ test_GdsReader_attr <- function() {
   close(obj)
   unlink(file)
 }
+
+
+test_GdsReader_folders <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  add.gdsn(gds, "var1", 1:10)
+  add.gdsn(gds, "var2", list(a=1:2, b=1:2))
+  add.gdsn(gds, "var3", list(x=1:5, y=1:5, z=1:5))
+  closefn.gds(gds)
+
+  obj <- GdsReader(file)
+  checkIdentical(c("var1", "var2/a", "var2/b", "var3/x", "var3/y", "var3/z"),
+                 getVariableNames(obj))
+  checkIdentical(1:2, getVariable(obj, "var2/b"))
+  close(obj)
+  unlink(file)
+}

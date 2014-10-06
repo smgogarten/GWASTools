@@ -40,16 +40,31 @@ setMethod("show",
             show(object@handler)
           })
 
+setMethod("getNodeDescription",
+          signature(object="GdsReader"),      
+          function(object, varname) {
+            objdesp.gdsn(index.gdsn(object@handler, varname))
+          })
+
 setMethod("getDimension",
           signature(object="GdsReader"),
           function(object, varname) {
-            objdesp.gdsn(index.gdsn(object@handler, varname))$dim
+            getNodeDescription(object, varname)$dim
           })
 
 setMethod("getVariableNames",
           signature(object="GdsReader"),
           function(object) {
-            ls.gdsn(object@handler)
+            vars <- ls.gdsn(object@handler)
+            # number of child nodes
+            n.child <- sapply(vars, function(x) cnt.gdsn(index.gdsn(object@handler, x)))
+            folders <- vars[n.child > 0]
+            if (length(folders) > 0) {
+                varf <- unlist(lapply(folders, function(x)
+                    paste(x, ls.gdsn(index.gdsn(object@handler, x)), sep="/")))
+                vars <- c(setdiff(vars, folders), varf)
+            }
+            vars
           })
 
 setMethod("hasVariable",
@@ -61,7 +76,7 @@ setMethod("hasVariable",
 setMethod("getVariable",
           signature(object="GdsReader"),
           function(object, varname, ...) {
-            
+
             # check that variable exists
             if (!hasVariable(object, varname)) {
               warning(paste(varname, "not found"))

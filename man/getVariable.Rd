@@ -10,6 +10,7 @@
 \alias{getGenotype}
 \alias{getLogRRatio}
 \alias{getMetadata}
+\alias{getNodeDescription}
 \alias{getPosition}
 \alias{getQuality}
 \alias{getScanID}
@@ -75,6 +76,7 @@
   getLogRRatio(object, ...)
   getDimension(object, varname, ...)
   getAttribute(object, attname, varname, ...)
+  getNodeDescription(object, varname, ...)
 
   getAnnotation(object, ...)
   getMetadata(object, ...)

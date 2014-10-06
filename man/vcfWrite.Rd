@@ -46,9 +46,9 @@ vcfCheck(genoData, vcf.file, sample.col="scanID",
 \examples{
 library(GWASdata)
 library(VariantAnnotation)
-ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
 data(illuminaSnpADF, illuminaScanADF)
-genoData <- GenotypeData(NcdfGenotypeReader(ncfile),
+genoData <- GenotypeData(GdsGenotypeReader(gdsfile),
   scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
 vcffile <- tempfile()
 vcfWrite(genoData, vcffile, id.col="rsID", info.cols="IntensityOnly")
