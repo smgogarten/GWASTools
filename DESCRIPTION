@@ -1,12 +1,12 @@
 Package: GWASTools
-Version: 1.13.0
+Version: 1.13.1
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
 Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos, Cecelia Laurie, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Jess Shen, Rohit Swarnkar, Adrienne Stilp
 Maintainer: Stephanie M. Gogarten <sdmorris@u.washington.edu>, Adrienne Stilp <amstilp@u.washington.edu>
-Depends: Biobase, ncdf, gdsfmt
-Imports: methods, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, quantsmooth
+Depends: Biobase
+Imports: methods, ncdf, gdsfmt, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, quantsmooth
 Suggests: GWASdata, BiocGenerics, RUnit, SNPRelate, snpStats, VariantAnnotation
 License: Artistic-2.0
 LazyData: yes
@@ -21,9 +21,6 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   createDataFile.R createAffyIntensityFile.R checkGenotypeFile.R checkIntensityFile.R
   setMissingGenotypes.R imputedDosageFile.R checkImputedDosageFile.R
   ncdfSubset.R ncdfSubsetCheck.R gdsSubset.R gdsSubsetCheck.R
-  ncdfCreate.R ncdfAddData.R ncdfAddIntensity.R ncdfCheckIntensity.R ncdfCheckGenotype.R
-  ncdfSetMissingGenotypes.R gdsSetMissingGenotypes.R
-  ncdfImputedDosage.R gdsImputedDosage.R gdsCheckImputedDosage.R
   plinkUtils.R snpStats.R vcfWrite.R
   convertNcdfGds.R convertVcfGds.R 
   BAFfromClusterMeans.R BAFfromGenotypes.R
@@ -44,5 +41,5 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreeCheck.R pedigreeDeleteDuplicates.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
-  
+  defunct.R
   
