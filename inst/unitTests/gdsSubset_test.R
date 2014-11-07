@@ -35,6 +35,7 @@ test_gdsSubset <- function(){
   
   closefn.gds(gds)
   
+  
   gds.orig <- GdsGenotypeReader(gdsfile)
   snpID <- getSnpID(gds.orig)
   snpsel <- sort(sample(1:length(snpID), 50))
@@ -47,7 +48,7 @@ test_gdsSubset <- function(){
   gdsSubset(parent.gds=gdsfile, sub.gds=subfile,
             sample.include=sampID[sampsel],
             snp.include=snpID[snpsel])
-
+  
   
   # check attributes with gds
   gds1 <- openfn.gds(gdsfile)
@@ -710,4 +711,56 @@ test_gdsSubset_attribute <- function(){
   unlink(subfile)
   
   unlink(gdsfile)
+}
+
+
+test_gdsSubset_noOrder <- function(){
+  
+  # simulated data
+  gdsfile <- tempfile()
+  subfile <- tempfile()
+  
+  gds <- createfn.gds(gdsfile)
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  alleles <- c("A", "C", "T", "G")
+  a <- sample(alleles, 260, replace=T)
+  b <- sapply(a, function(x) sample(alleles[!(alleles %in% x)], 1), USE.NAMES=FALSE)
+  alleles <- paste(a, b, sep="/")
+  samp <- 1:20
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  node <- add.gdsn(gds, "snp.chromosome", chrom)
+  put.attr.gdsn(node, "autosome.start", 1)
+  put.attr.gdsn(node, "autosome.end", 22)
+  put.attr.gdsn(node, "X", 23)
+  put.attr.gdsn(node, "XY", 24)
+  put.attr.gdsn(node, "Y", 25)
+  put.attr.gdsn(node, "M", 26)
+  put.attr.gdsn(node, "MT", 26)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  node <- add.gdsn(gds, "genotype", geno, storage="bit2")
+  ## add in the same attributes later, when the function is working
+  
+  closefn.gds(gds)
+  
+  
+  gds.orig <- GdsGenotypeReader(gdsfile)
+  snpID <- getSnpID(gds.orig)
+  snpsel <- sort(sample(1:length(snpID), 50))
+  sampID <- getScanID(gds.orig)
+  sampsel <- sort(sample(1:length(sampID), 10))
+  close(gds.orig)
+  
+  # subset
+  subfile <- tempfile()
+  checkException(gdsSubset(parent.gds=gdsfile, sub.gds=subfile,
+            sample.include=sampID[sampsel],
+            snp.include=snpID[snpsel]))
 }

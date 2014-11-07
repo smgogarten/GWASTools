@@ -92,7 +92,21 @@ gdsSubset <- function(parent.gds,
 
     # check attributes of parent node to get array dimensions
     attributes <- get.attr.gdsn(node.parent)
-    if ("sample.order" %in% names(attributes)) dimType <- "scan,snp" else dimType <- "snp,scan"
+    node.dim <- objdesp.gdsn(node.parent)$dim
+    dimType <- NULL
+    if ("sample.order" %in% names(attributes)) {
+      
+      dimType <- "scan,snp" 
+      if (!isTRUE(all.equal(node.dim, c(length(sampID.parent), length(snpID.parent))))) stop(paste("dimensions of", dimname, "do not match sample.order"))
+      
+    } else if ("snp.order" %in% names(attributes)) {
+      
+      dimType <- "snp,scan"
+      if (!isTRUE(all.equal(node.dim, c(length(snpID.parent), length(sampID.parent))))) stop(paste("dimensions of", dimname, "do not match sample.order"))
+      
+    } else {
+      stop("gds node", dimname, "must have 'snp.order' or 'sample.order' as an attribute")
+    }
 
     # subset node
     if (dimType == "scan,snp"){
