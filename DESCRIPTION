@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.13.2
+Version: 1.13.3
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -22,7 +22,7 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   setMissingGenotypes.R imputedDosageFile.R checkImputedDosageFile.R
   ncdfSubset.R ncdfSubsetCheck.R gdsSubset.R gdsSubsetCheck.R
   plinkUtils.R snpStats.R vcfWrite.R
-  convertNcdfGds.R convertVcfGds.R 
+  convertNcdfGds.R convertVcfGds.R
   BAFfromClusterMeans.R BAFfromGenotypes.R
   sdByScanChromWindow.R medianSdOverAutosomes.R meanSdByChromWindow.R findBAFvariance.R
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R
@@ -42,4 +42,4 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
   defunct.R
-  
+
