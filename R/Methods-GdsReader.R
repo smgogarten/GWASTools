@@ -14,7 +14,7 @@ GdsReader <- function(filename) {
 }
 
 setValidity("GdsReader",
-            function(object) {              
+            function(object) {
               if (!is.character(object@filename) ||
                   length(object@filename) != 1 ||
                   is.na(object@filename))
@@ -34,14 +34,14 @@ setMethod("close",
       x <- closefn.gds(con@handler)
     })
 
-setMethod("show", 
+setMethod("show",
           signature(object="GdsReader"),
           function(object) {
-            show(object@handler)
+            print(object@handler)
           })
 
 setMethod("getNodeDescription",
-          signature(object="GdsReader"),      
+          signature(object="GdsReader"),
           function(object, varname) {
             objdesp.gdsn(index.gdsn(object@handler, varname))
           })
@@ -96,7 +96,7 @@ setMethod("getVariable",
           })
 
 setMethod("getAttribute",
-          signature(object="GdsReader"),      
+          signature(object="GdsReader"),
           function(object, attname, varname) {
             get.attr.gdsn(index.gdsn(object@handler, varname))[[attname]]
           })

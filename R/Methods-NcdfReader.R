@@ -9,7 +9,7 @@ NcdfReader <- function(filename) {
 }
 
 setValidity("NcdfReader",
-            function(object) {              
+            function(object) {
               if (!is.character(object@filename) ||
                   length(object@filename) != 1 ||
                   is.na(object@filename))
@@ -31,10 +31,10 @@ setMethod("close",
       return(invisible(x))
     })
 
-setMethod("show", 
+setMethod("show",
           signature(object="NcdfReader"),
           function(object) {
-            show(object@handler)
+            print(object@handler)
           })
 
 setMethod("getDimension",
@@ -43,8 +43,8 @@ setMethod("getDimension",
             sapply(object@handler$var[[varname]]$dim, function(x) x$len)
           })
 
-# get dimension names   
-# if varname is missing, returns dimension names for netcdf object          
+# get dimension names
+# if varname is missing, returns dimension names for netcdf object
 setMethod("getDimensionNames",
           signature(object="NcdfReader"),
           function(object, varname) {
@@ -105,17 +105,17 @@ setMethod("getVariable",
             # convert all missing values to NA
             missVal <- object@handler$var[[varname]]$missval
             var[var == missVal] <- NA
-            
+
             # 1D variables are returned as arrays - convert to vector
             if (is(var, "array") & length(dim(var)) == 1) {
               var <- as.vector(var)
             }
-            
+
             return(var)
           })
 
 setMethod("getAttribute",
-          signature(object="NcdfReader"),      
+          signature(object="NcdfReader"),
           function(object, attname, varname) {
             if (missing(varname)) {
               varname <- 0
