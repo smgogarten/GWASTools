@@ -1,13 +1,13 @@
 chromIntensityPlot <- function(
 		 intenData, # object of type IntensityData
-                 scan.ids, 
-		 chrom.ids, 
+                 scan.ids,
+		 chrom.ids,
 		 type = c("BAF/LRR", "BAF", "LRR", "R", "Theta", "R/Theta"),
-		 main = NULL, 
-		 info = NULL, 
-		 abln = NULL, 
-		 horizln = c(1/2, 1/3, 2/3), 
-		 colorGenotypes = FALSE, 
+		 main = NULL,
+		 info = NULL,
+		 abln = NULL,
+		 horizln = c(1/2, 1/3, 2/3),
+		 colorGenotypes = FALSE,
 		 genoData = NULL,
                  colorBatch = FALSE,
                  batch.column = NULL,
@@ -15,7 +15,7 @@ chromIntensityPlot <- function(
                  ideogram=TRUE, ideo.zoom=TRUE, ideo.rect=FALSE,
                  cex=0.5,
                  cex.leg=1.5,
-		 ...) 
+		 ...)
 {
     # check arguments
     if (length(scan.ids) != length(chrom.ids)) {
@@ -31,7 +31,7 @@ chromIntensityPlot <- function(
     if (type == "R" | type == "Theta" | type == "R/Theta") {
         if (!hasX(intenData) | !hasY(intenData)) stop("X and Y not found")
       }
-    if (!is.null(main)) {    
+    if (!is.null(main)) {
       if (length(main) == 1 & length(scan.ids) > 1) {
         main <- rep(main, length(scan.ids))
       } else {
@@ -52,7 +52,7 @@ chromIntensityPlot <- function(
         stop(paste("SNP variable", batch.column, "was not found in intenData."))
       }
     }
-    
+
     chr <- getChromosome(intenData)
     chr.char <- getChromosome(intenData, char=TRUE)
     pos <- getPosition(intenData)
@@ -62,28 +62,28 @@ chromIntensityPlot <- function(
     } else {
       sex <- NULL
     }
-    
+
     chrom.char <- chrom.ids
     chrom.char[chrom.ids == XchromCode(intenData)] <- "X"
     chrom.char[chrom.ids == YchromCode(intenData)] <- "Y"
-  
+
     # layout
     if (ideogram & type %in% c("BAF/LRR", "R/Theta")) {
       layout(matrix(c(1,2,3), nrow=3, ncol=1), heights=c(0.4, 0.4, 0.2))
     } else if (ideogram | type %in% c("BAF/LRR", "R/Theta")) {
       layout(matrix(c(1,2), nrow=2, ncol=1), heights=c(0.5, 0.5))
     }
-    
+
     for (i in 1:length(scan.ids)) {
 	# index for sample to be plotted
         stopifnot(is.element(scan.ids[i], scanID))
         sid <- which(scanID == scan.ids[i])
-        
+
         chri <- which(is.element(chr, chrom.ids[i]))
         chr.start <- chri[1]
         chr.count <- length(chri)
         chr.label <- unique(chr.char[chri])
-        
+
 	# logical for snps to be plotted
         if (!is.null(snp.exclude)) {
             snpID <- getSnpID(intenData, index=chri)
@@ -91,7 +91,7 @@ chromIntensityPlot <- function(
         } else {
             toPlot <- rep(TRUE, length(chri))
         }
-        
+
         # get the data to plot
         if (type == "BAF" | type == "LRR" | type == "BAF/LRR") {
             logrratio <- getLogRRatio(intenData, snp=c(chr.start,chr.count), scan=c(sid,1))
@@ -104,7 +104,7 @@ chromIntensityPlot <- function(
             r <- x + y
         }
         posi <- pos[chri]
-    
+
 	# calculate values at which the 1/8 lines should be plotted
         top <- max(posi, na.rm = TRUE)
         bot <- min(posi, na.rm = TRUE)
@@ -125,7 +125,7 @@ chromIntensityPlot <- function(
         }
         if (!is.null(info)) {
           txt.main <- paste(txt.main, "-", info[i])
-        }       
+        }
 
         # create genotype color vector if colorGenotypes==TRUE
         gcol <- rep("black", length(chri))
@@ -145,7 +145,7 @@ chromIntensityPlot <- function(
           txt.main <- tmp
           txt.leg <- tmp
         }
-        
+
         # create batch color vector if colorBatch==TRUE
         if (colorBatch) {
           batch <- getSnpVariable(intenData, batch.column, index=chri)
@@ -154,7 +154,7 @@ chromIntensityPlot <- function(
           col <- colors()[seq(from=450,to=637,length.out=numpool)]
           for(i in 1:length(col)) gcol[is.element(batch,uniqBatch[i])] <- col[i]
         }
-    
+
 	# make the plots
         if (!is.null(abln)) {
             abst <- abln[(i * 2) - 1]
@@ -172,62 +172,62 @@ chromIntensityPlot <- function(
             }
             subnm <- paste("horizontal line =", hv)
         }
-            
+
         par(mar=c(5,4,4,2)+0.1, mgp=c(2.5,0.75,0))
         if (type == "LRR" | type == "BAF/LRR") {
-            plot((posi/1e+06)[toPlot], logrratio[toPlot], xlab = "position (Mb)", 
-                ylab = "LRR", sub = "horizontal line = mean LRR", 
+            plot((posi/1e+06)[toPlot], logrratio[toPlot], xlab = "position (Mb)",
+                ylab = "LRR", sub = "horizontal line = mean LRR",
                 main = txt.main, ylim = c(-2, 2),
                 type = "n", ...)
             for (d in 1:length(vals)) {
-                abline(v = vals[d]/1e+06, col = "royalblue", 
+                abline(v = vals[d]/1e+06, col = "royalblue",
                   lty = 3, lwd = 2)
             }
-            if (abst != -1) 
+            if (abst != -1)
                 abline(v = abst, col = "red", lty = 2, lwd = 1.2)
-            if (aben != -1) 
+            if (aben != -1)
                 abline(v = aben, col = "red", lty = 2, lwd = 1.2)
-            points((posi/1e+06)[toPlot], logrratio[toPlot], cex=cex)
-            abline(h = mninten, col = "gray")
+            points((posi/1e+06)[toPlot], logrratio[toPlot], col=ifelse(colorGenotypes, "gray", "black"), cex=cex)
+            abline(h = mninten, col = "red")
         }
         if (type == "BAF" | type == "BAF/LRR") {
-            plot((posi/1e+06)[toPlot], bafreq[toPlot], type = "n", 
-                xlab = "position (Mb)", ylab = "BAF", 
+            plot((posi/1e+06)[toPlot], bafreq[toPlot], type = "n",
+                xlab = "position (Mb)", ylab = "BAF",
                 sub = subnm, main = txt.leg, ...)
-            if (abst != -1) 
+            if (abst != -1)
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
-            if (aben != -1) 
+            if (aben != -1)
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
             for (d in 1:length(vals)) {
-                abline(v = vals[d]/1e+06, col = "royalblue", 
+                abline(v = vals[d]/1e+06, col = "royalblue",
                   lty = 3, lwd = 2)
             }
             points((posi/1e+06)[toPlot], bafreq[toPlot], col = gcol[toPlot], cex=cex)
             abline(h = horizln, col = "gray")
         }
         if (type == "R" | type == "R/Theta") {
-            plot((posi/1e+06)[toPlot], r[toPlot], xlab = "position (Mb)", 
+            plot((posi/1e+06)[toPlot], r[toPlot], xlab = "position (Mb)",
                 ylab = "R", main = txt.main, type = "n", ...)
             for (d in 1:length(vals)) {
-                abline(v = vals[d]/1e+06, col = "royalblue", 
+                abline(v = vals[d]/1e+06, col = "royalblue",
                   lty = 3, lwd = 2)
             }
-            if (abst != -1) 
+            if (abst != -1)
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
-            if (aben != -1) 
+            if (aben != -1)
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
             points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex)
         }
         if (type == "Theta" | type == "R/Theta") {
-            plot((posi/1e+06)[toPlot], theta[toPlot], xlab = "position (Mb)", 
+            plot((posi/1e+06)[toPlot], theta[toPlot], xlab = "position (Mb)",
                 ylab = "Theta", main = txt.leg, type = "n", ...)
             for (d in 1:length(vals)) {
-                abline(v = vals[d]/1e+06, col = "royalblue", 
+                abline(v = vals[d]/1e+06, col = "royalblue",
                   lty = 3, lwd = 2)
             }
-            if (abst != -1) 
+            if (abst != -1)
                 abline(v = abst, col = "red", lty = 2, lwd = 1.3)
-            if (aben != -1) 
+            if (aben != -1)
                 abline(v = aben, col = "red", lty = 2, lwd = 1.3)
             points((posi/1e+06)[toPlot], r[toPlot], col = gcol[toPlot], cex=cex)
         }

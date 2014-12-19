@@ -173,8 +173,8 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   mismatch.plink <- setdiff(snp.plink, snp.ncdf)
   mismatch.ncdf <- setdiff(snp.ncdf, snp.plink)
   if (length(c(mismatch.plink, mismatch.ncdf)) > 0 ) {
-    p.df <- cbind("file"=rep("ped", length(mismatch.plink)), "snp"=mismatch.plink)
-    n.df <- cbind("file"=rep("netcdf", length(mismatch.ncdf)), "snp"=mismatch.ncdf)
+    p.df <- cbind("file"=rep("pedFile", length(mismatch.plink)), "snp"=mismatch.plink)
+    n.df <- cbind("file"=rep("genoData", length(mismatch.ncdf)), "snp"=mismatch.ncdf)
     mismatch <- rbind(p.df, n.df)
     writeLines("SNPs are not identical", con)
     write.table(mismatch, con, quote=FALSE, col.names=FALSE, row.names=FALSE)
@@ -208,11 +208,11 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     ind <- which(scan.df[,"individual"] == x[2] & keep)
     scanlist <- c(scanlist, x[2])
     if (length(ind) == 0) {
-      writeLines(paste("sample", x[2], "at line", line, "not found in NetCDF"), con)
+      writeLines(paste("sample", x[2], "at line", line, "not found in genoData"), con)
       retval <- FALSE
       next
     } else if (length(ind) > 1) {
-      writeLines(paste("sample", x[2], "at line", line, "has multiple entries in NetCDF"), con)
+      writeLines(paste("sample", x[2], "at line", line, "has multiple entries in genoData"), con)
       retval <- FALSE
       next
     }
@@ -220,31 +220,31 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     # compare sample data
     if (!allequal(scan.df[ind,"family"], x[1])) {
       writeLines(c(paste("family mismatch for sample", x[2], "at line", line),
-                   paste("Ped:", paste(x[1], collapse=" ")),
-                   paste("NetCDF:", paste(scan.df[ind,"family"], collapse=" "))), con)
+                   paste("pedFile:", paste(x[1], collapse=" ")),
+                   paste("genoData:", paste(scan.df[ind,"family"], collapse=" "))), con)
       retval <- FALSE
     }
     if (check.parents) {
       if (!allequal(scan.df[ind,c("father","mother")], x[3:4])) {
         writeLines(c(paste("parent mismatch for sample", x[2], "at line", line),
-                     paste("Ped:", paste(x[3:4], collapse=" ")),
-                     paste("NetCDF:", paste(scan.df[ind,c("father","mother")], collapse=" "))), con)
+                     paste("pedFile:", paste(x[3:4], collapse=" ")),
+                     paste("genoData:", paste(scan.df[ind,c("father","mother")], collapse=" "))), con)
         retval <- FALSE
       }
     }
     if (check.sex) {
       if (!allequal(scan.df[ind,"sex"], x[5])) {
         writeLines(c(paste("sex mismatch for sample", x[2], "at line", line),
-                     paste("Ped:", paste(x[5], collapse=" ")),
-                     paste("NetCDF:", paste(scan.df[ind,"sex"], collapse=" "))), con)
+                     paste("pedFile:", paste(x[5], collapse=" ")),
+                     paste("genoData:", paste(scan.df[ind,"sex"], collapse=" "))), con)
         retval <- FALSE
       }
     }
     if (!is.null(phenotype.col)) {
       if (!allequal(scan.df[ind,"phenotype"], x[6])) {
         writeLines(c(paste("phenotype mismatch for sample", x[2], "at line", line),
-                     paste("Ped:", x[6]),
-                     paste("NetCDF:", scan.df[ind,"phenotype"])), con)
+                     paste("pedFile:", x[6]),
+                     paste("genoData:", scan.df[ind,"phenotype"])), con)
         retval <- FALSE
       }
     }
@@ -262,15 +262,15 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     if (length(mismatch.plink > 0)) geno.plink[snp.plink %in% mismatch.plink] <- NA
     if (length(geno.plink) != length(geno)) {
       writeLines(c("numbers of SNPs do not match",
-                 paste("Ped:", length(geno.plink)),
-                 paste("NetCDF:", length(geno))), con)
+                 paste("pedFile:", length(geno.plink)),
+                 paste("genoData:", length(geno))), con)
       retval <- FALSE
     }
     if (!allequal(geno, geno.plink)) {
       badind <- which(geno != geno.plink)
       writeLines(c(paste("genotype mismatch for sample", x[2], "at line", line, " snp", badind[1]),
-                   paste("Ped:", paste(head(geno.plink[badind]), collapse=" "), "..."),
-                   paste("NetCDF:", paste(head(geno[badind]), collapse=" "), "...")), con)
+                   paste("pedFile:", paste(head(geno.plink[badind]), collapse=" "), "..."),
+                   paste("genoData:", paste(head(geno[badind]), collapse=" "), "...")), con)
       retval <- FALSE
     }
     line <- line + 1
@@ -281,7 +281,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   writeLines("Checking that all samples were found in ped file...", con)
   missing <- setdiff(scan.df[keep,"individual"], scanlist)
   if (length(missing > 0)) {
-    writeLines("samples not found in Ped:", con)
+    writeLines("samples not found in pedFile:", con)
     for (i in missing) {
       writeLines(as.character(i), con)
     }
