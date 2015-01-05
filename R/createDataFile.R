@@ -100,9 +100,8 @@
     add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
              compress=compress, closezip=TRUE)
     add.gdsn(gds, "snp.position", snp.annotation$position, compress=compress, closezip=TRUE)
-    ## comment out until propblem with large character vectors in gdsfmt is fixed
-    ## if ("snpName" %in% names(snp.annotation))
-    ##     add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress, closezip=TRUE)
+    if ("snpName" %in% names(snp.annotation))
+        add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress, closezip=TRUE)
     sync.gds(gds)
 
     ## add selected variables
