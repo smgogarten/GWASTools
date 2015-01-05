@@ -484,6 +484,15 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   # set up annotation
   #samples$scanID <- 1:nrow(samples) ## this will need to change.
   #if ("sex" %in% names(samples)) names(samples)[names(samples) %in% "sex"] <- "sex.sample"
+  if ("sex" %in% names(scan.df)) {
+    if (!all(scan.df$sex %in% c("M","F"))) {
+      if (all(scan.df$sex %in% c(1,2))) {
+        scan.df$sex <- c("1"="M", "2"="F")[as.character(scan.df$sex)]
+      } else {
+        names(scan.df)[names(scan.df) %in% "sex"] <- "sex.sample"
+      }
+    }
+  }
   scanAnnot <- ScanAnnotationDataFrame(scan.df)
 
   #snps$snpID <- 1:nrow(snps)

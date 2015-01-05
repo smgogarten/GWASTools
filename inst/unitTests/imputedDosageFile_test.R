@@ -825,6 +825,7 @@ test_impute2_phen <- function() {
 
   samp <- read.table(sampfile1, stringsAsFactors=FALSE, header=TRUE)
   samp$phen <- c("B", sample(c(0,1), nrow(samp)-1, replace=TRUE))
+  samp$sex <- c("D", sample(c(1,2), nrow(samp)-1, replace=TRUE))
   samp.hdr <- names(samp)
   sampfile <- tempfile()
   write.table(samp, file=sampfile, quote=FALSE, row.names=FALSE)
@@ -860,7 +861,9 @@ test_impute2_phen <- function() {
   samp <- read.table(sampfile, as.is=TRUE, header=FALSE, skip=2)
   names(samp) <- samp.hdr
   checkIdentical(paste(samp[,1], samp[,2]), scanAnnot$sampleID)
-  for (i in names(samp)) checkIdentical(samp[[i]], scanAnnot[[i]])
+  for (i in setdiff(names(samp), "sex")) checkIdentical(samp[[i]], scanAnnot[[i]])
+  checkEquals(samp$sex == 1, scanAnnot$sex == "M")
+  checkEquals(samp$sex == 2, scanAnnot$sex == "F")
 
   close(genoData)
 
