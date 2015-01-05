@@ -82,8 +82,7 @@ setMethod("hasVariable",
             hasCoordVariable(object, varname)
           })
 
-# TODO: modify this function to accept indices or logical vectors
-# will require loop over contiguous regions
+
 setMethod("getVariable",
           signature(object="NcdfReader"),
           function(object, varname, start, count, ...) {

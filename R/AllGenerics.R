@@ -7,6 +7,7 @@ setGeneric("getChromosome", function(object, ...) standardGeneric("getChromosome
 setGeneric("getDimension", function(object, varname, ...) standardGeneric("getDimension"))
 setGeneric("getDimensionNames", function(object, varname, ...) standardGeneric("getDimensionNames"))
 setGeneric("getGenotype", function(object, ...) standardGeneric("getGenotype"))
+setGeneric("getGenotypeSelection", function(object, ...) standardGeneric("getGenotypeSelection"))
 setGeneric("getLogRRatio", function(object, ...) standardGeneric("getLogRRatio"))
 setGeneric("getMetadata", function(object, ...) standardGeneric("getMetadata"))
 setGeneric("getNodeDescription", function(object, varname, ...) standardGeneric("getNodeDescription"))

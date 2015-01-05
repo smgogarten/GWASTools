@@ -246,22 +246,33 @@ setMethod("getVariable",
 # char=TRUE to return character values "A/B"
 setMethod("getGenotype",
           signature(object = "GenotypeData"),
-          function(object, snp, scan, char=FALSE, sort=TRUE, ...) {
-            if (!missing(snp) & !missing(scan)) {
-              snpstart <- snp[1]
-              snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
-              snpind <- snpstart:snpend
+          function(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, ...) {
               geno <- getGenotype(object@data, snp, scan, ...)
-            } else {
-              snpind <- rep(TRUE, nsnp(object))
-              geno <- getGenotype(object@data, ...)
-            }
-            if (char) {
-              alleleA <- getAlleleA(object, index=snpind)
-              alleleB <- getAlleleB(object, index=snpind)
-              geno <- genotypeToCharacter(geno, alleleA, alleleB, sort)
-            }
-            geno
+              if (char) {
+                  snpstart <- snp[1]
+                  snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
+                  snpind <- snpstart:snpend
+                  alleleA <- getAlleleA(object, index=snpind)
+                  alleleB <- getAlleleB(object, index=snpind)
+                  geno <- genotypeToCharacter(geno, alleleA, alleleB, sort)
+              }
+              geno
+          })
+
+setMethod("getGenotypeSelection",
+          signature(object = "GenotypeData"),
+          function(object, snp=NULL, scan=NULL, char=FALSE, sort=TRUE, ...) {
+              if (!is(object@data, "GdsGenotypeReader"))
+                  stop("getGenotypeSelection not implemented for class ",
+                       class(object@data))
+              geno <- getGenotypeSelection(object@data, snp, scan, ...)
+              if (char) {
+                  if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
+                  alleleA <- getAlleleA(object, index=snp)
+                  alleleB <- getAlleleB(object, index=snp)
+                  geno <- genotypeToCharacter(geno, alleleA, alleleB, sort)
+              }
+              geno
           })
 
 setMethod("nsnp", "GenotypeData",

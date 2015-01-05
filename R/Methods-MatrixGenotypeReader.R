@@ -77,30 +77,14 @@ setMethod("getScanID",
  
 setMethod("getGenotype",
           signature(object="MatrixGenotypeReader"),
-          function(object, snp=snp, scan=scan, ...) {
-            if (!missing(snp) & !missing(scan)) {
-              # get start and count from snp
+          function(object, snp=c(1,-1), scan=c(1,-1), ...) {
               snpstart <- snp[1]
-              snpcount <- snp[2]
-              if (snpcount == -1) {
-                snpend <- nsnp(object)
-              } else {
-                snpend <- snpstart + snpcount - 1
-              }
+              snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
             
-              # get start and count from scan
               scanstart <- scan[1]
-              scancount <- scan[2]
-              if (scancount == -1) {
-                scanend <- nscan(object)
-              } else {
-                scanend <- scanstart + scancount - 1
-              }
+              scanend <- ifelse(scan[2] == -1, nscan(object), scan[1]+scan[2]-1)
 
               object@genotype[snpstart:snpend, scanstart:scanend]
-            } else {
-              object@genotype
-            }
           })
 
 setMethod("nsnp", "MatrixGenotypeReader",

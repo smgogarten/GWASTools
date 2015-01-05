@@ -76,3 +76,23 @@ test_GdsReader_folders <- function() {
   close(obj)
   unlink(file)
 }
+
+
+test_GdsReader_sel <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  add.gdsn(gds, "var1", 1:10)
+  dat <- matrix(0, nrow=100, ncol=26)
+  add.gdsn(gds, "var2", dat)
+  closefn.gds(gds)
+
+  obj <- GdsReader(file)
+  checkIdentical(as.integer(c(2,4,6,8,10)),
+                 getVariable(obj, "var1", rep(c(FALSE, TRUE), 5)))
+  checkIdentical(matrix(0, nrow=10, ncol=3),
+                 getVariable(obj, "var2", list(c(rep(TRUE, 10), rep(FALSE, 90)),
+                                               c(rep(TRUE, 3), rep(FALSE, 23)))))
+  
+  close(obj)
+  unlink(file)
+}

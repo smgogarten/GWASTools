@@ -129,8 +129,8 @@ test_GenotypeData_char <- function() {
   nsamp <- length(samp)
   geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE),
                  nrow=nsnp, ncol=nsamp)
-  mgr <- MatrixGenotypeReader(genotype=geno, snpID=snp, chromosome=chrom, position=pos, scanID=samp)
-
+  mgr <- MatrixGenotypeReader(genotype=geno, snpID=snp, chromosome=chrom, position=pos, scanID=samp
+)
   snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID=snp, chromosome=chrom, position=pos,
                                                 stringsAsFactors=FALSE))
   obj <- GenotypeData(mgr, snpAnnot=snpAnnot)
@@ -167,4 +167,36 @@ test_GenotypeData_char <- function() {
   checkIdentical(geno[1:10,2:3] == 0, gc == "C/C")
   checkIdentical(geno[1:10,2:3] == 1, gc == "C/G")
   checkIdentical(geno[1:10,2:3] == 2, gc == "G/G")
+}
+
+test_GenotypeData_selection <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  samp <- 1231:1235
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  add.gdsn(gds, "snp.chromosome", chrom)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "sample.id", samp)
+  add.gdsn(gds, "genotype", geno, storage="bit2")
+  closefn.gds(gds)
+
+  snpAnnot <- SnpAnnotationDataFrame(data.frame(snpID=snp, chromosome=chrom, position=pos, alleleA="C", alleleB="G"))
+  gdsobj <- GdsGenotypeReader(file)
+  obj <- GenotypeData(gdsobj, snpAnnot=snpAnnot)
+  geno[geno == 3] <- NA
+  checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snp=1:10, scan=1:2))
+  geno[geno %in% 0] <- "G/G"
+  geno[geno %in% 1] <- "C/G"
+  geno[geno %in% 2] <- "C/C"
+  checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snp=1:10, scan=1:2, char=TRUE))
+
+  close(obj)
+  unlink(file)
 }

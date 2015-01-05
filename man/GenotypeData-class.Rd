@@ -27,6 +27,7 @@
 \alias{hasVariable,GenotypeData-method}
 \alias{getVariable,GenotypeData-method}
 \alias{getGenotype,GenotypeData-method}
+\alias{getGenotypeSelection,GenotypeData-method}
 \alias{autosomeCode,GenotypeData-method}
 \alias{XchromCode,GenotypeData-method}
 \alias{XYchromCode,GenotypeData-method}
@@ -74,13 +75,6 @@
 
 \section{Accessors}{
   In the code snippets below, \code{object} is a GenotypeData object.
-  \code{snp} and
-      \code{scan} indicate which elements to return along the snp and
-      scan dimensions.  They must be integer vectors of the form (start,
-      count), where start is the index of the first data element to read
-      and count is the number of elements to read.  A value of '-1' for
-      count indicates that the entire dimension should be read.  If snp
-      and/or is scan omitted, the entire variable is read.
       
   \describe{
     \item{}{
@@ -132,13 +126,29 @@
       \code{object}. 
     }
     \item{}{
-      \code{getGenotype(object, snp, scan, char=FALSE, sort=TRUE)}: Extracts genotype values
-      (number of A alleles).  
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, ...)}: Extracts genotype values
+      (number of A alleles). 
+      \code{snp} and
+      \code{scan} indicate which elements to return along the snp and
+      scan dimensions.  They must be integer vectors of the form (start,
+      count), where start is the index of the first data element to read
+      and count is the number of elements to read.  A value of '-1' for
+      count indicates that the entire dimension should be read.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.  If \code{char=TRUE}, genotypes are
       returned as characters of the form "A/B".  If \code{sort=TRUE},
       alleles are lexographically sorted ("G/T" instead of "T/G").
+    }
+    \item{}{
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, ...)}: May be used only if the data slot contains a \code{\link{GdsGenotypeReader}} object.
+      Extracts genotype values
+      (number of A alleles).  
+      \code{snp} and
+      \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
+      scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
+      The result is a vector or matrix, depending on the number
+      of dimensions in the returned values.
     }
     \item{}{
       \code{getSnpVariable(object, varname, index)}: Returns the snp
@@ -169,7 +179,7 @@
       variable \code{varname} is present in the scan annotation.
     }
     \item{}{
-      \code{getVariable(object, varname, snp, scan)}: Extracts the
+      \code{getVariable(object, varname, ...)}: Extracts the
       contents of the variable \code{varname} from the data.  
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are

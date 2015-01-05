@@ -51,15 +51,6 @@
 
 \section{Accessors}{
   In the code snippets below, \code{object} is a MatrixGenotypeReader object.
-  \code{snp} and
-      \code{scan} indicate which elements to return along the snp and
-      scan dimensions.  They must be integer vectors of the form (start,
-      count), where start is the index of the first data element to read
-      and count is the number of elements to read.  A value of '-1' for
-      count indicates that the entire dimension should be read.  If snp
-      and/or is scan omitted, the entire variable is returned.
-      
-      See \code{\link{NcdfReader}} for additional methods.
 
   \describe{
     \item{}{
@@ -93,8 +84,14 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp, scan)}: Extracts genotype values
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1))}: Extracts genotype values
       (number of A alleles).  
+      \code{snp} and 
+      \code{scan} indicate which elements to return along the snp and
+      scan dimensions.  They must be integer vectors of the form (start,
+      count), where start is the index of the first data element to read
+      and count is the number of elements to read.  A value of '-1' for
+      count indicates that the entire dimension should be read.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.

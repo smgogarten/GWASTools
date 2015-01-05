@@ -38,7 +38,7 @@
 
   \describe{
     \item{}{
-      \code{getVariable(object, varname, start, count)}: Returns the
+      \code{getVariable(object, varname, start, count, sel=NULL)}: Returns the
       contents of the variable \code{varname}.     
       \itemize{
 	\item \code{start} is a vector
@@ -52,6 +52,7 @@
 	specified and the variable does NOT have an unlimited dimension, the
 	entire variable is read. As a special case, the value "-1" indicates
 	that all entries along that dimension should be read.
+	\item \code{sel} may be specified instead of \code{start} and \code{count}.  It is a list of m logical vectors, where m is the number of dimensions of \code{varname} and each logical vector should have the same size as the corresponding dimension in \code{varname}.
       }
       The result is a vector, matrix, or array, depending on the number
       of dimensions in the returned values.

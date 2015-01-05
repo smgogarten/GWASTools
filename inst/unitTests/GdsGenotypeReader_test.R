@@ -196,3 +196,52 @@ test_indels <- function() {
   close(obj)
   unlink(file)
 }
+
+
+test_logicalIndex <- function() {
+  checkIdentical(c(rep(TRUE, 10), rep(FALSE, 10)),
+                 GWASTools:::.logicalIndex(1:10, 20))
+  checkException(GWASTools:::.logicalIndex(c(TRUE, FALSE), 3))
+}
+
+test_GdsGenotypeReader_index <- function() {  
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  a <- rep("A", 260)
+  b <- rep("G", 260)
+  alleles <- paste(a, b, sep="/")
+  samp <- 1231:1235
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  add.gdsn(gds, "snp.chromosome", chrom)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  add.gdsn(gds, "genotype", geno, storage="bit2")
+  closefn.gds(gds)
+  
+  obj <- GdsGenotypeReader(file)
+  checkIdentical(snp[1:10], getSnpID(obj, index=1:10))
+  checkIdentical(chrom[1:10], getChromosome(obj, index=1:10))
+  checkIdentical(samp[1:2], getScanID(obj, index=c(rep(TRUE, 2), rep(FALSE, 3))))
+  checkException(getScanID(obj, index=rep(TRUE, 6)))
+
+  geno[geno == 3] <- NA
+  checkIdentical(geno[1:10,1:2],
+                 getGenotypeSelection(obj, snp=1:10, scan=1:2))
+  checkIdentical(t(geno[1:10,1:2]),
+                 getGenotypeSelection(obj, snp=1:10, scan=1:2, transpose=TRUE))
+  checkIdentical(geno[1:10,1:2],
+                 getGenotypeSelection(obj,
+                                      snp=c(rep(TRUE, 10), rep(FALSE, 250)),
+                                      scan=c(rep(TRUE, 2), rep(FALSE, 3))))
+  
+  close(obj)
+  unlink(file)
+}

@@ -8,6 +8,7 @@
 \alias{getChromosome}
 \alias{getDimension}
 \alias{getGenotype}
+\alias{getGenotypeSelection}
 \alias{getLogRRatio}
 \alias{getMetadata}
 \alias{getNodeDescription}
@@ -69,6 +70,7 @@
   getVariable(object, varname, ...)
   getVariableNames(object, ...)
   getGenotype(object, ...)
+  getGenotypeSelection(object, ...)
   getQuality(object, ...)
   getX(object, ...)
   getY(object, ...)
@@ -160,6 +162,8 @@
   \code{\link{NcdfGenotypeReader-class}},
   \code{\link{NcdfIntensityReader-class}},
   \code{\link{GdsReader-class}},
+  \code{\link{GdsGenotypeReader-class}},
+  \code{\link{GdsIntensityReader-class}},
   \code{\link{GenotypeData-class}}, \code{\link{IntensityData-class}}
 }
 

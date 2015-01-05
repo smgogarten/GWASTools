@@ -149,6 +149,7 @@ exportMethods(
     getDimension,
     getDimensionNames,
     getGenotype,
+    getGenotypeSelection,
     getLogRRatio,
     getMetadata,
     getNodeDescription,

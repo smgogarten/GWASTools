@@ -84,45 +84,56 @@ setValidity("GdsGenotypeReader",
       TRUE
     })
 
-           
-# snp and scan are vectors of the format c(start, count)
-# count = -1 means read entire dimension
+         
+# accessor methods
+# index is logical or integer vector of indices to return
+.logicalIndex <- function(index, dim) {
+    if (is.logical(index)) {
+        if (length(index) != dim) stop("index has incorrect dimension")
+        index
+    } else if (is.numeric(index)) {
+        x <- rep(FALSE, dim)
+        x[index] <- TRUE
+        x
+    } else {
+        stop("index must be logical or integer")
+    }
+}
+
 setMethod("getVariable",
           signature(object="GdsGenotypeReader"),
-          function(object, varname, snp, scan, ...) {
-
-            if (!missing(snp) & !missing(scan)) {
-              # get start and count from snp
-              snpstart = snp[1]
-              snpcount = snp[2]
-            
-              # get start and count from scan
-              scanstart = scan[1]
-              scancount = scan[2]
-
-              callNextMethod(object, varname, start=c(snpstart, scanstart),
-                             count=c(snpcount, scancount), ...)
-            } else {
-              callNextMethod(object, varname, ...)
-            }
+          function(object, varname, index, ...) {
+              if (missing(index)) {
+                  callNextMethod(object, varname, ...)
+              } else {
+                  dim <- getDimension(object, varname)
+                  if (is.list(index)) {
+                      sel <- list()
+                      for (i in 1:length(index)) {
+                          sel[[i]] <- .logicalIndex(index[[i]], dim[i])
+                      }
+                  } else {
+                      sel <- .logicalIndex(index, dim)
+                  }
+                  callNextMethod(object, varname, sel=sel, ...)
+              }                    
           })
 
 
-# accessor methods
-# index is logical or integer vector of indices to return
 setMethod("getSnpID",
           signature(object="GdsGenotypeReader"),
-          function(object, index) {
-            var <- getVariable(object, object@snpIDvar)
-            if (missing(index)) var else var[index]
+          function(object, ...) {
+            getVariable(object, object@snpIDvar, ...)
           })
 
 # char=TRUE to return character code
 setMethod("getChromosome",
           signature(object="GdsGenotypeReader"),
           function(object, index, char=FALSE) {
-            var <- getVariable(object, object@chromosomeVar)
-            if (!missing(index)) var <- var[index]
+            if (missing(index))
+              var <- getVariable(object, object@chromosomeVar)
+            else
+              var <- getVariable(object, object@chromosomeVar, index)
 
             # convert to characters
             if (char) {
@@ -145,52 +156,87 @@ setMethod("getChromosome",
                         
 setMethod("getPosition",
           signature(object="GdsGenotypeReader"),
-          function(object, index) {
-            var <- getVariable(object, object@positionVar)
-            if (missing(index)) var else var[index]
+          function(object, ...) {
+            getVariable(object, object@positionVar, ...)
           })
                          
 setMethod("getAlleleA",
           signature(object="GdsGenotypeReader"),
-          function(object, index) {
-            var <- getVariable(object, object@alleleVar)
-            var <- substr(var, 1, regexpr("/", var, fixed=TRUE)-1)
-            if (missing(index)) var else var[index]
+          function(object, ...) {
+            var <- getVariable(object, object@alleleVar, ...)
+            substr(var, 1, regexpr("/", var, fixed=TRUE)-1)
           })
                            
 setMethod("getAlleleB",
           signature(object="GdsGenotypeReader"),
-          function(object, index) {
-            var <- getVariable(object, object@alleleVar)
-            var <- substr(var, regexpr("/", var, fixed=TRUE)+1, nchar(var))
-            if (missing(index)) var else var[index]
+          function(object, ...) {
+            var <- getVariable(object, object@alleleVar, ...)
+            substr(var, regexpr("/", var, fixed=TRUE)+1, nchar(var))
           })
                         
 setMethod("getScanID",
           signature(object="GdsGenotypeReader"),
-          function(object, index) {
-            var <- getVariable(object, object@scanIDvar)
-            if (missing(index)) var else var[index]
+          function(object, ...) {
+            getVariable(object, object@scanIDvar, ...)
           })
- 
+
+
+## return matrix as snp,scan unless transpose=TRUE
+.returnSnpScan <- function(object, var, transpose) {
+    ## check about returning transposed results based on @genotyepDim:
+    ## scan,snp should by default return the transpose of what's in the gds file
+    if (!transpose & class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
+    ## snp,scan should by default return what's in the gds file
+    if (transpose & class(var) == "matrix" & object@genotypeDim == "snp,scan") return(t(var))
+    var
+}
+
 setMethod("getGenotype",
           signature(object="GdsGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, transpose=FALSE,...) {
+          function(object, snp=c(1,-1), scan=c(1,-1), transpose=FALSE, ...) {
+
+              ## check if we need to switch snp/scan here for a transposed genotype file
+              if (object@genotypeDim == "scan,snp") {
+                  start <- c(scan[1], snp[1])
+                  count <- c(scan[2], snp[2])
+              } else if (object@genotypeDim == "snp,scan"){
+                  start <- c(snp[1], scan[1])
+                  count <- c(snp[2], scan[2])
+              }
+              var <- getVariable(object, object@genotypeVar, start=start, count=count, ...)
+              ## set missing values to NA
+              var[var == object@missingValue] <- NA
+
+              ## return matrix as snp,scan unless transpose=TRUE
+              .returnSnpScan(object, var, transpose)
+          })
+
+setMethod("getGenotypeSelection",
+          signature(object="GdsGenotypeReader"),
+          function(object, snp=NULL, scan=NULL, transpose=FALSE, ...) {
+
+            if (is.null(snp)) {
+              snp <- rep(TRUE, nsnp(object))
+            }
+              
+            if (is.null(scan)) {
+              scan <- rep(TRUE, nscan(object))
+            }
+              
             # check if we need to switch snp/scan here for a transposed genotype file
             if (object@genotypeDim == "scan,snp") {
-              var <- getVariable(object, object@genotypeVar, snp=scan, scan=snp, ...)
+              sel <- list(scan, snp)
             } else if (object@genotypeDim == "snp,scan"){
-              var <- getVariable(object, object@genotypeVar, snp=snp, scan=scan, ...)
+              sel <- list(snp, scan)
             }
+            var <- getVariable(object, object@genotypeVar, index=sel, ...)
             # set missing values to NA
             var[var == object@missingValue] <- NA
-            # check about returning transposed results based on @genotyepDim:
-            # scan,snp should by default return the transpose of what's in the gds file
-            if (!transpose & class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
-            # snp,scan should be default return what's in the gds file
-            if (transpose & class(var) == "matrix" & object@genotypeDim == "snp,scan") return(t(var))
-            var
+
+            # return matrix as snp,scan unless transpose=TRUE
+            .returnSnpScan(object, var, transpose)
           })
+
 
 setMethod("nsnp", "GdsGenotypeReader",
           function(object) {

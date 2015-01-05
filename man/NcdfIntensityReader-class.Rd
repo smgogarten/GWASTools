@@ -118,49 +118,54 @@
       integer vector specifying elements to extract.
     }
     \item{}{
-      \code{getQuality(object)}: Extracts quality scores.
+      \code{getQuality(object, snp, scan)}: Extracts quality scores.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'quality'.
+    \item{}{
       \code{hasQuality(object)}:
+      Returns \code{TRUE} if the GDS file contains a variable 'quality'.
     }
     \item{}{
-      \code{getX(object)}: Extracts X intensity.
+      \code{getX(object, snp, scan)}: Extracts X intensity.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'X'.
+    \item{}{
       \code{hasX(object)}:
+      Returns \code{TRUE} if the GDS file contains a variable 'X'.
     }
     \item{}{
-      \code{getY(object)}: Extracts Y intensity.
+      \code{getY(object, snp, scan)}: Extracts Y intensity.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'Y'.
+    \item{}{
       \code{hasY(object)}:
+      Returns \code{TRUE} if the GDS file contains a variable 'Y'.
     }
     \item{}{
-      \code{getBAlleleFreq(object)}: Extracts B allele frequency.
+      \code{getBAlleleFreq(object, snp, scan)}: Extracts B allele frequency.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'BAlleleFreq'.
+    \item{}{
       \code{hasBAlleleFreq(object)}:
+      Returns \code{TRUE} if the GDS file contains a variable 'BAlleleFreq'.
     }
     \item{}{
-      \code{getLogRRatio(object)}: Extracts Log R Ratio.
+      \code{getLogRRatio(object, snp, scan)}: Extracts Log R Ratio.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{Returns \code{TRUE} if the NetCDF file contains a variable 'LogRRatio'.
+    \item{}{
       \code{hasLogRRatio(object)}:
+      Returns \code{TRUE} if the GDS file contains a variable 'LogRRatio'.
     }
     \item{}{
       \code{getVariable(object, varname, snp, scan)}: Returns the

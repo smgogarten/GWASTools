@@ -488,4 +488,9 @@
   from .samples file in output scan annotation.
   }
 }
+\section{Changes in version 1.13.6}{
+  \itemize{
+    \item Add getGenotypeSelection to select non-continguous SNPs and scans from GDS files.
+  }
+}
 

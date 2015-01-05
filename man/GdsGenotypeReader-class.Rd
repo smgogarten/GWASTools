@@ -11,6 +11,7 @@
 \alias{getAlleleB,GdsGenotypeReader-method}
 \alias{getScanID,GdsGenotypeReader-method}
 \alias{getGenotype,GdsGenotypeReader-method}
+\alias{getGenotypeSelection,GdsGenotypeReader-method}
 \alias{nsnp,GdsGenotypeReader-method}
 \alias{nscan,GdsGenotypeReader-method}
 \alias{autosomeCode,GdsGenotypeReader-method}
@@ -65,15 +66,7 @@
 }
 
 \section{Accessors}{
-  In the code snippets below, \code{object} is a GdsGenotypeReader object.
-  \code{snp} and
-      \code{scan} indicate which elements to return along the snp and
-      scan dimensions.  They must be integer vectors of the form (start,
-      count), where start is the index of the first data element to read
-      and count is the number of elements to read.  A value of '-1' for
-      count indicates that the entire dimension should be read.  If snp
-      and/or is scan omitted, the entire variable is read.
-      
+  In the code snippets below, \code{object} is a GdsGenotypeReader object.     
       See \code{\link{GdsReader}} for additional methods.
 
   \describe{
@@ -118,15 +111,33 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp, scan, transpose=FALSE)}: Extracts genotype values
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), transpose=FALSE, ...)}: Extracts genotype values
       (number of A alleles).  
+  \code{snp} and
+      \code{scan} indicate which elements to return along the snp and
+      scan dimensions.  They must be integer vectors of the form (start,
+      count), where start is the index of the first data element to read
+      and count is the number of elements to read.  A value of '-1' for
+      count indicates that the entire dimension should be read.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
-      \code{getVariable(object, varname, snp, scan)}: Extracts the
-      contents of the variable \code{varname}.  
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, transpose=FALSE, ...)}: Extracts genotype values
+      (number of A alleles).  
+      \code{snp} and
+      \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
+      scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
+      The result is a vector or matrix, depending on the number
+      of dimensions in the returned values.  Missing values are
+      represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
+    }
+    \item{}{
+      \code{getVariable(object, varname, index, ...)}: Extracts the
+      contents of the variable \code{varname}.    
+      The optional \code{index} is a logical or
+      integer vector (if \code{varname} is 1D) or list (if \code{varname} is 2D or higher) specifying elements to extract.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.  If the variable is not found in the GDS
@@ -177,6 +188,13 @@ geno <- getGenotype(gds, snp=c(1,-1), scan=c(1,1))
 
 # starting at snp 100, get 10 snps for the first 5 scans
 geno <- getGenotype(gds, snp=c(100,10), scan=c(1,5))
+
+# get snps 1-10, 25-30 for scans 3,5,7
+snp.index <- c(1:10, 25:30)
+scan.index <- c(3,5,7)
+geno <- getGenotypeSelection(gds, snp=snp.index, scan=scan.index)
+dimnames(geno) <- list(getSnpID(gds, index=snp.index),
+                       getScanID(gds, index=scan.index))
 
 close(gds)
 }

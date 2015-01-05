@@ -188,10 +188,11 @@ or pseudoautosomal SNPs.
 <<>>=
 (gds <- GdsGenotypeReader(gdsfile, YchromCode=24L, XYchromCode=25L))
 scanID <- getScanID(gds)
+family <- getVariable(gds, "sample.annot/family")
 father <- getVariable(gds, "sample.annot/father")
 mother <- getVariable(gds, "sample.annot/mother")
 sex <- getVariable(gds, "sample.annot/sex")
-sex <- c("1"="M", "2"="F", "0"=NA)[sex] # sex must be coded as M/F
+sex[sex == ""] <- NA # sex must be coded as M/F/NA
 phenotype <- getVariable(gds, "sample.annot/phenotype")
 scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID, father, mother, 
                                                 sex, phenotype,

@@ -75,7 +75,7 @@ setMethod("hasVariable",
 
 setMethod("getVariable",
           signature(object="GdsReader"),
-          function(object, varname, ...) {
+          function(object, varname, sel=NULL, ...) {
 
             # check that variable exists
             if (!hasVariable(object, varname)) {
@@ -84,7 +84,12 @@ setMethod("getVariable",
             }
 
             # get variable from gds
-            var <- read.gdsn(index.gdsn(object@handler, varname), ...)
+            node <- index.gdsn(object@handler, varname)
+            if (is.null(sel)) {
+                var <- read.gdsn(node, ...)
+            } else {
+                var <- readex.gdsn(node, sel, ...)
+            }
 
             # set missing value to NA
             missVal <- getAttribute(object, "missing.value", varname)
