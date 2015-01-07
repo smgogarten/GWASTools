@@ -102,11 +102,8 @@ test_createGds <- function() {
   gds <- GdsGenotypeReader(file)
   checkEquals(0, nscan(gds))
   checkEquals(length(snpID), nsnp(gds))
-  ## checkIdentical(c("sample.id", "snp.id", "snp.chromosome", "snp.position",
-  ##                  "snp.rs.id", "snp.allele", vars),
-  ##                getVariableNames(gds))
   checkIdentical(c("sample.id", "snp.id", "snp.chromosome", "snp.position",
-                   "snp.allele", vars),
+                   "snp.rs.id", "snp.allele", vars),
                  getVariableNames(gds))
   checkIdentical(snpID, getSnpID(gds))
   checkIdentical(chrom, getChromosome(gds))
