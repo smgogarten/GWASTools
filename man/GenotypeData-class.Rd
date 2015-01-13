@@ -75,7 +75,7 @@
 
 \section{Accessors}{
   In the code snippets below, \code{object} is a GenotypeData object.
-      
+
   \describe{
     \item{}{
       \code{nsnp(object)}: The number of SNPs in the data.
@@ -86,7 +86,7 @@
     \item{}{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
@@ -99,35 +99,35 @@
     \item{}{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getAlleleA(object, index)}: A character vector of A alleles.
       The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getAlleleB(object, index)}: A character vector of B alleles.
       The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getSex(object, index)}: A character vector of sex, with values 'M'
       or 'F'.    The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{hasSex(object)}: Returns \code{TRUE} if the column 'sex' is present in
-      \code{object}. 
+      \code{object}.
     }
     \item{}{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, ...)}: Extracts genotype values
-      (number of A alleles). 
+      (number of A alleles).
       \code{snp} and
       \code{scan} indicate which elements to return along the snp and
       scan dimensions.  They must be integer vectors of the form (start,
@@ -141,9 +141,11 @@
       alleles are lexographically sorted ("G/T" instead of "T/G").
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, ...)}: May be used only if the data slot contains a \code{\link{GdsGenotypeReader}} object.
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, ...)}: May
+    be used only if the data slot contains a
+    \code{\link{GdsGenotypeReader}} or \code{\link{MatrixGenotypeReader}} object.
       Extracts genotype values
-      (number of A alleles).  
+      (number of A alleles).
       \code{snp} and
       \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
       scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
@@ -154,7 +156,7 @@
       \code{getSnpVariable(object, varname, index)}: Returns the snp
       annotation variable \code{varname}.
       The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getSnpVariableNames(object)}: Returns a character vector
@@ -168,7 +170,7 @@
       \code{getScanVariable(object, varname, index)}: Returns the scan
       annotation variable \code{varname}.
       The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getScanVariableNames(object)}: Returns a character vector
@@ -180,7 +182,7 @@
     }
     \item{}{
       \code{getVariable(object, varname, ...)}: Extracts the
-      contents of the variable \code{varname} from the data.  
+      contents of the variable \code{varname} from the data.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.  If the variable is not found, returns \code{NULL}.
@@ -220,7 +222,7 @@
        chromosome.
      }
      \item{}{
-       \code{MchromCode(object)}: Returns the integer code for 
+       \code{MchromCode(object)}: Returns the integer code for
        mitochondrial SNPs.
      }
   }

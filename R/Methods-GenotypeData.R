@@ -18,7 +18,7 @@ setValidity("GenotypeData",
                   MchromCode(object@snpAnnot) != MchromCode(object@data)) {
                 return("data and snpAnnot have different chromosome codes")
               }
-              
+
               # check that snpIDs match
               snpID <- getSnpID(object@snpAnnot)
               dataID <- getSnpID(object@data)
@@ -39,7 +39,7 @@ setValidity("GenotypeData",
               if (!allequal(snpChr, dataChr)) {
                 return("data and snpAnnot have different chromosomes")
               }
-              
+
               # check that positions match
               snpPos <- getPosition(object@snpAnnot)
               dataPos <- getPosition(object@data)
@@ -50,7 +50,7 @@ setValidity("GenotypeData",
 
             #if scanAnnot is given, check
             if (!is.null(object@scanAnnot)) {
-              
+
               # check that scanIDs match
               scanID <- getScanID(object@scanAnnot)
               dataID <- getScanID(object@data)
@@ -262,7 +262,7 @@ setMethod("getGenotype",
 setMethod("getGenotypeSelection",
           signature(object = "GenotypeData"),
           function(object, snp=NULL, scan=NULL, char=FALSE, sort=TRUE, ...) {
-              if (!is(object@data, "GdsGenotypeReader"))
+              if (is(object@data, "NcdfGenotypeReader"))
                   stop("getGenotypeSelection not implemented for class ",
                        class(object@data))
               geno <- getGenotypeSelection(object@data, snp, scan, ...)
@@ -301,24 +301,24 @@ setMethod("autosomeCode", "GenotypeData",
           function(object) {
             autosomeCode(object@data)
           })
- 
+
 setMethod("XchromCode", "GenotypeData",
           function(object) {
             XchromCode(object@data)
           })
-          
+
 setMethod("YchromCode", "GenotypeData",
           function(object) {
             YchromCode(object@data)
           })
-              
+
 setMethod("XYchromCode", "GenotypeData",
           function(object) {
             XYchromCode(object@data)
           })
-              
+
 setMethod("MchromCode", "GenotypeData",
           function(object) {
             MchromCode(object@data)
           })
-          
+

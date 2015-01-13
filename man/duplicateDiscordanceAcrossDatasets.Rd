@@ -1,11 +1,15 @@
-\name{duplicateDiscordanceAcrossDatasets}
+\name{duplicateDiscordanceAcrossDatasets} % what should this value be? 'duplicateCalcsAcrossDatasets'..?
 \alias{duplicateDiscordanceAcrossDatasets}
 \alias{minorAlleleDetectionAccuracy}
-\title{Duplicate discordance across datasets}
+\alias{dupDosageCorAcrossDatasets}
+\title{Functions to check discordance and allelic dosage correlation across datasets}
 
 \description{
-  Finds number of discordant genotypes by SNP in pairs of duplicate scans
-  of the same subject across multiple datasets.  
+  These functions compare genotypes in pairs of duplicate scans of the same sample
+  across multiple datasets. 'duplicateDiscordanceAcrossDatasets' finds the number of discordant genotypes both by scan and by SNP.
+  'dupDosageCorAcrossDatasets' calculates squared correlation (r2) between allelic dosages both by scan and by SNP, allowing for
+  comparision between imputed datasets or between imputed and observed -
+  i.e., where one or more of the datasets contains continuous dosage [0,2] rather than discrete allele counts \{0,1,2\}.
 }
 
 \usage{
@@ -14,8 +18,8 @@ duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   subjName.cols, snpName.cols=NULL,
   one.pair.per.subj=TRUE, minor.allele.only=FALSE,
   missing.fail=c(FALSE, FALSE),
-  scan.exclude1=NULL, scan.exclude2=NULL, 
-  snp.exclude1=NULL, snp.exclude2=NULL, 
+  scan.exclude1=NULL, scan.exclude2=NULL,
+  snp.exclude1=NULL, snp.exclude2=NULL,
   snp.include=NULL,
   verbose=TRUE)
 
@@ -23,9 +27,18 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   match.snps.on=c("position", "alleles"),
   subjName.cols, snpName.cols=NULL,
   missing.fail=TRUE,
-  scan.exclude1=NULL, scan.exclude2=NULL, 
-  snp.exclude1=NULL, snp.exclude2=NULL, 
+  scan.exclude1=NULL, scan.exclude2=NULL,
+  snp.exclude1=NULL, snp.exclude2=NULL,
   snp.include=NULL,
+  verbose=TRUE)
+
+dupDosageCorAcrossDatasets(genoData1, genoData2,
+  match.snps.on=c("position", "alleles"),
+  subjName.cols="subjectID", snpName.cols=NULL,
+  scan.exclude1=NULL, scan.exclude2=NULL,
+  snp.exclude1=NULL, snp.exclude2=NULL,
+  snp.include=NULL,
+  snp.block.size=5000, scan.block.size=100,
   verbose=TRUE)
 }
 
@@ -57,14 +70,17 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   excluded from the first dataset. }
 \item{scan.exclude2}{An integer vector containing the ids of scans to be
   excluded from the second dataset. }
-\item{snp.exclude1}{An integer vector containing the ids of snps to be
+\item{snp.exclude1}{An integer vector containing the ids of SNPs to be
   excluded from the first dataset. }
-\item{snp.exclude2}{An integer vector containing the ids of snps to be
+\item{snp.exclude2}{An integer vector containing the ids of SNPs to be
   excluded from the second dataset. }
   \item{snp.include}{List of SNPs to include in the comparison.  Should
-    match the contents of the columns referred to by \code{snpName.cols}.  
+    match the contents of the columns referred to by \code{snpName.cols}.
     Only valid if \code{match.snps.on} includes "name".}
-\item{verbose}{Logical value specifying whether to show progress information.} 
+\item{snp.block.size}{Block size for SNPs}
+\item{scan.block.size}{Block size for scans}
+\item{verbose}{Logical value specifying whether to show progress
+  information.}
 }
 
 \details{
@@ -75,15 +91,33 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
   \code{one.pair.per.subj=FALSE}, discordances will be calculated
   pair-wise for all possible cross-dataset pairs for each subject.
 
+  \code{dupDosageCorAcrossDatasets} calculates squared dosage correlation both
+by scan and by SNP. Note it only allows for one pair of duplicate scans
+per sample.  For this function only, \code{genoData1} and
+\code{genoData2} must have been created with
+\code{\link{GdsGenotypeReader}} objects.
+
+By default, overlapping variants are identified based on position and
+alleles. Alleles are determined via 'getAlleleA' and 'getAlleleB'
+accessors, so users should ensure these variables are referring to the
+same strand orientation in both datests (e.g., both plus strand
+alleles). It is not necessary for the A/B ordering to be consistent
+across datasets. For example, two variants at the same position with
+alleleA="C" and alleleB="T" in genoData1 and alleleA="T" and alleleB="C"
+in genoData2 will stil be identified as overlapping.
+
   If \code{minor.allele.only=TRUE}, the allele frequency will be
   calculated in \code{genoData1}, using only samples common to both datasets.
-  
+
   If \code{snp.include=NULL} (the default), discordances will be found
   for all SNPs common to both datasets.
 
   \code{genoData1} and \code{genoData2} should each have "alleleA" and
   "alleleB" defined in their SNP annotation.  If allele coding cannot be
-  found, the two datasets are assumed to have identical coding.
+  found, the two datasets are assumed to have identical coding. Note
+  that 'dupDosageCorAcrossDatasets' can NOT detect where strand-ambiguous (A/T or
+C/G) SNPs are annotated on different strands, although the r2 in these
+instances would be unaffected: r may be negative but r2 will be positive.
 
   \code{minorAlleleDetectionAccuracy} summarizes the accuracy of minor
   allele detection in \code{genoData2} with respect to \code{genoData1}
@@ -104,46 +138,85 @@ minorAlleleDetectionAccuracy(genoData1, genoData2,
               \tab    \tab mm        \tab Mm        \tab MM\cr
               \tab mm \tab 2TP       \tab 1TP + 1FP \tab 2FP\cr
     genoData2 \tab Mm \tab 1TP + 1FN \tab 1TN + 1TP \tab 1TN + 1FP\cr
-	      \tab MM \tab 2FN       \tab 1FN + 1TN \tab 2TN\cr 
+	      \tab MM \tab 2FN       \tab 1FN + 1TN \tab 2TN\cr
               \tab -- \tab 2FN       \tab 1FN       \tab \cr
 	    }
-  "M" is the major allele and 
+  "M" is the major allele and
   "m" is the minor allele (as calculated in \code{genoData1}).
   "-" is a missing call in \code{genoData2}.
   Missing calls in \code{genoData1} are ignored. If
   \code{missing.fail=FALSE}, missing calls in \code{genoData2} (the last
   row of the table) are also ignored.
-}	    
+}
 
 \value{
-  \code{duplicateDiscordanceAcrossDatasets} returns a list with the following components:
-  \item{discordance.by.snp}{data frame with 4 columns: 1. discordant
-  (number of discordant pairs), 2. npair (number of pairs examined),
-  3. n.disc.subj (number of subjects with at least one discordance),
-  4. discord.rate (discordance rate i.e. discordant/npair).  Row names
-  are the common snp ID.}
-  \item{discordance.by.subject}{a list of matrices (one for each subject) with the pair-wise discordance between the different genotyping instances of the subject}
+  SNP annotation columns returned by all functions are:
+  \item{chromosome}{chromosome}
+  \item{position}{base pair position}
+  \item{snpID1}{snpID from genoData1}
+  \item{snpID2}{snpID from genoData2}
+
+  If matching on "alleles":
+  \item{alleles}{alleles sorted alphabetically}
+  \item{alleleA1}{allele A from genoData1}
+  \item{alleleB1}{allele B from genoData2}
+  \item{alleleA2}{allele A from genoData2}
+  \item{alleleB2}{allele B from genoData2}
+
+  If matching on "name":
+  \item{name}{the common SNP name given in \code{snpName.cols}}
+
+  \code{duplicateDiscordanceAcrossDatasets} returns a list with two data
+  frames:
+  The data.frame "discordance.by.snp" contains the
+  SNP annotation columns listed above as well as:
+  \item{discordant}{number of discordant pairs}
+  \item{npair}{number of pairs examined}
+  \item{n.disc.subj}{number of subjects with at least one discordance}
+  \item{discord.rate}{discordance rate i.e. discordant/npair}
+
+  The data.frame "discordance.by.subject" contains a list of matrices (one for each subject) with the pair-wise discordance between the different genotyping instances of the subject.
+
 
   \code{minorAlleleDetectionAccuracy} returns a data.frame with the
-  following columns.  Row names are the common snp ID.
+  SNP annotation columns listed above as well as:
   \item{npair}{number of sample pairs compared (non-missing in \code{genoData1})}
   \item{sensitivity}{sensitivity}
   \item{specificity}{specificity}
   \item{positivePredictiveValue}{Positive predictive value}
   \item{negativePredictiveValue}{Negative predictive value}
-  
+
+
+  \code{dupDosageCorAcrossDatasets} returns a list with two data
+  frames:
+
+  The data.frame "snps" contains the by-SNP r2 values with the
+  SNP annotation columns listed above as well as:
+  \item{nsamp.dosageR2}{number of samples in r2 calculation (i.e., non
+  missing data in both genoData1 and genoData2)}
+  \item{dosageR2}{squared dosage correlation}
+
+    The data.frame "samps" contains the by-sample r2 values with the
+    following columns:
+    \item{subjectID}{subject-level identifier for duplicate sample pair}
+    \item{scanID1}{scanID from genoData1}
+    \item{scanID2}{scanID from genoData2}
+  \item{nsnp.dosageR2}{number of SNPs in r2 calculation (i.e., non
+  missing data in both genoData1 and genoData2)}
+    \item{dosageR2}{squared dosage correlation}
+
   If no duplicate scans or no common SNPs are found, these functions issue a warning
   message and return \code{NULL}.
 }
 
-\author{Stephanie Gogarten, Jess Shen}
+\author{Stephanie Gogarten, Jess Shen, Sarah Nelson}
 
 \seealso{\code{\link{GenotypeData}}, \code{\link{duplicateDiscordance}},
   \code{\link{duplicateDiscordanceProbability}}}
 
 \examples{
 # first set
-snp1 <- data.frame(snpID=1:10, chromosome=1L, position=101:110, 
+snp1 <- data.frame(snpID=1:10, chromosome=1L, position=101:110,
                    rsID=paste("rs", 101:110, sep=""),
                    alleleA="A", alleleB="G", stringsAsFactors=FALSE)
 scan1 <- data.frame(scanID=1:3, subjectID=c("A","B","C"), sex="F", stringsAsFactors=FALSE)
@@ -153,8 +226,8 @@ genoData1 <- GenotypeData(mgr, snpAnnot=SnpAnnotationDataFrame(snp1),
                           scanAnnot=ScanAnnotationDataFrame(scan1))
 
 # second set
-snp2 <- data.frame(snpID=1:5, chromosome=1L, 
-                   position=as.integer(c(101,103,105,107,107)), 
+snp2 <- data.frame(snpID=1:5, chromosome=1L,
+                   position=as.integer(c(101,103,105,107,107)),
                    rsID=c("rs101", "rs103", "rs105", "rs107", "rsXXX"),
                    alleleA= c("A","C","G","A","A"),
                    alleleB=c("G","T","A","G","G"),
@@ -165,25 +238,28 @@ mgr <- MatrixGenotypeReader(genotype=matrix(c(1,2,0), ncol=3, nrow=5), snpID=snp
 genoData2 <- GenotypeData(mgr, snpAnnot=SnpAnnotationDataFrame(snp2),
                           scanAnnot=ScanAnnotationDataFrame(scan2))
 
-duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   match.snps.on="position",
   subjName.cols="subjectID")
 
-duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   match.snps.on=c("position", "alleles"),
   subjName.cols="subjectID")
 
-duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
   match.snps.on=c("position", "alleles", "name"),
-  subjName.cols="subjectID", 
+  subjName.cols="subjectID",
   snpName.cols="rsID")
 
-duplicateDiscordanceAcrossDatasets(genoData1, genoData2, 
-  subjName.cols="subjectID", 
+duplicateDiscordanceAcrossDatasets(genoData1, genoData2,
+  subjName.cols="subjectID",
   one.pair.per.subj=FALSE)
 
-minorAlleleDetectionAccuracy(genoData1, genoData2, 
+minorAlleleDetectionAccuracy(genoData1, genoData2,
   subjName.cols="subjectID")
+
+dupDosageCorAcrossDatasets(genoData1, genoData2,
+  scan.exclude2=scan2$scanID[duplicated(scan2$subjectID)])
 }
 
 \keyword{manip}

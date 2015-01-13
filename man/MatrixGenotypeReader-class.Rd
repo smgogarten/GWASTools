@@ -8,6 +8,7 @@
 \alias{getPosition,MatrixGenotypeReader-method}
 \alias{getScanID,MatrixGenotypeReader-method}
 \alias{getGenotype,MatrixGenotypeReader-method}
+\alias{getGenotypeSelection,MatrixGenotypeReader-method}
 \alias{nsnp,MatrixGenotypeReader-method}
 \alias{nscan,MatrixGenotypeReader-method}
 \alias{show,MatrixGenotypeReader-method}
@@ -28,22 +29,22 @@
   \describe{
     \item{}{
       \code{MatrixGenotypeReader(genotype=genotype, snpID=snpID, chromosome=chromosome, position=position, scanID=scanID)}:
-      
+
       \code{genotype} must be a matrix with dimensions ('snp','scan') containing the number of A alleles : 2=AA, 1=AB, 0=BB.
-      
+
       \code{snp} must be a unique integer vector of SNP ids.
-      
+
       \code{chromosome} must be an integer vector of chromosomes.
       Default values for chromosome codes are 1-22=autosome, 23=X, 24=XY, 25=Y,
       26=M.  The defaults may be changed with the arguments \code{autosomeCode},
       \code{XchromCode}, \code{XYchromCode}, \code{YchromCode}, and
       \code{MchromCode}.
-      
+
       \code{position} must be an integer vector of base positions
-      
+
       \code{scanID} must be a unique integer vector of scan ids .
       }
-      
+
       The \code{MatrixGenotypeReader} constructor creates and returns a
       MatrixGenotypeReader instance.
     }
@@ -62,7 +63,7 @@
     \item{}{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
@@ -76,22 +77,32 @@
     \item{}{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
-      integer vector specifying elements to extract.  
+      integer vector specifying elements to extract.
     }
     \item{}{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1))}: Extracts genotype values
-      (number of A alleles).  
-      \code{snp} and 
+      (number of A alleles).
+      \code{snp} and
       \code{scan} indicate which elements to return along the snp and
       scan dimensions.  They must be integer vectors of the form (start,
       count), where start is the index of the first data element to read
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.
+      The result is a vector or matrix, depending on the number
+      of dimensions in the returned values.  Missing values are
+      represented as \code{NA}.
+    }
+    \item{}{
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL)}: Extracts genotype values
+      (number of A alleles).
+      \code{snp} and
+      \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
+      scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
       represented as \code{NA}.
@@ -113,7 +124,7 @@
        chromosome.
      }
      \item{}{
-       \code{MchromCode(object)}: Returns the integer code for 
+       \code{MchromCode(object)}: Returns the integer code for
        mitochondrial SNPs.
      }
   }

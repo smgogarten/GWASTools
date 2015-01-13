@@ -71,6 +71,7 @@ export(
     convertVcfGds,
     createDataFile,
     createAffyIntensityFile,
+    dupDosageCorAcrossDatasets,
     duplicateDiscordance,
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,

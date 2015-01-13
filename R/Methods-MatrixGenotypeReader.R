@@ -15,14 +15,14 @@ setValidity("MatrixGenotypeReader",
       }
       if (length(object@position) != nsnp(object)) {
         return("position has incorrect dimension")
-      }      
+      }
       if (length(object@scanID) != nscan(object)) {
         return("scanID has incorrect dimension")
       }
       if (!allequal(dim(object@genotype), c(nsnp(object), nscan(object)))) {
         return("genotype has incorrect dimensions")
       }
-      
+
       TRUE
     })
 
@@ -60,31 +60,46 @@ setMethod("getChromosome",
             }
             var
           })
-                        
+
 setMethod("getPosition",
           signature(object="MatrixGenotypeReader"),
           function(object, index) {
             var <- object@position
             if (missing(index)) var else var[index]
           })
-                        
+
 setMethod("getScanID",
           signature(object="MatrixGenotypeReader"),
           function(object, index) {
             var <- object@scanID
             if (missing(index)) var else var[index]
           })
- 
+
 setMethod("getGenotype",
           signature(object="MatrixGenotypeReader"),
           function(object, snp=c(1,-1), scan=c(1,-1), ...) {
               snpstart <- snp[1]
               snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
-            
+
               scanstart <- scan[1]
               scanend <- ifelse(scan[2] == -1, nscan(object), scan[1]+scan[2]-1)
 
               object@genotype[snpstart:snpend, scanstart:scanend]
+          })
+
+setMethod("getGenotypeSelection",
+          signature(object="MatrixGenotypeReader"),
+          function(object, snp=NULL, scan=NULL, ...) {
+
+              if (is.null(snp)) {
+                  snp <- rep(TRUE, nsnp(object))
+              }
+
+              if (is.null(scan)) {
+                  scan <- rep(TRUE, nscan(object))
+              }
+
+              object@genotype[snp, scan]
           })
 
 setMethod("nsnp", "MatrixGenotypeReader",
@@ -101,30 +116,30 @@ setMethod("autosomeCode", "MatrixGenotypeReader",
           function(object) {
             object@autosomeCode
           })
-        
+
 setMethod("XchromCode", "MatrixGenotypeReader",
           function(object) {
             object@XchromCode
           })
-          
+
 setMethod("YchromCode", "MatrixGenotypeReader",
           function(object) {
             object@YchromCode
           })
-              
+
 setMethod("XYchromCode", "MatrixGenotypeReader",
           function(object) {
             object@XYchromCode
           })
-              
+
 setMethod("MchromCode", "MatrixGenotypeReader",
           function(object) {
             object@MchromCode
           })
-          
-setMethod("show", 
+
+setMethod("show",
           signature(object="MatrixGenotypeReader"),
-          function(object) {            
+          function(object) {
             cat("An object of class", class(object), "\n")
             cat(paste("with", nscan(object), "scans and",
                       nsnp(object), "snps\n"))

@@ -493,4 +493,10 @@
     \item Add getGenotypeSelection to select non-continguous SNPs and scans from GDS files.
   }
 }
+\section{Changes in version 1.13.7}{
+  \itemize{
+    \item Add dupDosageCorAcrossDatasets.
+    \item Add getGenotypeSelection method to MatrixGenotypeReader.
+  }
+}
 
