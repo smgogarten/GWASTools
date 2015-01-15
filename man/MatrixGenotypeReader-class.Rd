@@ -85,7 +85,7 @@
       integer vector specifying elements to extract.
     }
     \item{}{
-      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1))}: Extracts genotype values
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE)}: Extracts genotype values
       (number of A alleles).
       \code{snp} and
       \code{scan} indicate which elements to return along the snp and
@@ -95,17 +95,19 @@
       count indicates that the entire dimension should be read.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
-      represented as \code{NA}.
+      represented as \code{NA}.  If \code{drop=TRUE} the result is coerced to
+          the lowest possible dimension.
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL)}: Extracts genotype values
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE)}: Extracts genotype values
       (number of A alleles).
       \code{snp} and
       \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
       scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values.  Missing values are
-      represented as \code{NA}.
+      represented as \code{NA}. If \code{drop=TRUE} the result is coerced to
+          the lowest possible dimension.
     }
      \item{}{
        \code{autosomeCode(object)}: Returns the integer codes for the

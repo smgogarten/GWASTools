@@ -499,4 +499,9 @@
     \item Add getGenotypeSelection method to MatrixGenotypeReader.
   }
 }
+\section{Changes in version 1.13.8}{
+  \itemize{
+    \item Add drop=TRUE argument to getVariable, etc.
+  }
+}
 

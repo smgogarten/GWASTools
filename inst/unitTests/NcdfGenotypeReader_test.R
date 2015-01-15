@@ -7,6 +7,12 @@ test_NcdfGenotypeReader <- function() {
   geno <- getGenotype(obj)
   checkIdentical(c(nsnp(obj),nscan(obj)), dim(geno))
   
+  # check drop
+  checkIdentical(geno[1,,drop=FALSE], 
+                 getGenotype(obj, start=c(1,1), count=c(1,-1), drop=FALSE))
+  checkIdentical(geno[,1,drop=FALSE], 
+                 getGenotype(obj, start=c(1,1), count=c(-1,1), drop=FALSE))
+  
   nsnp <- 100L
   nsamp <- 10L
   geno <- getGenotype(obj, snp=c(1,nsnp), scan=c(1,nsamp))

@@ -83,6 +83,7 @@
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.  If snp
       and/or is scan omitted, the entire variable is read.
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
 
       See \code{\link{NcdfReader}} for additional methods.
 
@@ -118,9 +119,9 @@
       integer vector specifying elements to extract.
     }
     \item{}{
-      \code{getQuality(object, snp, scan)}: Extracts quality scores.
+      \code{getQuality(object, snp, scan, drop=TRUE)}: Extracts quality scores.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
@@ -128,9 +129,9 @@
       Returns \code{TRUE} if the GDS file contains a variable 'quality'.
     }
     \item{}{
-      \code{getX(object, snp, scan)}: Extracts X intensity.
+      \code{getX(object, snp, scan, drop=TRUE)}: Extracts X intensity.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
@@ -138,9 +139,9 @@
       Returns \code{TRUE} if the GDS file contains a variable 'X'.
     }
     \item{}{
-      \code{getY(object, snp, scan)}: Extracts Y intensity.
+      \code{getY(object, snp, scan, drop=TRUE)}: Extracts Y intensity.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
@@ -148,9 +149,9 @@
       Returns \code{TRUE} if the GDS file contains a variable 'Y'.
     }
     \item{}{
-      \code{getBAlleleFreq(object, snp, scan)}: Extracts B allele frequency.
+      \code{getBAlleleFreq(object, snp, scan, drop=TRUE)}: Extracts B allele frequency.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
@@ -158,9 +159,9 @@
       Returns \code{TRUE} if the GDS file contains a variable 'BAlleleFreq'.
     }
     \item{}{
-      \code{getLogRRatio(object, snp, scan)}: Extracts Log R Ratio.
+      \code{getLogRRatio(object, snp, scan, drop=TRUE)}: Extracts Log R Ratio.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
@@ -168,10 +169,10 @@
       Returns \code{TRUE} if the GDS file contains a variable 'LogRRatio'.
     }
     \item{}{
-      \code{getVariable(object, varname, snp, scan)}: Returns the
+      \code{getVariable(object, varname, snp, scan, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.  If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }

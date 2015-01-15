@@ -85,7 +85,7 @@ setMethod("hasVariable",
 
 setMethod("getVariable",
           signature(object="NcdfReader"),
-          function(object, varname, start, count, ...) {
+          function(object, varname, start, count, drop=TRUE, ...) {
 
             # check that variable exists
             if (!hasVariable(object, varname)) {
@@ -107,7 +107,17 @@ setMethod("getVariable",
 
             # 1D variables are returned as arrays - convert to vector
             if (is(var, "array") & length(dim(var)) == 1) {
-              var <- as.vector(var)
+              if (drop) {
+                var <- as.vector(var)
+              } else {
+                if (!all(is.na(count)) & length(count) == 2) {
+                  if (count[1] == 1) {
+                    var <- matrix(var, nrow=1)
+                  } else if (count[2] == 1) {
+                    var <- matrix(var, ncol=1)
+                  }
+                }
+              }
             }
 
             return(var)

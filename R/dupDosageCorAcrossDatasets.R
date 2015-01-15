@@ -22,6 +22,8 @@
 ######################
 ## Internal functions -- need to rename, other than 'My' prefix. Should have differnet names than GWASTools internal functions?
 
+### I. Identify overlapping variants
+# using GWASTools:::.commonSnps
 
 ### II. Extract genotypes as count of A allele
 # arguments: geno data object;
@@ -31,7 +33,7 @@
 .dosCorSelectGenotype <- function(genoData, scanIDs, snpIDs) {
   scanSel <- getScanID(genoData) %in% scanIDs
   snpSel <- getSnpID(genoData) %in% snpIDs
-  geno.init <- getGenotypeSelection(genoData, scan=scanSel, snp=snpSel)
+  geno.init <- getGenotypeSelection(genoData, scan=scanSel, snp=snpSel, drop=FALSE)
 
   # discard Y chrom SNPs for females
   # NOTE - has NOT been tested on actualy chrY data (not imputed)
@@ -157,14 +159,14 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
     # i.e., for final block
     if(i %in% max(nblocks)) {idx <- (last.row+1):nsnps}
     # print(idx)
-    r.block <- diag(cor(t(geno1.matx[idx, ]),
-                         t(geno2.matx[idx, ]),
+    r.block <- diag(cor(t(geno1.matx[idx,,drop=FALSE]),
+                         t(geno2.matx[idx,,drop=FALSE]),
                          use="pairwise.complete.obs"))
     r2.block <- r.block * r.block
 
     ## add how many samples went into calculation
-    nonmiss.geno1 <- !is.na(geno1.matx[idx,])
-    nonmiss.geno2 <- !is.na(geno2.matx[idx,])
+    nonmiss.geno1 <- !is.na(geno1.matx[idx,,drop=FALSE])
+    nonmiss.geno2 <- !is.na(geno2.matx[idx,,drop=FALSE])
     # now rowsums!
     ngeno1 <- rowSums(nonmiss.geno1)
     ngeno2 <- rowSums(nonmiss.geno2)
@@ -183,23 +185,23 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
   #### calculate r2 by sample
   message("\nCalculating r2 by sample\n")
   last.row <- 0
-   samps$dosageR2 <- samps$nsnp.dosageR2 <- NA
-   nblocks <- ceiling(nsamps / scan.block.size)
-   for (i in 1:nblocks) {
+  samps$dosageR2 <- samps$nsnp.dosageR2 <- NA
+  nblocks <- ceiling(nsamps / scan.block.size)
+  for (i in 1:nblocks) {
     if(verbose){message("Block ",i," of ", nblocks)}
     idx <- (1:scan.block.size) + (i - 1) * scan.block.size
     # account for where there may be less samples in the block than the block size,
     # i.e., for final block
     if(i %in% max(nblocks)) {idx <- (last.row+1):nsamps}
     # print(idx)
-    r.block <- diag(cor(geno1.matx[,idx],
-                        geno2.matx[,idx],
+    r.block <- diag(cor(geno1.matx[,idx,drop=FALSE],
+                        geno2.matx[,idx,drop=FALSE],
                         use="pairwise.complete.obs"))
     r2.block <- r.block * r.block
 
     ## add how many snps went into calculation
-    nonmiss.geno1 <- !is.na(geno1.matx[,idx])
-    nonmiss.geno2 <- !is.na(geno2.matx[,idx])
+    nonmiss.geno1 <- !is.na(geno1.matx[,idx,drop=FALSE])
+    nonmiss.geno2 <- !is.na(geno2.matx[,idx,drop=FALSE])
     # now colSums!
     ngeno1 <- colSums(nonmiss.geno1)
     ngeno2 <- colSums(nonmiss.geno2)

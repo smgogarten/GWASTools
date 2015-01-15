@@ -102,17 +102,19 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp, scan)}: Extracts genotype values
+      \code{getGenotype(object, snp, scan, drop=TRUE)}: Extracts genotype values
       (number of A alleles).  
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
     \item{}{
-      \code{getVariable(object, varname, snp, scan)}: Extracts the
-      contents of the variable \code{varname}.  
+      \code{getVariable(object, varname, snp, scan, drop=TRUE)}: Extracts the
+      contents of the variable \code{varname}. 
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension. 
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.  If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }

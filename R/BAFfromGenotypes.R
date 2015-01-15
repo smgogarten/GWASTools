@@ -119,9 +119,9 @@ BAFfromGenotypes <- function(
 	if(i <= nblock) { n <- block.size } else { n <- remain }
 	# size of current block.size = number of snps to get		# CHANGE columns to snps (rows)
 
-        geno <- getGenotype(genoData, snp=c(m,n), scan=c(1,-1))
-        x <- getX(intenData, snp=c(m,n), scan=c(1,-1))
-        y <- getY(intenData, snp=c(m,n), scan=c(1,-1))
+        geno <- getGenotype(genoData, snp=c(m,n), scan=c(1,-1), drop=FALSE)
+        x <- getX(intenData, snp=c(m,n), scan=c(1,-1), drop=FALSE)
+        y <- getY(intenData, snp=c(m,n), scan=c(1,-1), drop=FALSE)
 
         # output matrices
         BAF <- matrix(0.0, nrow=n, ncol=N)
@@ -129,10 +129,8 @@ BAFfromGenotypes <- function(
         
 	for (s in 1:n) { # for each snp within the block.size
 
-		# REVISED: get geno, x and y vectors for the current snp (to include the case of block.size or remainder size = 1)
-		if(length(dim(geno)) < 2){
-			gv <- geno; xv <- x; yv <- y
-		} else { gv <- geno[s,]; xv <- x[s,]; yv <- y[s,] }
+		# get geno, x and y vectors for the current snp
+		gv <- geno[s,]; xv <- x[s,]; yv <- y[s,]
 
 		T <- rep(NA, N); R <- rep(NA, N)
 		B <- rep(NA, N); L <- rep(NA, N)	

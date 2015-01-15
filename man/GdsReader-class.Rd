@@ -38,7 +38,7 @@
 
   \describe{
     \item{}{
-      \code{getVariable(object, varname, start, count, sel=NULL)}: Returns the
+      \code{getVariable(object, varname, start, count, sel=NULL, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.     
       \itemize{
 	\item \code{start} is a vector
@@ -53,9 +53,11 @@
 	entire variable is read. As a special case, the value "-1" indicates
 	that all entries along that dimension should be read.
 	\item \code{sel} may be specified instead of \code{start} and \code{count}.  It is a list of m logical vectors, where m is the number of dimensions of \code{varname} and each logical vector should have the same size as the corresponding dimension in \code{varname}.
+	\item \code{drop} is a logical for whether the result will be coerced to
+          the lowest possible dimension.
       }
       The result is a vector, matrix, or array, depending on the number
-      of dimensions in the returned values.
+      of dimensions in the returned values and the value of \code{drop}.
       Missing values (specified by a "missing.value" attribute, see
       \code{\link{put.attr.gdsn}}) are represented as \code{NA}.
       If the variable is not found in the GDS file, returns \code{NULL}.

@@ -75,7 +75,7 @@ setMethod("hasVariable",
 
 setMethod("getVariable",
           signature(object="GdsReader"),
-          function(object, varname, sel=NULL, ...) {
+          function(object, varname, sel=NULL, drop=TRUE, ...) {
 
             # check that variable exists
             if (!hasVariable(object, varname)) {
@@ -83,12 +83,15 @@ setMethod("getVariable",
               return(NULL)
             }
 
+            # option to force return of an array for multi-dimensional data
+            simplify <- ifelse(drop, "auto", "none")
+            
             # get variable from gds
             node <- index.gdsn(object@handler, varname)
             if (is.null(sel)) {
-                var <- read.gdsn(node, ...)
+                var <- read.gdsn(node, simplify=simplify, ...)
             } else {
-                var <- readex.gdsn(node, sel, ...)
+                var <- readex.gdsn(node, sel, simplify=simplify, ...)
             }
 
             # set missing value to NA

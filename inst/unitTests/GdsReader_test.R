@@ -27,7 +27,6 @@ test_GdsReader <- function() {
   checkTrue(is(getVariable(obj, "var1"), "vector"))
   checkTrue(is(var3, "matrix"))
   
-  
   # file errors
   checkException(GdsReader())
   checkException(GdsReader("foo")) 
@@ -92,6 +91,25 @@ test_GdsReader_sel <- function() {
   checkIdentical(matrix(0, nrow=10, ncol=3),
                  getVariable(obj, "var2", list(c(rep(TRUE, 10), rep(FALSE, 90)),
                                                c(rep(TRUE, 3), rep(FALSE, 23)))))
+  
+  close(obj)
+  unlink(file)
+}
+
+
+test_GdsReader_drop <- function() {
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  dat <- matrix(0, nrow=100, ncol=26)
+  add.gdsn(gds, "var1", dat)
+  closefn.gds(gds)
+
+  obj <- GdsReader(file)
+  checkIdentical(dat[1,,drop=FALSE], 
+                 getVariable(obj, "var1", start=c(1,1), count=c(1,-1), drop=FALSE))
+  checkIdentical(dat[1,,drop=FALSE], 
+                 getVariable(obj, "var1", sel=list(c(TRUE, rep(FALSE, 99)),
+                                              rep(TRUE, 26)), drop=FALSE))
   
   close(obj)
   unlink(file)

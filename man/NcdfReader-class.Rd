@@ -41,7 +41,7 @@
 
   \describe{
     \item{}{
-      \code{getVariable(object, varname, start, count)}: Returns the
+      \code{getVariable(object, varname, start, count, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.     
       \itemize{
 	\item \code{start} is a vector
@@ -55,9 +55,11 @@
 	specified and the variable does NOT have an unlimited dimension, the
 	entire variable is read. As a special case, the value "-1" indicates
 	that all entries along that dimension should be read.
+	\item \code{drop} is a logical for whether the result will be coerced to
+          the lowest possible dimension.
       }
       The result is a vector, matrix, or array, depending on the number
-      of dimensions in the returned values.
+      of dimensions in the returned values and the value of \code{drop}.
       Missing values (specified by a "missing_value" attribute, see
       \code{\link{set.missval.ncdf}}) are represented as \code{NA}.
       If the variable is not found in the NetCDF file, returns \code{NULL}.

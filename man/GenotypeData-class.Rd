@@ -126,7 +126,7 @@
       \code{object}.
     }
     \item{}{
-      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, ...)}: Extracts genotype values
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, drop=TRUE, ...)}: Extracts genotype values
       (number of A alleles).
       \code{snp} and
       \code{scan} indicate which elements to return along the snp and
@@ -134,14 +134,16 @@
       count), where start is the index of the first data element to read
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  
+      Missing values are
       represented as \code{NA}.  If \code{char=TRUE}, genotypes are
       returned as characters of the form "A/B".  If \code{sort=TRUE},
       alleles are lexographically sorted ("G/T" instead of "T/G").
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, ...)}: May
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, char=FALSE, sort=TRUE, drop=TRUE, ...)}: May
     be used only if the data slot contains a
     \code{\link{GdsGenotypeReader}} or \code{\link{MatrixGenotypeReader}} object.
       Extracts genotype values
@@ -149,8 +151,7 @@
       \code{snp} and
       \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
       scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.
+      Other arguments are identical to \code{getGenotype}.
     }
     \item{}{
       \code{getSnpVariable(object, varname, index)}: Returns the snp
@@ -181,10 +182,11 @@
       variable \code{varname} is present in the scan annotation.
     }
     \item{}{
-      \code{getVariable(object, varname, ...)}: Extracts the
+      \code{getVariable(object, varname, drop=TRUE, ...)}: Extracts the
       contents of the variable \code{varname} from the data.
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.  If the variable is not found, returns \code{NULL}.
     }
     \item{}{

@@ -34,6 +34,8 @@ test_GdsGenotypeReader <- function() {
   # check a subset
   checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3)))
   checkIdentical(t(geno[1:100, 1:3]), getGenotype(obj, snp=c(1,100), scan=c(1,3), transpose=TRUE))
+  # check drop
+  checkIdentical(geno[1,,drop=FALSE], getGenotype(obj, snp=c(1,1), drop=FALSE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
@@ -241,6 +243,17 @@ test_GdsGenotypeReader_index <- function() {
                  getGenotypeSelection(obj,
                                       snp=c(rep(TRUE, 10), rep(FALSE, 250)),
                                       scan=c(rep(TRUE, 2), rep(FALSE, 3))))
+
+  checkIdentical(geno[,1,drop=FALSE],
+                 getGenotype(obj, scan=c(1,1), drop=FALSE))
+  checkIdentical(geno[1,,drop=FALSE],
+                 getGenotype(obj, snp=c(1,1), drop=FALSE))
+  checkIdentical(geno[1,,drop=FALSE],
+                 getGenotypeSelection(obj, snp=1, drop=FALSE))
+  checkIdentical(t(geno[1,,drop=FALSE]),
+                 getGenotype(obj, snp=c(1,1), drop=FALSE, transpose=TRUE))
+  checkIdentical(t(geno[1,,drop=FALSE]),
+                 getGenotypeSelection(obj, snp=1, drop=FALSE, transpose=TRUE))
   
   close(obj)
   unlink(file)

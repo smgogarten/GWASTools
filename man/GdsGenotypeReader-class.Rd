@@ -111,7 +111,7 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), transpose=FALSE, ...)}: Extracts genotype values
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, transpose=FALSE, ...)}: Extracts genotype values
       (number of A alleles).  
   \code{snp} and
       \code{scan} indicate which elements to return along the snp and
@@ -119,27 +119,27 @@
       count), where start is the index of the first data element to read
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, transpose=FALSE, ...)}: Extracts genotype values
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE, transpose=FALSE, ...)}: Extracts genotype values
       (number of A alleles).  
       \code{snp} and
       \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
       scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
-      represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
+      Other arguments are identical to \code{getGenotype}.
     }
     \item{}{
-      \code{getVariable(object, varname, index, ...)}: Extracts the
+      \code{getVariable(object, varname, index, drop=TRUE, ...)}: Extracts the
       contents of the variable \code{varname}.    
       The optional \code{index} is a logical or
       integer vector (if \code{varname} is 1D) or list (if \code{varname} is 2D or higher) specifying elements to extract.
+      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
       The result is a vector or matrix, depending on the number
-      of dimensions in the returned values.  Missing values are
+      of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.  If the variable is not found in the GDS
       file, returns \code{NULL}.
     }

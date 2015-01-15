@@ -43,17 +43,12 @@ function(intenData,
 			message(paste("block number=", i, "vector index=", k))
                 
 		# get the data and exclude certain samples
-                geno <- getGenotype(genoData, snp=c(k,n), scan=c(1,-1))
-                qual <- getQuality(intenData, snp=c(k,n), scan=c(1,-1))
+                geno <- getGenotype(genoData, snp=c(k,n), scan=c(1,-1), drop=FALSE)
+                qual <- getQuality(intenData, snp=c(k,n), scan=c(1,-1), drop=FALSE)
 
                 # remove excluded scans
-                if (length(dim(geno)) < 2) {
-                  geno <- matrix(geno[incl], nrow=1)
-                  qual <- matrix(qual[incl], nrow=1)
-                } else {
-                  geno <- geno[,incl]
-                  qual <- qual[,incl]
-                }
+                geno <- geno[,incl,drop=FALSE]
+                qual <- qual[,incl,drop=FALSE]
                   
                 qual[is.na(geno)] <- NA
                 mnqual[k:(k+n-1)] <- rowMeans(qual, na.rm=TRUE)
