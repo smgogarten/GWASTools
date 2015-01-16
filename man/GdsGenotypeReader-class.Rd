@@ -111,25 +111,25 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, transpose=FALSE, ...)}: Extracts genotype values
-      (number of A alleles).  
-  \code{snp} and
-      \code{scan} indicate which elements to return along the snp and
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, order=c("file", "selection"), transpose=FALSE, ...)}: 
+      Extracts genotype values (number of A alleles).  
+      \code{snp} and \code{scan} indicate which elements to return along the snp and
       scan dimensions.  They must be integer vectors of the form (start,
       count), where start is the index of the first data element to read
       and count is the number of elements to read.  A value of '-1' for
       count indicates that the entire dimension should be read.
-      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values and the value of \code{drop}.  Missing values are
-      represented as \code{NA}. Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
+      If \code{drop=TRUE}, the result is coerced to the lowest possible dimension.
+      If \code{use.names=TRUE}, names of the resulting vector or matrix are set to the SNP and scan IDs.
+      Missing values are represented as \code{NA}. 
+      If \code{order=="file"}, genotypes are returned in the order they are stored in the file.  If \code{order="selection"}, the order of SNPs and scans will match the index selection provided in \code{snp} and \code{scan} respectively.
+      Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE, transpose=FALSE, ...)}: Extracts genotype values
-      (number of A alleles).  
-      \code{snp} and
-      \code{scan} may be integer or logical vectors indicating which elements to return along the snp and
-      scan dimensions.  Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE, transpose=FALSE, ...)}:
+      Extracts genotype values (number of A alleles).
+      \code{snp} and \code{scan} may be integer or logical vectors indicating which elements 
+      to return along the snp and scan dimensions.  
+      Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       Other arguments are identical to \code{getGenotype}.
     }
     \item{}{
@@ -137,11 +137,9 @@
       contents of the variable \code{varname}.    
       The optional \code{index} is a logical or
       integer vector (if \code{varname} is 1D) or list (if \code{varname} is 2D or higher) specifying elements to extract.
-      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values and the value of \code{drop}.  Missing values are
-      represented as \code{NA}.  If the variable is not found in the GDS
-      file, returns \code{NULL}.
+      If \code{drop=TRUE}, the result is coerced to the lowest possible dimension.
+      Missing values are represented as \code{NA}.  
+      If the variable is not found, returns \code{NULL}.
     }
      \item{}{
        \code{XchromCode(object)}: Returns the integer code for the X
@@ -185,16 +183,25 @@ pos22 <- getPosition(gds, index=(chrom == 22))
 
 # get all snps for first scan
 geno <- getGenotype(gds, snp=c(1,-1), scan=c(1,1))
+length(geno)
 
 # starting at snp 100, get 10 snps for the first 5 scans
-geno <- getGenotype(gds, snp=c(100,10), scan=c(1,5))
+getGenotype(gds, snp=c(100,10), scan=c(1,5))
 
 # get snps 1-10, 25-30 for scans 3,5,7
 snp.index <- c(1:10, 25:30)
 scan.index <- c(3,5,7)
-geno <- getGenotypeSelection(gds, snp=snp.index, scan=scan.index)
-dimnames(geno) <- list(getSnpID(gds, index=snp.index),
-                       getScanID(gds, index=scan.index))
+getGenotypeSelection(gds, snp=snp.index, scan=scan.index)
+
+# illustrate drop argument
+getGenotypeSelection(gds, snp=5, scan=1:10, drop=TRUE, use.names=FALSE)
+getGenotypeSelection(gds, snp=5, scan=1:10, drop=FALSE, use.names=FALSE)
+
+# illustrate order="file" vs order="selection"
+snp.index <- c(9,3,5)
+scan.index <- c(3,2,1)
+getGenotypeSelection(gds, snp=snp.index, scan=scan.index, order="file")
+getGenotypeSelection(gds, snp=snp.index, scan=scan.index, order="selection")
 
 close(gds)
 }

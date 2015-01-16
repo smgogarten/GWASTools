@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.13.8
+Version: 1.13.9
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -14,8 +14,8 @@ biocViews: SNP, GeneticVariability, QualityControl, Microarray
 Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-ScanAnnotationDataFrame.R Methods-SnpAnnotationDataFrame.R
   Methods-ScanAnnotationSQLite.R Methods-SnpAnnotationSQLite.R
-  Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
   Methods-GdsReader.R Methods-GdsGenotypeReader.R Methods-GdsIntensityReader.R
+  Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
   Methods-MatrixGenotypeReader.R
   Methods-GenotypeData.R Methods-IntensityData.R
   createDataFile.R createAffyIntensityFile.R checkGenotypeFile.R checkIntensityFile.R

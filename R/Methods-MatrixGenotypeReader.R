@@ -77,19 +77,24 @@ setMethod("getScanID",
 
 setMethod("getGenotype",
           signature(object="MatrixGenotypeReader"),
-          function(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE) {
+          function(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE) {
               snpstart <- snp[1]
               snpend <- ifelse(snp[2] == -1, nsnp(object), snp[1]+snp[2]-1)
 
               scanstart <- scan[1]
               scanend <- ifelse(scan[2] == -1, nscan(object), scan[1]+scan[2]-1)
 
-              object@genotype[snpstart:snpend, scanstart:scanend, drop=drop]
+              var <- object@genotype[snpstart:snpend, scanstart:scanend, drop=FALSE]
+              if (use.names) {
+                  dimnames(var) <- list(getSnpID(object)[snpstart:snpend],
+                                        getScanID(object)[scanstart:scanend])
+              }
+              if(drop) drop(var) else var
           })
 
 setMethod("getGenotypeSelection",
           signature(object="MatrixGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, drop=TRUE) {
+          function(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE) {
 
               if (is.null(snp)) {
                   snp <- rep(TRUE, nsnp(object))
@@ -99,7 +104,12 @@ setMethod("getGenotypeSelection",
                   scan <- rep(TRUE, nscan(object))
               }
 
-              object@genotype[snp, scan, drop=drop]
+              var <- object@genotype[snp, scan, drop=FALSE]
+              if (use.names) {
+                  dimnames(var) <- list(getSnpID(object)[snp],
+                                        getScanID(object)[scan])
+              }
+              if(drop) drop(var) else var
           })
 
 setMethod("nsnp", "MatrixGenotypeReader",

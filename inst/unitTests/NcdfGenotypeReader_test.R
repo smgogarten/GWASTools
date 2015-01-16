@@ -9,9 +9,14 @@ test_NcdfGenotypeReader <- function() {
   
   # check drop
   checkIdentical(geno[1,,drop=FALSE], 
-                 getGenotype(obj, start=c(1,1), count=c(1,-1), drop=FALSE))
+                 getGenotype(obj, snp=c(1,1), scan=c(1,-1), drop=FALSE))
   checkIdentical(geno[,1,drop=FALSE], 
-                 getGenotype(obj, start=c(1,1), count=c(-1,1), drop=FALSE))
+                 getGenotype(obj, snp=c(1,-1), scan=c(1,1), drop=FALSE))
+
+  # check names
+  dimnames(geno) <- list(getSnpID(obj), getScanID(obj))
+  checkIdentical(geno, getGenotype(obj, use.names=TRUE))
+  checkIdentical(geno[1:10,1:10], getGenotype(obj, snp=c(1,10), scan=c(1,10), use.names=TRUE))
   
   nsnp <- 100L
   nsamp <- 10L

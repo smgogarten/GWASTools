@@ -504,4 +504,11 @@
     \item Add drop=TRUE argument to getVariable, etc.
   }
 }
+\section{Changes in version 1.13.9}{
+  \itemize{
+    \item Add use.names argument to getGenotype and getGenotype selection
+    \item Add order=c("file", "selection") argument to getGenotypeSelection
+    \item duplicateDiscordanceAcrossDatasets and dupDosageCorAcrossDatasets will not match on unmapped SNPs
+  }
+}
 

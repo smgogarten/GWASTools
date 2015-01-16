@@ -58,22 +58,8 @@ setValidity("NcdfGenotypeReader",
 # TODO: modify this function to accept indices or logical vectors
 setMethod("getVariable",
           signature(object="NcdfGenotypeReader"),
-          function(object, varname, snp, scan, ...) {
-
-            if (!missing(snp) & !missing(scan)) {
-              # get start and count from snp
-              snpstart = snp[1]
-              snpcount = snp[2]
-            
-              # get start and count from scan
-              scanstart = scan[1]
-              scancount = scan[2]
-
-              callNextMethod(object, varname, start=c(snpstart, scanstart),
-                             count=c(snpcount, scancount), ...)
-            } else {
+          function(object, varname, ...) {
               callNextMethod(object, varname, ...)
-            }
           })
 
 
@@ -125,11 +111,27 @@ setMethod("getScanID",
             var <- getVariable(object, object@scanIDvar)
             if (missing(index)) var else var[index]
           })
- 
+   
+## add names to genotype matrix
+.addNamesNcdf <- function(object, var, snp, scan) {
+    if (is.matrix(var)) {
+        dimnames(var) <- list(getSnpID(object, index=snp), getScanID(object, index=scan))
+    }
+    var
+}
+
 setMethod("getGenotype",
           signature(object="NcdfGenotypeReader"),
-          function(object, ...) {
-            getVariable(object, object@genotypeVar, ...)
+          function(object, snp=c(1,-1), scan=c(1,-1), use.names=FALSE, ...) {
+              var <- getVariable(object, object@genotypeVar,
+                                 start=c(snp[1], scan[1]),
+                                 count=c(snp[2], scan[2]), ...)
+              if (use.names) {
+                  snp.ind <- .startCountToIndex(snp[1], snp[2], nsnp(object))
+                  scan.ind <- .startCountToIndex(scan[1], scan[2], nscan(object))
+                  var <- .addNamesNcdf(object, var, snp=snp.ind, scan=scan.ind)
+              }
+              var
           })
 
 setMethod("nsnp", "NcdfGenotypeReader",

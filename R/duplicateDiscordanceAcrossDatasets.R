@@ -59,11 +59,18 @@
   vars1 <- data.frame(snpID=getSnpID(genoData1))
   vars2 <- data.frame(snpID=getSnpID(genoData2))
   excl.match.cols <- "snpID"
+
+  # exclude where chrom or position is unknown
   if ("position" %in% match.snps.on) {
       vars1[["chromosome"]] <- getChromosome(genoData1)
       vars1[["position"]] <- getPosition(genoData1)
       vars2[["chromosome"]] <- getChromosome(genoData2)
       vars2[["position"]] <- getPosition(genoData2)
+      chr1.char <- getChromosome(genoData1,char=TRUE)
+      chr2.char <- getChromosome(genoData2,char=TRUE)
+      vars1 <- vars1[!(chr1.char %in% "U") & vars1$position != 0,]
+      vars2 <- vars2[!(chr2.char %in% "U") & vars2$position != 0,]
+      
   }
   if ("alleles" %in% match.snps.on) {
       vars1[["alleles"]] <- pasteSorted(getAlleleA(genoData1), getAlleleB(genoData1))

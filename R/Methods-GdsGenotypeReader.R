@@ -181,19 +181,39 @@ setMethod("getScanID",
           })
 
 
+.startCountToIndex <- function(start, count, total) {
+    if (count == -1) {
+        seq(start, total)
+    } else {
+        seq(start, length.out=count)
+    }
+}
+   
+## add names to genotype matrix
+.addNamesGds <- function(object, var, snp, scan) {
+    if (is.matrix(var)) {
+        if (object@genotypeDim == "scan,snp") {
+            dimnames(var) <- list(getScanID(object, index=scan), getSnpID(object, index=snp))
+        } else if (object@genotypeDim == "snp,scan") {
+            dimnames(var) <- list(getSnpID(object, index=snp), getScanID(object, index=scan))
+        }
+    }
+    var
+}
+
 ## return matrix as snp,scan unless transpose=TRUE
 .returnSnpScan <- function(object, var, transpose) {
     ## check about returning transposed results based on @genotyepDim:
     ## scan,snp should by default return the transpose of what's in the gds file
-    if (!transpose & class(var) == "matrix" & object@genotypeDim == "scan,snp") return(t(var))
+    if (!transpose & is.matrix(var) & object@genotypeDim == "scan,snp") return(t(var))
     ## snp,scan should by default return what's in the gds file
-    if (transpose & class(var) == "matrix" & object@genotypeDim == "snp,scan") return(t(var))
+    if (transpose & is.matrix(var) & object@genotypeDim == "snp,scan") return(t(var))
     var
 }
-
+ 
 setMethod("getGenotype",
           signature(object="GdsGenotypeReader"),
-          function(object, snp=c(1,-1), scan=c(1,-1), transpose=FALSE, ...) {
+          function(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, transpose=FALSE, ...) {
 
               ## check if we need to switch snp/scan here for a transposed genotype file
               if (object@genotypeDim == "scan,snp") {
@@ -203,38 +223,71 @@ setMethod("getGenotype",
                   start <- c(snp[1], scan[1])
                   count <- c(snp[2], scan[2])
               }
-              var <- getVariable(object, object@genotypeVar, start=start, count=count, ...)
+              var <- getVariable(object, object@genotypeVar, start=start, count=count, drop=FALSE, ...)
               ## set missing values to NA
               var[var == object@missingValue] <- NA
 
+              if (use.names) {
+                  snp.ind <- .startCountToIndex(snp[1], snp[2], nsnp(object))
+                  scan.ind <- .startCountToIndex(scan[1], scan[2], nscan(object))
+                  var <- .addNamesGds(object, var, snp=snp.ind, scan=scan.ind)
+              }
+
+              if (drop) var <- drop(var)
+              
               ## return matrix as snp,scan unless transpose=TRUE
               .returnSnpScan(object, var, transpose)
           })
 
+## order matrix (which is a subset) by original selection index
+.orderBySelection <- function(object, var, snp, scan) {
+    if (is.numeric(snp) & !identical(snp, sort(snp))) {
+        snp.ind <- na.omit(match(1:nsnp(object), snp))
+        if (object@genotypeDim == "scan,snp") {
+            var <- var[,snp.ind]
+        } else if (object@genotypeDim == "snp,scan"){
+            var <- var[snp.ind,]
+        }
+    }
+    if (is.numeric(scan) & !identical(scan, sort(scan))) {
+        scan.ind <- na.omit(match(1:nscan(object), scan))
+        if (object@genotypeDim == "scan,snp") {
+            var <- var[scan.ind,]
+        } else if (object@genotypeDim == "snp,scan"){
+            var <- var[,scan.ind]
+        }
+    }
+    var
+}
+
 setMethod("getGenotypeSelection",
           signature(object="GdsGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, transpose=FALSE, ...) {
+          function(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE,
+                   order=c("file", "selection"), transpose=FALSE, ...) {
 
-            if (is.null(snp)) {
-              snp <- rep(TRUE, nsnp(object))
-            }
+              order <- match.arg(order)
               
-            if (is.null(scan)) {
-              scan <- rep(TRUE, nscan(object))
-            }
+              if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
+              if (is.null(scan)) scan <- rep(TRUE, nscan(object))
               
-            # check if we need to switch snp/scan here for a transposed genotype file
-            if (object@genotypeDim == "scan,snp") {
-              sel <- list(scan, snp)
-            } else if (object@genotypeDim == "snp,scan"){
-              sel <- list(snp, scan)
-            }
-            var <- getVariable(object, object@genotypeVar, index=sel, ...)
-            # set missing values to NA
-            var[var == object@missingValue] <- NA
+              ## check if we need to switch snp/scan here for a transposed genotype file
+              if (object@genotypeDim == "scan,snp") {
+                  sel <- list(scan, snp)
+              } else if (object@genotypeDim == "snp,scan"){
+                  sel <- list(snp, scan)
+              }
+              var <- getVariable(object, object@genotypeVar, index=sel, drop=FALSE, ...)
+              ## set missing values to NA
+              var[var == object@missingValue] <- NA
 
-            # return matrix as snp,scan unless transpose=TRUE
-            .returnSnpScan(object, var, transpose)
+              if (use.names) var <- .addNamesGds(object, var, snp, scan)
+
+              if (order == "selection") var <- .orderBySelection(object, var, snp, scan)
+              
+              if (drop) var <- drop(var)
+              
+              ## return matrix as snp,scan unless transpose=TRUE
+              .returnSnpScan(object, var, transpose)
           })
 
 

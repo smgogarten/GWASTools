@@ -36,6 +36,10 @@ test_GdsGenotypeReader <- function() {
   checkIdentical(t(geno[1:100, 1:3]), getGenotype(obj, snp=c(1,100), scan=c(1,3), transpose=TRUE))
   # check drop
   checkIdentical(geno[1,,drop=FALSE], getGenotype(obj, snp=c(1,1), drop=FALSE))
+  # check names
+  dimnames(geno) <- list(snp, samp)
+  checkIdentical(geno, getGenotype(obj, use.names=TRUE))
+  checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3), use.names=TRUE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
@@ -111,6 +115,8 @@ test_genotypeDim <- function(){
   # check a subset
   checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3)))
   checkIdentical(t(geno[1:100, 1:3]), getGenotype(obj, snp=c(1,100), scan=c(1,3), transpose=TRUE))
+  dimnames(geno) <- list(snp, samp)
+  checkIdentical(geno[1:100, 1:3], getGenotype(obj, snp=c(1,100), scan=c(1,3), use.names=TRUE))
   
   sel <- samp %in% sample(samp, 3)
   checkIdentical(samp[sel], getScanID(obj, sel))
@@ -206,6 +212,11 @@ test_logicalIndex <- function() {
   checkException(GWASTools:::.logicalIndex(c(TRUE, FALSE), 3))
 }
 
+test_startCount <- function() {
+  checkEquals(11:15, GWASTools:::.startCountToIndex(11, 5, 20))
+  checkEquals(11:20, GWASTools:::.startCountToIndex(11, -1, 20))
+}
+
 test_GdsGenotypeReader_index <- function() {  
   file <- tempfile()
   gds <- createfn.gds(file)
@@ -236,24 +247,33 @@ test_GdsGenotypeReader_index <- function() {
 
   geno[geno == 3] <- NA
   checkIdentical(geno[1:10,1:2],
-                 getGenotypeSelection(obj, snp=1:10, scan=1:2))
+                 getGenotypeSelection(obj, snp=1:10, scan=1:2, use.names=FALSE))
   checkIdentical(t(geno[1:10,1:2]),
-                 getGenotypeSelection(obj, snp=1:10, scan=1:2, transpose=TRUE))
+                 getGenotypeSelection(obj, snp=1:10, scan=1:2, use.names=FALSE, transpose=TRUE))
   checkIdentical(geno[1:10,1:2],
-                 getGenotypeSelection(obj,
-                                      snp=c(rep(TRUE, 10), rep(FALSE, 250)),
-                                      scan=c(rep(TRUE, 2), rep(FALSE, 3))))
+                 getGenotypeSelection(obj, snp=c(rep(TRUE, 10), rep(FALSE, 250)),
+                                      scan=c(rep(TRUE, 2), rep(FALSE, 3)), use.names=FALSE))
 
+  ## check drop
   checkIdentical(geno[,1,drop=FALSE],
                  getGenotype(obj, scan=c(1,1), drop=FALSE))
   checkIdentical(geno[1,,drop=FALSE],
                  getGenotype(obj, snp=c(1,1), drop=FALSE))
   checkIdentical(geno[1,,drop=FALSE],
-                 getGenotypeSelection(obj, snp=1, drop=FALSE))
+                 getGenotypeSelection(obj, snp=1, drop=FALSE, use.names=FALSE))
   checkIdentical(t(geno[1,,drop=FALSE]),
                  getGenotype(obj, snp=c(1,1), drop=FALSE, transpose=TRUE))
   checkIdentical(t(geno[1,,drop=FALSE]),
-                 getGenotypeSelection(obj, snp=1, drop=FALSE, transpose=TRUE))
+                 getGenotypeSelection(obj, snp=1, drop=FALSE, use.names=FALSE, transpose=TRUE))
+
+  ## check names
+  dimnames(geno) <- list(snp, samp)
+  checkIdentical(geno[1:10,1:2],
+                 getGenotypeSelection(obj, snp=1:10, scan=1:2, use.names=TRUE))
+
+  ## check selection
+  checkIdentical(geno[c(3,1,5), c(2,1)],
+                 getGenotypeSelection(obj, snp=c(3,1,5), scan=c(2,1), order="selection"))
   
   close(obj)
   unlink(file)

@@ -60,13 +60,6 @@
 
 \section{Accessors}{
   In the code snippets below, \code{object} is a NcdfGenotypeReader object.
-  \code{snp} and
-      \code{scan} indicate which elements to return along the snp and
-      scan dimensions.  They must be integer vectors of the form (start,
-      count), where start is the index of the first data element to read
-      and count is the number of elements to read.  A value of '-1' for
-      count indicates that the entire dimension should be read.  If snp
-      and/or is scan omitted, the entire variable is read.
       
       See \code{\link{NcdfReader}} for additional methods.
 
@@ -102,20 +95,20 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp, scan, drop=TRUE)}: Extracts genotype values
-      (number of A alleles).  
-      If \code{drop=TRUE} the result is coerced to the lowest possible dimension.
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values and the value of \code{drop}.  Missing values are
-      represented as \code{NA}.
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, ...)}:
+      Extracts genotype values (number of A alleles).  
+      \code{snp} and \code{scan} indicate which elements to return along the snp and
+      scan dimensions.  They must be integer vectors of the form (start,
+      count), where start is the index of the first data element to read
+      and count is the number of elements to read.  A value of '-1' for
+      count indicates that the entire dimension should be read.
+      If \code{drop=TRUE}, the result is coerced to the lowest possible dimension.
+      If \code{use.names=TRUE} and the result is a matrix, dimnames are set to the SNP and scan IDs.
+      Missing values are represented as \code{NA}.
     }
     \item{}{
-      \code{getVariable(object, varname, snp, scan, drop=TRUE)}: Extracts the
-      contents of the variable \code{varname}. 
-      If \code{drop=TRUE} the result is coerced to the lowest possible dimension. 
-      The result is a vector or matrix, depending on the number
-      of dimensions in the returned values and the value of \code{drop}.  Missing values are
-      represented as \code{NA}.  If the variable is not found in the NetCDF
+      \code{getVariable(object, varname, ...)}: Extracts the
+      contents of the variable \code{varname}. If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }
      \item{}{
