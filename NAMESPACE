@@ -9,6 +9,7 @@ importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocTestCPH
 importFrom(sandwich, vcovHC, vcovHC.default) # used in assocTestRegression
 importFrom(lmtest, lrtest, lrtest.default) # used in assocTestRegression
+import(logistf) # used in assocTestReg
 importFrom(quantsmooth, paintCytobands, lengthChromosome) # used to plot ideograms
 
 exportClasses(
@@ -57,6 +58,7 @@ export(
     assocTestCPH,
     assocTestFisherExact,
     assocTestRegression,
+    assocTestReg,
     BAFfromClusterMeans,
     BAFfromGenotypes,
     batchChisqTest,
