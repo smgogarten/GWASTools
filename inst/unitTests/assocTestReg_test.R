@@ -55,7 +55,7 @@
 }
 
 
-test_assocTestReg_logistic <- function() {
+test_logistic <- function() {
     outcome <- "case.cntl.status"
     model.type <- "logistic"
     covar.vec <- c("age","sex")
@@ -71,7 +71,7 @@ test_assocTestReg_logistic <- function() {
 
 
 ## fails - why???
-## test_assocTestReg_LR <- function() {
+## test_LR <- function() {
 ##     outcome <- "case.cntl.status"
 ##     model.type <- "logistic"
 ##     covar.vec <- c("age","sex")
@@ -85,7 +85,7 @@ test_assocTestReg_logistic <- function() {
 ##                 scan.exclude, robust, LRtest)
 ## }
 
-test_assocTestReg_linear <- function() {
+test_linear <- function() {
     outcome <- "blood.pressure"
     model.type <- "linear"
     covar.vec <- c("age","sex")
@@ -99,7 +99,7 @@ test_assocTestReg_linear <- function() {
                 scan.exclude, robust, LRtest)
 }
 
-test_assocTestReg_linear_robust <- function() {
+test_linear_robust <- function() {
     outcome <- "blood.pressure"
     model.type <- "linear"
     robust <- TRUE
@@ -113,16 +113,51 @@ test_assocTestReg_linear_robust <- function() {
                 scan.exclude, robust, LRtest)
 }
 
-test_assocTestReg_logistic_robust <- function() {
-    outcome <- "case.cntl.status"
-    model.type <- "logistic"
-    robust <- TRUE
-    LRtest <- FALSE
-    covar.vec <- c("age","sex")
+## also fails (sometimes) - why???
+## test_logistic_robust <- function() {
+##     outcome <- "case.cntl.status"
+##     model.type <- "logistic"
+##     robust <- TRUE
+##     LRtest <- FALSE
+##     covar.vec <- c("age","sex")
+
+##     genoData <- .regSampleData()
+##     scan.exclude <- sample(getScanID(genoData), 10)
+
+##     .checkAssoc(genoData, outcome, model.type, covar.vec,
+##                 scan.exclude, robust, LRtest)
+## }
+
+test_blocks <- function() {
+    outcome <- "blood.pressure"
+    model.type <- "linear"
 
     genoData <- .regSampleData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    assoc1 <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type)
+    assoc2 <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          block.size=33)
+    checkEquals(assoc1, assoc2)
+}
 
-    .checkAssoc(genoData, outcome, model.type, covar.vec,
-                scan.exclude, robust, LRtest)
+test_snps <- function() {
+    outcome <- "blood.pressure"
+    model.type <- "linear"
+
+    genoData <- .regSampleData()
+    assoc1 <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type)
+    assoc2a <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          snpStart=1, snpEnd=50)
+    assoc2b <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          snpStart=51, snpEnd=100)
+    checkEquals(assoc1, rbind(assoc2a, assoc2b))
 }

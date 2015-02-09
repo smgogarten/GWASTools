@@ -208,7 +208,8 @@ assocTestReg <- function(genoData,
     res[bidx, "n"] <- n
 
     # loop through SNPs in block
-    for (i in bidx[!mono]) {
+    midx <- (1:nsnp.block)[!mono]
+    for (i in midx) {
       mdat <- cbind(dat, genotype=geno[,i])
       mdat <- mdat[complete.cases(mdat),]
       if (model.type %in% c("linear", "logistic")) {
@@ -216,7 +217,7 @@ assocTestReg <- function(genoData,
       } else if (model.type == "firth") {
         tmp <- .runFirth(model.formula, mdat, PPLtest)
       }
-      res[i, reg.cols] <- tmp
+      res[bidx[i], reg.cols] <- tmp
     }
     
     endTime <- Sys.time()
