@@ -11,6 +11,7 @@ assocTestReg(genoData,
                                 model.type = c("linear", "logistic", "firth"),
                                 covar.vec = NULL,
                                 scan.exclude = NULL,
+				CI = 0.95,
                                 robust = FALSE,
                                 LRtest = FALSE,
                                 PPLtest = FALSE,
@@ -28,6 +29,8 @@ assocTestReg(genoData,
     a vector of the names of the covariates to adjust for
   }
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
+
+  \item{CI}{a value between 0 and 1 defining the confidence level for the confidence interval calculations}
 
   \item{robust}{logical for whether to use sandwich-based robust standard errors.  The default value is \code{FALSE}, and uses
   model based standard errors.  The standard error estimates are returned and also used for Wald Tests of significance.}

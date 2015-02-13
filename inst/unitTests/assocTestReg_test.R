@@ -1,4 +1,87 @@
-.regSampleData <- function(nsnp=100, nsamp=50) {
+.regModelData <- function(type=c("logistic", "linear"), nsamp=100) {
+    type <- match.arg(type)
+    data.frame(outcome=switch(type,
+                   logistic=rbinom(nsamp,1,0.4),
+                   linear=rnorm(nsamp, mean=10, sd=2)),
+               covar=sample(letters[1:3], nsamp, replace=TRUE),
+               genotype=sample(c(0,1,2), nsamp, replace=TRUE))
+}
+
+test_runReg_linear <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+                                      CI=0.95, robust=FALSE, LRtest=FALSE)
+    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
+    checkTrue(all(!is.na(tmp)))
+}
+
+test_runReg_logistic <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runRegression(mod, .regModelData(), "logistic",
+                                      CI=0.95, robust=FALSE, LRtest=FALSE)
+    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
+    checkTrue(all(!is.na(tmp)))
+}
+
+test_runReg_CI <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
+                                      CI=0.95, robust=FALSE, LRtest=FALSE)
+    tmp2 <- GWASTools:::.runRegression(mod, dat, "linear",
+                                       CI=0.90, robust=FALSE, LRtest=FALSE)
+    checkTrue(tmp["LL"] < tmp2["LL"])
+    checkTrue(tmp["UL"] > tmp2["UL"])
+}
+
+test_runReg_robust <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+                                      CI=0.95, robust=TRUE, LRtest=FALSE)
+    checkTrue(all(!is.na(tmp)))
+}
+
+test_runReg_LR <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+                                      CI=0.95, robust=FALSE, LRtest=TRUE)
+    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
+                                 "LR.Stat", "LR.pval"))
+    checkTrue(all(!is.na(tmp)))
+}
+
+test_runFirth <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runFirth(mod, .regModelData(), CI=0.95, PPLtest=FALSE)
+    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
+    checkTrue(all(!is.na(tmp)))
+    checkEquals(GWASTools:::.waldTest(unname(tmp["Est"]), unname(tmp["SE"])),
+                tmp[c("Wald.Stat", "Wald.pval")])
+}
+
+test_runFirth_CI <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=FALSE)
+    checkEquals(GWASTools:::.CI(unname(tmp["Est"]), unname(tmp["SE"]), 0.95),
+                tmp[c("LL", "UL")])
+    
+    tmp2 <- GWASTools:::.runFirth(mod, dat, CI=0.90, PPLtest=FALSE)
+    checkTrue(tmp["LL"] < tmp2["LL"])
+    checkTrue(tmp["UL"] > tmp2["UL"])
+}
+
+test_runFirth_PPL <- function() {
+    mod <- as.formula("outcome ~ covar + genotype")
+    tmp <- GWASTools:::.runFirth(mod, .regModelData(), CI=0.95, PPLtest=TRUE)
+    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
+                                 "PPL.Stat", "PPL.pval"))
+    checkTrue(all(!is.na(tmp)))
+}
+
+
+
+.regGenoData <- function(nsnp=100, nsamp=50) {
     geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
                                 chromosome=rep(c(1L,23L), each=nsnp/2),
@@ -6,19 +89,18 @@
 
     scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
       sex=sample(c("M","F"), nsamp, replace=TRUE),
-      age=rnorm(nsamp, mean=40, sd=10),
-      case.cntl.status=rbinom(nsamp,1,0.4)))
-    scanAnnot$blood.pressure[scanAnnot$case.cntl.status==1] <- rnorm(sum(scanAnnot$case.cntl.status==1),mean=100,sd=10)
-    scanAnnot$blood.pressure[scanAnnot$case.cntl.status==0] <- rnorm(sum(scanAnnot$case.cntl.status==0),mean=90,sd=5)
+      age=round(rnorm(nsamp, mean=40, sd=10)),
+      status=rbinom(nsamp,1,0.4),
+      trait=rnorm(nsamp, mean=10, sd=2)))
 
     GenotypeData(mgr, scanAnnot=scanAnnot)
 }
 
 test_blocks <- function() {
-    outcome <- "blood.pressure"
+    outcome <- "trait"
     model.type <- "linear"
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     assoc1 <- assocTestReg(genoData,
                           outcome = outcome,
                           model.type = model.type)
@@ -30,10 +112,10 @@ test_blocks <- function() {
 }
 
 test_snps <- function() {
-    outcome <- "blood.pressure"
+    outcome <- "trait"
     model.type <- "linear"
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     assoc1 <- assocTestReg(genoData,
                           outcome = outcome,
                           model.type = model.type)
@@ -89,13 +171,13 @@ test_snps <- function() {
 
 
 test_logistic <- function() {
-    outcome <- "case.cntl.status"
+    outcome <- "status"
     model.type <- "logistic"
     covar.vec <- c("age","sex")
     robust <- FALSE
     LRtest <- FALSE
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
     .checkAssoc(genoData, outcome, model.type, covar.vec,
@@ -103,13 +185,13 @@ test_logistic <- function() {
 }
 
 test_linear <- function() {
-    outcome <- "blood.pressure"
+    outcome <- "trait"
     model.type <- "linear"
     covar.vec <- c("age","sex")
     robust <- FALSE
     LRtest <- FALSE   
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
     .checkAssoc(genoData, outcome, model.type, covar.vec,
@@ -117,13 +199,13 @@ test_linear <- function() {
 }
 
 test_robust <- function() {
-    outcome <- "blood.pressure"
+    outcome <- "trait"
     model.type <- "linear"
     covar.vec <- c("age","sex")
     robust <- TRUE
     LRtest <- FALSE
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
     .checkAssoc(genoData, outcome, model.type, covar.vec,
@@ -131,15 +213,33 @@ test_robust <- function() {
 }
 
 test_LR <- function() {
-    outcome <- "blood.pressure"
+    outcome <- "trait"
     model.type <- "linear"
     covar.vec <- c("age","sex")
     robust <- FALSE
     LRtest <- TRUE
 
-    genoData <- .regSampleData()
+    genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
     .checkAssoc(genoData, outcome, model.type, covar.vec,
                 scan.exclude, robust, LRtest)
+}
+
+## for now, just check there are no errors
+test_firth <- function() {
+    outcome <- "status"
+    model.type <- "firth"
+    covar.vec <- c("age","sex")
+    PPLtest <- TRUE
+
+    genoData <- .regGenoData()
+    scan.exclude <- sample(getScanID(genoData), 10)
+
+    assoc <- assocTestReg(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          covar.vec = covar.vec,
+                          scan.exclude = scan.exclude,
+                          PPLtest = PPLtest)
 }

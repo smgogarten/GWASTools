@@ -46,6 +46,12 @@
     mono
 }
 
+.CI <- function(Est, SE, CI) {
+    LL <- Est + qnorm((1-CI)*0.5)*SE
+    UL <- Est + qnorm(1-((1-CI)*0.5))*SE
+    c(LL=LL, UL=UL)
+}
+
 .waldTest <- function(Est, SE) {
     W <- (Est/SE)^2
     pval <- pchisq(W, df=1, lower.tail=FALSE)
@@ -53,7 +59,7 @@
 }
 
 ## give the data frame a crazy name so we don't overwrite something important
-.runRegression <- function(model.formula, ..model..data.., model.type, robust, LRtest) {
+.runRegression <- function(model.formula, ..model..data.., model.type, CI, robust, LRtest) {
     tryCatch({
         if (model.type == "linear") {
             mod <- lm(model.formula, data=..model..data..)
@@ -70,7 +76,7 @@
         }
         Est <- unname(coef(mod)["genotype"])
         SE <- sqrt(Vhat["genotype","genotype"])
-        ret <- c(Est=Est, SE=SE, .waldTest(Est, SE))
+        ret <- c(Est=Est, SE=SE, .CI(Est, SE, CI), .waldTest(Est, SE))
 
         if (LRtest) {
             ## promote the data frame to the global environment so lrtest can find it
@@ -82,18 +88,23 @@
     }, warning=function(w) NA, error=function(e) NA)
 }
 
-.runFirth <- function(model.formula, model.data, PPLtest) {
+.runFirth <- function(model.formula, model.data, CI, PPLtest) {
     tryCatch({
         ind <- which(names(model.data) == "genotype")
-        mod <- logistf(model.formula, data=model.data, pl=PPLtest, plconf=ind, dataout=FALSE)
+        mod <- logistf(model.formula, data=model.data, alpha=(1-CI),
+                       pl=PPLtest, plconf=ind, dataout=FALSE)
         Est <- unname(coef(mod)[ind])
         SE <- sqrt(vcov(mod)[ind,ind])
+        LL <- unname(mod$ci.lower[ind])
+        UL <- unname(mod$ci.upper[ind])
         pval <- unname(mod$prob[ind])
         Stat <- qchisq(pval, df=1, lower.tail=FALSE)
+        
+        ret <- c(Est=Est, SE=SE, LL=LL, UL=UL)
         if (PPLtest) {
-            c(Est=Est, SE=SE, .waldTest(Est, SE), PPL.Stat=Stat, PPL.pval=pval)
+            c(ret, .waldTest(Est, SE), PPL.Stat=Stat, PPL.pval=pval)
         } else {
-            c(Est=Est, SE=SE, Wald.Stat=Stat, Wald.pval=pval)
+            c(ret, Wald.Stat=Stat, Wald.pval=pval)
         }
     }, warning=function(w) NA, error=function(e) NA)
 }
@@ -104,6 +115,7 @@ assocTestReg <- function(genoData,
                          model.type = c("linear", "logistic", "firth"),
                          covar.vec = NULL,
                          scan.exclude = NULL,
+                         CI = 0.95,
                          robust = FALSE,
                          LRtest = FALSE,
                          PPLtest = FALSE,
@@ -167,7 +179,7 @@ assocTestReg <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID","chr","n","MAF","minor.allele","Est","SE","Wald.Stat","Wald.pval")
+    nv <- c("snpID","chr","n","MAF","minor.allele","Est","SE","LL","UL","Wald.Stat","Wald.pval")
     if (LRtest & model.type %in% c("linear", "logistic")) nv <- c(nv, "LR.Stat", "LR.pval")
     if (PPLtest & model.type == "firth") nv <- c(nv, "PPL.Stat", "PPL.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
@@ -219,9 +231,9 @@ assocTestReg <- function(genoData,
             mdat <- cbind(dat, genotype=geno[,i])
             mdat <- mdat[complete.cases(mdat),]
             if (model.type %in% c("linear", "logistic")) {
-                tmp <- .runRegression(model.formula, mdat, model.type, robust, LRtest)
+                tmp <- .runRegression(model.formula, mdat, model.type, CI, robust, LRtest)
             } else if (model.type == "firth") {
-                tmp <- .runFirth(model.formula, mdat, PPLtest)
+                tmp <- .runFirth(model.formula, mdat, CI, PPLtest)
             }
             res[bidx[i], reg.cols] <- tmp
         }
