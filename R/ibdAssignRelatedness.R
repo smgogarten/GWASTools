@@ -27,7 +27,7 @@ ibdAssignRelatedness <- function(
   
   # to identify full sibs within the ellipse - 
   
-  FS<-relationsMeanVar$FullSibs
+  FS<-GWASTools::relationsMeanVar$FullSibs
   mean.vec<-FS$mean  #vector
   sig.inv<-FS$invCov
   n0<-length(k0)
@@ -44,7 +44,7 @@ ibdAssignRelatedness <- function(
   sdm<-abs(qnorm(alpha/2))  # sd multiplier for determining half-sib, first cousin rectangles
   # to identify half-sibs within rectangle parallel to diagonal
   # ends of the rectangle on the diagonal
-  HS<-relationsMeanVar$HalfSibs
+  HS<-GWASTools::relationsMeanVar$HalfSibs
   d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
   hsm<-HS$mean[2]
   y1<-hsm-d;x1<-1-y1
@@ -59,7 +59,7 @@ ibdAssignRelatedness <- function(
   
   # to identify first cousins within the rectangle parallel to diagonal
   # ends of the rectangle on the diagonal
-  C<-relationsMeanVar$FirstCousins
+  C<-GWASTools::relationsMeanVar$FirstCousins
   d<-sdm*sqrt(C$var)
   fcm<-C$mean[2]
   y1<-fcm-d;x1<-1-y1

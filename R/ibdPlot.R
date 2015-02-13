@@ -41,7 +41,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
   
   # draw full-sib ellipse
   if ("FS" %in% rel.draw) {
-    FS = relationsMeanVar$FullSibs
+    FS<-GWASTools::relationsMeanVar$FullSibs
     mean.vec<-FS$mean  #vector
     sig.inv<-FS$invCov            
     eg.vals<-FS$eigvals  #relates to length of ellipse axes
@@ -61,7 +61,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
   }
 
   if ("Deg2" %in% rel.draw) {
-    HS<-relationsMeanVar$HalfSibs
+    HS<-GWASTools::relationsMeanVar$HalfSibs
     d<-sdm*sqrt(HS$var) # +/- d from k1-mean gives 100(1-alpha)% prediction interval for k1
     hsm<-HS$mean[2]
     s2<-sqrt(2)
@@ -71,7 +71,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
   }
 
   if ("Deg3" %in% rel.draw) {
-    C<-relationsMeanVar$FirstCousins
+    C<-GWASTools::relationsMeanVar$FirstCousins
     d<-sdm*sqrt(C$var)
     fcm<-C$mean[2]
     s2<-sqrt(2)
