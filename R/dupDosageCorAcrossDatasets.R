@@ -20,7 +20,7 @@
 # alternatively, could try to do something smart like calcluate allele frequency and switch where counted allele is clearly different at A/T or C/G SNPs
 
 ######################
-## Internal functions -- need to rename, other than 'My' prefix. Should have differnet names than GWASTools internal functions?
+## Internal functions
 
 ### I. Identify overlapping variants
 # using GWASTools:::.commonSnps
@@ -35,12 +35,12 @@
   snpSel <- getSnpID(genoData) %in% snpIDs
   geno.init <- getGenotypeSelection(genoData, scan=scanSel, snp=snpSel, drop=FALSE)
 
-  # discard Y chrom SNPs for females
-  # NOTE - has NOT been tested on actualy chrY data (not imputed)
+  # for females, set Y chrom genotypes to NA
   if (hasSex(genoData)) {
-    sex <- getSex(genoData, index=getScanID(genoData)[scanSel])
-    females <- sex %in% "F"
-    ychr <- getChromosome(genoData, char=TRUE) %in% "Y"
+    # snpSel and scanSel are T/F vectors flagging selected snps and samples,
+    # in dataset order rather than requested order
+    females <- getSex(genoData)[scanSel] %in% "F"
+    ychr <- getChromosome(genoData, char=T)[snpSel] %in% "Y"
     if (sum(females) > 0 & sum(ychr) > 0) {
       geno.init[ychr, females] <- NA
     }
@@ -69,7 +69,6 @@
 dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
                                        match.snps.on=c("position", "alleles"),
                                        subjName.cols="subjectID", snpName.cols=NULL,
-                                       # one.pair.per.subj=TRUE,
                                        scan.exclude1=NULL, scan.exclude2=NULL,
                                        snp.exclude1=NULL, snp.exclude2=NULL,
                                        snp.include=NULL,
