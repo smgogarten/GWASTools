@@ -9,7 +9,7 @@
 assocTestReg(genoData,
                                 outcome,
                                 model.type = c("linear", "logistic", "firth"),
-                                covar.vec = NULL,
+                                covar = NULL,
                                 scan.exclude = NULL,
 				CI = 0.95,
                                 robust = FALSE,
@@ -25,9 +25,10 @@ assocTestReg(genoData,
   \item{genoData}{a \code{\link{GenotypeData}} object}
   \item{outcome}{the name of the phenotype of interest}
   \item{model.type}{the type of model to be run.  "linear" uses \code{\link{lm}}, "logistic" uses \code{\link{glm}}, and "firth" uses \code{\link{logistf}}.}
-  \item{covar.vec}{
+  \item{covar}{
     a vector of the names of the covariates to adjust for
   }
+%  \item{ivar}{a vector of the names of covariates to be used for genotype interactions}
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
 
   \item{CI}{a value between 0 and 1 defining the confidence level for the confidence interval calculations}
@@ -43,8 +44,7 @@ assocTestReg(genoData,
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
   \item{block.size}{
-    number of SNPs to read in at once.  Default is 5000.  I don't know
-    what is optimal.
+    number of SNPs to read in at once.
   }
   \item{verbose}{logical for whether to print status updates}
 }

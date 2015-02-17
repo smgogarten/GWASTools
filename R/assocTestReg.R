@@ -1,9 +1,18 @@
 ## get data frame with outcome and covariates
-.modelData <- function(genoData, outcome, covar.vec) {
+.modelData <- function(genoData, outcome, covar, ivar=NULL) {
     mod.vars <- outcome
-    if (!is.null(covar.vec)) {
-        cvnames <- unique(unlist(strsplit(covar.vec,"[*:]")))
+    if (!is.null(covar)) {
+        cvnames <- unique(unlist(strsplit(covar,"[*:]")))
         mod.vars <- c(mod.vars, cvnames)
+        if (!all(cvnames %in% getScanVariableNames(genoData))) {
+            stop("Not all variables in covar found in scan annotation of genoData")
+        }
+    }
+    if (!is.null(ivar)) {
+        ivnames <- unique(unlist(strsplit(ivar,"[*:]")))
+        if (is.null(covar) | !all(ivnames %in% cvnames)) {
+            stop("Not all variables in ivar are present in covar")
+        }
     }
     dat <- as.data.frame(getScanVariable(genoData, mod.vars))
     names(dat)[1] <- outcome ## fix name in case of only one column
@@ -83,16 +92,18 @@
             ..model..data.. <<- ..model..data..
             mod2 <- lrtest(mod, "genotype")[2,]
             ret <- c(ret, LR.Stat=mod2[["Chisq"]], LR.pval=mod2[["Pr(>Chisq)"]])
+            rm(..model..data.., envir=.GlobalEnv)
         }
         ret
     }, warning=function(w) NA, error=function(e) NA)
 }
 
-.runFirth <- function(model.formula, model.data, CI, PPLtest) {
+.runFirth <- function(model.formula, model.data, CI, PPLtest, geno.index=NULL) {
     tryCatch({
-        ind <- which(names(model.data) == "genotype")
         mod <- logistf(model.formula, data=model.data, alpha=(1-CI),
-                       pl=PPLtest, plconf=ind, dataout=FALSE)
+                       pl=PPLtest, plconf=geno.index, dataout=FALSE)
+        ind <- which(mod$terms == "genotype")
+        if (PPLtest) stopifnot(ind == geno.index)
         Est <- unname(coef(mod)[ind])
         SE <- sqrt(vcov(mod)[ind,ind])
         LL <- unname(mod$ci.lower[ind])
@@ -113,7 +124,8 @@
 assocTestReg <- function(genoData,
                          outcome,
                          model.type = c("linear", "logistic", "firth"),
-                         covar.vec = NULL,
+                         covar = NULL,
+                         #ivar = NULL,
                          scan.exclude = NULL,
                          CI = 0.95,
                          robust = FALSE,
@@ -162,12 +174,18 @@ assocTestReg <- function(genoData,
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
-    dat <- .modelData(genoData, outcome, covar.vec)
+    dat <- .modelData(genoData, outcome, covar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
     dat <- dat[keep,]
-    model.formula <- as.formula(paste(paste(outcome,"~"), paste(c(covar.vec, "genotype"),collapse="+")))
+    model.formula <- as.formula(paste(paste(outcome,"~"), paste(c(covar, "genotype"),collapse="+")))
 
+    ## for firth test - determine index of genotype in model matrix
+    if (model.type == "firth") {
+        tmp <- cbind(dat, "genotype"=0)
+        geno.index <- which(colnames(model.matrix(model.formula, tmp)) == "genotype")
+        rm(tmp)
+    }
 
     ## sample size, assuming no missing genotypes
     n <- nrow(dat)
@@ -233,7 +251,7 @@ assocTestReg <- function(genoData,
             if (model.type %in% c("linear", "logistic")) {
                 tmp <- .runRegression(model.formula, mdat, model.type, CI, robust, LRtest)
             } else if (model.type == "firth") {
-                tmp <- .runFirth(model.formula, mdat, CI, PPLtest)
+                tmp <- .runFirth(model.formula, mdat, CI, PPLtest, geno.index)
             }
             res[bidx[i], reg.cols] <- tmp
         }
