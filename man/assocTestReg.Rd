@@ -8,13 +8,14 @@
 \usage{
 assocTestReg(genoData,
                                 outcome,
-                                model.type = c("linear", "logistic", "firth"),
+                                model.type = c("linear", "logistic", "poisson", "firth"),
                                 covar = NULL,
+                                ivar = NULL,
                                 scan.exclude = NULL,
 				CI = 0.95,
                                 robust = FALSE,
                                 LRtest = FALSE,
-                                PPLtest = FALSE,
+                                PPLtest = TRUE,
                                 snpStart = NULL,
                                 snpEnd = NULL,
                                 block.size = 5000,
@@ -24,22 +25,24 @@ assocTestReg(genoData,
 \arguments{
   \item{genoData}{a \code{\link{GenotypeData}} object}
   \item{outcome}{the name of the phenotype of interest}
-  \item{model.type}{the type of model to be run.  "linear" uses \code{\link{lm}}, "logistic" uses \code{\link{glm}}, and "firth" uses \code{\link{logistf}}.}
+  \item{model.type}{the type of model to be run.  "linear" uses \code{\link{lm}}, "logistic" uses \code{\link{glm}} with \code{family=binomial()}, "poisson" uses \code{\link{glm}} with \code{family=poisson()}, and "firth" uses \code{\link{logistf}}.}
   \item{covar}{
     a vector of the names of the covariates to adjust for
   }
-%  \item{ivar}{a vector of the names of covariates to be used for genotype interactions}
+  \item{ivar}{the name of the variable in \code{covar} to include as an interaction with genotype}
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
 
   \item{CI}{a value between 0 and 1 defining the confidence level for the confidence interval calculations}
 
-  \item{robust}{logical for whether to use sandwich-based robust standard errors.  The default value is \code{FALSE}, and uses
+  \item{robust}{logical for whether to use sandwich-based robust standard errors for the "linear" or "logistic" method.  The default value is \code{FALSE}, and uses
   model based standard errors.  The standard error estimates are returned and also used for Wald Tests of significance.}
 
-  \item{LRtest}{logical for whether to perform Likelihood Ratio Tests for "linear" and "logistic" methods in addition to
-  Wald tests (which are always performed).  NOTE:  Performing the LR tests adds a noticeable amount of computation time.}
+  \item{LRtest}{logical for whether to perform Likelihood Ratio Tests in addition to
+  Wald tests (which are always performed).  
+  Applies to linear, logistic, or poisson main effects only.
+  NOTE:  Performing the LR tests adds a noticeable amount of computation time.}
 
-  \item{PPLtest}{logical for whether to use the profile penalized likelihood to compute p values for the "firth" method.}
+  \item{PPLtest}{logical for whether to use the profile penalized likelihood to compute p values for the "firth" method (in addition to Wald tests, which are always performed).}
 
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
@@ -72,6 +75,13 @@ a data.frame with the following columns
   if \code{model.type="firth"} and \code{PPLtest=TRUE}:
   \item{PPL.Stat}{profile penalized likelihood test statistic for association}
   \item{PPL.pval}{p-value for association}
+
+  if \code{model.type="linear" or "logistic"} and \code{ivar} is not \code{NULL}:
+  \item{GxE.Stat}{Wald test statistic for the genotype*ivar interaction parameter}
+  \item{GxE.pval}{Wald test p-value for the genotype*ivar interaction parameter}
+  \item{Joint.Stat}{Wald test statistic for jointly testing all genotype parameters}
+  \item{Joint.pval}{Wald test p-value for jointly testing all genotype parameters}
+
 }
 
 \author{Matt Conomos, Stephanie Gogarten}

@@ -9,9 +9,8 @@
         }
     }
     if (!is.null(ivar)) {
-        ivnames <- unique(unlist(strsplit(ivar,"[*:]")))
-        if (is.null(covar) | !all(ivnames %in% cvnames)) {
-            stop("Not all variables in ivar are present in covar")
+        if (is.null(covar) | !(ivar %in% cvnames)) {
+            stop("ivar should also be present in covar")
         }
     }
     dat <- as.data.frame(getScanVariable(genoData, mod.vars))
@@ -61,9 +60,13 @@
     c(LL=LL, UL=UL)
 }
 
-.waldTest <- function(Est, SE) {
-    W <- (Est/SE)^2
-    pval <- pchisq(W, df=1, lower.tail=FALSE)
+.waldTest <- function(Est, cov) {
+    if (length(Est) == 1) {
+        W <- (Est^2)/cov
+    } else {
+        W <- as.numeric(t(Est) %*% solve(cov) %*% Est)
+    }
+    pval <- pchisq(W, df=length(Est), lower.tail=FALSE)
     c(Wald.Stat=W, Wald.pval=pval)
 }
 
@@ -74,6 +77,8 @@
             mod <- lm(model.formula, data=..model..data..)
         } else if (model.type == "logistic") {
             mod <- glm(model.formula, data=..model..data.., family=binomial())
+        } else if (model.type == "poisson") {
+            mod <- glm(model.formula, data=..model..data.., family=poisson())
         }
         
         if (!robust) {
@@ -84,8 +89,9 @@
             Vhat <- vcovHC(mod, type="HC0")
         }
         Est <- unname(coef(mod)["genotype"])
-        SE <- sqrt(Vhat["genotype","genotype"])
-        ret <- c(Est=Est, SE=SE, .CI(Est, SE, CI), .waldTest(Est, SE))
+        cov <- Vhat["genotype","genotype"]
+        SE <- sqrt(cov)
+        ret <- c(Est=Est, SE=SE, .CI(Est, SE, CI), .waldTest(Est, cov))
 
         if (LRtest) {
             ## promote the data frame to the global environment so lrtest can find it
@@ -94,6 +100,19 @@
             ret <- c(ret, LR.Stat=mod2[["Chisq"]], LR.pval=mod2[["Pr(>Chisq)"]])
             rm(..model..data.., envir=.GlobalEnv)
         }
+
+        ## GxE
+        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
+        if (length(GxE.idx) > 0) {
+            test.GxE <- setNames(.waldTest(coef(mod)[GxE.idx], Vhat[GxE.idx,GxE.idx]),
+                                 c("GxE.Stat", "GxE.pval"))
+            
+            Gj.idx <- grep("genotype", names(coef(mod)), fixed=TRUE)
+            test.Joint <- setNames(.waldTest(coef(mod)[Gj.idx], Vhat[Gj.idx,Gj.idx]),
+                                   c("Joint.Stat", "Joint.pval"))
+            ret <- c(ret, test.GxE, test.Joint)
+        }
+        
         ret
     }, warning=function(w) NA, error=function(e) NA)
 }
@@ -105,15 +124,15 @@
         ind <- which(mod$terms == "genotype")
         if (PPLtest) stopifnot(ind == geno.index)
         Est <- unname(coef(mod)[ind])
-        SE <- sqrt(vcov(mod)[ind,ind])
+        cov <- vcov(mod)[ind,ind]
         LL <- unname(mod$ci.lower[ind])
         UL <- unname(mod$ci.upper[ind])
         pval <- unname(mod$prob[ind])
         Stat <- qchisq(pval, df=1, lower.tail=FALSE)
         
-        ret <- c(Est=Est, SE=SE, LL=LL, UL=UL)
+        ret <- c(Est=Est, SE=sqrt(cov), LL=LL, UL=UL)
         if (PPLtest) {
-            c(ret, .waldTest(Est, SE), PPL.Stat=Stat, PPL.pval=pval)
+            c(ret, .waldTest(Est, cov), PPL.Stat=Stat, PPL.pval=pval)
         } else {
             c(ret, Wald.Stat=Stat, Wald.pval=pval)
         }
@@ -123,14 +142,14 @@
     
 assocTestReg <- function(genoData,
                          outcome,
-                         model.type = c("linear", "logistic", "firth"),
+                         model.type = c("linear", "logistic", "poisson", "firth"),
                          covar = NULL,
-                         #ivar = NULL,
+                         ivar = NULL,
                          scan.exclude = NULL,
                          CI = 0.95,
                          robust = FALSE,
                          LRtest = FALSE,
-                         PPLtest = FALSE,
+                         PPLtest = TRUE,
                          snpStart = NULL,
                          snpEnd = NULL,
                          block.size = 5000,
@@ -174,11 +193,12 @@ assocTestReg <- function(genoData,
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
-    dat <- .modelData(genoData, outcome, covar)
+    dat <- .modelData(genoData, outcome, covar, ivar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
     dat <- dat[keep,]
-    model.formula <- as.formula(paste(paste(outcome,"~"), paste(c(covar, "genotype"),collapse="+")))
+    if (!is.null(ivar)) ivar <- paste0(ivar, ":genotype")
+    model.formula <- as.formula(paste(outcome, "~", paste(c(covar, ivar, "genotype"), collapse="+")))
 
     ## for firth test - determine index of genotype in model matrix
     if (model.type == "firth") {
@@ -198,8 +218,9 @@ assocTestReg <- function(genoData,
 
     ## set up results matrix
     nv <- c("snpID","chr","n","MAF","minor.allele","Est","SE","LL","UL","Wald.Stat","Wald.pval")
-    if (LRtest & model.type %in% c("linear", "logistic")) nv <- c(nv, "LR.Stat", "LR.pval")
+    if (LRtest & model.type != "firth") nv <- c(nv, "LR.Stat", "LR.pval")
     if (PPLtest & model.type == "firth") nv <- c(nv, "PPL.Stat", "PPL.pval")
+    if (!is.null(ivar) & model.type != "firth") nv <- c(nv, "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
     reg.cols <- which(colnames(res) == "Est"):ncol(res)
 
