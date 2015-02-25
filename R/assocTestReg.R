@@ -18,11 +18,11 @@
     dat
 }
 
-## geno is a matrix of genotypes [sample,snp]
-## chrom is chromosome corresponding to geno[,snp]
-## keep is the sample index corresponding to geno[sample,]
+## geno is a matrix of genotypes [snp,sample]
+## chrom is chromosome corresponding to snp
+## keep is the sample index corresponding to sample
 .freqFromGeno <- function(genoData, geno, chrom, keep) {
-    freq <- 0.5*colMeans(geno, na.rm=TRUE)
+    freq <- 0.5*rowMeans(geno, na.rm=TRUE)
     ## for X chr
     if (XchromCode(genoData) %in% chrom) {
         ## which are on X chr
@@ -31,25 +31,35 @@
         m <- (getSex(genoData) == "M")[keep]
         f <- (getSex(genoData) == "F")[keep]
         ## calculate allele freq for X
-        freq[Xidx] <- (0.5 * colSums(geno[m,Xidx,drop=FALSE], na.rm=TRUE) +
-                       colSums(geno[f,Xidx,drop=FALSE], na.rm=TRUE)) /
-                           (colSums(!is.na(geno[m,Xidx,drop=FALSE])) +
-                            2*colSums(!is.na(geno[f,Xidx,drop=FALSE])))
+        freq[Xidx] <- (0.5 * rowSums(geno[Xidx,m,drop=FALSE], na.rm=TRUE) +
+                       rowSums(geno[Xidx,f,drop=FALSE], na.rm=TRUE)) /
+                           (rowSums(!is.na(geno[Xidx,m,drop=FALSE])) +
+                            2*rowSums(!is.na(geno[Xidx,f,drop=FALSE])))
     }
     freq
 }
 
-## geno is a matrix of genotypes [sample,snp]
-.monomorphic <- function(maf, geno, outcome, model.type) {
-    mono <- is.na(maf) | maf == 0
+# A function to Transform Genotypes based on gene action
+.transformGenotype <- function(geno, gene.action) {
+    switch(gene.action,
+           additive = {},
+           dominant = {geno[geno == 1] <- 2},
+           recessive = {geno[geno == 1] <- 0}
+           )
+    geno
+}
+
+## geno is a matrix of genotypes [snp,sample]
+.monomorphic <- function(geno, outcome, model.type) {
+    freq <- 0.5*rowMeans(geno, na.rm=TRUE)
+    mono <- is.na(freq) | freq == 0 | freq == 1
     if (model.type %in% c("logistic", "firth")) {
-        cc0 <- outcome == 0
-        cc1 <- outcome == 1
-        freq.0 <- 0.5*colMeans(geno[cc0,,drop=FALSE], na.rm=TRUE)
-        freq.1 <- 0.5*colMeans(geno[cc1,,drop=FALSE], na.rm=TRUE)
-        mono.cc0 <- is.na(freq.0) | freq.0 == 0 | freq.0 == 1
-        mono.cc1 <- is.na(freq.1) | freq.1 == 0 | freq.1 == 1
-        mono <- mono | mono.cc0 | mono.cc1
+        for (case.status in c(0,1)) {
+            cc <- outcome == case.status
+            freq <- 0.5*rowMeans(geno[,cc,drop=FALSE], na.rm=TRUE)
+            mono.cc <- is.na(freq) | freq == 0 | freq == 1
+            mono <- mono | mono.cc
+        }
     }
     mono
 }
@@ -143,6 +153,7 @@
 assocTestReg <- function(genoData,
                          outcome,
                          model.type = c("linear", "logistic", "poisson", "firth"),
+                         gene.action = c("additive", "dominant", "recessive"),
                          covar = NULL,
                          ivar = NULL,
                          scan.exclude = NULL,
@@ -150,13 +161,16 @@ assocTestReg <- function(genoData,
                          robust = FALSE,
                          LRtest = FALSE,
                          PPLtest = TRUE,
+                         effectAllele = c("minor", "alleleA"),
                          snpStart = NULL,
                          snpEnd = NULL,
                          block.size = 5000,
                          verbose = TRUE) {
 
-    ## check that test is valid
+    ## check that arguments are valid
     model.type <- match.arg(model.type)
+    gene.action <- match.arg(gene.action)
+    effectAllele <- match.arg(effectAllele)
     
     ## set snpStart and snpEnd
     if (is.null(snpStart)) snpStart <- 1
@@ -244,30 +258,37 @@ assocTestReg <- function(genoData,
         bidx <- ((b-1)*block.size+1):((b-1)*block.size+nsnp.block)
         
         ## get genotypes for the block
-        geno <- getGenotype(genoData, snp=c(snp.start.pos, nsnp.block), scan=c(1,-1), drop=FALSE, transpose=TRUE)
+        geno <- getGenotype(genoData, snp=c(snp.start.pos, nsnp.block), scan=c(1,-1), drop=FALSE)
         ## subset
-        geno <- geno[keep, , drop=FALSE]
+        geno <- geno[,keep,drop=FALSE]
         
         ## allele frequency
         freq <- .freqFromGeno(genoData, geno, chr[bidx], keep)
         
         ## MAF
-        maf <- ifelse(freq < 0.5, freq, 1-freq)
+        major <- freq > 0.5
+        maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf
         ## minor allele coding:  A = 1, B = 0
-        res[bidx,"minor.allele"] <- ifelse(freq < 0.5, 1, 0)
+        res[bidx,"minor.allele"] <- ifelse(major, 0, 1)
 
+        ## effect allele
+        if (effectAllele == "minor") geno[major,] <- 2 - geno[major,]
+
+        ## transform genotype for gene action
+        geno <- .transformGenotype(geno, gene.action)
+        
         ## check for monomorphic SNPs
-        mono <- .monomorphic(maf, geno, dat[[outcome]], model.type)
+        mono <- .monomorphic(geno, dat[[outcome]], model.type)
         
         ## sample size
-        n <- colSums(!is.na(geno))
+        n <- rowSums(!is.na(geno))
         res[bidx, "n"] <- n
 
         ## loop through SNPs in block
         midx <- (1:nsnp.block)[!mono]
         for (i in midx) {
-            mdat <- cbind(dat, genotype=geno[,i])
+            mdat <- cbind(dat, genotype=geno[i,])
             mdat <- mdat[complete.cases(mdat),]
             if (model.type %in% c("linear", "logistic")) {
                 tmp <- .runRegression(model.formula, mdat, model.type, CI, robust, LRtest)

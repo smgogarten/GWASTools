@@ -1,5 +1,18 @@
 library(logistf)
 
+test_monomorphic <- function() {
+    geno <- matrix(c(0,0,0,NA,
+                     0,1,NA,2,
+                     NA,2,2,2), nrow=3, byrow=TRUE)
+    checkEquals(c(TRUE,FALSE,TRUE), GWASTools:::.monomorphic(geno, outcome="", model.type=""))
+
+    ## case/control
+    geno <- matrix(c(0,0,1,NA,
+                     0,1,1,2,
+                     NA,1,2,2), nrow=3, byrow=TRUE)
+    checkEquals(c(TRUE,FALSE,TRUE), GWASTools:::.monomorphic(geno, outcome=c(0,0,1,1), model.type="logistic"))
+}
+
 .regModelData <- function(type=c("logistic", "linear", "poisson"), nsamp=100) {
     type <- match.arg(type)
     data.frame(outcome=switch(type,
@@ -163,7 +176,8 @@ test_snps <- function() {
 
 
 .checkAssoc <- function(genoData, outcome, model.type, covar,
-                        scan.exclude, robust, LRtest, ivar=NULL) {
+                        scan.exclude=NULL, robust=FALSE, LRtest=FALSE, ivar=NULL,
+                        gene.action="additive") {
 
     if (!is.null(ivar)) ivar.list <- list(ivar) else ivar.list <- NULL    
     assoc1 <- assocTestRegression(genoData,
@@ -171,7 +185,7 @@ test_snps <- function() {
                     model.type = model.type,
                     covar.list = list(covar),
                     ivar.list = ivar.list,
-                    gene.action.list = "additive",
+                    gene.action.list = list(gene.action),
                     scan.exclude = scan.exclude,
                     robust = robust,
                     LRtest = LRtest)
@@ -181,6 +195,7 @@ test_snps <- function() {
                     model.type = model.type,
                     covar = covar,
                     ivar = ivar,
+                    gene.action = gene.action,
                     scan.exclude = scan.exclude,
                     robust = robust,
                     LRtest = LRtest)
@@ -189,7 +204,7 @@ test_snps <- function() {
                          unlist(lapply(c("Wald", "LR", "GxE", "Joint"), paste, c("Stat", "pval"), sep="."))),
                        names(assoc2))
     assoc2 <- assoc2[,cols2]
-    cols1 <- c(cols2[1], paste0("model.1.", c(cols2[2:4], paste0("additive.", cols2[5:length(cols2)], ".G"))))
+    cols1 <- c(cols2[1], paste0("model.1.", c(cols2[2:4], paste(gene.action, cols2[5:length(cols2)], "G", sep="."))))
     if (!is.null(ivar)) {
         for (x in c("Stat", "pval")) {
             cols1 <- sub(paste0("GxE.", x, ".G"), paste0("Wald.", x, ".G:", ivar), cols1)
@@ -199,15 +214,6 @@ test_snps <- function() {
     assoc1 <- assoc1[,cols1]
     names(assoc1) <- cols2
 
-    ## for assocTestRegression, effect allele is minor.
-    ## for assocTestReg, effect allele is A.
-    Bmin <- assoc1$minor.allele %in% "B"
-    assoc1$Est[Bmin] <- -1*assoc1$Est[Bmin]
-
-    ## for MAF==0.5, definition of minor allele is opposite
-    ## want to match assocTestMixedModel
-    assoc1$minor.allele[assoc1$MAF %in% 0.5] <- "B"
-
     checkEquals(assoc1, assoc2)
 }
 
@@ -216,56 +222,42 @@ test_logistic <- function() {
     outcome <- "status"
     model.type <- "logistic"
     covar <- c("age","sex")
-    robust <- FALSE
-    LRtest <- FALSE
 
     genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar,
-                scan.exclude, robust, LRtest)
+    .checkAssoc(genoData, outcome, model.type, covar, scan.exclude)
 }
 
 test_linear <- function() {
     outcome <- "trait"
     model.type <- "linear"
     covar <- c("age","sex")
-    robust <- FALSE
-    LRtest <- FALSE   
 
     genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar,
-                scan.exclude, robust, LRtest)
+    .checkAssoc(genoData, outcome, model.type, covar, scan.exclude)
 }
 
 test_robust <- function() {
     outcome <- "trait"
     model.type <- "linear"
     covar <- c("age","sex")
-    robust <- TRUE
-    LRtest <- FALSE
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar,
-                scan.exclude, robust, LRtest)
+    .checkAssoc(genoData, outcome, model.type, covar, robust=TRUE)
 }
 
 test_LR <- function() {
     outcome <- "trait"
     model.type <- "linear"
     covar <- c("age","sex")
-    robust <- FALSE
-    LRtest <- TRUE
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar,
-                scan.exclude, robust, LRtest)
+    .checkAssoc(genoData, outcome, model.type, covar, LRtest=TRUE)
 }
 
 test_GxE <- function() {
@@ -273,14 +265,21 @@ test_GxE <- function() {
     model.type <- "linear"
     covar <- c("age","sex")
     ivar <- "sex"
-    robust <- FALSE
-    LRtest <- FALSE
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar,
-                scan.exclude, robust, LRtest, ivar)
+    .checkAssoc(genoData, outcome, model.type, covar, ivar=ivar)
+}
+
+test_gene.action <- function() {  
+    outcome <- "trait"
+    model.type <- "linear"
+    covar <- c("age","sex")
+
+    genoData <- .regGenoData()
+
+    .checkAssoc(genoData, outcome, model.type, covar, gene.action="recessive")
+    .checkAssoc(genoData, outcome, model.type, covar, gene.action="dominant")
 }
 
 ## for now, just check there are no errors
@@ -300,4 +299,26 @@ test_firth <- function() {
                           scan.exclude = scan.exclude,
                           PPLtest = PPLtest)
     checkTrue(!all(is.na(assoc$Est)))
+}
+
+test_effectAllele <- function() {
+    outcome <- "trait"
+    model.type <- "linear"
+    covar <- c("age","sex")
+
+    genoData <- .regGenoData()
+    assoc1 <- assocTestReg(genoData,
+                           outcome = outcome,
+                           model.type = model.type,
+                           covar = covar,
+                           effectAllele="minor")
+    assoc2 <- assocTestReg(genoData,
+                           outcome = outcome,
+                           model.type = model.type,
+                           covar = covar,
+                           effectAllele="alleleA")
+
+    Bmin <- assoc1$minor.allele == "B"
+    checkEquals(assoc1$Est[Bmin], -assoc2$Est[Bmin])
+    checkEquals(assoc1$Est[!Bmin], assoc2$Est[!Bmin])
 }
