@@ -58,7 +58,7 @@ export(
     assocTestCPH,
     assocTestFisherExact,
     assocTestRegression,
-    assocTestReg,
+    assocRegression, assocCoxPH,
     BAFfromClusterMeans,
     BAFfromGenotypes,
     batchChisqTest,

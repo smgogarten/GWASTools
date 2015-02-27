@@ -18,37 +18,49 @@ test_monomorphic <- function() {
     data.frame(outcome=switch(type,
                    logistic=rbinom(nsamp,1,0.4),
                    linear=rnorm(nsamp, mean=10, sd=2),
-                   poisson=c(sample(1:20, 80, replace=TRUE), sample(21:40, 10, replace=TRUE))),
+                   poisson=c(sample(1:20, 80, replace=TRUE), sample(21:40, 20, replace=TRUE))),
                covar=sample(letters[1:3], nsamp, replace=TRUE),
                genotype=sample(c(0,1,2), nsamp, replace=TRUE))
 }
 
 test_runReg_linear <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+    mod <- "outcome ~ covar + genotype"
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
     checkTrue(all(!is.na(tmp)))
+
+    fit <- lm(as.formula(mod), data=dat)
+    checkEquals(summary(fit)$coef["genotype",1:2], tmp[1:2], checkNames=FALSE)
 }
 
 test_runReg_logistic <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(), "logistic",
+    mod <- "outcome ~ covar + genotype"
+    dat <- .regModelData(type="logistic")
+    tmp <- GWASTools:::.runRegression(mod, dat, "logistic",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
     checkTrue(all(!is.na(tmp)))
+
+    fit <- glm(as.formula(mod), data=dat, family=binomial())
+    checkEquals(summary(fit)$coef["genotype",1:2], tmp[1:2], checkNames=FALSE)
 }
 
 test_runReg_poisson <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(), "poisson",
+    mod <- "outcome ~ covar + genotype"
+    dat <- .regModelData(type="poisson")
+    tmp <- GWASTools:::.runRegression(mod, dat, "poisson",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
     checkTrue(all(!is.na(tmp)))
+
+    fit <- glm(as.formula(mod), data=dat, family=poisson())
+    checkEquals(summary(fit)$coef["genotype",1:2], tmp[1:2], checkNames=FALSE)
 }
 
 test_runReg_CI <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     dat <- .regModelData(type="linear")
     tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
@@ -59,14 +71,14 @@ test_runReg_CI <- function() {
 }
 
 test_runReg_robust <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
                                       CI=0.95, robust=TRUE, LRtest=FALSE)
     checkTrue(all(!is.na(tmp)))
 }
 
 test_runReg_LR <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
                                       CI=0.95, robust=FALSE, LRtest=TRUE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
@@ -84,11 +96,11 @@ test_runReg_GxE <- function() {
 }
     
 test_runFirth <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     dat <- .regModelData()
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
-    fm <- logistf(mod, data=dat, pl=FALSE)
+    fm <- logistf(as.formula(mod), data=dat, pl=FALSE)
     checkEquals(tmp["Est"], coef(fm)["genotype"], checkNames=FALSE)
     checkEquals(tmp["LL"], fm$ci.lower["genotype"], checkNames=FALSE)
     checkEquals(tmp["UL"], fm$ci.upper["genotype"], checkNames=FALSE)
@@ -98,7 +110,7 @@ test_runFirth <- function() {
 }
 
 test_runFirth_CI <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     dat <- .regModelData(type="linear")
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=FALSE)
     checkEquals(GWASTools:::.CI(tmp["Est"], tmp["SE"], 0.95),
@@ -110,13 +122,13 @@ test_runFirth_CI <- function() {
 }
 
 test_runFirth_PPL <- function() {
-    mod <- as.formula("outcome ~ covar + genotype")
+    mod <- "outcome ~ covar + genotype"
     dat <- .regModelData()
-    ind <- which(colnames(model.matrix(mod, dat)) == "genotype")
+    ind <- which(colnames(model.matrix(as.formula(mod), dat)) == "genotype")
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=TRUE, geno.index=ind)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
                                  "PPL.Stat", "PPL.pval"))
-    fm <- logistf(mod, data=dat, pl=TRUE, plconf=ind)
+    fm <- logistf(as.formula(mod), data=dat, pl=TRUE, plconf=ind)
     checkEquals(tmp["Est"], coef(fm)["genotype"], checkNames=FALSE)
     checkEquals(tmp["LL"], fm$ci.lower["genotype"], checkNames=FALSE)
     checkEquals(tmp["UL"], fm$ci.upper["genotype"], checkNames=FALSE)
@@ -126,6 +138,7 @@ test_runFirth_PPL <- function() {
 
 .regGenoData <- function(nsnp=100, nsamp=50) {
     geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
+    geno[1,] <- 0 ## make one monomorphic
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
                                 chromosome=rep(c(1L,23L), each=nsnp/2),
                                 position=1:nsnp)
@@ -145,10 +158,10 @@ test_blocks <- function() {
     model.type <- "linear"
 
     genoData <- .regGenoData()
-    assoc1 <- assocTestReg(genoData,
+    assoc1 <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type)
-    assoc2 <- assocTestReg(genoData,
+    assoc2 <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type,
                           block.size=33)
@@ -160,14 +173,14 @@ test_snps <- function() {
     model.type <- "linear"
 
     genoData <- .regGenoData()
-    assoc1 <- assocTestReg(genoData,
+    assoc1 <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type)
-    assoc2a <- assocTestReg(genoData,
+    assoc2a <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type,
                           snpStart=1, snpEnd=50)
-    assoc2b <- assocTestReg(genoData,
+    assoc2b <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type,
                           snpStart=51, snpEnd=100)
@@ -190,7 +203,7 @@ test_snps <- function() {
                     robust = robust,
                     LRtest = LRtest)
 
-    assoc2 <- assocTestReg(genoData,
+    assoc2 <- assocRegression(genoData,
                     outcome = outcome,
                     model.type = model.type,
                     covar = covar,
@@ -292,7 +305,7 @@ test_firth <- function() {
     genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
-    assoc <- assocTestReg(genoData,
+    assoc <- assocRegression(genoData,
                           outcome = outcome,
                           model.type = model.type,
                           covar = covar,
@@ -307,12 +320,12 @@ test_effectAllele <- function() {
     covar <- c("age","sex")
 
     genoData <- .regGenoData()
-    assoc1 <- assocTestReg(genoData,
+    assoc1 <- assocRegression(genoData,
                            outcome = outcome,
                            model.type = model.type,
                            covar = covar,
                            effectAllele="minor")
-    assoc2 <- assocTestReg(genoData,
+    assoc2 <- assocRegression(genoData,
                            outcome = outcome,
                            model.type = model.type,
                            covar = covar,

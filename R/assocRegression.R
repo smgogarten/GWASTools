@@ -1,11 +1,46 @@
+
+## get logical vector of samples to keep
+.keepSamples <- function(genoData, scan.exclude) {   
+    if (!is.null(scan.exclude)) {
+        !(getScanID(genoData) %in% scan.exclude)
+    } else {
+        rep(TRUE, nscan(genoData))
+    }
+}
+
+## X chromosome check for sex variable
+.checkXchr <- function(genoData, chr) {
+    if (XchromCode(genoData) %in% chr & !hasSex(genoData)) {
+        stop("Sex values for the samples are required to compute MAF for X chromosome SNPs")
+    }
+}
+
+## Y chromosome check for sex variable
+## if chr=Y, returns keep vector with males only
+.checkYchr <- function(genoData, chr, keep) {
+    if (YchromCode(genoData) %in% chr) {
+        ## check for sex variable
+        if (!hasSex(genoData)) {
+            stop("Sex values for the samples are required for Y chromosome SNPs")
+        }
+        if (!all(chr == YchromCode(genoData))) {
+            stop("Y chromosome must be analyzed separately")
+        }
+        ## only keep males
+        keep <- keep & (getSex(genoData) == "M")
+    }
+    keep
+}
+
 ## get data frame with outcome and covariates
 .modelData <- function(genoData, outcome, covar, ivar=NULL) {
     mod.vars <- outcome
     if (!is.null(covar)) {
         cvnames <- unique(unlist(strsplit(covar,"[*:]")))
         mod.vars <- c(mod.vars, cvnames)
-        if (!all(cvnames %in% getScanVariableNames(genoData))) {
-            stop("Not all variables in covar found in scan annotation of genoData")
+        miss.vars <- setdiff(mod.vars, getScanVariableNames(genoData))
+        if (length(miss.vars) > 0) {
+            stop("Variables ", paste(miss.vars, collapse=","), "not found in scan annotation of genoData")
         }
     }
     if (!is.null(ivar)) {
@@ -81,7 +116,8 @@
 }
 
 ## give the data frame a crazy name so we don't overwrite something important
-.runRegression <- function(model.formula, ..model..data.., model.type, CI, robust, LRtest) {
+.runRegression <- function(model.string, ..model..data.., model.type, CI, robust, LRtest) {
+    model.formula <- as.formula(model.string)
     tryCatch({
         if (model.type == "linear") {
             mod <- lm(model.formula, data=..model..data..)
@@ -127,7 +163,8 @@
     }, warning=function(w) NA, error=function(e) NA)
 }
 
-.runFirth <- function(model.formula, model.data, CI, PPLtest, geno.index=NULL) {
+.runFirth <- function(model.string, model.data, CI, PPLtest, geno.index=NULL) {
+    model.formula <- as.formula(model.string)
     tryCatch({
         mod <- logistf(model.formula, data=model.data, alpha=(1-CI),
                        pl=PPLtest, plconf=geno.index, dataout=FALSE)
@@ -150,22 +187,22 @@
 }
 
     
-assocTestReg <- function(genoData,
-                         outcome,
-                         model.type = c("linear", "logistic", "poisson", "firth"),
-                         gene.action = c("additive", "dominant", "recessive"),
-                         covar = NULL,
-                         ivar = NULL,
-                         scan.exclude = NULL,
-                         CI = 0.95,
-                         robust = FALSE,
-                         LRtest = FALSE,
-                         PPLtest = TRUE,
-                         effectAllele = c("minor", "alleleA"),
-                         snpStart = NULL,
-                         snpEnd = NULL,
-                         block.size = 5000,
-                         verbose = TRUE) {
+assocRegression <- function(genoData,
+                            outcome,
+                            model.type = c("linear", "logistic", "poisson", "firth"),
+                            gene.action = c("additive", "dominant", "recessive"),
+                            covar = NULL,
+                            ivar = NULL,
+                            scan.exclude = NULL,
+                            CI = 0.95,
+                            robust = FALSE,
+                            LRtest = FALSE,
+                            PPLtest = TRUE,
+                            effectAllele = c("minor", "alleleA"),
+                            snpStart = NULL,
+                            snpEnd = NULL,
+                            block.size = 5000,
+                            verbose = TRUE) {
 
     ## check that arguments are valid
     model.type <- match.arg(model.type)
@@ -177,33 +214,14 @@ assocTestReg <- function(genoData,
     if (is.null(snpEnd)) snpEnd <- nsnp(genoData)
 
     ## set which samples to keep
-    if (!is.null(scan.exclude)) {
-        keep <- !(getScanID(genoData) %in% scan.exclude)
-    } else {
-        keep <- rep(TRUE, nscan(genoData))
-    }
+    keep <- .keepSamples(genoData, scan.exclude)
 
     ## get chromosome information
     chr <- getChromosome(genoData, index=snpStart:snpEnd)
 
-    ## X chromosome check for sex variable
-    if (XchromCode(genoData) %in% chr & !hasSex(genoData)) {
-        stop("Sex values for the samples are required to compute MAF for X chromosome SNPs")
-    }
-
-    ## Y chromosome 
-    if (YchromCode(genoData) %in% chr) {
-        ## check for sex variable
-        if (!hasSex(genoData)) {
-            stop("Sex values for the samples are required for Y chromosome SNPs")
-        }
-        if (!all(chr == YchromCode(genoData))) {
-            stop("Y chromosome must be analyzed separately")
-        }
-        ## only keep males
-        keep <- keep & (getSex(genoData) == "M")
-    }
-
+    ## sex chromosome checks
+    .checkXchr(genoData, chr)
+    keep <- .checkYchr(genoData, chr, keep)
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
@@ -212,12 +230,12 @@ assocTestReg <- function(genoData,
     keep <- keep & complete.cases(dat)
     dat <- dat[keep,]
     if (!is.null(ivar)) ivar <- paste0(ivar, ":genotype")
-    model.formula <- as.formula(paste(outcome, "~", paste(c(covar, ivar, "genotype"), collapse="+")))
+    model.string <- paste(outcome, "~", paste(c(covar, ivar, "genotype"), collapse=" + "))
 
     ## for firth test - determine index of genotype in model matrix
     if (model.type == "firth") {
         tmp <- cbind(dat, "genotype"=0)
-        geno.index <- which(colnames(model.matrix(model.formula, tmp)) == "genotype")
+        geno.index <- which(colnames(model.matrix(as.formula(model.string), tmp)) == "genotype")
         rm(tmp)
     }
 
@@ -227,7 +245,6 @@ assocTestReg <- function(genoData,
 
     ## number of SNPs in the segment
     nsnp.seg <- snpEnd - snpStart + 1
-    ## determine number of SNP blocks
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
@@ -242,31 +259,25 @@ assocTestReg <- function(genoData,
     res[,"chr"] <- chr
 
     if (verbose) message("Beginning Calculations...")
-    ## loop through blocks
     for (b in 1:nblocks) {
         
         ## keep track of time for rate reporting
         startTime <- Sys.time()
         
         snp.start.pos <- snpStart + (b-1)*block.size
-        nsnp.block <- block.size
-        if (snp.start.pos + nsnp.block > snpEnd) {
-            nsnp.block <- snpEnd - snp.start.pos + 1
-        }
-        snp.end.pos <- snp.start.pos + nsnp.block - 1
-        
-        bidx <- ((b-1)*block.size+1):((b-1)*block.size+nsnp.block)
+        nsnp.block <- ifelse(snp.start.pos + block.size > snpEnd,
+                             snpEnd - snp.start.pos + 1, block.size)
+        bidx <- ((b-1)*block.size + 1):((b-1)*block.size + nsnp.block)
         
         ## get genotypes for the block
         geno <- getGenotype(genoData, snp=c(snp.start.pos, nsnp.block), scan=c(1,-1), drop=FALSE)
-        ## subset
         geno <- geno[,keep,drop=FALSE]
         
         ## allele frequency
         freq <- .freqFromGeno(genoData, geno, chr[bidx], keep)
         
         ## MAF
-        major <- freq > 0.5
+        major <- freq > 0.5 & !is.na(freq)
         maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf
         ## minor allele coding:  A = 1, B = 0
@@ -282,8 +293,7 @@ assocTestReg <- function(genoData,
         mono <- .monomorphic(geno, dat[[outcome]], model.type)
         
         ## sample size
-        n <- rowSums(!is.na(geno))
-        res[bidx, "n"] <- n
+        res[bidx, "n"] <- rowSums(!is.na(geno))
 
         ## loop through SNPs in block
         midx <- (1:nsnp.block)[!mono]
@@ -291,23 +301,19 @@ assocTestReg <- function(genoData,
             mdat <- cbind(dat, genotype=geno[i,])
             mdat <- mdat[complete.cases(mdat),]
             if (model.type %in% c("linear", "logistic")) {
-                tmp <- .runRegression(model.formula, mdat, model.type, CI, robust, LRtest)
+                tmp <- .runRegression(model.string, mdat, model.type, CI, robust, LRtest)
             } else if (model.type == "firth") {
-                tmp <- .runFirth(model.formula, mdat, CI, PPLtest, geno.index)
+                tmp <- .runFirth(model.string, mdat, CI, PPLtest, geno.index)
             }
             res[bidx[i], reg.cols] <- tmp
         }
         
-        endTime <- Sys.time()
-        rate <- format(endTime - startTime, digits=4)
-        
+        rate <- format(Sys.time() - startTime, digits=4)        
         if (verbose) message(paste("Block", b, "of", nblocks, "Completed -", rate))
-    } ## end block loop
+    }
 
     ## results data frame
     res <- as.data.frame(res)
-
-    ## add in snpID
     res$snpID <- getSnpID(genoData, index=snpStart:snpEnd)
 
     ## convert minor.allele coding back to A/B
