@@ -136,11 +136,16 @@ test_runFirth_PPL <- function() {
 }
 
 
-.regGenoData <- function(nsnp=100, nsamp=50) {
+.regGenoData <- function(nsnp=100, nsamp=50, chromosome=NULL) {
+    if (is.null(chromosome)) {
+        chromosome <- rep(c(1L,23L), each=nsnp/2)
+    } else {
+        chromosome <- rep(as.integer(chromosome), nsnp)
+    }
     geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
     geno[1,] <- 0 ## make one monomorphic
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
-                                chromosome=rep(c(1L,23L), each=nsnp/2),
+                                chromosome=chromosome,
                                 position=1:nsnp)
 
     scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
@@ -188,15 +193,16 @@ test_snps <- function() {
 }
 
 
-.checkAssoc <- function(genoData, outcome, model.type, covar,
+.checkAssoc <- function(genoData, outcome, model.type, covar=NULL,
                         scan.exclude=NULL, robust=FALSE, LRtest=FALSE, ivar=NULL,
                         gene.action="additive") {
 
+    if (!is.null(covar)) covar.list <- list(covar) else covar.list <- NULL  
     if (!is.null(ivar)) ivar.list <- list(ivar) else ivar.list <- NULL    
     assoc1 <- assocTestRegression(genoData,
                     outcome = outcome,
                     model.type = model.type,
-                    covar.list = list(covar),
+                    covar.list = covar.list,
                     ivar.list = ivar.list,
                     gene.action.list = list(gene.action),
                     scan.exclude = scan.exclude,
@@ -334,4 +340,26 @@ test_effectAllele <- function() {
     Bmin <- assoc1$minor.allele == "B"
     checkEquals(assoc1$Est[Bmin], -assoc2$Est[Bmin])
     checkEquals(assoc1$Est[!Bmin], assoc2$Est[!Bmin])
+}
+
+test_Ychr <- function() {
+    genoData <- .regGenoData(chromosome=25)
+    scan.exclude <- getScanID(genoData)[getSex(genoData) == "F"]
+
+    outcome <- "trait"
+    model.type <- "linear"
+    assoc1 <- assocRegression(genoData,
+                    outcome = outcome,
+                    model.type = model.type)
+    assoc2 <- assocRegression(genoData,
+                    outcome = outcome,
+                    model.type = model.type,
+                    scan.exclude=scan.exclude)
+    checkEquals(assoc1, assoc2)
+
+    checkException(assocRegression(genoData,
+                    outcome = outcome, covar="sex",
+                    model.type = model.type))
+
+    .checkAssoc(genoData, outcome, model.type, scan.exclude=scan.exclude)
 }

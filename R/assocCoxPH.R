@@ -53,13 +53,11 @@ assocCoxPH <- function(genoData,
     chr <- getChromosome(genoData, index=snpStart:snpEnd)
 
     ## sex chromosome checks
-    .checkXchr(genoData, chr)
-    keep <- .checkYchr(genoData, chr, keep)
-
+    keep <- .checkSexChr(genoData, chr, keep)
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
-    dat <- .modelData(genoData, event, c(time.to.event, covar, strata), ivar)
+    dat <- .modelData(genoData, chr, event, c(time.to.event, covar, strata), ivar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
     dat <- dat[keep,]
@@ -102,8 +100,6 @@ assocCoxPH <- function(genoData,
         
         ## allele frequency
         freq <- .freqFromGeno(genoData, geno, chr[bidx], keep)
-        
-        ## MAF
         major <- freq > 0.5 & !is.na(freq)
         maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf

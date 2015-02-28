@@ -8,16 +8,12 @@
     }
 }
 
-## X chromosome check for sex variable
-.checkXchr <- function(genoData, chr) {
+## check for sex variable if X or Y
+## if chr=Y, returns keep vector with males only
+.checkSexChr <- function(genoData, chr, keep) {
     if (XchromCode(genoData) %in% chr & !hasSex(genoData)) {
         stop("Sex values for the samples are required to compute MAF for X chromosome SNPs")
     }
-}
-
-## Y chromosome check for sex variable
-## if chr=Y, returns keep vector with males only
-.checkYchr <- function(genoData, chr, keep) {
     if (YchromCode(genoData) %in% chr) {
         ## check for sex variable
         if (!hasSex(genoData)) {
@@ -33,7 +29,7 @@
 }
 
 ## get data frame with outcome and covariates
-.modelData <- function(genoData, outcome, covar, ivar=NULL) {
+.modelData <- function(genoData, chr, outcome, covar, ivar=NULL) {
     mod.vars <- outcome
     if (!is.null(covar)) {
         cvnames <- unique(unlist(strsplit(covar,"[*:]")))
@@ -41,6 +37,9 @@
         miss.vars <- setdiff(mod.vars, getScanVariableNames(genoData))
         if (length(miss.vars) > 0) {
             stop("Variables ", paste(miss.vars, collapse=","), "not found in scan annotation of genoData")
+        }
+        if (YchromCode(genoData) %in% chr & "sex" %in% cvnames) {
+            stop("Sex not allowed as a covariate for Y chromosome")
         }
     }
     if (!is.null(ivar)) {
@@ -118,7 +117,7 @@
 ## give the data frame a crazy name so we don't overwrite something important
 .runRegression <- function(model.string, ..model..data.., model.type, CI, robust, LRtest) {
     model.formula <- as.formula(model.string)
-    tryCatch({
+#    tryCatch({
         if (model.type == "linear") {
             mod <- lm(model.formula, data=..model..data..)
         } else if (model.type == "logistic") {
@@ -160,7 +159,7 @@
         }
         
         ret
-    }, warning=function(w) NA, error=function(e) NA)
+#    }, warning=function(w) NA, error=function(e) NA)
 }
 
 .runFirth <- function(model.string, model.data, CI, PPLtest, geno.index=NULL) {
@@ -220,15 +219,14 @@ assocRegression <- function(genoData,
     chr <- getChromosome(genoData, index=snpStart:snpEnd)
 
     ## sex chromosome checks
-    .checkXchr(genoData, chr)
-    keep <- .checkYchr(genoData, chr, keep)
+    keep <- .checkSexChr(genoData, chr, keep)
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
-    dat <- .modelData(genoData, outcome, covar, ivar)
+    dat <- .modelData(genoData, chr, outcome, covar, ivar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
-    dat <- dat[keep,]
+    dat <- dat[keep,,drop=FALSE]
     if (!is.null(ivar)) ivar <- paste0(ivar, ":genotype")
     model.string <- paste(outcome, "~", paste(c(covar, ivar, "genotype"), collapse=" + "))
 
@@ -275,8 +273,6 @@ assocRegression <- function(genoData,
         
         ## allele frequency
         freq <- .freqFromGeno(genoData, geno, chr[bidx], keep)
-        
-        ## MAF
         major <- freq > 0.5 & !is.na(freq)
         maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf

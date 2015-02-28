@@ -4,12 +4,12 @@ import(DBI)
 import(RSQLite)
 import(gdsfmt)
 import(ncdf)
-import(GWASExactHW)
+importFrom(GWASExactHW, HWExact)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
-importFrom(survival, Surv, coxph) # used in assocTestCPH
-importFrom(sandwich, vcovHC, vcovHC.default) # used in assocTestRegression
-importFrom(lmtest, lrtest, lrtest.default) # used in assocTestRegression
-import(logistf) # used in assocTestReg
+importFrom(survival, Surv, coxph) # used in assocCoxPH
+importFrom(sandwich, vcovHC, vcovHC.default) # used in assocRegression
+importFrom(lmtest, lrtest, lrtest.default) # used in assocRegression
+importFrom(logistf, logistf) # used in assocRegression
 importFrom(quantsmooth, paintCytobands, lengthChromosome) # used to plot ideograms
 
 exportClasses(
@@ -55,10 +55,11 @@ export(
     anomStatsPlot,
     apartSnpSelection,
     asSnpMatrix,
+    assocCoxPH,
+    assocRegression, 
     assocTestCPH,
     assocTestFisherExact,
     assocTestRegression,
-    assocRegression, assocCoxPH,
     BAFfromClusterMeans,
     BAFfromGenotypes,
     batchChisqTest,
@@ -77,6 +78,7 @@ export(
     duplicateDiscordance,
     duplicateDiscordanceAcrossDatasets,
     duplicateDiscordanceProbability,
+    exactHWE,
     findBAFvariance,
     gdsImputedDosage,
     gdsCheckImputedDosage,

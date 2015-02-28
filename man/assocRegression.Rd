@@ -59,9 +59,7 @@ assocRegression(genoData,
 
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
-  \item{block.size}{
-    number of SNPs to read in at once.
-  }
+  \item{block.size}{number of SNPs to read in at once}
   \item{verbose}{logical for whether to print status updates}
 }
 
@@ -85,7 +83,7 @@ a data.frame with the following columns
   \item{chr}{chromosome SNPs are on}
   \item{n}{number of samples used to analyze each SNP}
   \item{MAF}{minor allele frequency}
-  \item{minor.allele}{which allele is the minor allele }
+  \item{minor.allele}{which allele ("A" or "B") is the minor allele }
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
   \item{Wald.Stat}{chi-squared test statistic for association}

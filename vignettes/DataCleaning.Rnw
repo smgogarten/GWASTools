@@ -2246,10 +2246,10 @@ This section uses Fisher's exact test to examine each SNP for departure from Har
 For each SNP, p-values are obtained; those SNPs with extremely low values will be considered for filtering.
 QQ-plots of the p-values are made for both the autosomes and X chromosome.
 
-To run the Hardy-Weinberg test, we will filter out duplicates and non-founders. We will run \Rcode{gwasExactHW} for the samples with European continental ancestry only,
-although the process is just the same for all population groups.  This
-function filters out the males for the X chromosome and all samples for the
-Y and mitochondrial probes.
+To run the Hardy-Weinberg test, we will filter out duplicates and non-founders. We will run \Rcode{exactHWE} for the samples with European continental ancestry only,
+although the process is just the same for all population groups.
+The X chromosome must be run separately from the autosomes since it
+filters out males.
 
 <<>>=
 head(pData(scanAnnot)[,c("father", "mother")])
@@ -2259,25 +2259,28 @@ table(nonfounders)
 scan.excl <- scanAnnot$scanID[scanAnnot$race != "CEU" |
    nonfounders | scanAnnot$duplicated]
 length(scan.excl)
-hwe <- gwasExactHW(genoData, scan.exclude=scan.excl)
+
+chr <- getChromosome(genoData)
+auto <- range(which(chr %in% 1:22))
+X <- range(which(chr == 23))
+hwe <- exactHWE(genoData, scan.exclude=scan.excl, snpStart=auto[1], snpEnd=auto[2])
+hweX <- exactHWE(genoData, scan.exclude=scan.excl, snpStart=X[1], snpEnd=X[2])
+hwe <- rbind(hwe, hweX)
 close(genoData)
 @
 
-We will look at the values calculated from the function call to \Rcode{gwasExactHW}, which include p-values, minor allele frequency, and genotype counts for each SNP on each of the chromosome
-types.  All the p-values are missing for the Y and M chromosomes. There are minor allele frequencies on the same chromosome types; we look at the first 50
-values. Finally, there are genotype counts for all chromosome types, which are stored as \Rcode{nAA, nAB}
-and \Rcode{nBB}.
+We will look at the values calculated from the function call to \Rcode{exactHWE}, which include p-values, minor allele frequency, and genotype counts for each SNP on each of the chromosome
+types.
 
 <<>>=
 names(hwe)
 dim(hwe)
 # Check on sample sizes for autosomes and X chromosome
 hwe$N <- hwe$nAA + hwe$nAB + hwe$nBB
-summary(hwe$N[is.element(hwe$chromosome,1:22)])
-summary(hwe$N[is.element(hwe$chromosome,23)])
-hwe$p.value[1:10]
-sum(is.na(hwe$p.value[hwe$chromosome == 24])) # XY
-sum(is.na(hwe$p.value[hwe$chromosome == 23])) # X
+summary(hwe$N[is.element(hwe$chr,1:22)])
+summary(hwe$N[is.element(hwe$chr,23)])
+hwe$pval[1:10]
+sum(is.na(hwe$pval[hwe$chr == 23])) # X
 hwe$MAF[1:10]
 hwe[1:3, c("nAA", "nAB", "nBB")]
 @
@@ -2308,12 +2311,12 @@ X chromosome separately by calling the function \Rcode{qqPlot}.
 <<>>=
 hwe.0 <- hwe[hwe$MAF > 0,]; dim(hwe.0)
 # Only keep the autosomal SNPs for first plot
-pval <- hwe.0$p.value[is.element(hwe.0$chromosome, 1:22)]
+pval <- hwe.0$pval[is.element(hwe.0$chr, 1:22)]
 length(pval)
 pval <- pval[!is.na(pval)]
 length(pval)
 # X chromosome SNPs for plot 2
-pval.x <- hwe.0$p.value[is.element(hwe.0$chromosome, 23)]
+pval.x <- hwe.0$pval[is.element(hwe.0$chr, 23)]
 length(pval.x)
 pval.x <- pval.x[!is.na(pval.x)]
 length(pval.x)
@@ -2332,7 +2335,7 @@ dev.off()
 We plot the p-values against MAF for all SNPs with MAF greater than zero.
 
 <<fig=TRUE>>=
-plot(hwe.0$MAF, -log10(hwe.0$p.value),
+plot(hwe.0$MAF, -log10(hwe.0$pval),
   xlab="Minor Allele Frequency", ylab="-log(p-value)",
   main="Minor Allele Frequency vs\nP-value")
 @
@@ -2361,22 +2364,37 @@ covariates with significant effects are then included in the final model.
 \subsection{Association Test}
 
 To run the association test, we call the function
-  \Rcode{assocTestRegression}.  (For survival analysis, the function
-\Rcode{assocTestCPH} may be used.)
+  \Rcode{assocRegression}.  (For survival analysis, the function
+\Rcode{assocCoxPH} may be used.)
+We will use a logistic regression model with status as the outcome,
+and sex and the first principal component as covariates.
+
 We will use the filtered GDS file with unique subjects only that we
 made in section~\ref{sec:filt_anom}.
 Here we use all unique subjects, but we would use the argument \Rcode{scan.exclude} for those samples we wish
 to filter out for the association test (such as low-quality or related
-samples). Typically, we do not filter out SNPs for the association test -- we run all SNPs and then filter the results.  The omission of filters may
+samples). 
+Typically, we do not filter out SNPs for the association test -- we run all SNPs and then filter the results.  The omission of filters may
 cause some SNPs to return significant p-values for association.
+In this example, we will use the \Rcode{snpStart} and \Rcode{snpEnd}
+arguments to select a few SNPs on each chromosome.
 
 <<>>=
 genoGDS <- GdsGenotypeReader(subj.filt.file)
 subjAnnot <- scanAnnot[scanAnnot$scanID %in% getScanID(genoGDS),]
+subjAnnot$sex <- as.factor(subjAnnot$sex)
+subjAnnot$EV1 <- pca$eigenvect[match(subjAnnot$scanID, pca$sample.id), 1]
+
 genoData <- GenotypeData(genoGDS, scanAnnot=subjAnnot)
-assoc <- assocTestRegression(genoData, outcome="status", covar.list=c(""),
-  ivar.list=c(""), model.type="logistic", robust=TRUE,
-  chromosome.set=c(24:26))
+chr <- getChromosome(genoData)
+assoc.list <- lapply(unique(chr), function(x) {
+    ## Y chromsome only includes males, cannot have sex as a covariate
+    covar <- ifelse(x == 25, "EV1", c("sex", "EV1"))
+    start <- which(chr == x)[1]
+    assocRegression(genoData, outcome="status", covar=covar, model.type="logistic", 
+                    snpStart=start, snpEnd=start+50)
+})
+assoc <- do.call(rbind, assoc.list)
 close(genoData)
 @
 
@@ -2387,13 +2405,13 @@ those probes with significant p-values.
 
 \subsection{QQ Plots}
 
-We create QQ plots of the ordered Likelihood Ratio test p-values versus the ordered expected p-values.
+We create QQ plots of the ordered Wald test p-values versus the ordered expected p-values.
 Given that the samples were split randomly between cases and controls, not surprisingly there are no outliers
 visible in the QQ plot.
 
 <<fig=TRUE>>=
-qqPlot(pval=assoc$model.1.additive.LR.pval.G,
-  truncate=TRUE, main="QQ Plot of Likelihood Ratio Test p-values")
+qqPlot(pval=assoc$Wald.pval,
+  truncate=TRUE, main="QQ Plot of Wald Test p-values")
 @
 
 \subsection{``Manhattan'' Plots of the P-Values}
@@ -2401,14 +2419,10 @@ qqPlot(pval=assoc$model.1.additive.LR.pval.G,
 To create the `Manhattan' plots, we will call the function \Rcode{manhattanPlot}.  We take the negative log
 transformation of the p-values and plot them for each probe.
 
-<<>>=
-chrom <- getChromosome(snpAnnot, char=TRUE)
-chrom.sel <- chrom %in% c("XY", "Y", "M")
-@
-
 <<fig=TRUE>>=
-manhattanPlot(assoc$model.1.additive.LR.pval.G,
-  chromosome=chrom[chrom.sel])
+chrom <- getChromosome(snpAnnot, char=TRUE)
+snp.sel <- getSnpID(snpAnnot) %in% assoc$snpID
+manhattanPlot(assoc$Wald.pval, chromosome=chrom[snp.sel])
 @
 
 
@@ -2417,14 +2431,12 @@ manhattanPlot(assoc$model.1.additive.LR.pval.G,
 Next, we will create SNP cluster plots for the probes with significant p-values.
 It is important to examine cluster plots of all top hits, as poor clusters not picked up by other quality
 checking steps may still show up as having low p-values.
-We plot SNPs with the 9 most significant p-values from
-the Likelihood Ratio test.
+We plot SNPs with the 9 most significant p-values from the Wald test.
 
 <<results=hide>>=
 # Identify SNPs with lowest p-values
-snp <- pData(snpAnnot)[chrom.sel, c("snpID", "rsID")]
-allequal(snp$snpID, assoc$snpID)
-snp$pval <- assoc$model.1.additive.LR.pval.G
+snp <- pData(snpAnnot)[snp.sel, c("snpID", "rsID")]
+snp$pval <- assoc$Wald.pval
 snp <- snp[order(snp$pval),]
 snp <- snp[1:9,]
 xyfile <- system.file("extdata", "illumina_qxy.gds", package="GWASdata")
@@ -2443,7 +2455,8 @@ close(genoData)
 @
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-cluster}
 
-The cluster plots show that some of the SNPs have poor cluster plots, indicating genotyping artifacts.   In a real association study, the evidence from such SNPs would be discounted.
+These cluster plots look like high-quality SNPs with well-defined
+clusters (red=AA, green=AB, blue=BB).
 
 <<echo=FALSE, results=hide>>=
 unlink(subj.filt.file)
