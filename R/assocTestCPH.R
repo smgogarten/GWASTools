@@ -49,6 +49,8 @@ assocTestCPH <- function(
         outfile = NULL
 ){
 
+    .Deprecated("assocCoxPH")
+
 # v2 captures warnings and does not save the result if there is one
 # v3 adds an indicator argument for whether to use the MAF criterion before fitting the model
 # v3 also adds capture of error in addition to warning

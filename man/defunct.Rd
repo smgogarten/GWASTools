@@ -10,34 +10,26 @@
 \alias{ncdfImputedDosage}
 \alias{gdsImputedDosage}
 \alias{gdsCheckImputedDosage}
-\title{Defunct Functions in Package GWASTools}
+\title{Defunct Functions in Package \sQuote{GWASTools}}
 
 \description{
-These functions are no longer part of GWASTools as they are no longer needed.
+  These functions are defunct and no longer available.
 }
 
 \details{
-  \code{pedigreeClean} has been replaced by \code{\link{pedigreeCheck}}.
-  
-  \code{pedigreeFindDuplicates} has been replaced by \code{\link{pedigreeCheck}}.
-
-    \code{ncdfCreate} has been replaced by  \code{\link{createDataFile}}.
-
-    \code{ncdfAddData} has been replaced by  \code{\link{createDataFile}}.
-
-    \code{ncdfAddIntensity} has been replaced by  \code{\link{createAffyIntensityFile}}.
-
-    \code{ncdfCheckGenotype} has been replaced by  \code{\link{checkGenotypeFile}}.
-
-    \code{ncdfCheckIntensity} has been replaced by  \code{\link{checkIntensityFile}}.
-
-    \code{ncdfSetMissingGenotypes} has been replaced by  \code{\link{setMissingGenotypes}}.
-
-    \code{gdsSetMissingGenotypes} has been replaced by  \code{\link{setMissingGenotypes}}.
-
-    \code{ncdfImputedDosage} has been replaced by  \code{\link{imputedDosageFile}}.
-
-    \code{gdsImputedDosage} has been replaced by  \code{\link{imputedDosageFile}}.
-
-    \code{gdsCheckImputedDosage} has been replaced by  \code{\link{checkImputedDosageFile}}.
+  The following functions are defunct; use the replacement indicated below:
+  \itemize{
+    \item{\code{pedigreeClean}: \code{\link{pedigreeCheck}}}
+    \item{\code{pedigreeFindDuplicates}: \code{\link{pedigreeCheck}}}
+    \item{\code{ncdfCreate}: \code{\link{createDataFile}}}
+    \item{\code{ncdfAddData}: \code{\link{createDataFile}}}
+    \item{\code{ncdfAddIntensity}: \code{\link{createAffyIntensityFile}}}
+    \item{\code{ncdfCheckGenotype}: \code{\link{checkGenotypeFile}}}
+    \item{\code{ncdfCheckIntensity}: \code{\link{checkIntensityFile}}}
+    \item{\code{ncdfSetMissingGenotypes}: \code{\link{setMissingGenotypes}}}
+    \item{\code{gdsSetMissingGenotypes}: \code{\link{setMissingGenotypes}}}
+    \item{\code{ncdfImputedDosage}: \code{\link{imputedDosageFile}}}
+    \item{\code{gdsImputedDosage}: \code{\link{imputedDosageFile}}}
+    \item{\code{gdsCheckImputedDosage}: \code{\link{checkImputedDosageFile}}}
+  }   
 }

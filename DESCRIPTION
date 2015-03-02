@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.13.20
+Version: 1.13.21
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -29,11 +29,11 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   LOHfind.R LOHselectAnoms.R anomDetectLOH.R
   anomSegStats.R anomStatsPlot.R anomIdentifyLowQuality.R
   alleleFrequency.R apartSnpSelection.R
-  assocTestCPH.R assocTestFisherExact.R assocTestRegression.R
+  assocRegression.R assocCoxPH.R exactHWE.R
   batchChisqTest.R batchFisherTest.R chromIntensityPlot.R duplicateDiscordance.R
   duplicateDiscordanceAcrossDatasets.R dupDosageCorAcrossDatasets.R
   duplicateDiscordanceProbability.R
-  genoClusterPlot.R genoClusterPlotByBatch.R gwasExactHW.R hetByScanChrom.R
+  genoClusterPlot.R genoClusterPlotByBatch.R hetByScanChrom.R
   hetBySnpSex.R intensityOutliersPlot.R manhattanPlot.R mendelErr.R
   meanIntensityByScanChrom.R missingGenotypeByScanChrom.R missingGenotypeBySnpSex.R
   pseudoautoIntensityPlot.R qqPlot.R qualityScoreByScan.R qualityScoreBySnp.R
@@ -43,4 +43,4 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
   defunct.R
-  assocRegression.R assocCoxPH.R exactHWE.R
+  assocTestCPH.R assocTestFisherExact.R assocTestRegression.R gwasExactHW.R

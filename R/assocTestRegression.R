@@ -16,6 +16,8 @@ assocTestRegression <- function(genoData,
                                 verbose = TRUE,
                                 outfile = NULL){
 
+    .Deprecated("assocRegression")
+
 ##############################################################  
 # Some Functions for Later Use
 ##############################################################

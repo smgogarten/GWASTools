@@ -511,4 +511,13 @@
     \item duplicateDiscordanceAcrossDatasets and dupDosageCorAcrossDatasets will not match on unmapped SNPs
   }
 }
+\section{Changes in version 1.13.21}{
+  \itemize{
+    \item assocRegression replaces assocTestRegression. Only one model is allowed per function call.
+    \item assocCoxPH replaces assocTestCPH. Output format is now similar to assocRegression.
+    \item exactHWE replaces gwasExactHWE.
+    \item assocRegression, assocCoxPH, and exactHWE include the option to select blocks of SNPs by index for easier parallelization.
+    \item scan.chromosome.filter is no longer an option; use setMissingGenotypes to filter data prior to running other functions.
+  }
+}
 

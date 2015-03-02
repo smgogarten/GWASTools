@@ -2,6 +2,8 @@
 \alias{assocTestRegression}
 \title{Association tests}
 \description{
+This function is deprecated; use \code{\link{assocRegression}} instead.
+
 This function performs regression based and likelihood ratio based association tests for both genotype main effects as well as interaction effects.  
 It also computes genotype counts for association tests.
 }
@@ -318,6 +320,7 @@ Warning messages:
   \code{\link{glm}}, \code{\link{vcov}}, \code{\link{vcovHC}}, \code{\link{lrtest}}}
 
 \examples{
+\dontrun{
 # The following example would perform 3 tests (from 2 models): 
 # the first a logistic regression of case.cntl.status on genotype, age, and sex, including an interaction term between genotype and sex, using additive gene action; 
 # the second a linear regression of blood pressure on genotype using dominant gene action, 
@@ -401,6 +404,7 @@ unlink(paste(outfile, "*", sep=""))
 # these values are retrieved in R by putting a
 # chr.set <- as.numeric(commandArgs(trailingOnly=TRUE))
 # command in assoc.analysis.r 
+}
 }
 
 \keyword{models}

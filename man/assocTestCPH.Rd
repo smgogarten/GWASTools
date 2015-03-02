@@ -1,7 +1,11 @@
 \name{assocTestCPH}
 \alias{assocTestCPH}
 \title{Cox proportional hazards}
-\description{Fits Cox proportional hazards model}
+\description{
+This function is deprecated; use \code{\link{assocCoxPH}} instead.
+
+Fits Cox proportional hazards model
+}
 
 \usage{
 assocTestCPH(genoData, event, time.to.event,
@@ -134,6 +138,7 @@ the function.
 \seealso{\code{\link{GenotypeData}}, \code{\link{coxph}}}
 
 \examples{
+\dontrun{
 # an example of a scan chromosome matrix
 # desiged to eliminate duplicated individuals
 # and scans with missing values of sex
@@ -174,6 +179,7 @@ res <- assocTestCPH(genoData,
   chromosome.set=chr.set)
 
 close(genoData)
+}
 }
 
 \keyword{survival}

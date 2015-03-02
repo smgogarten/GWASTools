@@ -3,6 +3,8 @@
 \title{Hardy-Weinberg Equilibrium testing}
 
 \description{
+This function is deprecated; use \code{\link{exactHWE}} instead.
+
 This function performs exact Hardy-Weinberg Equilibrium testing (using Fisher's Test) over a selection of SNPs.  
 It also performs genotype counts, calculates allele frequencies, and calculates inbreeding coefficients.
 }
@@ -106,6 +108,7 @@ the function.
 \seealso{\code{\link{HWExact}}}
 
 \examples{
+\dontrun{
 # The following example would perform exact Hardy-Weinberg equilibrium testing on all chromosomes in this data set.  It would also return genotype counts, minor allele frequencies, and inbreeding coefficients.
 
 library(GWASdata)
@@ -122,6 +125,7 @@ genoData <-  GenotypeData(gds, scanAnnot=illuminaScanADF)
 hwe <- gwasExactHW(genoData, scan.exclude=scan.exclude)
 
 close(genoData)
+}
 }
 
 \keyword{manip}

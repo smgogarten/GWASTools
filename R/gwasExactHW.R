@@ -11,7 +11,7 @@ gwasExactHW <- function (genoData,
                          verbose = TRUE,
                          outfile = NULL) 
 {
-  
+    .Deprecated("exactHWE")
   
   CountGenotypes <- function(genotypes) {
     nAA <- apply(genotypes, 1, function(x) sum(x == 2, na.rm=TRUE))

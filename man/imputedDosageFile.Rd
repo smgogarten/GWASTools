@@ -101,7 +101,7 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
   MaCH: \url{http://www.sph.umich.edu/csg/abecasis/MACH/tour/imputation.html}
 }
 \author{Adrienne Stilp, Stephanie Gogarten}
-\seealso{\code{\link{createDataFile}}, \code{\link{GdsGenotypeReader}}, \code{\link{NcdfGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocTestRegression}}}
+\seealso{\code{\link{createDataFile}}, \code{\link{GdsGenotypeReader}}, \code{\link{NcdfGenotypeReader}}, \code{\link{GenotypeData}}, \code{\link{assocRegression}}}
 \examples{
 gdsfile <- tempfile()
 snpfile <- tempfile()
@@ -136,8 +136,7 @@ head(log)
 # association test with imputed dosages
 scanAnnot$status <- sample(0:1, nrow(scanAnnot), replace=TRUE)
 genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
-assoc <- assocTestRegression(genoData, outcome="status", model.type="logistic",
-                             gene.action.list="additive", dosage=TRUE)
+assoc <- assocRegression(genoData, outcome="status", model.type="logistic")
 head(assoc)
 close(genoData)
 

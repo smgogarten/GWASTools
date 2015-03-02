@@ -1,5 +1,7 @@
 assocTestFisherExact <- function(dat, outfile = NULL){
-  
+
+    .Deprecated("batchFisherTest")
+    
   # columns that contain count data
   count.cols <- grep(paste("n[[:upper:]]{2}", sep="."), names(dat))
   # extract genotype counts
