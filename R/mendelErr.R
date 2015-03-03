@@ -154,7 +154,6 @@ mendelListAsDataFrame <- function(mendel.list)
 #  error.by.snp	            -- output Mendelian errors per SNP, by default(TRUE)
 #  error.by.snp.trio        -- output Mendelian errors per SNP for EACH TRIO, by default(FALSE)
 #  verbose		    -- whether or not to show progress, by default(TRUE)
-#  outfile                  -- a character string giving a name to save the output as
 #
 ###############################################################################################
 mendelErr <- function(genoData,
@@ -162,8 +161,7 @@ mendelErr <- function(genoData,
                        snp.exclude = NULL,
                        error.by.snp = TRUE,
                        error.by.snp.trio = FALSE,
-                       verbose = TRUE,
-                       outfile = NULL)
+                       verbose = TRUE)
 {
 
   # get chromosome numbers
@@ -404,22 +402,6 @@ mendelErr <- function(genoData,
   }
 
   rv <- list("trios"=trios, "all.trios"=all.trios, "snp"=snp)
-  class(rv) <- "mendelClass"
-
-  if (!is.null(outfile)) {
-    # save the output
-    if(verbose) message("Saving output...")
-    fileOut <- paste(outfile, "RData", sep=".");
-    save(rv, file=fileOut, compress=TRUE);
-
-    # save the warnings
-    warn <- warnings();
-    if (!is.null(warn)) {
-      warnfileOut <- paste(outfile, "warnings", "RData", sep=".");
-      save(warn, file=warnfileOut);
-    }
-    return(invisible(NULL))
-  } else {
-    return(rv)
-  }
+  class(rv) <- "mendelClass"  
+  return(rv)
 }

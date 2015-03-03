@@ -520,4 +520,10 @@
     \item scan.chromosome.filter is no longer an option; use setMissingGenotypes to filter data prior to running other functions.
   }
 }
+\section{Changes in version 1.13.22}{
+  \itemize{
+    \item Removed "outfile" arguments from batchChisqTest, batchFisherTest, and mendelErr. Saving output to a file should happen outside the function calls.
+    \item batchChisqTest and batchFisherTest have snp.include arguments to run on individual SNPs. Using batchFisherTest with this argument is recommended to replace the deprecated assocTestFisherExact.
+  } 
+}
 

@@ -4,7 +4,6 @@
 \description{
 This function is deprecated; it relies on the output from the deprecated \code{\link{assocTestRegression}}.
 Instead, use \code{\link{batchFisherTest}} with the case status variable as \code{batchVar} and \code{return.by.snp=TRUE}.
-Alternatively, use \code{\link{getGenotype}} to extract genotypes and run \code{\link{fisher.test}} directly.
 
 This function performs Fisher's Exact Test using allele counts for cases and controls.  
 It takes the output from \code{\link{assocTestRegression}} as its input.
