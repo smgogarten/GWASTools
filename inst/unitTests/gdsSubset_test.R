@@ -602,7 +602,7 @@ test_gdsSubset_storage <- function(){
   checkTrue(setequal(ls.gdsn(gds1), ls.gdsn(gds2)))
   #checkIdentical(get.attr.gdsn(index.gdsn(gds1, "genotype")), get.attr.gdsn(index.gdsn(gds2, "genotype")))
   checkEquals(get.attr.gdsn(index.gdsn(gds2, "genotype"))[["missing.value"]], 3)
-  checkIdentical(objdesp.gdsn(index.gdsn(gds2, "genotype"))$storage, "Bit2")
+  checkIdentical(objdesp.gdsn(index.gdsn(gds2, "genotype"))$storage, "dBit2")
   closefn.gds(gds1)
   closefn.gds(gds2)
   # check the rest with GdsGentoypeReader
