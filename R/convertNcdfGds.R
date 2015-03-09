@@ -46,13 +46,42 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
                               n.samples=length(sample.id),
                               precision, array.name=NULL, genome.build=NULL)
 
+        # decide whether gds is (snp,sample) or (sample,snp)
+        if ("genotype" %in% variables) {
+            dim.attr <- get.attr.gdsn(index.gdsn(gdsobj, "genotype"))
+            if ("snp.order" %in% names(dim.attr)) {
+                dim1 <- "snp"
+            } else if ("sample.order" %in% names(dim.attr)) {
+                dim1 <- "sample"
+            } else {
+                # look at genotype dimensions
+                dim.geno <- objdesp.gdsn(index.gdsn(gdsobj, "genotype"))$dim
+                if (all(dim.geno == c(length(snp.id), length(sample.id)))) {
+                    dim1 <- "snp"
+                } else if (all(dim.geno == c(length(sample.id), length(snp.id)))) {
+                    dim1 <- "sample"
+                } else {
+                    stop("Cannot determine dimensions of genotype node")
+                }
+            }
+        } else {
+            dim1 <- "snp"
+        }
+        
 	# add variable data
 	if (verbose) message(date(), "\t\tAdding sample data ...\n")
 	for (i in 1:length(sample.id)) {
                 dat <- list()
                 for (v in variables) {
                     node <- index.gdsn(gdsobj, v)
-                    dat[[v]] <- read.gdsn(node, start=c(1, i), count=c(-1, 1))
+                    if (dim1 == "snp") {
+                        start <- c(1,i)
+                        count <- c(-1,1)
+                    } else {
+                        start <- c(i,1)
+                        count <- c(1,-1)
+                    }
+                    dat[[v]] <- read.gdsn(node, start=start, count=count)
                     if (v == "genotype") dat[[v]][dat[[v]] == 3] <- NA
                 }
                 .addData(ncfile, variables, dat, sample.id[i], i)

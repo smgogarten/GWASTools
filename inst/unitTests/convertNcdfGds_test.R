@@ -82,6 +82,29 @@ test_convertGdsNcdf <- function() {
   file.remove(ncfile, gdsfile, ncfile2)
 }
 
+test_convertGdsNcdf_transpose <- function() {
+  ncfile <- tempfile()
+  simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
+                         n.samples=20, ncdf.filename=ncfile)
+
+  gdsfile <- tempfile()
+  convertNcdfGds(ncfile, gdsfile)
+  SNPRelate::snpgdsTranspose(gdsfile)
+  ncfile2 <- tempfile()
+  convertGdsNcdf(gdsfile, ncfile2)
+
+  nc.orig <- NcdfGenotypeReader(ncfile)
+  nc.new <- NcdfGenotypeReader(ncfile2)
+  checkEquals(getGenotype(nc.orig), getGenotype(nc.new))
+  gds.orig <- GdsGenotypeReader(gdsfile)
+  checkEquals(getGenotype(gds.orig), getGenotype(nc.new))
+
+  close(nc.orig)
+  close(nc.new)
+  close(gds.orig)
+  file.remove(ncfile, gdsfile, ncfile2)
+}
+
 test_convertGdsNcdf_intensity <- function() {
   ncfile <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,

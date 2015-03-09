@@ -526,4 +526,9 @@
     \item batchChisqTest and batchFisherTest have snp.include arguments to run on individual SNPs. Using batchFisherTest with this argument is recommended to replace the deprecated assocTestFisherExact.
   } 
 }
+\section{Changes in version 1.13.23}{
+  \itemize{
+    \item convertGdsNcdf works for transposed (sample x snp) genotype files.
+  } 
+}
 
