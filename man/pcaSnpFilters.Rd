@@ -2,15 +2,17 @@
 \alias{pcaSnpFilters}
 \alias{pcaSnpFilters.hg18}
 \alias{pcaSnpFilters.hg19}
+\alias{pcaSnpFilters.hg38}
 \docType{data}
 \title{Regions of SNP-PC correlation to filter for Principal Component Analysis}
 \description{
   Base positions for the LCT (2q21), HLA (including MHC), and inversion (8p23, 17q21.31)
-  regions from the GRCh36/hg18 and GRCh37/hg19 genome builds.
+  regions from the GRCh36/hg18, GRCh37/hg19 and GRCh38/hg38 genome genome builds.
 }
 \usage{
 pcaSnpFilters.hg18
 pcaSnpFilters.hg19
+pcaSnpFilters.hg38
 }
 \format{
   A data.frame with the following columns.
@@ -40,5 +42,6 @@ These regions result in high SNP-PC
 \examples{
 data(pcaSnpFilters.hg18)
 data(pcaSnpFilters.hg19)
+data(pcaSnpFilters.hg38)
 }
 \keyword{datasets}

@@ -2,14 +2,16 @@
 \alias{HLA}
 \alias{HLA.hg18}
 \alias{HLA.hg19}
+\alias{HLA.hg38}
 \docType{data}
 \title{HLA region base positions}
 \description{
-  HLA region base positions from the GRCh36/hg18 and GRCh37/hg19 genome builds.
+  HLA region base positions from the GRCh36/hg18, GRCh37/hg19 and GRCh38/hg38 genome builds.
 }
 \usage{
 HLA.hg18
 HLA.hg19
+HLA.hg38
 }
 \format{
   A data.frame with the following columns.
@@ -29,5 +31,6 @@ HLA.hg19
 \examples{
 data(HLA.hg18)
 data(HLA.hg19)
+data(HLA.hg38)
 }
 \keyword{datasets}
