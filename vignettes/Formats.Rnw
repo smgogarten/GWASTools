@@ -170,12 +170,12 @@ generate integer snpIDs.  Chromosome codes are not converted.
 <<>>=
 library(GWASTools)
 library(SNPRelate)
-bed.fn <- system.file("extdata", "plinkhapmap.bed", package="SNPRelate")
-fam.fn <- system.file("extdata", "plinkhapmap.fam.xz", package="SNPRelate")
-bim.fn <- system.file("extdata", "plinkhapmap.bim.xz", package="SNPRelate")
+bed.fn <- system.file("extdata", "plinkhapmap.bed.gz", package="SNPRelate")
+fam.fn <- system.file("extdata", "plinkhapmap.fam.gz", package="SNPRelate")
+bim.fn <- system.file("extdata", "plinkhapmap.bim.gz", package="SNPRelate")
 gdsfile <- "snps.gds"
 snpgdsBED2GDS(bed.fn, fam.fn, bim.fn, gdsfile, family=TRUE,
-              cvt.snpid="int", verbose=FALSE)
+              cvt.chr="int", cvt.snpid="int", verbose=FALSE)
 @ 
 
 Now that the file has been created, we can access it in
@@ -199,7 +199,7 @@ scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID, father, mother,
                                                 stringsAsFactors=FALSE))
 
 snpID <- getSnpID(gds)
-chromosome <- as.integer(getChromosome(gds))
+chromosome <- getChromosome(gds)
 position <- getPosition(gds)
 alleleA <- getAlleleA(gds)
 alleleB <- getAlleleB(gds)

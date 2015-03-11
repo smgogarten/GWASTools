@@ -1,6 +1,7 @@
 \name{pseudoautosomal}
 \alias{pseudoautosomal}
 \alias{pseudoautosomal.hg18}
+\alias{pseudoautosomal.hg19}
 \alias{pseudoautosomal.hg38}
 \docType{data}
 \title{Pseudoautosomal region base positions}
