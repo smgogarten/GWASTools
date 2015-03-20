@@ -219,11 +219,11 @@ test_snps <- function() {
                     robust = robust,
                     LRtest = LRtest)
 
-    cols2 <- intersect(c("snpID", "n", "MAF", "minor.allele", "Est", "SE",
+    cols2 <- intersect(c("snpID", "n", "MAF", "Est", "SE",
                          unlist(lapply(c("Wald", "LR", "GxE", "Joint"), paste, c("Stat", "pval"), sep="."))),
                        names(assoc2))
     assoc2 <- assoc2[,cols2]
-    cols1 <- c(cols2[1], paste0("model.1.", c(cols2[2:4], paste(gene.action, cols2[5:length(cols2)], "G", sep="."))))
+    cols1 <- c(cols2[1], paste0("model.1.", c(cols2[2:3], paste(gene.action, cols2[4:length(cols2)], "G", sep="."))))
     if (!is.null(ivar)) {
         for (x in c("Stat", "pval")) {
             cols1 <- sub(paste0("GxE.", x, ".G"), paste0("Wald.", x, ".G:", ivar), cols1)
@@ -331,13 +331,16 @@ test_effectAllele <- function() {
                            model.type = model.type,
                            covar = covar,
                            effectAllele="minor")
+    checkEquals(assoc1$EAF, assoc1$MAF)
+    
     assoc2 <- assocRegression(genoData,
                            outcome = outcome,
                            model.type = model.type,
                            covar = covar,
                            effectAllele="alleleA")
-
-    Bmin <- assoc1$minor.allele == "B"
+    checkTrue(all(assoc2$effect.allele == "A"))
+    
+    Bmin <- assoc2$EAF != assoc2$MAF
     checkEquals(assoc1$Est[Bmin], -assoc2$Est[Bmin])
     checkEquals(assoc1$Est[!Bmin], assoc2$Est[!Bmin])
 }

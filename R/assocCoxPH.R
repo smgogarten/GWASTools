@@ -75,7 +75,8 @@ assocCoxPH <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID","chr","n.events","MAF","minor.allele","Est","SE","z.Stat","z.pval")
+    nv <- c("snpID", "chr", "n.events", "effect.allele", "EAF", "MAF", "filter",
+            "Est", "SE", "z.Stat", "z.pval")
     if (!is.null(ivar)) nv <- c(nv, "GxE.Stat", "GxE.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
     reg.cols <- which(colnames(res) == "Est"):ncol(res)
@@ -103,21 +104,34 @@ assocCoxPH <- function(genoData,
         major <- freq > 0.5 & !is.na(freq)
         maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf
-        ## minor allele coding:  A = 1, B = 0
-        res[bidx,"minor.allele"] <- ifelse(major, 0, 1)
 
         ## effect allele
-        if (effectAllele == "minor") geno[major,] <- 2 - geno[major,]
+        if (effectAllele == "minor") {
+            geno[major,] <- 2 - geno[major,]
+            ## minor allele coding:  A = 1, B = 0
+            res[bidx,"effect.allele"] <- ifelse(major, 0, 1)
+            res[bidx,"EAF"] <- maf
+        } else {
+            res[bidx,"effect.allele"] <- 1
+            res[bidx,"EAF"] <- freq
+        }
 
         ## transform genotype for gene action
         geno <- .transformGenotype(geno, gene.action)
         
         ## check for monomorphic SNPs
         mono <- .monomorphic(geno, dat[[event]], "logistic")
-        
-        ## sample size
-        res[bidx, "n.events"] <- rowSums(!is.na(geno[,as.logical(dat[[event]])]))
 
+        ## sample size
+        ne <- rowSums(!is.na(geno[,as.logical(dat[[event]])]))
+        res[bidx, "n.events"] <- ne
+        
+        ## filter
+        ## calculate MAF with male dosage=2, even for X chrom
+        maf2 <- 0.5*rowMeans(geno, na.rm=TRUE)
+        maf2 <- pmin(maf2, 1-maf2)
+        res[bidx, "filter"] <- 2*maf2*(1-maf2)*ne > 75
+        
         ## loop through SNPs in block
         midx <- (1:nsnp.block)[!mono]
         for (i in midx) {
@@ -134,10 +148,11 @@ assocCoxPH <- function(genoData,
     ## results data frame
     res <- as.data.frame(res)
     res$snpID <- getSnpID(genoData, index=snpStart:snpEnd)
+    res$filter <- as.logical(res$filter)
 
-    ## convert minor.allele coding back to A/B
-    res[,"minor.allele"][res[,"minor.allele"] == 1] <- "A"
-    res[,"minor.allele"][res[,"minor.allele"] == 0] <- "B"
+    ## convert effect.allele coding back to A/B
+    res$effect.allele[res$effect.allele == 1] <- "A"
+    res$effect.allele[res$effect.allele == 0] <- "B"
 
     return(res)
 }

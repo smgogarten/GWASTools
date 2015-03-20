@@ -113,3 +113,25 @@ test_GxE <- function() {
     genoData <- .cphGenoData()
     .checkCPH(genoData, event, time.to.event, covar, ivar=ivar)
 }
+
+test_filter <- function() {
+    event <- "event"
+    time.to.event <- "time.to.event"
+    covar <- c("age","sex","site")
+    
+    genoData <- .cphGenoData(nsamp=500)
+
+    assoc1 <- assocTestCPH(genoData,
+                       event,
+                       time.to.event,
+                       covars = covar,
+                       maf.filter=TRUE)
+    
+    assoc2 <- assocCoxPH(genoData,
+                       event,
+                       time.to.event,
+                       covar = covar,
+                       effectAllele = "alleleA")
+
+    checkEquals(!is.na(assoc1$beta), assoc2$filter)
+}

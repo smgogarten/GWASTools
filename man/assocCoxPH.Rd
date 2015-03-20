@@ -40,7 +40,7 @@ assocCoxPH(genoData,
     stratified analysis}
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
 
-  \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample or the allele returned by \code{getAlleleA(genoData)}. If the minor allele is alleleB for a given SNP, this amounts to a sign change for the beta estimate.}
+  \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample (\code{effectAllele="minor"}) or the allele returned by \code{getAlleleA(genoData)}  (\code{effectAllele="alleleA"}). If the minor allele is alleleB for a given SNP, the difference between these two options will be a sign change for the beta estimate.}
 
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
@@ -55,7 +55,7 @@ assocCoxPH(genoData,
   function from the R \code{\link{survival}} library.
   
   It is recommended to filter results returned
-  using \code{2 * MAF * (1-MAF) * n.events > 75} where \code{MAF} = minor allele frequency and \code{n.events} = number of events. This filter was
+  using \code{2*MAF*(1-MAF)*n.events > 75} where \code{MAF} = minor allele frequency and \code{n.events} = number of events. This filter was
   suggested by Ken Rice and Thomas Lumley, who found that without this requirement, at
   threshold levels of significance for genome-wide studies, Cox
   regression p-values based on standard asymptotic approximations can be
@@ -65,18 +65,18 @@ assocCoxPH(genoData,
 }
 
 \value{
-a data.frame with the following columns
+a data.frame with some or all of the following columns:
   \item{snpID}{the snpIDs}
   \item{chr}{chromosome SNPs are on}
   \item{n.events}{number of events in complete cases for each SNP}
+  \item{effect.allele}{which allele ("A" or "B") is the effect allele}
+  \item{EAF}{effect allele frequency}
   \item{MAF}{minor allele frequency}
-  \item{minor.allele}{which allele ("A" or "B") is the minor allele }
+  \item{filter}{\code{TRUE} if SNP passes the MAF filter (\code{2*MAF*(1-MAF)*n.events > 75})}
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
   \item{z.Stat}{z statistic for association}
   \item{z.pval}{p-value for association}
-
-  if \code{ivar} is not \code{NULL}:
   \item{GxE.Stat}{Likelihood ratio test statistic for the genotype*ivar interaction parameter}
   \item{GxE.pval}{p-value for the likelihood ratio test statistic}
 }

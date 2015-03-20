@@ -55,7 +55,7 @@ assocRegression(genoData,
 
   \item{PPLtest}{logical for whether to use the profile penalized likelihood to compute p values for the "firth" method (in addition to Wald tests, which are always performed).}
 
-  \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample or the allele returned by \code{getAlleleA(genoData)}. If the minor allele is alleleB for a given SNP, this amounts to a sign change for the beta estimate.}
+  \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample (\code{effectAllele="minor"}) or the allele returned by \code{getAlleleA(genoData)}  (\code{effectAllele="alleleA"}). If the minor allele is alleleB for a given SNP, the difference between these two options will be a sign change for the beta estimate.}
 
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
@@ -78,31 +78,25 @@ assocRegression(genoData,
 }
 
 \value{
-a data.frame with the following columns
+a data.frame with some or all of the following columns:
   \item{snpID}{the snpIDs}
   \item{chr}{chromosome SNPs are on}
   \item{n}{number of samples used to analyze each SNP}
+  \item{effect.allele}{which allele ("A" or "B") is the effect allele}
+  \item{EAF}{effect allele frequency}
   \item{MAF}{minor allele frequency}
-  \item{minor.allele}{which allele ("A" or "B") is the minor allele }
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
   \item{Wald.Stat}{chi-squared test statistic for association}
   \item{Wald.pval}{p-value for association}
-
-  if \code{model.type="linear" or "logistic"} and \code{LRtest=TRUE}:
   \item{LR.Stat}{likelihood ratio test statistic for association}
   \item{LR.pval}{p-value for association}
-
-  if \code{model.type="firth"} and \code{PPLtest=TRUE}:
   \item{PPL.Stat}{profile penalized likelihood test statistic for association}
   \item{PPL.pval}{p-value for association}
-
-  if \code{model.type="linear" or "logistic"} and \code{ivar} is not \code{NULL}:
   \item{GxE.Stat}{Wald test statistic for the genotype*ivar interaction parameter}
   \item{GxE.pval}{Wald test p-value for the genotype*ivar interaction parameter}
   \item{Joint.Stat}{Wald test statistic for jointly testing all genotype parameters}
   \item{Joint.pval}{Wald test p-value for jointly testing all genotype parameters}
-
 }
 
 \author{Tushar Bhangale, Matthew Conomos, Stephanie Gogarten}

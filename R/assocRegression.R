@@ -246,7 +246,8 @@ assocRegression <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID","chr","n","MAF","minor.allele","Est","SE","LL","UL","Wald.Stat","Wald.pval")
+    nv <- c("snpID", "chr", "n", "effect.allele", "EAF", "MAF",
+            "Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval")
     if (LRtest & model.type != "firth") nv <- c(nv, "LR.Stat", "LR.pval")
     if (PPLtest & model.type == "firth") nv <- c(nv, "PPL.Stat", "PPL.pval")
     if (!is.null(ivar) & model.type != "firth") nv <- c(nv, "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval")
@@ -276,11 +277,17 @@ assocRegression <- function(genoData,
         major <- freq > 0.5 & !is.na(freq)
         maf <- ifelse(major, 1-freq, freq)
         res[bidx,"MAF"] <- maf
-        ## minor allele coding:  A = 1, B = 0
-        res[bidx,"minor.allele"] <- ifelse(major, 0, 1)
 
         ## effect allele
-        if (effectAllele == "minor") geno[major,] <- 2 - geno[major,]
+        if (effectAllele == "minor") {
+            geno[major,] <- 2 - geno[major,]
+            ## minor allele coding:  A = 1, B = 0
+            res[bidx,"effect.allele"] <- ifelse(major, 0, 1)
+            res[bidx,"EAF"] <- maf
+        } else {
+            res[bidx,"effect.allele"] <- 1
+            res[bidx,"EAF"] <- freq
+        }
 
         ## transform genotype for gene action
         geno <- .transformGenotype(geno, gene.action)
@@ -310,11 +317,11 @@ assocRegression <- function(genoData,
 
     ## results data frame
     res <- as.data.frame(res)
-    res$snpID <- getSnpID(genoData, index=snpStart:snpEnd)
+    res$snpID <- getSnpID(genoData, index=snpStart:snpEnd)   
 
-    ## convert minor.allele coding back to A/B
-    res[,"minor.allele"][res[,"minor.allele"] == 1] <- "A"
-    res[,"minor.allele"][res[,"minor.allele"] == 0] <- "B"
+    ## convert effect.allele coding back to A/B
+    res$effect.allele[res$effect.allele == 1] <- "A"
+    res$effect.allele[res$effect.allele == 0] <- "B"
 
     return(res)
 }
