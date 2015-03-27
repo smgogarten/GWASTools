@@ -322,3 +322,12 @@ setMethod("MchromCode", "GenotypeData",
             MchromCode(object@data)
           })
 
+setMethod("getSnpAnnotation", "GenotypeData",
+          function(object) {
+            object@snpAnnot
+          })
+
+setMethod("getScanAnnotation", "GenotypeData",
+          function(object) {
+            object@scanAnnot
+          })

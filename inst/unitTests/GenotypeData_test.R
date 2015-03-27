@@ -21,19 +21,25 @@ test_GenotypeData <- function() {
   obj <- GenotypeData(nc)
   checkTrue(!hasSnpAnnotation(obj))
   checkTrue(!hasScanAnnotation(obj))
+  checkIdentical(getSnpAnnotation(obj), NULL)
+  checkIdentical(getScanAnnotation(obj), NULL)
   # creation with only snpAnnot
   obj <- GenotypeData(nc, snpAnnot=snpAnnot)
   checkTrue(hasSnpAnnotation(obj))
   checkTrue(!hasScanAnnotation(obj))
+  checkIdentical(getSnpAnnotation(obj), snpAnnot)
   # creation with only scanAnnot
   obj <- GenotypeData(nc, scanAnnot=scanAnnot)
   checkTrue(!hasSnpAnnotation(obj))
   checkTrue(hasScanAnnotation(obj))
+  checkIdentical(getScanAnnotation(obj), scanAnnot)
   # creation with both annotations
   obj <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
   checkTrue(hasSnpAnnotation(obj))
   checkTrue(hasScanAnnotation(obj))
-
+  checkIdentical(getScanAnnotation(obj), scanAnnot)
+  checkIdentical(getSnpAnnotation(obj), snpAnnot)
+  
   # required variables
   geno <- getGenotype(obj)
   checkIdentical(c(nsnp(obj),nscan(obj)), dim(geno))

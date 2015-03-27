@@ -536,5 +536,10 @@
     \item Added data tables for genome build 38: centromeres.hg38.RData, pseudoautosomal.hg38.RData, HLA.hg38.RData, pcaSnpFilters.hg38.RData.
   } 
 }
+\section{Changes in version 1.13.26}{
+  \itemize{
+    \item Added getScanAnnotation, getSnpAnnotation accessors for GenotypeData objects.
+  } 
+}
 
 

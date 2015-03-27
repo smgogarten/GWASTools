@@ -50,3 +50,6 @@ setGeneric("XchromCode", function(object) standardGeneric("XchromCode"))
 setGeneric("YchromCode", function(object) standardGeneric("YchromCode"))
 setGeneric("XYchromCode", function(object) standardGeneric("XYchromCode"))
 setGeneric("MchromCode", function(object) standardGeneric("MchromCode"))
+
+setGeneric("getSnpAnnotation", function(object) standardGeneric("getSnpAnnotation"))
+setGeneric("getScanAnnotation", function(object) standardGeneric("getScanAnnotation"))
