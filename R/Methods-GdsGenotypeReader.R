@@ -262,10 +262,19 @@ setMethod("getGenotype",
 
 setMethod("getGenotypeSelection",
           signature(object="GdsGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE,
+          function(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, drop=TRUE, use.names=TRUE,
                    order=c("file", "selection"), transpose=FALSE, ...) {
 
               order <- match.arg(order)
+
+              if (!is.null(snpID)) {
+                  if (!is.null(snp)) stop("cannot specify both snp and snpID")
+                  snp <- getSnpID(object) %in% snpID
+              }
+              if (!is.null(scanID)) {
+                  if (!is.null(scan)) stop("cannot specify both scan and scanID")
+                  scan <- getScanID(object) %in% scanID
+              }
               
               if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
               if (is.null(scan)) scan <- rep(TRUE, nscan(object))

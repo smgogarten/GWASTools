@@ -15,10 +15,12 @@
 \alias{getPosition}
 \alias{getQuality}
 \alias{getScanID}
+\alias{getScanAnnotation}
 \alias{getScanVariable}
 \alias{getScanVariableNames}
 \alias{getSex}
 \alias{getSnpID}
+\alias{getSnpAnnotation}
 \alias{getSnpVariable}
 \alias{getSnpVariableNames}
 \alias{getX}
@@ -55,10 +57,12 @@
 }
 
 \usage{
+  getScanAnnotation(object)
   getScanVariable(object, varname, ...)
   getScanVariableNames(object, ...)
   getScanID(object, ...)
   getSex(object, ...)
+  getSnpAnnotation(object)
   getSnpVariable(object, varname, ...)
   getSnpVariableNames(object, ...)
   getSnpID(object, ...)

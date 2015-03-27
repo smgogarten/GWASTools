@@ -111,7 +111,8 @@
       integer vector specifying elements to extract.  
     }
     \item{}{
-      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, order=c("file", "selection"), transpose=FALSE, ...)}: 
+      \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, 
+                        order=c("file", "selection"), transpose=FALSE, ...)}: 
       Extracts genotype values (number of A alleles).  
       \code{snp} and \code{scan} indicate which elements to return along the snp and
       scan dimensions.  They must be integer vectors of the form (start,
@@ -125,10 +126,12 @@
       Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE, transpose=FALSE, ...)}:
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, 
+                                 drop=TRUE, use.names=TRUE, transpose=FALSE, ...)}:
       Extracts genotype values (number of A alleles).
       \code{snp} and \code{scan} may be integer or logical vectors indicating which elements 
       to return along the snp and scan dimensions.  
+      \code{snpID} and \code{scanID} allow section by values of snpID and scanID.
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       Other arguments are identical to \code{getGenotype}.
     }

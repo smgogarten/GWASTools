@@ -198,10 +198,12 @@ test_GenotypeData_selection <- function() {
   obj <- GenotypeData(gdsobj, snpAnnot=snpAnnot)
   geno[geno == 3] <- NA
   checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snp=1:10, scan=1:2, use.names=FALSE))
+  checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snpID=1:10, scanID=1231:1232, use.names=FALSE))
   geno[geno %in% 0] <- "G/G"
   geno[geno %in% 1] <- "C/G"
   geno[geno %in% 2] <- "C/C"
   checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snp=1:10, scan=1:2, char=TRUE, use.names=FALSE))
+  checkIdentical(geno[1:10,1:2], getGenotypeSelection(obj, snpID=1:10, scanID=1231:1232, char=TRUE, use.names=FALSE))
 
   close(obj)
   unlink(file)

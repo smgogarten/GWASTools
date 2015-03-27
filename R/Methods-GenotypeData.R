@@ -261,12 +261,13 @@ setMethod("getGenotype",
 
 setMethod("getGenotypeSelection",
           signature(object = "GenotypeData"),
-          function(object, snp=NULL, scan=NULL, char=FALSE, sort=TRUE, ...) {
+          function(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, char=FALSE, sort=TRUE, ...) {
               if (is(object@data, "NcdfGenotypeReader"))
                   stop("getGenotypeSelection not implemented for class ",
                        class(object@data))
-              geno <- getGenotypeSelection(object@data, snp, scan, ...)
+              geno <- getGenotypeSelection(object@data, snp, scan, snpID, scanID, ...)
               if (char) {
+                  if (!is.null(snpID)) snp <- getSnpID(object) %in% snpID
                   if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
                   alleleA <- getAlleleA(object, index=snp)
                   alleleB <- getAlleleB(object, index=snp)

@@ -33,7 +33,8 @@
 .dosCorSelectGenotype <- function(genoData, scanIDs, snpIDs) {
   scanSel <- getScanID(genoData) %in% scanIDs
   snpSel <- getSnpID(genoData) %in% snpIDs
-  geno.init <- getGenotypeSelection(genoData, scan=scanSel, snp=snpSel, drop=FALSE)
+  geno.init <- getGenotypeSelection(genoData, scan=scanSel, snp=snpSel, drop=FALSE,
+                                    use.names=TRUE)
 
   # for females, set Y chrom genotypes to NA
   if (hasSex(genoData)) {
@@ -45,10 +46,6 @@
       geno.init[ychr, females] <- NA
     }
   }
-
-  # sanity check: assign row and col names
-  rownames(geno.init) <- getSnpID(genoData)[snpSel]
-  colnames(geno.init) <- getScanID(genoData)[scanSel]
 
   # order to match input lists
   geno.init <- geno.init[as.character(snpIDs), as.character(scanIDs)]

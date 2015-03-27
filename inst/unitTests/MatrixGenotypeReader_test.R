@@ -15,6 +15,7 @@ test_MatrixGenotypeReader <- function() {
   checkEquals(geno[2:10, 5:6], getGenotype(mgr, snp=c(2,9), scan=c(5,2)))
   checkEquals(geno[2:10,], getGenotype(mgr, snp=c(2,9), scan=c(1,-1)))
   checkEquals(geno[2:10, 5:6], getGenotypeSelection(mgr, snp=2:10, scan=5:6, use.names=FALSE))
+  checkEquals(geno[2:10, 5:6], getGenotypeSelection(mgr, snpID=2:10, scanID=5:6, use.names=FALSE))
   checkEquals(snpID[1:5], getSnpID(mgr, index=1:5))
 
   checkEquals(geno[1,,drop=FALSE], getGenotype(mgr, snp=c(1,1), drop=FALSE))

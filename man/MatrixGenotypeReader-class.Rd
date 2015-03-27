@@ -97,10 +97,12 @@
       Missing values are represented as \code{NA}.
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE)}:
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL,
+                                 drop=TRUE, use.names=TRUE)}:
       Extracts genotype values (number of A alleles).
       \code{snp} and \code{scan} may be integer or logical vectors indicating which elements 
       to return along the snp and scan dimensions.  
+      \code{snpID} and \code{scanID} allow section by values of snpID and scanID.
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       Other arguments are identical to \code{getGenotype}.
     }

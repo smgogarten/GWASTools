@@ -95,15 +95,19 @@ setMethod("getGenotype",
 
 setMethod("getGenotypeSelection",
           signature(object="MatrixGenotypeReader"),
-          function(object, snp=NULL, scan=NULL, drop=TRUE, use.names=TRUE, transpose=FALSE) {
+          function(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, drop=TRUE, use.names=TRUE, transpose=FALSE) {
 
-              if (is.null(snp)) {
-                  snp <- rep(TRUE, nsnp(object))
+              if (!is.null(snpID)) {
+                  if (!is.null(snp)) stop("cannot specify both snp and snpID")
+                  snp <- getSnpID(object) %in% snpID
               }
-
-              if (is.null(scan)) {
-                  scan <- rep(TRUE, nscan(object))
+              if (!is.null(scanID)) {
+                  if (!is.null(scan)) stop("cannot specify both scan and scanID")
+                  scan <- getScanID(object) %in% scanID
               }
+              
+              if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
+              if (is.null(scan)) scan <- rep(TRUE, nscan(object))
 
               var <- object@genotype[snp, scan, drop=FALSE]
               if (use.names) {

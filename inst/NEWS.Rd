@@ -541,5 +541,10 @@
     \item Added getScanAnnotation, getSnpAnnotation accessors for GenotypeData objects.
   } 
 }
+\section{Changes in version 1.13.27}{
+  \itemize{
+    \item Added "snpID" and "scanID" arguments to getGenotypeSelection.
+  } 
+}
 
 

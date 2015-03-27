@@ -9,7 +9,9 @@
 \alias{nsnp,GenotypeData-method}
 \alias{nscan,GenotypeData-method}
 \alias{hasSnpAnnotation,GenotypeData-method}
+\alias{getSnpAnnotation,GenotypeData-method}
 \alias{hasScanAnnotation,GenotypeData-method}
+\alias{getScanAnnotation,GenotypeData-method}
 \alias{getSnpID,GenotypeData-method}
 \alias{getChromosome,GenotypeData-method}
 \alias{getPosition,GenotypeData-method}
@@ -140,12 +142,14 @@
       alleles are lexographically sorted ("G/T" instead of "T/G").
     }
     \item{}{
-      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, char=FALSE, sort=TRUE, drop=TRUE, use.names=TRUE, ...)}:
+      \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, 
+                                 char=FALSE, sort=TRUE, drop=TRUE, use.names=TRUE, ...)}:
       May be used only if the data slot contains a
       \code{\link{GdsGenotypeReader}} or \code{\link{MatrixGenotypeReader}} object.
       Extracts genotype values (number of A alleles).
       \code{snp} and \code{scan} may be integer or logical vectors indicating which elements 
       to return along the snp and scan dimensions.  
+      \code{snpID} and \code{scanID} allow section by values of snpID and scanID.
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       Other arguments are identical to \code{getGenotype}.
     }
@@ -189,8 +193,14 @@
       the data contains contains \code{varname}, \code{FALSE} if not.
     }
     \item{}{
+      \code{getSnpAnnotation(object)}: Returns the snp annotation.
+    }
+    \item{}{
       \code{hasSnpAnnotation(object)}: Returns \code{TRUE} if the snp
       annotation slot is not \code{NULL}.
+    }
+    \item{}{
+      \code{getScanAnnotation(object)}: Returns the scan annotation.
     }
     \item{}{
       \code{hasScanAnnotation(object)}: Returns \code{TRUE} if the scan
