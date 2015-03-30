@@ -57,12 +57,12 @@
 }
 
 \usage{
-  getScanAnnotation(object)
+  getScanAnnotation(object, ...)
   getScanVariable(object, varname, ...)
   getScanVariableNames(object, ...)
   getScanID(object, ...)
   getSex(object, ...)
-  getSnpAnnotation(object)
+  getSnpAnnotation(object, ...)
   getSnpVariable(object, varname, ...)
   getSnpVariableNames(object, ...)
   getSnpID(object, ...)
