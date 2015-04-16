@@ -117,7 +117,7 @@
 ## give the data frame a crazy name so we don't overwrite something important
 .runRegression <- function(model.string, ..model..data.., model.type, CI, robust, LRtest) {
     model.formula <- as.formula(model.string)
-#    tryCatch({
+    tryCatch({
         if (model.type == "linear") {
             mod <- lm(model.formula, data=..model..data..)
         } else if (model.type == "logistic") {
@@ -159,7 +159,7 @@
         }
         
         ret
-#    }, warning=function(w) NA, error=function(e) NA)
+    }, warning=function(w) NA, error=function(e) NA)
 }
 
 .runFirth <- function(model.string, model.data, CI, PPLtest, geno.index=NULL) {
