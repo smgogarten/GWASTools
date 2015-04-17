@@ -546,5 +546,10 @@
     \item Added "snpID" and "scanID" arguments to getGenotypeSelection.
   } 
 }
+\section{Changes in version 1.15.1}{
+  \itemize{
+    \item Added "ci" argument to qqPlot function.
+  } 
+}
 
 

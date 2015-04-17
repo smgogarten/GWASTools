@@ -7,7 +7,7 @@
 Generates a Quantile-Quantile plot for -log10 p-values from genome wide association tests.
 }
 \usage{
-qqPlot(pval, truncate = FALSE, ylim = NULL, thinThreshold = NULL, ...)
+qqPlot(pval, truncate = FALSE, ylim = NULL, thinThreshold = NULL, ci=TRUE, ...)
 }
 
 \arguments{
@@ -17,6 +17,7 @@ qqPlot(pval, truncate = FALSE, ylim = NULL, thinThreshold = NULL, ...)
   }
   \item{ylim}{Limits for the y axis.  Ignored if \code{truncate=TRUE} or \code{truncate} is numeric.}
   \item{thinThreshold}{if not \code{NULL},  \code{-log10(pval)} threshold for thinning points.}
+  \item{ci}{logical indicator for whether to add confidence intervals to plots?}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 
 }
