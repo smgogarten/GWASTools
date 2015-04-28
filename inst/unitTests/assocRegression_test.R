@@ -1,5 +1,20 @@
 library(logistf)
 
+test_geneAction <- function() {
+    geno <- matrix(sample(c(0,1,2,NA), 100, replace=TRUE), nrow=10, ncol=10)
+    checkEquals(geno, GWASTools:::.transformGenotype(geno, "additive"))
+    
+    dom <- GWASTools:::.transformGenotype(geno, "dominant")
+    checkEquals(geno == 0, dom == 0)
+    checkEquals(geno %in% c(1,2), dom %in% 2)
+    checkEquals(is.na(geno), is.na(dom))
+    
+    rec <- GWASTools:::.transformGenotype(geno, "recessive")
+    checkEquals(geno == 2, rec == 2)
+    checkEquals(geno %in% c(1,0), rec %in% 0)
+    checkEquals(is.na(geno), is.na(rec))
+}
+
 test_monomorphic <- function() {
     geno <- matrix(c(0,0,0,NA,
                      0,1,NA,2,
@@ -71,28 +86,51 @@ test_runReg_CI <- function() {
 }
 
 test_runReg_robust <- function() {
+    library(sandwich)
+    
     mod <- "outcome ~ covar + genotype"
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=TRUE, LRtest=FALSE)
     checkTrue(all(!is.na(tmp)))
+
+    fit <- lm(as.formula(mod), data=dat)
+    checkEquals(sqrt(vcovHC(fit, type="HC0")["genotype", "genotype"]),
+                tmp[2], checkNames=FALSE)
 }
 
 test_runReg_LR <- function() {
+    library(lmtest)
+    
     mod <- "outcome ~ covar + genotype"
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=TRUE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
                                  "LR.Stat", "LR.pval"))
     checkTrue(all(!is.na(tmp)))
+
+    dat <<- dat
+    fit <- lrtest(lm(as.formula(mod), data=dat), "genotype")
+    checkEquals(unlist(fit[2, 4:5]), tmp[7:8], checkNames=FALSE)
 }
 
 test_runReg_GxE <- function() {
-    mod <- as.formula("outcome ~ covar + covar:genotype + genotype")
-    tmp <- GWASTools:::.runRegression(mod, .regModelData(type="linear"), "linear",
+    mod <- "outcome ~ covar + covar:genotype + genotype"
+    dat <- .regModelData(type="linear")
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
                                  "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval"))
     checkTrue(all(!is.na(tmp)))
+   
+    fit <- lm(as.formula(mod), data=dat)
+    x <- coef(fit)[5:6]
+    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[5:6,5:6]) %*% x),
+                tmp[7], checkNames=FALSE)
+    x <- coef(fit)[4:6]
+    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[4:6,4:6]) %*% x),
+                tmp[9], checkNames=FALSE)
 }
     
 test_runFirth <- function() {
@@ -193,50 +231,6 @@ test_snps <- function() {
 }
 
 
-.checkAssoc <- function(genoData, outcome, model.type, covar=NULL,
-                        scan.exclude=NULL, robust=FALSE, LRtest=FALSE, ivar=NULL,
-                        gene.action="additive") {
-
-    if (!is.null(covar)) covar.list <- list(covar) else covar.list <- NULL  
-    if (!is.null(ivar)) ivar.list <- list(ivar) else ivar.list <- NULL    
-    assoc1 <- assocTestRegression(genoData,
-                    outcome = outcome,
-                    model.type = model.type,
-                    covar.list = covar.list,
-                    ivar.list = ivar.list,
-                    gene.action.list = list(gene.action),
-                    scan.exclude = scan.exclude,
-                    robust = robust,
-                    LRtest = LRtest)
-
-    assoc2 <- assocRegression(genoData,
-                    outcome = outcome,
-                    model.type = model.type,
-                    covar = covar,
-                    ivar = ivar,
-                    gene.action = gene.action,
-                    scan.exclude = scan.exclude,
-                    robust = robust,
-                    LRtest = LRtest)
-
-    cols2 <- intersect(c("snpID", "n", "MAF", "Est", "SE",
-                         unlist(lapply(c("Wald", "LR", "GxE", "Joint"), paste, c("Stat", "pval"), sep="."))),
-                       names(assoc2))
-    assoc2 <- assoc2[,cols2]
-    cols1 <- c(cols2[1], paste0("model.1.", c(cols2[2:3], paste(gene.action, cols2[4:length(cols2)], "G", sep="."))))
-    if (!is.null(ivar)) {
-        for (x in c("Stat", "pval")) {
-            cols1 <- sub(paste0("GxE.", x, ".G"), paste0("Wald.", x, ".G:", ivar), cols1)
-            cols1 <- sub(paste0("Joint.", x, ".G"), paste0("Wald.", x, ".G.Joint"), cols1)
-        }
-    }
-    assoc1 <- assoc1[,cols1]
-    names(assoc1) <- cols2
-
-    checkEquals(assoc1, assoc2)
-}
-
-
 test_logistic <- function() {
     outcome <- "status"
     model.type <- "logistic"
@@ -245,7 +239,12 @@ test_logistic <- function() {
     genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar, scan.exclude)
+    assoc <- assocRegression(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          covar = covar,
+                          scan.exclude = scan.exclude)
+    checkTrue(!all(is.na(assoc$Est)))
 }
 
 test_linear <- function() {
@@ -256,27 +255,12 @@ test_linear <- function() {
     genoData <- .regGenoData()
     scan.exclude <- sample(getScanID(genoData), 10)
 
-    .checkAssoc(genoData, outcome, model.type, covar, scan.exclude)
-}
-
-test_robust <- function() {
-    outcome <- "trait"
-    model.type <- "linear"
-    covar <- c("age","sex")
-
-    genoData <- .regGenoData()
-
-    .checkAssoc(genoData, outcome, model.type, covar, robust=TRUE)
-}
-
-test_LR <- function() {
-    outcome <- "trait"
-    model.type <- "linear"
-    covar <- c("age","sex")
-
-    genoData <- .regGenoData()
-
-    .checkAssoc(genoData, outcome, model.type, covar, LRtest=TRUE)
+    assoc <- assocRegression(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          covar = covar,
+                          scan.exclude = scan.exclude)
+    checkTrue(!all(is.na(assoc$Est)))
 }
 
 test_GxE <- function() {
@@ -287,21 +271,14 @@ test_GxE <- function() {
 
     genoData <- .regGenoData()
 
-    .checkAssoc(genoData, outcome, model.type, covar, ivar=ivar)
+    assoc <- assocRegression(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          covar = covar,
+                          ivar = ivar)
+    checkTrue(!all(is.na(assoc$Est)))
 }
 
-test_gene.action <- function() {  
-    outcome <- "trait"
-    model.type <- "linear"
-    covar <- c("age","sex")
-
-    genoData <- .regGenoData()
-
-    .checkAssoc(genoData, outcome, model.type, covar, gene.action="recessive")
-    .checkAssoc(genoData, outcome, model.type, covar, gene.action="dominant")
-}
-
-## for now, just check there are no errors
 test_firth <- function() {
     outcome <- "status"
     model.type <- "firth"
@@ -363,6 +340,20 @@ test_Ychr <- function() {
     checkException(assocRegression(genoData,
                     outcome = outcome, covar="sex",
                     model.type = model.type))
+}
 
-    .checkAssoc(genoData, outcome, model.type, scan.exclude=scan.exclude)
+test_sampleSize <- function() {
+    outcome <- "status"
+    model.type <- "logistic"
+    covar <- c("age","sex","site")
+
+    genoData <- .regGenoData()
+    scan.exclude <- sample(getScanID(genoData), 10)
+
+    assoc <- assocRegression(genoData,
+                          outcome = outcome,
+                          model.type = model.type,
+                          covar = covar,
+                          scan.exclude = scan.exclude)
+    checkEquals(assoc$n, assoc$n0 + assoc$n1)
 }

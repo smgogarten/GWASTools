@@ -221,6 +221,12 @@ assocRegression <- function(genoData,
     ## sex chromosome checks
     keep <- .checkSexChr(genoData, chr, keep)
 
+    ## no LR test for interactions
+    if (LRtest & !is.null(ivar)) {
+        warning("LR test not available for GxE")
+        LRtest <- FALSE
+    }
+    
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
     dat <- .modelData(genoData, chr, outcome, covar, ivar)
@@ -246,8 +252,9 @@ assocRegression <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID", "chr", "n", "effect.allele", "EAF", "MAF",
-            "Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval")
+    nv <- c("snpID", "chr", "effect.allele", "EAF", "MAF", "n")
+    if (model.type %in% c("logistic", "firth")) nv <- c(nv, "n0", "n1")
+    nv <- c(nv, "Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval")
     if (LRtest & model.type != "firth") nv <- c(nv, "LR.Stat", "LR.pval")
     if (PPLtest & model.type == "firth") nv <- c(nv, "PPL.Stat", "PPL.pval")
     if (!is.null(ivar) & model.type != "firth") nv <- c(nv, "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval")
@@ -297,6 +304,10 @@ assocRegression <- function(genoData,
         
         ## sample size
         res[bidx, "n"] <- rowSums(!is.na(geno))
+        if (model.type %in% c("logistic", "firth")) {
+            res[bidx, "n0"] <- rowSums(!is.na(geno[, dat[[outcome]] == 0, drop=FALSE]))
+            res[bidx, "n1"] <- rowSums(!is.na(geno[, dat[[outcome]] == 1, drop=FALSE]))
+        }
 
         ## loop through SNPs in block
         midx <- (1:nsnp.block)[!mono]

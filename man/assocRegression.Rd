@@ -81,10 +81,12 @@ assocRegression(genoData,
 a data.frame with some or all of the following columns:
   \item{snpID}{the snpIDs}
   \item{chr}{chromosome SNPs are on}
-  \item{n}{number of samples used to analyze each SNP}
   \item{effect.allele}{which allele ("A" or "B") is the effect allele}
   \item{EAF}{effect allele frequency}
   \item{MAF}{minor allele frequency}
+  \item{n}{number of samples used to analyze each SNP}
+  \item{n0}{number of controls (outcome=0) used to analyze each SNP}
+  \item{n1}{number of cases (outcome=1) used to analyze each SNP}
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
   \item{Wald.Stat}{chi-squared test statistic for association}
