@@ -149,8 +149,14 @@
         ## GxE
         GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
         if (length(GxE.idx) > 0) {
-            test.GxE <- setNames(.waldTest(coef(mod)[GxE.idx], Vhat[GxE.idx,GxE.idx]),
-                                 c("GxE.Stat", "GxE.pval"))
+            GxE.Est <- unname(coef(mod)[GxE.idx])
+            GxE.cov <- Vhat[GxE.idx,GxE.idx]
+            test.GxE <- setNames(.waldTest(GxE.Est, GxE.cov), c("GxE.Stat", "GxE.pval"))
+            if (length(GxE.idx) == 1) {
+                test.GxE <- c(GxE.Est=GxE.Est, GxE.SE=sqrt(GxE.cov), test.GxE)
+            } else {
+                test.GxE <- c(GxE.Est=NA, GxE.SE=NA, test.GxE)
+            }
             
             Gj.idx <- grep("genotype", names(coef(mod)), fixed=TRUE)
             test.Joint <- setNames(.waldTest(coef(mod)[Gj.idx], Vhat[Gj.idx,Gj.idx]),
@@ -257,7 +263,7 @@ assocRegression <- function(genoData,
     nv <- c(nv, "Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval")
     if (LRtest & model.type != "firth") nv <- c(nv, "LR.Stat", "LR.pval")
     if (PPLtest & model.type == "firth") nv <- c(nv, "PPL.Stat", "PPL.pval")
-    if (!is.null(ivar) & model.type != "firth") nv <- c(nv, "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval")
+    if (!is.null(ivar) & model.type != "firth") nv <- c(nv, "GxE.Est", "GxE.SE", "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
     reg.cols <- which(colnames(res) == "Est"):ncol(res)
 

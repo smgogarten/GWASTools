@@ -95,6 +95,8 @@ a data.frame with some or all of the following columns:
   \item{LR.pval}{p-value for association}
   \item{PPL.Stat}{profile penalized likelihood test statistic for association}
   \item{PPL.pval}{p-value for association}
+  \item{GxE.Est}{beta estimate for the genotype*ivar interaction parameter (\code{NA} if this parameter is a factor with >2 levels)}
+  \item{GxE.SE}{standard error of beta estimate for the genotype*ivar interaction parameter}
   \item{GxE.Stat}{Wald test statistic for the genotype*ivar interaction parameter}
   \item{GxE.pval}{Wald test p-value for the genotype*ivar interaction parameter}
   \item{Joint.Stat}{Wald test statistic for jointly testing all genotype parameters}

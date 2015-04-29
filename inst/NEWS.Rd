@@ -551,5 +551,15 @@
     \item Added "ci" argument to qqPlot function.
   } 
 }
+\section{Changes in version 1.15.2}{
+  \itemize{
+    \item Added number of cases and controls to assocRegression output.
+  } 
+}
+\section{Changes in version 1.15.3}{
+  \itemize{
+    \item Added beta and standard error for GxE term to assocRegression output.
+  } 
+}
 
 

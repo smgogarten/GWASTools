@@ -1,7 +1,7 @@
 asSnpMatrix <- function(genoData, snpNames="snpID", scanNames="scanID",
                         snp=c(1,-1), scan=c(1,-1)) {
   
-  if (!(require(snpStats))) {
+  if (!(requireNamespace("snpStats"))) {
     stop("please install snpStats to use this function")
   }
   

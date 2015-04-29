@@ -120,17 +120,31 @@ test_runReg_GxE <- function() {
     dat <- .regModelData(type="linear")
     tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
-    checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
-                                 "GxE.Stat", "GxE.pval", "Joint.Stat", "Joint.pval"))
+    gxe.cols <- c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
+                  "GxE.Est", "GxE.SE", "GxE.Stat", "GxE.pval",
+                  "Joint.Stat", "Joint.pval")
+    checkIdentical(names(tmp), gxe.cols)
+    checkTrue(all(!is.na(tmp[c(1:6, 9:12)])))
+    checkTrue(all(is.na(tmp[7:8]))) # covar has 3 levels
+
+    fit <- lm(as.formula(mod), data=dat)
+    gxe <- grep(":genotype", names(coef(fit)))
+    x <- coef(fit)[gxe]
+    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[gxe,gxe]) %*% x),
+                tmp["GxE.Stat"], checkNames=FALSE)
+    joint <- grep("genotype", names(coef(fit)))
+    x <- coef(fit)[joint]
+    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[joint,joint]) %*% x),
+                tmp["Joint.Stat"], checkNames=FALSE)
+    
+    dat$covar <- sample(letters[1:2], nrow(dat), replace=TRUE)
+    tmp <- GWASTools:::.runRegression(mod, dat, "linear",
+                                      CI=0.95, robust=FALSE, LRtest=FALSE)
+    checkIdentical(names(tmp), gxe.cols)
     checkTrue(all(!is.na(tmp)))
    
     fit <- lm(as.formula(mod), data=dat)
-    x <- coef(fit)[5:6]
-    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[5:6,5:6]) %*% x),
-                tmp[7], checkNames=FALSE)
-    x <- coef(fit)[4:6]
-    checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[4:6,4:6]) %*% x),
-                tmp[9], checkNames=FALSE)
+    checkEquals(summary(fit)$coef[4,1:2] ,tmp[7:8], checkNames=FALSE)
 }
     
 test_runFirth <- function() {
