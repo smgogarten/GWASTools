@@ -14,15 +14,16 @@
 
 
 .checkHWE <- function(genoData, chromosome, scan.exclude=NULL) {
-    hwe1 <- gwasExactHW(genoData, scan.exclude=scan.exclude, chromosome.set=chromosome)
-    names(hwe1)[names(hwe1) == "chromosome"] <- "chr"
-    names(hwe1)[names(hwe1) == "p.value"] <- "pval"
-
     chr <- range(which(getChromosome(genoData) == chromosome))
-    hwe2 <- exactHWE(genoData, scan.exclude=scan.exclude, snpStart=chr[1], snpEnd=chr[2])
-    
-    cols <- c("snpID", "chr", "nAA", "nAB", "nBB", "MAF", "f", "pval")
-    for (x in cols) checkEquals(hwe1[[x]], hwe2[[x]])
+    hwe <- exactHWE(genoData, scan.exclude=scan.exclude, snpStart=chr[1], snpEnd=chr[2])
+    mono <- hwe$MAF == 0
+    checkTrue(all(is.na(hwe$pval[mono])))
+    checkTrue(!all(is.na(hwe$pval)))
+
+    cnt <- hwe[,c("nAA", "nAB", "nBB")]
+    names(cnt) <- c("nAA", "nAa", "naa")
+    tmp <- GWASExactHW::HWExact(cnt)
+    checkEquals(hwe$pval[!mono], tmp[!mono])
 }
 
 test_HWE <- function() {

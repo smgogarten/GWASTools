@@ -1,130 +1,60 @@
-gdsCheckImputedDosage <- function(genoData, snpAnnot, scanAnnot, 
-                                  input.files, chromosome,
-                                  input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                                  input.dosage=FALSE, block.size=5000,
-                                  verbose=TRUE, 
-                                  snp.exclude=NULL,
-                                  snp.id.start=1,
-                                  tolerance=1e-4,
-                                  na.logfile=NULL) {
+assocTestRegression <- function(genoData,
+                                outcome,
+                                model.type,
+                                covar.list = NULL,
+                                ivar.list = NULL,
+                                gene.action.list = NULL,
+                                dosage = FALSE,
+                                scan.chromosome.filter = NULL,
+                                scan.exclude = NULL,
+                                CI = 0.95,
+                                robust = FALSE,
+                                LRtest = TRUE,
+                                chromosome.set = NULL,
+                                block.set = NULL,
+                                block.size = 5000,
+                                verbose = TRUE,
+                                outfile = NULL){
 
-  .Defunct("checkImputedDosageFile")
+    .Defunct("assocRegression")
 }
 
-gdsImputedDosage <- function(input.files, gds.filename, chromosome,
-                             input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                             input.dosage=FALSE, block.size=5000,
-                             snp.annot.filename="dosage.snp.RData",
-                             scan.annot.filename="dosage.scan.RData",
-                             verbose=TRUE, zipflag="ZIP.max", genotypeDim="snp,scan",
-                             scan.df=NULL,
-                             snp.exclude=NULL,
-                             snp.id.start=1) {
 
-  .Defunct("imputedDosageFile")
+assocTestFisherExact <- function(dat, outfile = NULL){
+
+    .Defunct("batchFisherTest")
 }
 
-gdsSetMissingGenotypes <- function(
-	parent.file,	# name of the parent GDS file
-	new.file,		# name of the new GDS file to create
-        regions, # data frame with regions
-	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
-        zipflag = "ZIP.max",
-        verbose=TRUE) {
 
-    .Defunct("setMissingGenotypes")
+assocTestCPH <- function(
+	genoData,	# GenotypeData object containing sex and phenotypes
+	event,	# name of variable in genoData for event to analyze
+	time.to.event,		# name of variable in genoData for time to event
+	covars,		# vector of covariate terms for model (can include interactions as 'a:b', main effects correspond to variable names in genoData)
+	factor.covars=NULL,		# vector of names of covariates to be converted to factor
+	scan.chromosome.filter = NULL,  # matrix of T/F for scan by chromosome for chromosome-specific selection of samples
+        scan.exclude = NULL,
+	maf.filter = FALSE,  # whether to filter results returned using maf  > 75/2n where n = number of events
+	GxE = NULL,     # name of the covariate to use for E if genotype-by-environment (i.e. SNP:E) model is to be analyzed, in addition to the main effects (E can be a covariate interaction)
+	strata.vars = NULL,  # name of variable to stratify on for a stratified analysis (use NULL if no stratified analysis needed)
+	chromosome.set = NULL, 	# vector of chromosome numbers (corresponding to format of "chromosome" in genoData - i.e. integer codes)
+	block.size = 5000,	# number of SNPs from a given chromosome to read in one block from genoData
+        verbose = TRUE,
+        outfile = NULL
+){
+
+    .Defunct("assocCoxPH")
 }
 
-ncdfAddData <- function(path=".", 
-                         ncdf.filename, 
-                         snp.annotation,
-                         scan.annotation, 
-                         sep.type, 
-                         skip.num, 
-                         col.total, 
-                         col.nums, 
-                         scan.name.in.file,
-                         scan.start.index = 1,
-                         diagnostics.filename = "ncdfAddData.diagnostics.RData",
-                         verbose = TRUE) {
 
-    .Defunct("createDataFile")
-}
-
-ncdfAddIntensity <- function(path=".",
-                           ncdf.filename,
-                           snp.annotation,
-                           scan.annotation, 
-                           scan.start.index = 1, 
-                           n.consecutive.scans = -1,  
-                           diagnostics.filename = "ncdfAddIntensity.diagnostics.RData",
-                           verbose = TRUE) {
-
-    .Defunct("createAffyIntensityFile")
-}
-
-ncdfCheckGenotype <- function(path=".",
-                            ncdf.filename, 
-                            snp.annotation, 
-                            scan.annotation, 
-                            sep.type,
-                            skip.num,
-                            col.total,
-                            col.nums,
-                            scan.name.in.file, 
-                            check.scan.index,
-                            n.scans.loaded,
-                            diagnostics.filename = "ncdfCheckGenotype.diagnostics.RData",
-                            verbose = TRUE) {
-		
-    .Defunct("checkGenotypeFile")
-}
-
-ncdfCheckIntensity <- function(path=".",
-                             intenpath=".",
-                             ncdf.filename, 
-                             snp.annotation, 
-                             scan.annotation, 
-                             sep.type,
-                             skip.num,
-                             col.total,
-                             col.nums,
-                             scan.name.in.file, 
-                             check.scan.index,
-                             n.scans.loaded,
-                             affy.inten = FALSE,
-                             diagnostics.filename = "ncdfCheckIntensity.diagnostics.RData",
-                             verbose = TRUE) {
-
-    .Defunct("checkIntensityFile")
-}
-
-ncdfCreate <- function(snp.annotation, 
-                            ncdf.filename, 
-                            variables = "genotype",
-                            n.samples = 10, 
-                            precision = "double",
-                            array.name = NULL,
-                            genome.build = NULL) {
-    .Defunct("createDataFile")
-}
-
-ncdfImputedDosage <- function(input.files, ncdf.filename, chromosome,
-                              input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                              input.dosage=FALSE, block.size=5000,
-                              snp.annot.filename="dosage.snp.RData",
-                              scan.annot.filename="dosage.scan.RData",
-                              verbose=TRUE) {
-  
-  .Defunct("imputedDosageFile")
-}
-
-ncdfSetMissingGenotypes <- function(
-	parent.file,	# name of the parent netCDF file
-	new.file,		# name of the new netCDF file to create
-        regions, # data frame with regions
-	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
-        verbose=TRUE) {
-
-    .Defunct("setMissingGenotypes")
+gwasExactHW <- function (genoData,
+                         scan.chromosome.filter = NULL,
+                         scan.exclude = NULL,
+                         geno.counts = TRUE,
+                         chromosome.set = NULL,
+                         block.size = 5000,                      
+                         verbose = TRUE,
+                         outfile = NULL) 
+{
+    .Defunct("exactHWE")
 }
