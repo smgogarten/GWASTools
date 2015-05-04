@@ -36,6 +36,9 @@ test_snp_exceptions <- function() {
   name <- paste0("rs", 1:10)
   annot <- data.frame(snpID=snpID, chromosome=chrom, position=pos,
                       snpName=name, stringsAsFactors=FALSE)
+  # no alleles
+  checkException(GWASTools:::.checkSnpAnnotation(annot, variables="genotype",
+                                                 allele.coding="nucleotide"))
 
   annot <- data.frame(snp=snpID, c=chrom, p=pos) # wrong names
   checkException(GWASTools:::.checkSnpAnnotation(annot))
@@ -48,7 +51,24 @@ test_snp_exceptions <- function() {
   checkException(GWASTools:::.checkSnpAnnotation(annot))
   snpID <- 10:1 # snpID not sorted
   annot <- data.frame(snpID=snpID, chromosome=chrom, position=pos)
-  checkException(GWASTools:::.checkSnpAnnotation(annot))
+  checkException(GWASTools:::.checkSnpAnnotation(annot)) 
+}
+
+test_mapAlleles <- function() {
+    allele.map <- data.frame(alleleA=c("A", "A", "A", "A", "A", "C"),
+                             alleleB=c("G", "G", "G", "G", "G", "T"), stringsAsFactors=FALSE)
+    dat <- data.frame(geno=c("AG", "GA", "AA", "GG", NA, "AA"), stringsAsFactors=FALSE)
+    exp <- data.frame(a1=c("A", "B", "A", "B", NA, NA),
+                      a2=c("B", "A", "A", "B", NA, NA), stringsAsFactors=FALSE)
+    checkEquals(exp, GWASTools:::.mapAlleles(dat, allele.map))
+    dat <- data.frame(a1=c("A", "G", "A", "G", NA, "A"),
+                      a2=c("G", "A", "A", "G", NA, "A"), stringsAsFactors=FALSE)
+    checkEquals(exp, GWASTools:::.mapAlleles(dat, allele.map))
+}
+
+test_genoAsInt <- function() {
+    geno <- c("AA", "AB", "BA", "BB", NA)
+    checkEquals(c(2,1,1,0,NA), GWASTools:::.genoAsInt(geno))
 }
 
 test_createNcdf <- function() {
@@ -336,3 +356,39 @@ test_intensity_gds <- function() {
   file.remove(ncfile)
 }
 
+
+test_nucleotides <- function() {
+  data(illumina_snp_annot)
+  snpAnnot <- illumina_snp_annot
+  data(illumina_scan_annot)
+  scanAnnot <- illumina_scan_annot[1:3,] # subset of samples for testing
+  ncfile <- tempfile()
+  path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
+  snpAnnot <- snpAnnot[,c("snpID", "rsID", "chromosome", "position", "alleleA", "alleleB")]
+  names(snpAnnot)[1:2] <- c("snpID", "snpName")
+  scanAnnot <- scanAnnot[,c("scanID", "genoRunID", "file")]
+  names(scanAnnot) <- c("scanID", "scanName", "file")
+  col.nums <- as.integer(c(1,2,10,11))
+  names(col.nums) <- c("snp", "sample", "a1", "a2")
+  diagfile <- tempfile()
+  res <- createDataFile(path, ncfile, file.type="gds",  variables="genotype",
+                        snpAnnot, scanAnnot, sep.type=",",
+                       skip.num=11, col.total=21, col.nums=col.nums,
+                       scan.name.in.file=1, diagnostics.filename=diagfile,
+                        allele.coding="nucleotide")
+
+  # check
+  nc <- GdsGenotypeReader(ncfile)
+  origfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
+  nc2 <- NcdfGenotypeReader(origfile)
+  checkIdentical(getSnpID(nc), getSnpID(nc2))
+  checkIdentical(getChromosome(nc), getChromosome(nc2))
+  checkIdentical(getPosition(nc), getPosition(nc2))
+  checkIdentical(getScanID(nc), getScanID(nc2, 1:3))
+  checkIdentical(getGenotype(nc), getGenotype(nc2, snp=c(1,-1), scan=c(1,3)))
+  close(nc)
+  close(nc2)
+
+  file.remove(diagfile)
+  file.remove(ncfile)
+}

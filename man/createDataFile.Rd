@@ -18,34 +18,35 @@ Genotypic calls and/or associated quantitative variables (e.g. quality score, in
 
 
 \usage{
-createDataFile(path = ".", filename, file.type=c("gds", "ncdf"),
+createDataFile(path=".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
                sep.type, skip.num, col.total, col.nums, scan.name.in.file,
+	       allele.coding=c("AB", "nucleotide"),
 	       precision="single", compress="ZIP.max",
-	       array.name = NULL, genome.build = NULL,
-               diagnostics.filename = "createDataFile.diagnostics.RData",
-               verbose = TRUE)
+	       array.name=NULL, genome.build=NULL,
+               diagnostics.filename="createDataFile.diagnostics.RData",
+               verbose=TRUE)
 
-createAffyIntensityFile(path = ".",  filename, file.type=c("gds", "ncdf"),
+createAffyIntensityFile(path=".",  filename, file.type=c("gds", "ncdf"),
                         snp.annotation, scan.annotation,
 	                precision="single", compress="ZIP.max",
-	                array.name = NULL, genome.build = NULL,
-                 	diagnostics.filename = "createAffyIntensityFile.diagnostics.RData",
-                 	verbose = TRUE)
+	                array.name=NULL, genome.build=NULL,
+                 	diagnostics.filename="createAffyIntensityFile.diagnostics.RData",
+                 	verbose=TRUE)
 
-checkGenotypeFile(path = ".", filename, file.type=c("gds", "ncdf"),
+checkGenotypeFile(path=".", filename, file.type=c("gds", "ncdf"),
                   snp.annotation, scan.annotation,
                   sep.type, skip.num, col.total, col.nums, scan.name.in.file, 
 		  check.scan.index, n.scans.loaded,
-                  diagnostics.filename = "checkGenotypeFile.diagnostics.RData",
-                  verbose = TRUE)
+                  diagnostics.filename="checkGenotypeFile.diagnostics.RData",
+                  verbose=TRUE)
 
-checkIntensityFile(path = ".", filename, file.type=c("gds", "ncdf"),
+checkIntensityFile(path=".", filename, file.type=c("gds", "ncdf"),
                    snp.annotation, scan.annotation,
                    sep.type, skip.num, col.total, col.nums, scan.name.in.file, 
-		   check.scan.index, n.scans.loaded, affy.inten = FALSE,
-                   diagnostics.filename = "checkIntensityFile.diagnostics.RData",
-                   verbose = TRUE)
+		   check.scan.index, n.scans.loaded, affy.inten=FALSE,
+                   diagnostics.filename="checkIntensityFile.diagnostics.RData",
+                   verbose=TRUE)
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,6 +104,8 @@ checkIntensityFile(path = ".", filename, file.type=c("gds", "ncdf"),
   \item{scan.name.in.file}{An indicator for the presence of sample name within the file. A value of 1 indicates a column with repeated values of the sample name (Illumina format), -1 indicates sample name embedded in a column heading (Affymetrix format) and 0 indicates no sample name inside the raw data file.
 }
 
+\item{allele.coding}{Whether the genotypes in the file are coded as "AB" (recognized characters are A,B) or "nucleotide" (recognized characters are A,C,G,T). If \code{allele.coding="nucelotide"}, the columns "alleleA" and "alleleB" must be present in \code{snp.annotation} to map the genotypes to integer format (number of A alleles). }
+
   \item{check.scan.index}{An integer vector containing the indices of
   the sample dimension of the GDS or netCDF file to check.}
 
@@ -145,7 +148,7 @@ A SNP annotation data.frame is a pre-requisite for this function. It has the sam
 
 A sample annotation data.frame is also a pre-requisite. It has one row per sample with columns corresponding to sample name (as it occurs within the raw text file), name of the raw text file for that sample and an integer sample id (to be written as the "sampleID" variable in the GDS or netCDF file).
 
-The genotype calls in the raw text file may be either one column of diploid calls or two columns of allele calls. The function takes calls in AB format and converts them to a numeric code indicating the number of "A" alleles in the genotype (i.e. AA=2, AB=1, BB=0 and missing=-1).
+The genotype calls in the raw text file may be either one column of diploid calls or two columns of allele calls. The function takes calls in "AB" or "nucleotide" format and converts them to a numeric code indicating the number of "A" alleles in the genotype (i.e. AA=2, AB=1, BB=0 and missing=-1). If the genotype calls are nucleotides (A,C,G,T), the columns "alleleA" and "alleleB" in \code{snp.annotation} are used to map to AB format.
 
 While each raw text file is being read, the functions check for errors and irregularities and records the results in a list of vectors. If any problem is detected, that raw text file is skipped.
 

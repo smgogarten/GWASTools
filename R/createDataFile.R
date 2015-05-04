@@ -17,9 +17,14 @@
     if(any(is.element(names(col.nums), c("geno", "a1", "a2"))) & !is.element("genotype",variables)) stop("mismatch between col.nums and variables")
 }
 
-.checkSnpAnnotation <- function(snp.annotation) {
+.checkSnpAnnotation <- function(snp.annotation, variables="", allele.coding="") {
     ## check that snp annotation has right columns
     stopifnot(all(c("snpID", "chromosome", "position", "snpName") %in% names(snp.annotation)))
+    if ("genotype" %in% variables & allele.coding == "nucleotide") {
+        if (!(all(c("alleleA", "alleleB") %in% names(snp.annotation)))) {
+            stop("alleleA and alleleB are required in snp.annotation for allele.coding=nucleotide")
+        }
+    }
 
     ## make sure all snp annotation columns are integers
     if (!is(snp.annotation$snpID, "integer")) {
@@ -45,6 +50,33 @@
         stop("snpID is not sorted by chromosome and position")
     }
 }
+
+.mapAlleles <- function(dat, allele.map) {
+    if ("geno" %in% names(dat)) {
+        dat$a1 <- substr(dat$geno,1,1)
+        dat$a2 <- substr(dat$geno,2,2)
+        dat$geno <- NULL
+    }
+    a1.ab <- rep(NA, nrow(dat))
+    a2.ab <- rep(NA, nrow(dat))
+    for (allele in c("A", "B")) {
+        a1.ab[dat$a1 == allele.map[,paste0("allele",allele)]] <- allele
+        a2.ab[dat$a2 == allele.map[,paste0("allele",allele)]] <- allele
+    }
+    dat$a1 <- a1.ab
+    dat$a2 <- a2.ab
+    dat
+}
+
+## number of A alleles in the genotype, with missing = NA
+.genoAsInt <- function(geno) {
+    genotype <- rep(NA, length(geno))
+    genotype[geno %in% "AA"] <- 2
+    genotype[geno %in% c("AB", "BA")] <- 1
+    genotype[geno %in% "BB"] <- 0
+    genotype
+}
+
 
 .createNcdf <- function(snp.annotation, filename, variables, n.samples,
                         precision="single",
@@ -165,6 +197,7 @@ createDataFile <- function(path=".",
                            col.total,
                            col.nums,
                            scan.name.in.file,
+                           allele.coding = c("AB", "nucleotide"),
                            precision = "single",
                            compress = "ZIP.max",
                            array.name = NULL,
@@ -172,13 +205,13 @@ createDataFile <- function(path=".",
                            diagnostics.filename = "createDataFile.diagnostics.RData",
                            verbose = TRUE) {
 
-    ## get file type
     file.type <- match.arg(file.type)
+    allele.coding <- match.arg(allele.coding)
 
     ## checks
     intensity.vars <-  c("quality", "X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq","LogRRatio")
     .checkVars(variables, col.nums, col.total, intensity.vars)
-    .checkSnpAnnotation(snp.annotation)
+    .checkSnpAnnotation(snp.annotation, variables, allele.coding)
     stopifnot((c("scanID", "scanName", "file") %in% names(scan.annotation)))
 
     ## create data file
@@ -203,7 +236,11 @@ createDataFile <- function(path=".",
 
     ## get snp information
     snp.names <- snp.annotation$snpName
-    n <- nrow(snp.annotation)
+    n <- nrow(snp.annotation)    
+    if ("genotype" %in% variables & allele.coding == "nucleotide") {
+        allele.map <- snp.annotation[,c("alleleA", "alleleB")]
+        row.names(allele.map) <- snp.names
+    }
     rm(snp.annotation)
 
     ## generate colClasses vector for read.table
@@ -266,19 +303,18 @@ createDataFile <- function(path=".",
         dat <- dat[match(snp.names, dat$snp),]
 
         if(any(is.element(c("geno","a1","a2"),names(dat)))){
+            if (allele.coding == "nucleotide") {
+                stopifnot(allequal(dat$snp, row.names(allele.map)))
+                dat <- .mapAlleles(dat, allele.map)
+            }
             ## make diploid genotypes if necessary
             if(!is.element("geno", names(dat)) && is.element("a1", names(dat)) && is.element("a2", names(dat))) {
-                dat$geno <- paste(dat$a1,dat$a2,sep="")
-                new.names <- names(dat)[!is.element(names(dat),c("a1","a2"))]
-                dat <- dat[,new.names]
+                dat$geno <- paste0(dat$a1, dat$a2)
             }
             ## get character string(s) for missing genotypes
-            missg[[i]] <- unique(dat$geno[!is.element(dat$geno,c("AA","AB","BB"))])
-            ## Make genotypes numeric (number of A alleles in the genotype), with missing = NA
-            dat$genotype <- NA
-            dat[is.element(dat$geno,"AA"), "genotype"] <- 2
-            dat[is.element(dat$geno,c("AB","BA")), "genotype"] <- 1
-            dat[is.element(dat$geno,"BB"), "genotype"] <- 0
+            missg[[i]] <- setdiff(dat$geno, c("AA","AB","BB"))
+            ## Make genotypes numeric
+            dat$genotype <- .genoAsInt(dat$geno)
         }
 
         ## Load data into file

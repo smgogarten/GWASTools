@@ -561,5 +561,11 @@
     \item Added beta and standard error for GxE term to assocRegression output.
   } 
 }
+\section{Changes in version 1.15.5}{
+  \itemize{
+    \item Added option to read genotypes coded with nucleotides in createDataFile.
+  } 
+}
+
 
 
