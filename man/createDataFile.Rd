@@ -38,6 +38,7 @@ checkGenotypeFile(path=".", filename, file.type=c("gds", "ncdf"),
                   snp.annotation, scan.annotation,
                   sep.type, skip.num, col.total, col.nums, scan.name.in.file, 
 		  check.scan.index, n.scans.loaded,
+	          allele.coding=c("AB", "nucleotide"),
                   diagnostics.filename="checkGenotypeFile.diagnostics.RData",
                   verbose=TRUE)
 
