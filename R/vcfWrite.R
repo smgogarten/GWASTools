@@ -137,20 +137,23 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
         start <- (i-1)*block.size + 1
         end <- min(i*(block.size), nsnp(genoData))
         count <- end - start + 1
-        if (verbose) message("Block ", i, " of ", nblocks)
+        n <- sum(snp.index[start:end])
+        if (verbose) message("Block ", i, " of ", nblocks, "... ", n, " SNPs")
 
-        geno <- getGenotype(genoData, snp=c(start,count), scan=c(1,-1))
-        ## switch allele coding if ref.allele is B
-        geno[ref.allele[start:end] == "B",] <- 2 - geno[ref.allele[start:end] == "B",]
-        geno <- geno[snp.index[start:end], scan.index]
-        geno[is.na(geno)] <- "./."
-        geno[geno == 2] <- "0/0"
-        geno[geno == 1] <- "0/1"
-        geno[geno == 0] <- "1/1"
+        if (n > 0) {
+            geno <- getGenotype(genoData, snp=c(start,count), scan=c(1,-1))
+            ## switch allele coding if ref.allele is B
+            geno[ref.allele[start:end] == "B",] <- 2 - geno[ref.allele[start:end] == "B",]
+            geno <- geno[snp.index[start:end], scan.index, drop=FALSE]
+            geno[is.na(geno)] <- "./."
+            geno[geno == 2] <- "0/0"
+            geno[geno == 1] <- "0/1"
+            geno[geno == 0] <- "1/1"
 
-        out <- cbind(fixed[(start:end)[snp.index[start:end]],], geno)
-        write.table(out, con, sep="\t", col.names=FALSE, row.names=FALSE,
-                    quote=FALSE)
+            out <- cbind(fixed[(start:end)[snp.index[start:end]],,drop=FALSE], geno)
+            write.table(out, con, sep="\t", col.names=FALSE, row.names=FALSE,
+                        quote=FALSE)
+        }
     }
 
     ## close output file
