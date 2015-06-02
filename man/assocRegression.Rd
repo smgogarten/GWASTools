@@ -89,6 +89,8 @@ a data.frame with some or all of the following columns:
   \item{n1}{number of cases (outcome=1) used to analyze each SNP}
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
+  \item{LL}{Lower limit of confidence interval for Est}
+  \item{UL}{Upper limit of confidence interval for Est}
   \item{Wald.Stat}{chi-squared test statistic for association}
   \item{Wald.pval}{p-value for association}
   \item{LR.Stat}{likelihood ratio test statistic for association}
