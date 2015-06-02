@@ -566,6 +566,11 @@
     \item Added option to read genotypes coded with nucleotides in createDataFile.
   } 
 }
+\section{Changes in version 1.15.7}{
+  \itemize{
+    \item Added option to reorder samples in vcfWrite.
+  }   
+}
 
 
 

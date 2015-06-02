@@ -45,6 +45,7 @@
 vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
                      id.col="snpID", qual.col=NULL, filter.cols=NULL,
                      info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
+                     scan.order=NULL,
                      ref.allele=NULL, block.size=1000, verbose=TRUE) {
     ## fixed fields
     chrom <- getChromosome(genoData, char=TRUE)
@@ -112,12 +113,18 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
 
     ## get samples
     samples <- getScanVariable(genoData, sample.col)
+    scanID <- getScanID(genoData)
+    if (is.null(scan.order)) {
+        scan.order <- scanID
+    } else {
+        stopifnot(all(scan.order %in% scanID))
+    }
     ## subset with scan.exclude
     if (!is.null(scan.exclude)) {
-        scan.index <- !(getScanID(genoData) %in% scan.exclude)
-    } else {
-        scan.index <- rep(TRUE, nscan(genoData))
+        scan.order <- setdiff(scan.order, scan.exclude)
     }
+    ## put samples in new order if requested
+    scan.index <- match(scan.order, scanID)
 
     ## write header
     hdr <- paste(c("#CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT",

@@ -10,7 +10,7 @@ object.
 vcfWrite(genoData, vcf.file="out.vcf", sample.col="scanID",
          id.col="snpID", qual.col=NULL, filter.cols=NULL,
          info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
-         ref.allele=NULL, block.size=1000, verbose=TRUE)
+         scan.order=NULL, ref.allele=NULL, block.size=1000, verbose=TRUE)
 
 vcfCheck(genoData, vcf.file, sample.col="scanID",
          id.col="snpID", block.size=1000, verbose=TRUE)
@@ -25,6 +25,7 @@ vcfCheck(genoData, vcf.file, sample.col="scanID",
   \item{info.cols}{vector of column names in the SNP annotation to concatenate for the "INFO" column in the VCF file.}
   \item{scan.exclude}{vector of scanIDs to exclude from VCF file}
   \item{snp.exclude}{vector of snpIDs to exclude from VCF file}
+  \item{scan.order}{vector of scanIDs to include in VCF file, in the order in which they should be written}
   \item{ref.allele}{vector of "A" or "B" values indicating where allele A or allele B should be the reference allele for each SNP.  Default is to use allele A as the reference allele.}
   \item{block.size}{Number of SNPs to read from \code{genoData} at a
     time}

@@ -123,6 +123,19 @@ test_snp.exclude.blocks <- function() {
     unlink(newfile)
 }
 
+test_scan.order <- function() {
+    require(VariantAnnotation)
+    genoData <- .testGenoData(3,5)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile, scan.order=c(4,3,5,1))
+    vcf <- readVcf(newfile, "hg18")
+    checkIdentical(rownames(colData(vcf)), as.character(c(4,3,5,1)))
+    vcfWrite(genoData, newfile, scan.order=5:1, scan.exclude=2)
+    vcf <- readVcf(newfile, "hg18")
+    checkIdentical(rownames(colData(vcf)), as.character(c(5,4,3,1)))
+    unlink(newfile)
+}
+
 test_ref.allele <- function() {
     require(VariantAnnotation)
     genoData <- .testGenoData(3,2)
@@ -216,6 +229,14 @@ test_vcfCheck_ref <- function() {
     genoData <- .testGenoData(5,3)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, ref.allele=c("A","B","A","B","A"))
+    vcfCheck(genoData, newfile)
+    unlink(newfile)
+}
+
+test_vcfCheck_subset <- function() {
+    genoData <- .testGenoData(5,5)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile, snp.exclude=c(2,4), scan.order=c(4,3,5,1))
     vcfCheck(genoData, newfile)
     unlink(newfile)
 }
