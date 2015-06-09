@@ -23,13 +23,16 @@ alleleFrequency(genoData, scan.exclude,
  and any genotype for females on the Y chromosome as missing values.
  A "sex" variable must be present in the scan
   annotation slot of \code{genoData}.
+
+Samples with missing sex are included in the allele counts for "all" and "MAF" for autosomes, but not for sex chromosomes.
 }
 \value{
-A matrix of allelic frequencies with snps as
-rows and 4 columns ("M" for males, "F" for females, "all" for all scans,
-"MAF" for minor allele frequency over all scans).
+A matrix with a row for each SNP.
+Columns "M" for males, "F" for females, and "all" for all scans give frequencies of the A allele.
+Sample size for males, females, and all is returned as "n.M", "n.F", and "n", respectively.
+"MAF" is the minor allele frequency over all scans.
 }
-\author{Cathy Laurie
+\author{Cathy Laurie, Stephanie Gogarten
 }
 
 \seealso{\code{\link{GenotypeData}}

@@ -571,6 +571,11 @@
     \item Added option to reorder samples in vcfWrite.
   }   
 }
+\section{Changes in version 1.15.8}{
+  \itemize{
+    \item alleleFrequency includes scans with missing sex.
+  }   
+}
 
 
 

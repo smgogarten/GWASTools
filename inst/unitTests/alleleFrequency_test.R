@@ -121,3 +121,66 @@ test_alleleFrequency <- function() {
   close(genoData)
   file.remove(ncfile)
 }
+
+
+.testData <- function(chromosome, nsamp=100) {
+    nsnp <- length(chromosome)
+    geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
+    geno[1,] <- 1 # at least one snp all non-missing
+    mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
+                                chromosome=as.integer(chromosome),
+                                position=1:nsnp)
+
+    scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
+                                         sex=sample(c("M","F",NA), nsamp, replace=TRUE),
+                                         trait=rnorm(nsamp, mean=10, sd=2),
+                                         stringsAsFactors=FALSE))
+
+    GenotypeData(mgr, scanAnnot=scanAnnot)
+}
+
+test_missingSex <- function() {
+    chr <- c(rep(1,50), rep(23,30), rep(25,20))
+    genoData <- .testData(chr)
+    sex <- getSex(genoData)
+    male <- sex %in% "M"
+    female <- sex %in% "F"
+    afreq <- alleleFrequency(genoData, verbose=FALSE)
+    checkTrue(all(afreq[,"n.M"] + afreq[,"n.F"] <= afreq[,"n"]))
+    checkEquals(sum(male), max(afreq[,"n.M"]))
+    checkEquals(sum(female), max(afreq[,"n.F"]))
+    checkEquals(nscan(genoData), max(afreq[,"n"]))
+
+    geno <- getGenotype(genoData)
+    auto <- chr %in% 1:22
+    xchr <- chr %in% 23
+    ychr <- chr %in% 25
+    for (i in which(xchr | ychr)) geno[i,male][geno[i,male] %in% 1] <- NA
+    checkEquals(afreq[auto,"M"], 0.5*rowMeans(geno[auto,male], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[auto,"F"], 0.5*rowMeans(geno[auto,female], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[auto,"all"], 0.5*rowMeans(geno[auto,], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[xchr,"F"], 0.5*rowMeans(geno[xchr,female], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[xchr,"M"], 0.5*rowMeans(geno[xchr,male], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[xchr,"all"], (0.5*rowSums(geno[xchr,male], na.rm=TRUE) + rowSums(geno[xchr,female], na.rm=TRUE)) /
+                (afreq[xchr,"n.M"] + 2*afreq[xchr,"n.F"]), checkNames=FALSE)
+    checkTrue(all(is.na(afreq[ychr,"F"])))
+    checkEquals(afreq[ychr,"M"], 0.5*rowMeans(geno[ychr,male], na.rm=TRUE), checkNames=FALSE)
+    checkEquals(afreq[ychr,"all"], afreq[ychr,"M"], checkNames=FALSE)
+    
+}
+
+test_compare <- function() {
+    # autosomal - everything should match
+    genoData <- .testData(rep(1,100))
+    afreq <- alleleFrequency(genoData, verbose=FALSE)
+    hwe <- exactHWE(genoData, verbose=FALSE)
+    assoc <- assocRegression(genoData, "trait", verbose=FALSE)
+    checkEquals(afreq[,"MAF"], hwe[,"MAF"], checkNames=FALSE)
+    checkEquals(afreq[,"MAF"], assoc[,"MAF"], checkNames=FALSE)
+
+    # xchrom - females only for HWE
+    genoData <- .testData(rep(23,100))
+    afreq <- alleleFrequency(genoData, verbose=FALSE)
+    hwe <- exactHWE(genoData, verbose=FALSE)
+    checkEquals(pmin(afreq[,"F"], 1-afreq[,"F"]), hwe[,"MAF"], checkNames=FALSE)
+}
