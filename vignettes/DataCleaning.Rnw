@@ -1798,8 +1798,8 @@ low.qual.ids <- med.baf.sd$scanID[med.baf.sd$med.sd > 0.05]
 Decide which SNPs to exclude based on genome build.
 
 <<>>=
-chrom <- snpAnnot$chromosome
-pos <- snpAnnot$position
+chrom <- getChromosome(snpAnnot, char=TRUE)
+pos <- getPosition(snpAnnot)
 hla.df <- get(data(HLA.hg18))
 hla <- chrom == "6" & pos >= hla.df$start.base & pos <= hla.df$end.base
 xtr.df <- get(data(pseudoautosomal.hg18))
