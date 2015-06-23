@@ -576,6 +576,11 @@
     \item alleleFrequency includes scans with missing sex.
   }   
 }
+\section{Changes in version 1.15.10}{
+  \itemize{
+    \item createDataFile converts non-finite values to NA.
+  }   
+}
 
 
 

@@ -173,6 +173,9 @@ checkIntensityFile <- function(path=".",
             ## check to be sure snp ids are in the same order in each file
             ## if(!all(snp2$snpName==dat$snp)) { rm(dat); snp.order[i] <- 0; next; k <- k+1} else {snp.order[i] <- 1}
 
+            ## set non-finite values to missing
+            for (v in intersect(names(dat), intensity.vars)) dat[[v]][!is.finite(dat[[v]])]<- NA
+
             ## load quality score from ncdf and check
             if(is.element("quality", names(dat))) {
                 qs <- getQuality(quantfile, start=c(1,i), count=c(n,1))

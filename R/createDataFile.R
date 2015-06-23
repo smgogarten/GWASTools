@@ -302,6 +302,9 @@ createDataFile <- function(path=".",
         if(any(!is.element(dat$snp, snp.names))) {snp.chk[i] <- 0; rm(dat); next} else snp.chk[i] <- 1
         dat <- dat[match(snp.names, dat$snp),]
 
+        ## set non-finite values to missing
+        for (v in intersect(names(dat), intensity.vars)) dat[[v]][!is.finite(dat[[v]])]<- NA
+
         if(any(is.element(c("geno","a1","a2"),names(dat)))){
             if (allele.coding == "nucleotide") {
                 stopifnot(allequal(dat$snp, row.names(allele.map)))
