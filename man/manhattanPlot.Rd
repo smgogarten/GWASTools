@@ -11,7 +11,7 @@ Generates a manhattan plot of the results of a genome wide association test.
 \usage{
 manhattanPlot(p, chromosome, 
               ylim = NULL, trunc.lines = TRUE,
-              signif = 5e-8, thinThreshold=NULL, pointsPerBin=10000, ...)
+              signif = 5e-8, thinThreshold=NULL, pointsPerBin=10000, col=NULL, ...)
 }
 
 
@@ -29,6 +29,7 @@ manhattanPlot(p, chromosome,
   line.  If \code{signif=NULL}, no line will be drawn.}
   \item{thinThreshold}{if not \code{NULL},  \code{-log10(pval)} threshold for thinning points.}
   \item{pointsPerBin}{number of points to plot in each bin if \code{thinThreshold} is given. Ignored otherwise.}
+  \item{col}{vector containing colors of points; defaults to coloring by chromosome using the colorbrewer Dark2 palette with 8 colors}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 
 }

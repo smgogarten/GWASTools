@@ -581,6 +581,12 @@
     \item createDataFile converts non-finite values to NA.
   }   
 }
+\section{Changes in version 1.15.11}{
+  \itemize{
+    \item added col argument to manhattanPlot
+  }   
+}
+
 
 
 

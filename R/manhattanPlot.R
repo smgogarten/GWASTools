@@ -5,9 +5,11 @@ manhattanPlot <- function(p,
                           signif = 5e-8,
                           thinThreshold=NULL,
                           pointsPerBin=10000,
+                          col=NULL,
                           ...)
 {
   stopifnot(length(p) == length(chromosome))
+  if (!is.null(col)) stopifnot(length(p) == length(col))
   
   logp <- -log(p,10)
   
@@ -15,6 +17,7 @@ manhattanPlot <- function(p,
   sel <- !is.na(logp)
   logp <- logp[sel]
   chromosome <- chromosome[sel]
+  if (!is.null(col)) col <- col[sel]
   
   # select SNPs if thinning is requested
   if (!is.null(thinThreshold)){
@@ -33,6 +36,7 @@ manhattanPlot <- function(p,
     p <- p[ind]
     logp <- logp[ind]
     chromosome <- chromosome[ind]
+    if (!is.null(col)) col <- col[ind]
   } 
   
   N <- length(logp)
@@ -49,16 +53,18 @@ manhattanPlot <- function(p,
   chromend <- c(chromstart[-1],N)  # element numbers for the last SNP on each chromosome
   x <- (1:N) + chrom.int*(chromend[1]/6) # uniform spacing for SNP positions with offset
   
+  if (is.null(col)){
   # colors from colorbrewer Dark2 map, 8 levels
-  chrom.col <- factor(chrom.int)
-  levels(chrom.col) <- rep_len(c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"), length(levels(chrom.col)))
-  chrom.col <- as.character(chrom.col)
+    chrom.col <- factor(chrom.int)
+    levels(chrom.col) <- rep_len(c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666"), length(levels(chrom.col)))
+    col <- as.character(chrom.col)
+  }
   
   trunc <- FALSE
   if (trunc.lines & any(logp > ymax, na.rm=TRUE)) trunc <- TRUE
   y <- pmin(ymax,logp)
   
-  plot(x, y, cex=0.3+y/ymax, col=chrom.col, pch=ifelse(y==ymax,24,19),
+  plot(x, y, cex=0.3+y/ymax, col=col, pch=ifelse(y==ymax,24,19),
        bg=chrom.int, xlab="Chromosome", ylab=quote(-log[10](p)),
        xaxt="n", ..., ylim=ylim)
   if (trunc) lines(c(min(x), max(x)), c(ymax,ymax), col = 'grey')
