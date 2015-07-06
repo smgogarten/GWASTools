@@ -76,7 +76,7 @@ checkIntensityFile(path=".", filename, file.type=c("gds", "ncdf"),
   written if present.}
 
 \item{scan.annotation}{Scan annotation data.frame with columns "scanID"
-  (integer id of genotyping instance), "scanName", (sample name
+  (unique id of genotyping instance), "scanName", (sample name
   inside the raw data file) and "file" (corresponding raw data file name).
 }
 
@@ -147,7 +147,7 @@ used here (but not Affymetrix "ALLELE_SUMMARY" files).
 
 A SNP annotation data.frame is a pre-requisite for this function. It has the same number of rows (one per SNP) as the raw text file and a column of SNP names matching those within the raw text file. It also has a column of integer SNP ids to be used as a unique key for each SNP in the GDS or netCDF file.
 
-A sample annotation data.frame is also a pre-requisite. It has one row per sample with columns corresponding to sample name (as it occurs within the raw text file), name of the raw text file for that sample and an integer sample id (to be written as the "sampleID" variable in the GDS or netCDF file).
+A sample annotation data.frame is also a pre-requisite. It has one row per sample with columns corresponding to sample name (as it occurs within the raw text file), name of the raw text file for that sample and a unique sample id (to be written as the "sampleID" variable in the GDS or netCDF file). If \code{file.type="ncdf"}, the unique id must be an integer.
 
 The genotype calls in the raw text file may be either one column of diploid calls or two columns of allele calls. The function takes calls in "AB" or "nucleotide" format and converts them to a numeric code indicating the number of "A" alleles in the genotype (i.e. AA=2, AB=1, BB=0 and missing=-1). If the genotype calls are nucleotides (A,C,G,T), the columns "alleleA" and "alleleB" in \code{snp.annotation} are used to map to AB format.
 

@@ -586,7 +586,8 @@
     \item added col argument to manhattanPlot
   }   
 }
-
-
-
-
+\section{Changes in version 1.15.12}{
+  \itemize{
+    \item allow character scanID in createDataFile
+  }   
+}

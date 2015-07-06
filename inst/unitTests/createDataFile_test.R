@@ -392,3 +392,41 @@ test_nucleotides <- function() {
   file.remove(diagfile)
   file.remove(ncfile)
 }
+
+
+test_character_scanID <- function() {
+  data(illumina_snp_annot)
+  snpAnnot <- illumina_snp_annot
+  data(illumina_scan_annot)
+  scanAnnot <- illumina_scan_annot[1:3,] # subset of samples for testing
+  scanAnnot$scanID <- paste0("a", scanAnnot$scanID)
+  ncfile <- tempfile()
+  path <- system.file("extdata", "illumina_raw_data", package="GWASdata")
+  snpAnnot <- snpAnnot[,c("snpID", "rsID", "chromosome", "position", "alleleA", "alleleB")]
+  names(snpAnnot)[1:2] <- c("snpID", "snpName")
+  scanAnnot <- scanAnnot[,c("scanID", "genoRunID", "file")]
+  names(scanAnnot) <- c("scanID", "scanName", "file")
+  col.nums <- as.integer(c(1,2,12,13))
+  names(col.nums) <- c("snp", "sample", "a1", "a2")
+  diagfile <- tempfile()
+  res <- createDataFile(path, ncfile, file.type="gds",  variables="genotype",
+                        snpAnnot, scanAnnot, sep.type=",",
+                       skip.num=11, col.total=21, col.nums=col.nums,
+                       scan.name.in.file=1, diagnostics.filename=diagfile)
+
+  # check
+  nc <- GdsGenotypeReader(ncfile)
+  origfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")
+  checkTrue(getNodeDescription(nc, "sample.id")$type == "String")
+  checkIdentical(getScanID(nc), scanAnnot$scanID)
+  close(nc)
+
+  # not allowed for ncdf
+  checkException(createDataFile(path, ncfile, file.type="ncdf",  variables="genotype",
+                                snpAnnot, scanAnnot, sep.type=",",
+                                skip.num=11, col.total=21, col.nums=col.nums,
+                                scan.name.in.file=1, diagnostics.filename=diagfile))
+
+  file.remove(diagfile)
+  file.remove(ncfile)
+}

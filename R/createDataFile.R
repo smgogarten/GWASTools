@@ -115,7 +115,7 @@
 }
 
 .createGds <- function(snp.annotation, filename, variables, precision="single",
-                       compress="ZIP.max") {
+                       compress="ZIP.max", sample.storage="integer") {
 
     ## define precision for gds
     precision <- ifelse(precision == "double", "float64", "float32")
@@ -127,7 +127,7 @@
     gds <- createfn.gds(filename)
 
     ## add standard variables
-    add.gdsn(gds, "sample.id", storage="integer", valdim=0, compress=compress) # use valdim=0 then append
+    add.gdsn(gds, "sample.id", storage=sample.storage, valdim=0, compress=compress) # use valdim=0 then append
     add.gdsn(gds, "snp.id", snp.annotation$snpID, compress=compress, closezip=TRUE)
     add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
              compress=compress, closezip=TRUE)
@@ -217,8 +217,14 @@ createDataFile <- function(path=".",
     ## create data file
     if (file.type == "gds") {
         ## don't need n.samples since we will use append later
-        genofile <- .createGds(snp.annotation, filename, variables, precision, compress)
+        ## get storage mode of samples
+        storage.mode <- ifelse(is.character(scan.annotation$scanID), "character", "integer")
+        genofile <- .createGds(snp.annotation, filename, variables, precision, compress,
+                               sample.storage=storage.mode)
     } else if (file.type == "ncdf") {
+        if (any(is.na(as.integer(scan.annotation$scanID)))) {
+            stop("integer scanID required for ncdf files")
+        }
         genofile <- .createNcdf(snp.annotation, filename, variables, nrow(scan.annotation),
                                  precision, array.name, genome.build)
     }
