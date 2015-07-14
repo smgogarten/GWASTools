@@ -52,7 +52,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
     # .samples file
     if (verbose) message ("Reading sample file...")
     samp.header <- scan(input.files[2], what=character(), nlines=1, quiet=TRUE)
-    samples <- read.table(input.files[2], as.is=TRUE, header=FALSE, skip=2)
+    samples <- fread(input.files[2], stringsAsFactors=FALSE, header=FALSE, skip=2, data.table=FALSE)
     names(samples) <- samp.header
     if (nrow(samples) != nsamp) stop("Sample number mismatch: ", nsamp, " in genotype file; ", nrow(samples), "in samples file")
     
@@ -127,7 +127,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
     
     # .markers file
     if (verbose) message ("Reading SNP file...")
-    snps <- read.table(input.files[2], as.is=TRUE, header=FALSE)
+    snps <- fread(input.files[2], stringsAsFactors=FALSE, header=FALSE, data.table=FALSE)
     names(snps) <- c("marker", "position", "alleleA", "alleleB")
     if (nrow(snps) != nsnp) stop("SNP number mismatch: ", nsnp, " in genotype file; ", nrow(snps), "in markers file")
     
@@ -217,13 +217,13 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
   if (input.type == "MaCH") {
     # .mlinfo file
     if (verbose) message ("Reading SNP files...")
-    snps <- read.table(input.files[2], as.is=TRUE, header=TRUE)
+    snps <- fread(input.files[2], stringsAsFactors=FALSE, header=TRUE, data.table=FALSE)
     snps <- snps[,1:3]
     names(snps) <- c("snp", "alleleA", "alleleB")
     if (nrow(snps) != nsnp) stop("SNP number mismatch: ", nsnp, " in genotype file; ", nrow(snps), "in mlinfo file")
     
     # file with SNP positions
-    snp2 <- read.table(input.files[3], as.is=TRUE, header=TRUE)
+    snp2 <- fread(input.files[3], stringsAsFactors=FALSE, header=TRUE, data.table=FALSE)
     snp2 <- snp2[,c("SNP", "position")]
     names(snp2) <- c("snp", "position")
     if (!setequal(snps$snp, snp2$snp)) stop("SNP column in files ", input.files[2], " and ", input.files[3], " do not contain the same values")

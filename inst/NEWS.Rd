@@ -591,3 +591,10 @@
     \item allow character scanID in createDataFile
   }   
 }
+\section{Changes in version 1.15.13}{
+  \itemize{
+    \item pedigreePairwiseRelatedness identifies great grandparent/great grandchild (GGp) and grand avuncular (GAv)
+    \item speed up creation of data files by calling fread instead of read.table
+  }   
+}
+

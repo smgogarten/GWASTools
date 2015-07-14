@@ -149,7 +149,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   # check SNPs
   if (verbose) message("Checking SNPs against map file")
   writeLines("Checking SNPs against map file...", con)
-  map <- read.table(mapfile, as.is=TRUE, comment.char="")
+  map <- fread(mapfile, stringsAsFactors=FALSE, data.table=FALSE)
   if (ncol(map) > 3) map <- map[,c(1,2,4)] # skip map distance
   names(map) <- c("chromosome", "rsID", "position")
   # convert chromosome to integer (PLINK coding)
@@ -301,7 +301,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
                         ncdfMchromCode=26, ncdfUchromCode=27,
                         pedMissingCode=0, verbose=TRUE) {
   # read map file to get SNP annotation
-  map <- read.table(mapFile, as.is=TRUE, comment.char="")
+  map <- fread(mapFile, stringsAsFactors=FALSE, data.table=FALSE)
   names(map)[1:4] <- c("chromosome", "rsID", "mapdist", "position")
 
   # are chromosomes in map file characters or integers?

@@ -28,8 +28,7 @@ pedigreePairwiseRelatedness(pedigree)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\details{  Assigns relationships between individuals in a pedigree, including "U" = unrelated, "PO" = parent/offspring, "FS" = full siblings, "HS" = half siblings, "Av" = avuncular, "GpGc" = grandparent-grandchild, and "FC" = first cousins, among others).
-
+\details{  Assigns relationships between individuals in a pedigree, including "U" = unrelated, "PO" = parent/offspring, "FS" = full siblings, "HS" = half siblings, "Av" = avuncular,  "FC" = first cousins, "GpGc" = grandparent-grandchild, "HAv" = half-avuncular, "HFC" = half-first-cousin, "GGp" = great-grandparent-great-grandchild, "GAv" = grand-avuncular, "HSFC" = half-sib-first-cousin, "DFC" = double first cousin, among others.
 Relatedness is not calculated for inbred families but kinship coefficients are.
 
 }

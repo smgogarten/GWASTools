@@ -1,5 +1,5 @@
 ###Relationship pairs with deeper pedigrees
-#Input - pedigree dataframe with individ, mother, father, sex
+#Input - pedigree dataframe with family, individ, mother, father, sex
 #  Assumes (but checks) initial cleaning done and no one person families, 
 # no mismatched mother/father sex, no impossible relationships
 #Output - vector of families with inbreeding (to be handled by hand)
@@ -76,6 +76,38 @@ pedigreePairwiseRelatedness<-
 		return(out.list) 
 	 }
 
+   grand<-function(rel,ped){
+    ind<-which(rel$relation %in% "Other" & rel$kinship==0.0625)
+   for(i in ind){
+    tmp<-rel[i,]
+    a<-tmp$Individ1
+    d<-tmp$Individ2
+    c<-ped$individ[ped$mother ==a | ped$father==a] # children of a
+    si<-(rel$Individ1 ==a & rel$relation %in% "FS") | (rel$Individ2==a & rel$relation %in% "FS")
+    s<-union(rel$Individ1[si],rel$Individ2[si])
+    s<-setdiff(s,a)
+    gi<-(rel$Individ1 ==d & rel$relation %in% "GpGc") | (rel$Individ2==d & rel$relation %in% "GpGc")
+    g<-union(rel$Individ1[gi],rel$Individ2[gi])
+    g<-setdiff(g,d)
+    if(length(intersect(g,c))!=0) rel$relation[i]<-"GGp"
+    if (length(intersect(g,s))!=0) rel$relation[i]<-"GAv"
+
+    if(rel$relation[i] %in% "Other"){ # i.e. above didn't produce anything try other way around
+
+      c<-ped$individ[ped$mother ==d | ped$father==d] # children of d
+      si<-(rel$Individ1 ==d & rel$relation %in% "FS") | (rel$Individ2==d & rel$relation %in% "FS")
+      s<-union(rel$Individ1[si],rel$Individ2[si])
+      s<-setdiff(s,d)
+      gi<-(rel$Individ1 ==a & rel$relation %in% "GpGc") | (rel$Individ2==a & rel$relation %in% "GpGc")
+      g<-union(rel$Individ1[gi],rel$Individ2[gi])
+      g<-setdiff(g,a)
+      if(length(intersect(g,c))!=0) rel$relation[i]<-"GGp"
+      if (length(intersect(g,s))!=0) rel$relation[i]<-"GAv"
+    } 
+   }
+   return(rel)
+   }
+    
 		
     samp<- pedigree
 	
@@ -440,10 +472,16 @@ pedigreePairwiseRelatedness<-
 	#add family id column
 	relprs$family<-rep(u[i],nrow(relprs))
 	
-	
+	## adjust relative pairs for great grandparents GGp and grand avuncular GAv
+      relprs<-grand(relprs,x)
+
 	#add onto previous family
 	relativeprs<-rbind(relativeprs,relprs)
     } #end of family loop
+
+
+
+
 	out.list<-list(inbreed,inbred.kc,relativeprs)
 	names(out.list)<-c("inbred.fam","inbred.KC","relativeprs")
 	return(out.list)
