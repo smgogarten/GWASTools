@@ -59,8 +59,6 @@ checkGenotypeFile <- function(path=".",
     
     ##generate names for the genotype data.frame
     df.names <- names(sort(col.nums))
-
-    if(scan.name.in.file==-1) {skip.num <- skip.num-1; head<-TRUE} else  {head<-FALSE}
     
     ## set up objects to keep track of things for each file
 
@@ -93,7 +91,8 @@ checkGenotypeFile <- function(path=".",
         save(diagnostics, file=diagnostics.filename)
 
         ##read in the file for one sample and keep columns of interest; skip to next file if there is a read error (using function "try")
-        dat <- try(fread(files[i], header=head, sep=sep.type, skip=skip.num, colClasses=cc, data.table=FALSE))
+        if(scan.name.in.file==-1) {skip.num <- skip.num-1; head<-TRUE} else  {head<-FALSE}
+        dat <- try(read.table(files[i], header=head, sep=sep.type, comment.char="", skip=skip.num, colClasses=cc))
         if (inherits(dat, "try-error")) { read.file[i] <- 0; message(paste("error reading file",i)); next } 		
         read.file[i] <- 1 
         ## get sample name from column heading for Affy

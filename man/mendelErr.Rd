@@ -96,8 +96,8 @@ names(R$trios)
 # [11] "chr5"        "chr6"        "chr7"        "chr8"        "chr9"       
 # [16] "chr10"       "chr11"       "chr12"       "chr13"       "chr14"      
 # [21] "chr15"       "chr16"       "chr17"       "chr18"       "chr19"      
-# [26] "chr20"       "chr21"       "chr22"       "chr23"       "chr24"      
-# [31] "chr25"
+# [26] "chr20"       "chr21"       "chr22"       "chrX"        "chrXY"      
+# [31] "chrY"   
 
 # Mendelian error rate = Men.err.cnt / Men.cnt
 data.frame(fam.id = R$trios$fam.id, child.id = R$trios$child.id,
