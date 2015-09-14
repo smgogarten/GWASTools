@@ -81,7 +81,7 @@ genotypes of the first six mismatched SNPs (which may not be consecutive).
 
 These utilities convert between chromosome coding in
 \code{\link{GenotypeData}}, which by default is 24=XY, 25=Y, and PLINK
-chromosome coding, which is 24=Y, 25=X.
+chromosome coding, which is 24=Y, 25=XY.
 
 Larger blockSize will improve speed but will require more RAM.
 }
