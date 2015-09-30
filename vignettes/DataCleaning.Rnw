@@ -2151,10 +2151,10 @@ varMetadata(snpAnnot)["mendel.err.sampsize", "labelDescription"] <-
 @
 
 To further investigate SNPs with a high Mendelian error rate, we will
-make genotyple cluster plots for the 9 SNPs
+make genotype cluster plots for the 9 SNPs
 with the highest Mendelian error rate.
-Blue indicates a sample
-with a ``BB'' genotype, green is an ``AB'' genotype and red is an ``AA'' genotype. The black X marks indicate
+green indicates a sample
+with an ``AA'' genotype, orange is an ``AB'' genotype and purple is a ``BB'' genotype. The black X marks indicate
 a sample with a missing genotype for that SNP.
 We expect the
 plots to lack defined genotype clusters, leading to a poor call rate.
@@ -2456,7 +2456,7 @@ close(genoData)
 \includegraphics[width=5.67in,height=5.67in,keepaspectratio]{DataCleaning-cluster}
 
 These cluster plots look like high-quality SNPs with well-defined
-clusters (red=AA, green=AB, blue=BB).
+clusters (orange=AA, green=AB, fuschia=BB).
 
 <<echo=FALSE, results=hide>>=
 unlink(subj.filt.file)

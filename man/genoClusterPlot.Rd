@@ -12,10 +12,12 @@ genoClusterPlot(intenData, genoData, plot.type = c("RTheta", "XY"),
                 snpID, main.txt = NULL, by.sex = FALSE,
                 scan.sel = NULL, scan.hilite = NULL,
                 start.axis.at.0 = FALSE,
+		colors = c("default", "neon", "primary"),
                 verbose = TRUE, ...)
 
 genoClusterPlotByBatch(intenData, genoData, plot.type = c("RTheta", "XY"), 
                        snpID, batchVar, main.txt = NULL, scan.sel = NULL, 
+                       colors = c("default", "neon", "primary"),
                        verbose = TRUE, ...)
 }
 \arguments{
@@ -36,6 +38,7 @@ genoClusterPlotByBatch(intenData, genoData, plot.type = c("RTheta", "XY"),
 	the same colors.}
   \item{start.axis.at.0}{Logical for whether the min value of each axis
                        should be 0.}
+  \item{colors}{Color scheme to use for genotypes. "default" is colorblind safe (colorbrewer Set2), "neon" is bright orange/green/fuschia, and "primary" is red/green/blue.}
   \item{verbose}{Logical value specifying whether to show progress.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
@@ -76,11 +79,28 @@ genoClusterPlot(xyData, genoData, snpID=snpID, main.txt=rsID,
 
 genoClusterPlot(xyData, genoData, snpID=snpID, main.txt=rsID,
                 scan.hilite=scan.sel)
+close(xyData)
+close(genoData)
+
+## affy data - cluster plots by plate
+data(affyScanADF, affySnpADF)
+
+xyfile <- system.file("extdata", "affy_qxy.nc", package="GWASdata")
+xy <- NcdfIntensityReader(xyfile)
+xyData <-  IntensityData(xy, scanAnnot=affyScanADF, snpAnnot=affySnpADF)
+
+genofile <- system.file("extdata", "affy_geno.nc", package="GWASdata")
+geno <- NcdfGenotypeReader(genofile)
+genoData <-  GenotypeData(geno, scanAnnot=affyScanADF, snpAnnot=affySnpADF)
+
+# select first 9 snps
+snpID <- affySnpADF$snpID[1:9]
+rsID <- affySnpADF$rsID[1:9]
 
 genoClusterPlotByBatch(xyData, genoData, snpID=snpID, main.txt=rsID,
                        batchVar="plate")
-
 close(xyData)
 close(genoData)
+
 }
 \keyword{ hplot }

@@ -15,6 +15,7 @@ chromIntensityPlot <- function(
                  ideogram=TRUE, ideo.zoom=TRUE, ideo.rect=FALSE,
                  cex=0.5,
                  cex.leg=1.5,
+                 colors = c("default", "neon", "primary"),
 		 ...)
 {
     # check arguments
@@ -52,6 +53,7 @@ chromIntensityPlot <- function(
         stop(paste("SNP variable", batch.column, "was not found in intenData."))
       }
     }
+    colors <- match.arg(colors)
 
     chr <- getChromosome(intenData)
     chr.char <- getChromosome(intenData, char=TRUE)
@@ -128,13 +130,17 @@ chromIntensityPlot <- function(
         }
 
         # create genotype color vector if colorGenotypes==TRUE
-        gcol <- rep("black", length(chri))
+        cols <- .colorByGeno(colors)
+        gcol <- rep(cols["NA"], length(chri))
         if (colorGenotypes) {
             genos <- getGenotype(genoData, snp=c(chr.start,chr.count), scan=c(sid,1))
-            gcol[genos %in% 0] <- "#F0027F"
-            gcol[genos %in% 1] <- "#00FF7F"
-            gcol[genos %in% 2] <- "#FF7F00"
-            txt.leg <- "orange=AA, green=AB, fuschia=BB, black=missing"
+            gcol[genos %in% 0] <- cols["BB"]
+            gcol[genos %in% 1] <- cols["AB"]
+            gcol[genos %in% 2] <- cols["AA"]
+            txt.leg <- paste0(cols["AAname"], "=AA, ",
+                              cols["ABname"], "=AB, ",
+                              cols["BBname"], "=BB, ",
+                              cols["NAname"], "=missing")
         } else {
           txt.leg <- ""
         }

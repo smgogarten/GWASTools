@@ -1,3 +1,44 @@
+
+.colorByGeno <- function(colors) {
+    switch(colors,
+           default=c(
+               "AA"="#66c2a5", 
+               "AB"="#fc8d62", 
+               "BB"="#8da0cb",
+               "NA"="black",
+               "AAhilite"="#e78ac3",
+               "ABhilite"="#a6d854",
+               "BBhilite"="#ffd92f",
+               "AAname"="green", 
+               "ABname"="orange", 
+               "BBname"="purple",
+               "NAname"="black"),
+           neon=c(
+               "AA"="#FF7F00",
+               "AB"="#00FF7F",
+               "BB"="#F0027F",
+               "NA"="black",
+               "AAhilite"="blue",
+               "ABhilite"="purple",
+               "BBhilite"="gold",
+               "AAname"="orange",
+               "ABname"="green",
+               "BBname"="fuschia",
+               "NAname"="black"),
+           primary=c(
+               "AA"="red",
+               "AB"="green",
+               "BB"="blue",
+               "NA"="black",
+               "AAhilite"="yellow",
+               "ABhilite"="magenta",
+               "BBhilite"="orange",
+               "AAname"="red",
+               "ABname"="green",
+               "BBname"="blue",
+               "NAname"="black"))
+}
+
 genoClusterPlot <- function(intenData, 
                          genoData, 
                          plot.type=c("RTheta","XY"),
@@ -7,11 +48,13 @@ genoClusterPlot <- function(intenData,
                          scan.sel = NULL, 
                          scan.hilite = NULL,
                          start.axis.at.0 = FALSE,
+                         colors = c("default", "neon", "primary"),
                          verbose = TRUE,
                          ...)
 {
 
   if (verbose) message(paste("start time =", Sys.time()))
+  colors <- match.arg(colors)
 			
   # check that dimensions of intenData and genoData are equal
   intenSnpID <- getSnpID(intenData)
@@ -80,14 +123,15 @@ genoClusterPlot <- function(intenData,
     y <- y[scan.index] 
     x <- getX(intenData, snp=c(snp.index[i],1), scan=c(1,-1))
     x <- x[scan.index] 
-    xcol <- rep(NA, length(geno))   
-    xcol[is.na(geno)] <- "black"
-    xcol[geno==0 & hilite.ind==0] <- "blue"
-    xcol[geno==1 & hilite.ind==0] <- "green"
-    xcol[geno==2 & hilite.ind==0] <- "red"
-    xcol[geno==0 & hilite.ind==1] <- "orange"
-    xcol[geno==1 & hilite.ind==1] <- "magenta"
-    xcol[geno==2 & hilite.ind==1] <- "yellow"
+    xcol <- rep(NA, length(geno))
+    cols <- .colorByGeno(colors)
+    xcol[is.na(geno)] <- cols["NA"]
+    xcol[geno==0 & hilite.ind==0] <- cols["BB"]
+    xcol[geno==1 & hilite.ind==0] <- cols["AB"]
+    xcol[geno==2 & hilite.ind==0] <- cols["AA"]
+    xcol[geno==0 & hilite.ind==1] <- cols["BBhilite"]
+    xcol[geno==1 & hilite.ind==1] <- cols["ABhilite"]
+    xcol[geno==2 & hilite.ind==1] <- cols["AAhilite"]
     xpch <- rep(NA, length(geno)) 
     xpch[is.na(geno)] <- 4
     xpch[!is.na(geno)] <- 1

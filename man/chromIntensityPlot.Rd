@@ -19,7 +19,8 @@ chromIntensityPlot(intenData, scan.ids, chrom.ids,
   colorBatch = FALSE, batch.column = NULL,
   snp.exclude = NULL,
   ideogram=TRUE, ideo.zoom=TRUE, ideo.rect=FALSE,
-  cex=0.5, cex.leg=1.5, ...)
+  cex=0.5, cex.leg=1.5, 
+  colors = c("default", "neon", "primary"), ...)
 }
 
 
@@ -55,6 +56,7 @@ Use -1 as one pair value for plots that warrant only one line. By default, no li
     ideogram indicating the range of the BAF/LRR plots.}
   \item{cex}{cex value for points on the plots.}
   \item{cex.leg}{cex value for the ideogram legend.}
+  \item{colors}{Color scheme to use for genotypes. "default" is colorblind safe (colorbrewer Set2), "neon" is bright orange/green/fuschia, and "primary" is red/green/blue.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 

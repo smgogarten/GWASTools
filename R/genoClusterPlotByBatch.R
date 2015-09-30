@@ -5,11 +5,13 @@ genoClusterPlotByBatch <- function(intenData,
                          batchVar,
                          main.txt = NULL,
                          scan.sel = NULL, 
+                         colors = c("default", "neon", "primary"),
                          verbose = TRUE,
                          ...)
 {
 
   if (verbose) message(paste("start time =", Sys.time()))
+  colors <- match.arg(colors)
 			
   # check that dimensions of intenData and genoData are equal
   intenSnpID <- getSnpID(intenData)
@@ -71,10 +73,11 @@ genoClusterPlotByBatch <- function(intenData,
       xsm <- x[samp.logic];
       stopifnot(length(genosm)==length(ysm) & length(ysm)==length(xsm))
       xcol <- rep(NA, length(genosm))
-      xcol[is.na(genosm)] <- "black"
-      xcol[genosm==0] <- "blue"
-      xcol[genosm==1] <- "green"
-      xcol[genosm==2] <- "red"
+      cols <- .colorByGeno(colors)
+      xcol[is.na(genosm)] <- cols["NA"]
+      xcol[genosm==0] <- cols["BB"]
+      xcol[genosm==1] <- cols["AB"]
+      xcol[genosm==2] <- cols["AA"]
       stopifnot(sum(is.na(xcol))==0)
       xpch <- rep(NA, length(genosm))
       xpch[is.na(genosm)] <- 4

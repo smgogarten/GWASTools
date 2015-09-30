@@ -17,7 +17,8 @@ anomStatsPlot(intenData, genoData, anom.stats, snp.ineligible,
   whole.chrom = FALSE, win = 5, win.calc = FALSE, win.fixed = 1,
   zoom = c("both", "left", "right"), main = NULL, info = NULL,
   ideogram = TRUE, ideo.zoom = FALSE, ideo.rect = TRUE,
-  mult.anom = FALSE, cex = 0.5, cex.leg = 1.5, ...)
+  mult.anom = FALSE, cex = 0.5, cex.leg = 1.5,
+colors = c("default", "neon", "primary"), ...)
 }
 
 \arguments{
@@ -113,6 +114,7 @@ was detected by BAF method (\code{\link{anomDetectBAF}}) or by LOH method
   cex value for points on the plots
 }
   \item{cex.leg}{cex value for the ideogram legend}
+  \item{colors}{Color scheme to use for genotypes. "default" is colorblind safe (colorbrewer Set2), "neon" is bright orange/green/fuschia, and "primary" is red/green/blue.}
   \item{\dots}{Other parameters to be passed directly to \code{\link{plot}}.}
 }
 

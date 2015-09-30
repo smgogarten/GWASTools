@@ -596,4 +596,9 @@
     \item pedigreePairwiseRelatedness identifies great grandparent/great grandchild (GGp) and grand avuncular (GAv)
   }   
 }
+\section{Changes in version 1.15.15}{
+  \itemize{
+    \item allow multiple color schemes for plots color-coded by genotype
+  }   
+}
 

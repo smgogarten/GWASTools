@@ -52,15 +52,20 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
     chr <- chr[keep]
     pos <- pos[keep]
   }
+
+  # define colors
+  XCOLOR <- "magenta"
+  YCOLOR <- "skyblue"
+  XYCOLOR <- "darkgreen"
   
   # get the X, Y and XY inds
   xinds <- !is.na(chr) & chr=="X"
   xyinds <- !is.na(chr) & chr=="XY"
   yinds <- !is.na(chr) & chr=="Y"
   xcol <- rep(NA,length(chr))
-  xcol[xinds] <- "magenta"
-  xcol[yinds] <- "skyblue"
-  xcol[xyinds] <- "darkgreen"
+  xcol[xinds] <- XCOLOR
+  xcol[yinds] <- YCOLOR
+  xcol[xyinds] <- XYCOLOR
 
   allinds <- xinds+xyinds+yinds
   allinds <- allinds==1
@@ -103,7 +108,7 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
           txt.main <- paste("Scan",scan.ids[i],"-",sexLabel[i])
         }
         txt.leg <- paste("magenta = X SNPs, green = XY SNPs",
-                         "gray = PAR1/PAR2, yellow=XTR", sep="\n")
+                         "gray = PAR1/PAR2, yellow = XTR", sep="\n")
 
         # LRR
         plot(pos[xxyinds]/1e6,logrratio[xxyinds,i],xlab="position (Mb)",ylab="LRR",sub="horizontal line = mean LRR",main=txt.main,col=xcolxxy,type="n", ylim=c(-2,2), ...)
@@ -117,8 +122,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,logrratio[xinds,i],col="magenta", cex=cex)
-        points(pos[xyinds]/1e6,logrratio[xyinds,i],col="darkgreen", cex=cex)
+        points(pos[xinds]/1e6,logrratio[xinds,i],col=XCOLOR, cex=cex)
+        points(pos[xyinds]/1e6,logrratio[xyinds,i],col=XYCOLOR, cex=cex)
 
         # BAF
         plot(pos[xxyinds]/1e6,bafreq[xxyinds,i],xlab="position (Mb)",ylab="BAF",main=txt.leg,col=xcolxxy,type="n", ...)
@@ -130,13 +135,13 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
              ybottom=0, ytop=1, col="yellow", border=NA)
         
         # overlay the xy points on the plot
-        points(pos[xinds]/1e6,bafreq[xinds,i],col="magenta", cex=cex)
-        points(pos[xyinds]/1e6,bafreq[xyinds,i],col="darkgreen", cex=cex)
+        points(pos[xinds]/1e6,bafreq[xinds,i],col=XCOLOR, cex=cex)
+        points(pos[xyinds]/1e6,bafreq[xyinds,i],col=XYCOLOR, cex=cex)
 
         # Y chromosome
         if (plotY) {
-          txt.leg <- paste("blue=Y SNPs, green=XY SNPs",
-                           "gray = PAR1/PAR2, yellow=XTR", sep="\n")
+          txt.leg <- paste("blue = Y SNPs, green = XY SNPs",
+                           "gray = PAR1/PAR2, yellow = XTR", sep="\n")
 
           # scale base positions for XY regions to Y chrom
           ypts <- pos[yinds]/1e6
@@ -166,8 +171,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=c(-2,-2), ytop=c(2,2), col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ylrr, col="skyblue", cex=cex)
-          points(xypts, xylrr,col="darkgreen", cex=cex)
+          points(ypts, ylrr, col=YCOLOR, cex=cex)
+          points(xypts, xylrr,col=XYCOLOR, cex=cex)
 
           # BAF
           plot(c(ypts, xypts), c(ybaf, xybaf),xlab="position (Mb)",ylab="BAF",main=txt.leg,col=xcolyxy,type="n", ...)
@@ -179,8 +184,8 @@ pseudoautoIntensityPlot <- function(intenData, # object of type IntensityData
                ybottom=0, ytop=1, col="yellow", border=NA)
         
           # overlay the xy points on the plot
-          points(ypts, ybaf, col="skyblue", cex=cex)
-          points(xypts, xybaf, col="darkgreen", cex=cex)
+          points(ypts, ybaf, col=YCOLOR, cex=cex)
+          points(xypts, xybaf, col=XYCOLOR, cex=cex)
         }
   }
 

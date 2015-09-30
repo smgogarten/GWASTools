@@ -1,5 +1,5 @@
 Package: GWASTools
-Version: 1.15.14
+Version: 1.15.15
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
@@ -24,6 +24,8 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   plinkUtils.R snpStats.R vcfWrite.R
   convertNcdfGds.R convertVcfGds.R
   BAFfromClusterMeans.R BAFfromGenotypes.R
+  genoClusterPlot.R genoClusterPlotByBatch.R 
+  chromIntensityPlot.R pseudoautoIntensityPlot.R intensityOutliersPlot.R 
   sdByScanChromWindow.R medianSdOverAutosomes.R meanSdByChromWindow.R findBAFvariance.R
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R
   LOHfind.R LOHselectAnoms.R anomDetectLOH.R
@@ -37,8 +39,6 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   duplicateDiscordance.R duplicateDiscordanceProbability.R
   duplicateDiscordanceAcrossDatasets.R dupDosageCorAcrossDatasets.R
   assocRegression.R assocCoxPH.R exactHWE.R mendelErr.R
-  genoClusterPlot.R genoClusterPlotByBatch.R 
-  chromIntensityPlot.R pseudoautoIntensityPlot.R intensityOutliersPlot.R 
   qqPlot.R manhattanPlot.R snpCorrelationPlot.R
   ibdAreasDraw.R ibdAssignRelatedness.R ibdPlot.R findRelationsMeanVar.R
   pedigreeCheck.R pedigreeDeleteDuplicates.R

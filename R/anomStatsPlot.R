@@ -48,6 +48,7 @@ anomStatsPlot <- function(intenData, genoData,
         mult.anom=FALSE,
 	cex=0.5,		# cex value for points on the plots
         cex.leg=1.5,
+        colors = c("default", "neon", "primary"),
         ...
 ){
 
@@ -62,6 +63,7 @@ anomStatsPlot <- function(intenData, genoData,
 	# v8 add anom.id to plot title
 	# v9 when plotting ineligible points for lrr, put them underneath the eligible
 
+  colors <- match.arg(colors)
 
   # check that intenData has BAF/LRR
   if (!hasBAlleleFreq(intenData)) stop("BAlleleFreq not found in intenData")
@@ -215,11 +217,12 @@ anomStatsPlot <- function(intenData, genoData,
     }
 
     # color-coding for genotype calls
+    cols <- .colorByGeno(colors)
     gcol <- rep(NA, length(geno))
-    gcol[geno %in% 2] <- "#FF7F00"
-    gcol[geno %in% 1] <- "#00FF7F"
-    gcol[geno %in% 0] <- "#F0027F"
-    gcol[is.na(geno)] <- "black"
+    gcol[geno %in% 2] <- cols["AA"]
+    gcol[geno %in% 1] <- cols["AB"]
+    gcol[geno %in% 0] <- cols["BB"]
+    gcol[is.na(geno)] <- cols["NA"]
     gcol[ne] <- "pink"
     # color-coding for lrr
     lcol <- rep("gray", length(lrr))
@@ -334,9 +337,12 @@ anomStatsPlot <- function(intenData, genoData,
     }
               
     # plot BAF
-    mtxt <- paste("orange=AA, green=AB, fuschia=BB, pink=ineligible, black=other missing",
-                  "horiz solid red = non-anom median, horiz dashed red = anom median",
-                  sep="\n")
+    mtxt <- paste0(cols["AAname"], "=AA, ",
+                   cols["ABname"], "=AB, ",
+                   cols["BBname"], "=BB, ",
+                   "pink=ineligible, ",
+                   cols["NAname"], "=other missing\n",
+                  "horiz solid red = non-anom median, horiz dashed red = anom median")
     plot(pos[sel.baf]/mb, baf[sel.baf], xlab="position (Mb)", ylab="BAF", type="n",
          ylim=c(0,1), xlim=xlim, main=mtxt, ...) 
     if(!is.null(centromere)){
