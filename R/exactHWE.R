@@ -25,6 +25,45 @@
     cbind(nAA, nAa, naa)
 }
 
+.permuteGenotypesSlow <- function(genotypes){
+  
+  counts <- .countGenotypes(genotypes)
+  missing <- is.na(genotypes)
+  counts <- cbind(counts,
+                  nA=2*counts[, "nAA"] + counts[, "nAa"],
+                  na=2*counts[, "naa"] + counts[, "nAa"],
+                  nmiss=2*rowSums(missing))
+  
+  
+  # slow for loop:
+  permuted <- matrix(NA, ncol=ncol(genotypes), nrow=nrow(genotypes))
+  for (i in 1:nrow(counts)){
+    alleles <- sample(c(rep(1, counts[i, "nA"]), rep(0, counts[i, "na"])))
+    genoPermuted <- alleles[c(TRUE, FALSE)] + alleles[c(FALSE, TRUE)]
+    permuted[i, !missing[i, ]] <- genoPermuted
+  }
+  
+  permuted
+
+}
+
+.permuteGenotypes <- function(genotypes){
+  
+  nsamp <- ncol(genotypes)
+
+  alleles <- cbind(genotypes > 0, genotypes > 1)
+  shuffled <- t(alleles)
+  tmp <- which(!is.na(shuffled), arr.ind=TRUE)
+  index <- which(!is.na(shuffled))
+  tmp2 <- index[order(tmp[, "col"], runif(nrow(tmp)))]
+  # preserve NAs
+  ind <- tmp2[match(1:length(shuffled), index)]
+  shuffled <- matrix(shuffled[ind], nrow=nrow(alleles), ncol=ncol(alleles), byrow=TRUE) 
+  
+  permuted <- shuffled[, 1:nsamp] + shuffled[, (nsamp+1):(2*nsamp)]
+  permuted
+}
+
 
 exactHWE <- function(genoData,
                      scan.exclude = NULL,
@@ -32,7 +71,8 @@ exactHWE <- function(genoData,
                      snpStart = NULL,
                      snpEnd = NULL,
                      block.size = 5000,                      
-                     verbose = TRUE) {
+                     verbose = TRUE,
+                     permute=FALSE) {
 
     ## set snpStart and snpEnd
     if (is.null(snpStart)) snpStart <- 1
@@ -75,6 +115,8 @@ exactHWE <- function(genoData,
         geno <- getGenotype(genoData, snp=c(snp.start.pos, nsnp.block), scan=c(1,-1), drop=FALSE)
         geno <- geno[,keep,drop=FALSE]
 
+        if (permute) geno <- .permuteGenotypes(geno)
+        
         ## count genotypes
         tmpGenotypeCounts <- .countGenotypes(geno)
         if (geno.counts) {

@@ -35,4 +35,47 @@ test_HWE <- function() {
     
     checkException(exactHWE(genoData)) # auto and X together
 }
-    
+
+
+test_permuteGenotypes <- function() {
+  
+  genoData <- .hweGenoData()
+  genotypes <- getGenotype(genoData)
+
+  permuted <- GWASTools:::.permuteGenotypes(genotypes)
+
+  # check same missing values
+  checkEquals(is.na(permuted), is.na(genotypes))
+  
+  counts <- GWASTools:::.countGenotypes(genotypes)
+  countsPermuted <- GWASTools:::.countGenotypes(permuted)
+  
+  checkEquals(2*counts[, "nAA"] + counts[, "nAa"],
+              2*countsPermuted[, "nAA"] + countsPermuted[, "nAa"])  
+  checkEquals(2*counts[, "naa"] + counts[, "nAa"],
+              2*countsPermuted[, "naa"] + countsPermuted[, "nAa"])  
+}
+
+test_hwePermute <- function() {
+  
+  genoData <- .hweGenoData()
+  
+  snprange <- range(which(getChromosome(genoData) %in% 1:22))
+  hwe <- exactHWE(genoData, snpStart=snprange[1], snpEnd=snprange[2])
+  hwePermuted <- exactHWE(genoData, snpStart=snprange[1], snpEnd=snprange[2], permute=TRUE)
+
+  checkEquals(hwe$MAF, hwePermuted$MAF)
+  checkEquals(hwe$minor.allele, hwePermuted$minor.allele)
+  checkEquals(is.na(hwe$f), is.na(hwePermuted$f))
+  checkEquals(is.na(hwe$MAF), is.na(hwePermuted$MAF))
+  
+  snprange <- range(which(getChromosome(genoData) %in% 23))
+  hwe <- exactHWE(genoData, snpStart=snprange[1], snpEnd=snprange[2])
+  hwePermuted <- exactHWE(genoData, snpStart=snprange[1], snpEnd=snprange[2], permute=TRUE)
+  
+  checkEquals(hwe$MAF, hwePermuted$MAF)
+  checkEquals(hwe$minor.allele, hwePermuted$minor.allele)
+  checkEquals(is.na(hwe$f), is.na(hwePermuted$f))
+  checkEquals(is.na(hwe$MAF), is.na(hwePermuted$MAF))
+  
+}

@@ -14,7 +14,8 @@ exactHWE(genoData,
          snpStart = NULL,
          snpEnd = NULL,
          block.size = 5000, 
-         verbose = TRUE)
+         verbose = TRUE,
+         permute = FALSE)
 }
 
 \arguments{
@@ -29,6 +30,7 @@ exactHWE(genoData,
   \item{snpEnd}{index of the last SNP to analyze, defaults to last SNP}
   \item{block.size}{number of SNPs to read in at once}
   \item{verbose}{logical for whether to print status updates}
+  \item{permute}{logical indicator for whether to permute alleles before calculations}
 }
 
 \details{
@@ -40,6 +42,8 @@ The X chromosome may not be included in a block with SNPs from other chromosomes
 If the SNP selection includes the X chromosome, the scan annotation of genoData should include a "sex" column.  
 
 Y and M and chromsome SNPs are not permitted in the SNP selection, since the HWE test is not valid for these SNPs.
+
+If \code{permute=TRUE}, alleles will be randomly shuffled before the HWE calculations. Running permutation can yield the expected distribution of p-values and corresponding confidence intervals.
 }
 
 \value{
@@ -62,7 +66,7 @@ If \code{geno.counts=TRUE}:
   (\code{MAF=0}).}
 }
 
-\author{Ian Painter, Matthew P. Conomos, Stephanie Gogarten}
+\author{Ian Painter, Matthew P. Conomos, Stephanie Gogarten, Adrienne Stilp}
 
 \seealso{\code{\link{HWExact}}}
 
@@ -83,6 +87,11 @@ chr <- getChromosome(genoData)
 auto <- range(which(is.element(chr, 1:22)))
 hwe <- exactHWE(genoData, scan.exclude=scan.exclude, 
                 snpStart=auto[1], snpEnd=auto[2])
+
+# permutation
+perm <- exactHWE(genoData, scan.exclude=scan.exclude, 
+                snpStart=auto[1], snpEnd=auto[2],
+                permute=TRUE)
 
 # X chromosome SNPs must be run separately since they only use females
 Xchr <- range(which(chr == 23))

@@ -601,4 +601,9 @@
     \item allow multiple color schemes for plots color-coded by genotype
   }   
 }
+\section{Changes in version 1.15.16}{
+  \itemize{
+    \item added permute argument to exactHWE
+  }   
+}
 
