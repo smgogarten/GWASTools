@@ -65,7 +65,7 @@ createAffyIntensityFile <- function(path=".",
         read.file[i] <- 1			
         ## check sample names
         tmp.names <- names(dat)
-        tmp <- paste(sample.names[i], c("_Call", "_Confidence",".cel"),sep="")
+        tmp <- paste0(sample.names[i], c("_Call", "_Confidence", ".cel", ".CEL"))
         if(!any(is.element(tmp, tmp.names))) {sample.match[i] <- 0; rm(dat); next} else {sample.match[i] <- 1}
         names(dat) <- c("sub.probe.id", "inten")
         row.num[i] <- nrow(dat)
