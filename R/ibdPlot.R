@@ -17,7 +17,7 @@ ibdPlot <- function(k0, k1, alpha=0.05, relation=NULL, color=NULL, rel.lwd=2,
     relation[!(relation %in% c("Dup", "PO", "FS", "Deg2", "Deg3", "Q"))] <- "U"
     
     rels <- c("Dup", "PO", "FS", "Deg2", "Deg3", "Q", "U")
-    cols <- c("magenta", "cyan", "red", "blue", "lightgreen", "darkgreen", "black")
+    cols <- c("#1B9E77", "#D95F02", "#7570B3", "#66A61E", "#E7298A", "#E6AB02", "black")
     names(cols) <- rels
     color <- cols[relation]
     ordered.cols <- TRUE
