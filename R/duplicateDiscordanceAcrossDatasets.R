@@ -89,8 +89,8 @@
   }
 
   # exclude snps if requested
-  if (!is.null(snp.exclude1)) vars1 <- vars1[!(getSnpID(genoData1) %in% snp.exclude1),]
-  if (!is.null(snp.exclude2)) vars2 <- vars2[!(getSnpID(genoData2) %in% snp.exclude2),]
+  if (!is.null(snp.exclude1)) vars1 <- vars1[!(vars1$snpID %in% snp.exclude1),]
+  if (!is.null(snp.exclude2)) vars2 <- vars2[!(vars2$snpID %in% snp.exclude2),]
 
   # if snp.include is given, subset on snp name
   if (!is.null(snp.include)) {
