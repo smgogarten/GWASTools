@@ -32,11 +32,54 @@
   return(dosage)
 }
 
+
+.probToGenotype <- function(probs, BB=TRUE, prob.threshold=0.9) {
+  if (BB & ncol(probs) %% 3 != 0) stop("invalid probability file - there are not 3 columns per row")
+  if (!BB & ncol(probs) %% 2 != 0) stop("invalid probability file - there are not 2 columns per row")
+  
+  ## check for missing values here while it's still character strings
+  ## if AA==AB==BB, set to missing
+  
+  if (BB) {
+    AAprob <- probs[,c(TRUE,FALSE,FALSE),drop=FALSE]
+    ABprob <- probs[,c(FALSE,TRUE,FALSE),drop=FALSE]
+    BBprob <- probs[,c(FALSE,FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    i <- AAprob == ABprob & AAprob == BBprob
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    mode(BBprob) <- "numeric"
+  } else {
+    AAprob <- probs[,c(TRUE,FALSE),drop=FALSE]
+    ABprob <- probs[,c(FALSE,TRUE),drop=FALSE]
+    # check for missing strings
+    ## calculate A allele dosage
+    # assumes no missing, or at least, a dosage that doesn't give you -1.
+    # no normalization either, since we don't have the full set of probabilities
+    mode(AAprob) <- "numeric"
+    mode(ABprob) <- "numeric"
+    BBprob <- 1 - AAprob - ABprob
+  }
+  sel.AA <- AAprob > ABprob & AAprob > BBprob & AAprob > prob.threshold
+  sel.AB <- ABprob > AAprob & ABprob > BBprob & ABprob > prob.threshold
+  sel.BB <- BBprob > AAprob & BBprob > ABprob & BBprob > prob.threshold
+  
+  genotype <- matrix(NA, ncol=ncol(AAprob), nrow=nrow(AAprob))
+  genotype[sel.AA] <- 2
+  genotype[sel.AB] <- 1
+  genotype[sel.BB] <- 0
+  
+  return(genotype)
+}
+
+
 .createGdsDosage <- function(snp.df, scan.df, filename, genotypeDim, miss.val, precision="single",
                              compress="ZIP.max") {
 
-  # define precision for gds
-  precision <- ifelse(precision == "double", "float64", "float32")
+  # redefine precision for gds
+  precision <- ifelse(precision == "double", "float64",
+                      ifelse(precision == "single", "float32", precision))
 
   # create GDS
   gfile <- createfn.gds(filename)
@@ -112,20 +155,27 @@
 imputedDosageFile <- function(input.files, filename, chromosome,
                              input.type=c("IMPUTE2", "BEAGLE", "MaCH"),
                              input.dosage=FALSE,
+                             output.type=c("dosage", "genotype"),
                              file.type=c("gds", "ncdf"),
                              snp.annot.filename="dosage.snp.RData",
                              scan.annot.filename="dosage.scan.RData",
-                             precision="single",
                              compress="ZIP.max",
                              genotypeDim="snp,scan",
                              scan.df=NULL,
                              snp.exclude=NULL,
                              snp.id.start=1,
                              block.size=5000,
+                             prob.threshold=0.9,
                              verbose=TRUE) {
 
   # arguments: input type (impute2, beagle, mach), probs or dosages
   input.type <- match.arg(input.type)
+
+  # return an error if the inputs are dosages but the desired outputs are genotypes
+  output.type <- match.arg(output.type)
+  if (input.dosage == TRUE & output.type == "genotype") {
+    stop("genotypes cannot be calculated from dosages")
+  }
 
   ## get file type
   file.type <- match.arg(file.type)
@@ -133,6 +183,9 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   # check compress
   if (!(compress %in% c("", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"))) stop("compress must be one of ZIP, ZIP.fast, ZIP.default, ZIP.max")
 
+  # check snp,scan and filetype
+  if (genotypeDim != "snp,scan" & file.type == "ncdf") stop("ncdf files must be snp,scan")
+  
   # determine number of SNPs and samples
   if (verbose) message("Determining number of SNPs and samples...")
   Cnt <- count.fields(input.files[1])
@@ -189,13 +242,25 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   #scanID <- 1:nsamp
 
   ## create data file
-  miss.val <- -1
-  if (file.type == "gds") {
+  if (output.type == "dosage") {
+    precision <- "single"
+    miss.val <- -1
+    if (file.type == "gds") {
+        gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress)
+    } else if (file.type == "ncdf") {
+        gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
+    }
+  } else if (output.type == "genotype") {
+    precision <- "bit2"
+    if (file.type == "gds") {
+      miss.val <- 3
       gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress)
-  } else if (file.type == "ncdf") {
+    } else if (file.type == "ncdf") {
+      miss.val <- -1
       gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
+    }
   }
-
+  
 
   # read input file(s)
   # valid for GDS and NCDF mostly.
@@ -254,7 +319,13 @@ imputedDosageFile <- function(input.files, filename, chromosome,
 
       # get dosage info
       dat <- dat[, 6:ncol(dat), drop=FALSE]
-      dosage <- .probToDosage(dat)
+      if (output.type == "dosage") {
+        dosage <- .probToDosage(dat)
+      } else if (output.type == "genotype") {
+        dosage <- .probToGenotype(dat, prob.threshold=prob.threshold)
+      } else {
+        stop("output.type needs to be either dosage or genotype")
+      }
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples in file")
 
       # subset dosage to match this set of samples, snp subsetting was already taken care of
@@ -341,7 +412,11 @@ imputedDosageFile <- function(input.files, filename, chromosome,
         mode(dat) <- "numeric"
         dosage <- 2 - dat
       } else {
-        dosage <- .probToDosage(dat)
+        if (output.type == "dosage") {
+          dosage <- .probToDosage(dat)
+        } else if (output.type == "genotype") {
+          dosage <- .probToGenotype(dat, prob.threshold=prob.threshold)
+        }
       }
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples")
       dosage <- dosage[, i_samp, drop=FALSE]
@@ -416,7 +491,11 @@ imputedDosageFile <- function(input.files, filename, chromosome,
         mode(dat) <- "numeric"
         dosage <- t(dat)
       } else {
-        dosage <- t(.probToDosage(dat, BB=FALSE))
+        if (output.type == "dosage") {
+          dosage <- t(.probToDosage(dat, BB = FALSE))
+        } else if (output.type == "genotype") {
+          dosage <- t(.probToGenotype(dat, BB = FALSE, prob.threshold=prob.threshold))
+        }
       }
       if (nrow(dosage) != nsnp) stop("number of dosage rows not equal to number of SNPs")
 
@@ -516,4 +595,5 @@ imputedDosageFile <- function(input.files, filename, chromosome,
 
   return(invisible(NULL))
 }
+
 

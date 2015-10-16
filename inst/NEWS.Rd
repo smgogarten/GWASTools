@@ -606,4 +606,14 @@
     \item added permute argument to exactHWE
   }   
 }
+\section{Changes in version 1.17.1}{
+  \itemize{
+    \item changed colors for ibdPlot
+  }   
+}
+\section{Changes in version 1.17.3}{
+  \itemize{
+    \item added support for hard-calling genotypes from imputed genotype probabilities in imputedDosageFile
+  }   
+}
 

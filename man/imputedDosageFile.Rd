@@ -7,22 +7,31 @@
   annotation for imputed dosages from IMPUTE2, BEAGLE, or MaCH.
 }
 \usage{
+
 imputedDosageFile(input.files, filename, chromosome,
                   input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
-                  input.dosage=FALSE, file.type=c("gds", "ncdf"),
+                  input.dosage=FALSE,
+                  output.type = c("dosage", "genotype"), 
+                  file.type=c("gds", "ncdf"),
                   snp.annot.filename="dosage.snp.RData",
                   scan.annot.filename="dosage.scan.RData",
-                  precision="single", compress="ZIP.max", 
+                  compress="ZIP.max", 
                   genotypeDim="snp,scan",
-                  scan.df=NULL, snp.exclude=NULL, snp.id.start=1,
-                  block.size=5000, verbose=TRUE)
+                  scan.df=NULL,
+                  snp.exclude=NULL,
+                  snp.id.start=1,
+                  block.size=5000, 
+                  prob.threshold=0.9, verbose=TRUE)
 checkImputedDosageFile(genoData, snpAnnot, scanAnnot, 
                        input.files, chromosome,
                        input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
                        input.dosage=FALSE,
+                       output.type=c("dosage", "genotype"),
                        snp.exclude=NULL, snp.id.start=1,
                        tolerance=1e-4, na.logfile=NULL,
-                       block.size=5000, verbose=TRUE)
+                       block.size=5000,
+                       prob.threshold=0.9,
+                       verbose=TRUE)
 }
 \arguments{
   \item{input.files}{A character vector of input files.  The first file
@@ -52,8 +61,6 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
   \item{snp.annot.filename}{Output .RData file for storing a \code{\link{SnpAnnotationDataFrame}}.}
   \item{scan.annot.filename}{Output .RData file for storing a
     \code{\link{ScanAnnotationDataFrame}}.}
-  \item{precision}{A character value indicating whether floating point
-  numbers should be stored as "double" or "single" precision.}
   \item{compress}{compression method for GDS nodes, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
   \item{genotypeDim}{character string specifying genotype dimensions of gds file. Either "snp,scan" or "scan,snp"}
   \item{scan.df}{data frame specifying which samples to include in the output GDS files, with optional scanIDs already assigned. See details.}
@@ -66,6 +73,8 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
   \item{scanAnnot}{The \code{\link{ScanAnnotationDataFrame}} created by \code{\link{imputedDosageFile}}}  
   \item{tolerance}{tolerance for checking differences against input files}
   \item{na.logfile}{filename for recording snpID and scanID of missing dosages}
+  \item{output.type}{output to record in gds file (either \code{"dosage"} or \code{"genotype"})}
+  \item{prob.threshold}{if \code{output.type="genotype"}, SNP/sample combinations with a maximum probabilityless than \code{prob.threshold} will be set to missing}
 
 }
 \details{
@@ -88,7 +97,9 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
   RData format in \code{snp.annot.filename} and \code{scan.annot.filename}.
 
   If requested with \code{na.logfile}, \code{checkImputedDosageFile} will output a file with scanIDs and snpIDs of missing genotype calls.
-  
+
+Either dosage or genotypes can be output using \code{output.type}. If dosage is requested, the dosages will be 2*AAprob + ABprob. If genotype is requested, the value will be set to the genotype with the maximum probability, unless all probabilities are less than \code{prob.threshold}. In that case, the genotype will be set to missing. SNPs with max probabilities that are the same for two genotypes (ie, AA=0.5, AB=0.5, BB=0) will also be set to missing.
+
   Currently supported input file types are IMPUTE2, BEAGLE, and MaCH.
   
 }

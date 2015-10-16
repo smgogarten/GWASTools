@@ -5,11 +5,13 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
                                    input.files, chromosome,
                                    input.type=c("IMPUTE2", "BEAGLE", "MaCH"), 
                                    input.dosage=FALSE, 
+                                   output.type=c("dosage", "genotype"),
                                    snp.exclude=NULL,
                                    snp.id.start=1,
                                    tolerance=1e-4,
                                    na.logfile=NULL,
                                    block.size=5000,
+                                   prob.threshold=0.9,
                                    verbose=TRUE) {
   
   
@@ -92,7 +94,11 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
       # get dosage info
       dat <- dat[, 6:ncol(dat), drop=FALSE]
       mode(dat) <- "numeric"
-      dosage <- .probToDosage(dat)
+      if (output.type == "dosage"){
+        dosage <- .probToDosage(dat)
+      } else if (output.type == "genotype"){
+        dosage <- .probToGenotype(dat, prob.threshold=prob.threshold)
+      }
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples in file")
       
       # subset dosage to match this set of samples, snp subsetting was already taken care of
@@ -182,7 +188,12 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
         # BEAGLE has B allele dosage
         dosage <- 2 - dat
       } else { 
-        dosage <- .probToDosage(dat)
+        if (output.type == "dosage"){
+          dosage <- .probToDosage(dat)
+        } else if (output.type == "genotype"){
+          dosage <- .probToGenotype(dat, prob.threshold=prob.threshold)
+        }
+        
       }
       if (ncol(dosage) != nsamp) stop("number of dosage columns not equal to number of samples")
       dosage <- dosage[, i_samp, drop=FALSE]
@@ -251,7 +262,13 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
       if (input.dosage) {
         dosage <- t(dat)
       } else {
-        dosage <- t(.probToDosage(dat, BB=FALSE))
+        if (output.type == "dosage"){
+          dosage <- t(.probToDosage(dat, BB=FALSE))
+        } else if (output.type == "genotype"){
+          dosage <- t(.probToGenotype(dat, BB=FALSE, prob.threshold=prob.threshold))
+        }
+        
+        #dosage <- t(dosage)
       }
       if (nrow(dosage) != nsnp) stop("number of dosage rows not equal to number of SNPs")
       

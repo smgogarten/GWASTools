@@ -1,3 +1,36 @@
+test_probToGenotype <- function() {
+  probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
+                          package="GWASdata")
+
+  
+  prob <- matrix(as.character(c(0.001, 0, 0.999,  1, 0, 0,
+                                0.33, 0.34, 0.33, 0, 1, 0,
+                                0.91, 0.04, 0.05, 0, 0, 1,
+                                0.89, 0.05, 0.06, 0.80, 0.10, 0.10,
+                                0.45, 0.45, 0.1, 0.1, 0.45, 0.45)), nrow=5, byrow=TRUE)
+  geno.exp <- matrix(c(0, 2,
+                       NA, 1,
+                       2, 0,
+                       NA, NA,
+                       NA, NA), nrow=5, byrow=TRUE)
+  geno <- GWASTools:::.probToGenotype(prob, BB=TRUE)
+  checkIdentical(geno, geno.exp)
+  geno <- GWASTools:::.probToGenotype(prob[, c(TRUE, TRUE, FALSE)], BB=FALSE)
+  checkIdentical(geno, geno.exp)
+  
+  
+  geno.exp <- matrix(c(0, 2,
+                       1, 1,
+                       2, 0,
+                       2, 2,
+                       NA, NA), nrow=5, byrow=TRUE)
+  geno <- GWASTools:::.probToGenotype(prob, BB=TRUE, prob.threshold=0)
+  checkIdentical(geno, geno.exp)  
+  geno <- GWASTools:::.probToGenotype(prob[, c(TRUE, TRUE, FALSE)], BB=FALSE, prob.threshold=0)
+  checkIdentical(geno, geno.exp)
+  
+}
+
 test_probToDosage_beagle <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
                           package="GWASdata")
@@ -12,6 +45,7 @@ test_probToDosage_beagle <- function() {
 
   checkEquals(dose, GWASTools:::.probToDosage(prob, BB=TRUE), tolerance=0.0001)
 }
+
 
 test_probToDosage_mach <- function() {
   probfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlprob",
@@ -58,8 +92,9 @@ test_probToDosage_impute2 <- function() {
   mat <- matrix(as.character(round(x, digits=4)), nrow=1)
   checkEquals(GWASTools:::.probToDosage(mat), matrix(2*round(x[1], digits=4) + round(x[2], digits=4)), tolerance=0.000101)
 
-
 }
+
+
 
 test_beagle_ncdf <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
@@ -277,6 +312,71 @@ test_beagle <- function() {
 }
 
 
+test_beagle_genotype <- function() {
+  probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
+                          package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.dose",
+                          package="GWASdata")
+  
+  markfile <- system.file("extdata", "imputation", "BEAGLE", "hapmap.markers",
+                          package="GWASdata")
+  
+  # subsets of data to read in
+  header <- read.table(dosefile, header=FALSE, stringsAsFactors=FALSE, nrow=1)
+  
+  markers <- read.table(markfile, header=FALSE, stringsAsFactors=FALSE)
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  
+  # 100 lines in file
+  blocks <- c(5000, 40, 99)
+  for (genoDim in c("snp,scan", "scan,snp")) {
+    for (b in blocks) {
+      imputedDosageFile(input.files=c(probfile, markfile), filename=gdsfile, file.type="gds", chromosome=22,
+                        input.type="BEAGLE", input.dosage=FALSE, block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
+                        output.type="genotype")
+      checkException(imputedDosageFile(input.files=c(dosfile, markfile), filename=gdsfile,
+                                       file.type="gds", chromosome=22,
+                                       input.type="BEAGLE", input.dosage=TRUE, block.size=b,
+                                       snp.annot.filename=snpfile, scan.annot.filename=scanfile,
+                                       genotypeDim=genoDim, output.type="genotype"))
+      
+        gds <- GdsGenotypeReader(gdsfile)
+        scanAnnot <- getobj(scanfile)
+        snpAnnot <- getobj(snpfile)
+        genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+        geno <- getGenotype(genoData)
+        alleleA <- getAlleleA(genoData)
+        alleleB <- getAlleleB(genoData)
+        checkIdentical(snpAnnot$alleleA, alleleA)
+        checkIdentical(snpAnnot$alleleB, alleleB)
+        
+        dat <- read.table(probfile, as.is=TRUE, header=TRUE)
+        geno.exp <- GWASTools:::.probToGenotype(as.matrix(dat[, 4:ncol(dat)]), BB=TRUE)
+        checkTrue(length(setdiff(geno.exp, c(0, 1, 2, NA))) == 0)
+        checkEquals(geno.exp, geno)
+        
+        mark <- read.table(markfile, as.is=TRUE, header=FALSE)
+        checkIdentical(mark[,1], snpAnnot$snp)
+        checkIdentical(mark[,2], snpAnnot$position)
+        checkIdentical(mark[,3], snpAnnot$alleleA)
+        checkIdentical(mark[,4], snpAnnot$alleleB)
+        
+        # check it
+        checkImputedDosageFile(genoData, snpAnnot=snpAnnot, scanAnnot=scanAnnot,
+                               input.files = c(probfile, markfile), input.dosage=FALSE,
+                               input.type="BEAGLE",
+                               output.type="genotype", block.size=b)
+        
+        close(genoData)
+      }
+  }
+  unlink(c(gdsfile, snpfile, scanfile))
+}
+
 test_beagle_missing <- function() {
   probfile <- system.file("extdata", "imputation", "BEAGLE", "example.hapmap.unphased.bgl.gprobs",
                           package="GWASdata")
@@ -477,6 +577,81 @@ test_mach <- function() {
   }
   unlink(c(gdsfile, snpfile, scanfile))
 }
+
+
+test_mach_genotype <- function() {
+  probfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlprob",
+                          package="GWASdata")
+  dosefile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mldose",
+                          package="GWASdata")
+  
+  markfile <- system.file("extdata", "imputation", "MaCH", "mach1.out.mlinfo",
+                          package="GWASdata")
+  posfile <- system.file("extdata", "imputation", "MaCH", "mach1.snp.position",
+                         package="GWASdata")
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  
+  markers <- read.table(markfile, header=TRUE, stringsAsFactors=FALSE)
+  
+  
+  blocks <- c(5000, 200, 499)
+  for (genoDim in c("snp,scan", "scan,snp")) {
+    for (b in blocks) {
+        imputedDosageFile(input.files=c(probfile, markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
+                          input.type="MaCH", input.dosage=FALSE, block.size=b,
+                          snp.annot.filename=snpfile, scan.annot.filename=scanfile,
+                          genotypeDim=genoDim, output.type="genotype")
+
+        checkException(imputedDosageFile(input.files=c(dosfile, markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
+                                                 input.type="MaCH", input.dosage=TRUE, block.size=b,
+                                                 snp.annot.filename=snpfile, scan.annot.filename=scanfile,
+                                                 genotypeDim=genoDim, output.type="genotype"))
+        
+        gds <- GdsGenotypeReader(gdsfile)
+        scanAnnot <- getobj(scanfile)
+        snpAnnot <- getobj(snpfile)
+        genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+        geno <- getGenotype(genoData)
+        alleleA <- getAlleleA(genoData)
+        alleleB <- getAlleleB(genoData)
+        checkIdentical(snpAnnot$alleleA, alleleA)
+        checkIdentical(snpAnnot$alleleB, alleleB)
+        
+        dat <- read.table(probfile, as.is=TRUE, header=FALSE)
+        
+        
+        #samples <- as.data.frame(matrix(unlist(strsplit(dat[,1], "->")), ncol=2, byrow=TRUE))
+        checkIdentical(scanAnnot$sampleID, dat[,1])
+        
+        geno.exp <- t(GWASTools:::.probToGenotype(as.matrix(dat[, 3:ncol(dat)]), BB=FALSE))
+        checkTrue(length(setdiff(geno.exp, c(0, 1, 2, NA))) == 0)
+        checkEquals(geno.exp, geno)
+        
+        
+        mark <- read.table(markfile, as.is=TRUE, header=TRUE)
+        checkIdentical(mark[,1], snpAnnot$snp)
+        checkIdentical(mark[,2], snpAnnot$alleleA)
+        checkIdentical(mark[,3], snpAnnot$alleleB)
+        
+        pos <- read.table(posfile, as.is=TRUE, header=TRUE)
+        checkIdentical(pos[,1], snpAnnot$snp)
+        checkIdentical(pos[,2], snpAnnot$position)
+        
+        # check it
+        checkImputedDosageFile(genoData, snpAnnot=snpAnnot, scanAnnot=scanAnnot,
+                               input.files = c(probfile, markfile, posfile), input.dosage=FALSE,
+                               input.type="MaCH",
+                               output.type="genotype", block.size=b)
+        
+        close(genoData)
+      }
+  }
+  unlink(c(gdsfile, snpfile, scanfile))
+}
+
 
 
 test_mach_missing <- function() {
@@ -690,6 +865,71 @@ test_impute2 <- function() {
   unlink(c(gdsfile, snpfile, scanfile))
 }
 
+
+
+test_impute2_genotype <- function() {
+  probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
+                          package="GWASdata")
+  sampfile <- system.file("extdata", "imputation", "IMPUTE2", "example.study.samples",
+                          package="GWASdata")
+  
+  samp <- read.table(sampfile, stringsAsFactors=FALSE, header=TRUE)
+  samp <- samp[-1, ]
+  
+  dos <- read.table(probfile, header=FALSE, stringsAsFactors=FALSE)
+  snps <- dos[, 2]
+  
+  
+  gdsfile <- tempfile()
+  snpfile <- tempfile()
+  scanfile <- tempfile()
+  
+  # 33 lines in file
+  blocks <- c(5000, 10, 32)
+  for (genoDim in c("snp,scan", "scan,snp")) {
+    for (b in blocks) {
+      # make a normal one
+      imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
+                        input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
+                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
+                        output.type="genotype")
+      
+      gds <- GdsGenotypeReader(gdsfile)
+      scanAnnot <- getobj(scanfile)
+      snpAnnot <- getobj(snpfile)
+      genoData <- GenotypeData(gds, scanAnnot=scanAnnot, snpAnnot=snpAnnot)
+      geno <- getGenotype(genoData)
+      alleleA <- getAlleleA(genoData)
+      alleleB <- getAlleleB(genoData)
+      checkIdentical(snpAnnot$alleleA, alleleA)
+      checkIdentical(snpAnnot$alleleB, alleleB)
+      
+      dat <- read.table(probfile, as.is=TRUE, header=FALSE)
+      geno.exp <- GWASTools:::.probToGenotype(as.matrix(dat[,6:ncol(dat)]))
+      checkEquals(geno, geno.exp)
+      
+      checkIdentical(dat[,1], snpAnnot$snp)
+      checkIdentical(dat[,2], snpAnnot$rsID)
+      checkIdentical(dat[,3], snpAnnot$position)
+      checkIdentical(dat[,4], snpAnnot$alleleA)
+      checkIdentical(dat[,5], snpAnnot$alleleB)
+      
+      samp <- read.table(sampfile, as.is=TRUE, header=FALSE, skip=2)
+      checkIdentical(paste(samp[,1], samp[,2]), scanAnnot$sampleID)
+      
+      # check it
+      checkImputedDosageFile(genoData, snpAnnot=snpAnnot, scanAnnot=scanAnnot,
+                             input.files = c(probfile, sampfile), input.dosage=FALSE,
+                             input.type="IMPUTE2",
+                             output.type="genotype", block.size=b)
+      
+      close(genoData)
+      
+    }
+  }
+  unlink(c(gdsfile, snpfile, scanfile))
+}
+
 test_impute2_missing <- function() {
   probfile <- system.file("extdata", "imputation", "IMPUTE2", "example.chr22.study.gens",
                           package="GWASdata")
@@ -869,3 +1109,4 @@ test_impute2_phen <- function() {
 
   unlink(c(gdsfile, snpfile, scanfile, sampfile))
 }
+
