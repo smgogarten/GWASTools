@@ -65,7 +65,7 @@ manhattanPlot <- function(p,
   y <- pmin(ymax,logp)
   
   plot(x, y, cex=0.3+y/ymax, col=col, pch=ifelse(y==ymax,24,19),
-       bg=chrom.int, xlab="Chromosome", ylab=quote(-log[10](p)),
+       bg=col, xlab="Chromosome", ylab=quote(-log[10](p)),
        xaxt="n", ..., ylim=ylim)
   if (trunc) lines(c(min(x), max(x)), c(ymax,ymax), col = 'grey')
   

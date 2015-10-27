@@ -616,4 +616,9 @@
     \item added support for hard-calling genotypes from imputed genotype probabilities in imputedDosageFile
   }   
 }
+\section{Changes in version 1.17.4}{
+  \itemize{
+    \item bug fix for coloring truncated points in manhattanPlot
+  }   
+}
 
