@@ -320,7 +320,9 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
     if (!(all(is.na(geno.gds)))) stop(paste("genotypes are not NA for added=FALSE sample", i_samp))
     # write to the logfile
     chk <- data.frame(scanID=getScanID(genoData)[i_gds], snpID=getSnpID(genoData))
-    write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
+    if (!is.null(na.logfile) & nrow(chk) > 0) {
+      write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
+    }
   }
   
   

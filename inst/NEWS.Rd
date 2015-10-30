@@ -621,4 +621,9 @@
     \item bug fix for coloring truncated points in manhattanPlot
   }   
 }
+\section{Changes in version 1.17.5}{
+  \itemize{
+    \item bug fix in checkImputedDosageFile if not writing a log file of missing values and an entire sample is missing from the file
+  }   
+}
 
