@@ -626,4 +626,9 @@
     \item bug fix in checkImputedDosageFile if not writing a log file of missing values and an entire sample is missing from the file
   }   
 }
+\section{Changes in version 1.17.6}{
+  \itemize{
+    \item Use ZIP_RA as default compression in GDS files for faster access to compressed data
+  }   
+}
 

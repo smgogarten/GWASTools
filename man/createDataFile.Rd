@@ -22,14 +22,14 @@ createDataFile(path=".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
                sep.type, skip.num, col.total, col.nums, scan.name.in.file,
 	       allele.coding=c("AB", "nucleotide"),
-	       precision="single", compress="ZIP.max",
+	       precision="single", compress="ZIP_RA:8M", compress.geno="", compress.annot="ZIP_RA",
 	       array.name=NULL, genome.build=NULL,
                diagnostics.filename="createDataFile.diagnostics.RData",
                verbose=TRUE)
 
 createAffyIntensityFile(path=".",  filename, file.type=c("gds", "ncdf"),
                         snp.annotation, scan.annotation,
-	                precision="single", compress="ZIP.max",
+	                precision="single", compress="ZIP_RA:8M", compress.annot="ZIP_RA",
 	                array.name=NULL, genome.build=NULL,
                  	diagnostics.filename="createAffyIntensityFile.diagnostics.RData",
                  	verbose=TRUE)
@@ -117,7 +117,13 @@ checkIntensityFile(path=".", filename, file.type=c("gds", "ncdf"),
 \item{precision}{A character value indicating whether floating point
   numbers should be stored as "double" or "single" precision.}
 
-\item{compress}{The compression level for variables in a GDS file (see
+\item{compress}{The compression level for floating-point variables in a GDS file (see
+\code{\link{add.gdsn}} for options.}
+
+\item{compress.geno}{The compression level for genotypes in a GDS file (see
+\code{\link{add.gdsn}} for options. Genotypes are stored in 2 bits so the default is no compression.}
+
+\item{compress.annot}{The compression level for annotation variables in a GDS file (see
 \code{\link{add.gdsn}} for options.}
 
 \item{array.name}{Name of the array, to be stored as an attribute in the

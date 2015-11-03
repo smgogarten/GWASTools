@@ -9,7 +9,7 @@
 #   verbose -- show information
 #
 
-convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, compress="ZIP.max",
+convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, compress="ZIP_RA",
 	verbose=TRUE)
 {
 	# check

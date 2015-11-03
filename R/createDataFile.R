@@ -115,7 +115,8 @@
 }
 
 .createGds <- function(snp.annotation, filename, variables, precision="single",
-                       compress="ZIP.max", sample.storage="integer") {
+                       compress="ZIP_RA:8M", compress.geno="",compress.annot="ZIP_RA",
+                       sample.storage="integer") {
 
     ## define precision for gds
     precision <- ifelse(precision == "double", "float64", "float32")
@@ -127,22 +128,22 @@
     gds <- createfn.gds(filename)
 
     ## add standard variables
-    add.gdsn(gds, "sample.id", storage=sample.storage, valdim=0, compress=compress) # use valdim=0 then append
-    add.gdsn(gds, "snp.id", snp.annotation$snpID, compress=compress, closezip=TRUE)
+    add.gdsn(gds, "sample.id", storage=sample.storage, valdim=0, compress=compress.annot) # use valdim=0 then append
+    add.gdsn(gds, "snp.id", snp.annotation$snpID, compress=compress.annot, closezip=TRUE)
     add.gdsn(gds, "snp.chromosome", snp.annotation$chromosome, storage="uint8",
-             compress=compress, closezip=TRUE)
-    add.gdsn(gds, "snp.position", snp.annotation$position, compress=compress, closezip=TRUE)
+             compress=compress.annot, closezip=TRUE)
+    add.gdsn(gds, "snp.position", snp.annotation$position, compress=compress.annot, closezip=TRUE)
     if ("snpName" %in% names(snp.annotation))
-        add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress, closezip=TRUE)
+        add.gdsn(gds, "snp.rs.id", snp.annotation$snpName, compress=compress.annot, closezip=TRUE)
     sync.gds(gds)
 
     ## add selected variables
     if ("genotype" %in% variables) {
         if (all(c("alleleA", "alleleB") %in% names(snp.annotation))) {
             add.gdsn(gds, "snp.allele", paste(snp.annotation$alleleA, snp.annotation$alleleB, sep="/"),
-                     compress=compress, closezip=TRUE)
+                     compress=compress.annot, closezip=TRUE)
         }
-        geno.node <- add.gdsn(gds, "genotype", storage="bit2", valdim=c(n.snps, 0))
+        geno.node <- add.gdsn(gds, "genotype", storage="bit2", valdim=c(n.snps, 0), compress=compress.geno)
         put.attr.gdsn(geno.node, "snp.order")
     }
     for (v in setdiff(variables, "genotype")) {
@@ -199,7 +200,9 @@ createDataFile <- function(path=".",
                            scan.name.in.file,
                            allele.coding = c("AB", "nucleotide"),
                            precision = "single",
-                           compress = "ZIP.max",
+                           compress = "ZIP_RA:8M",
+                           compress.geno = "",
+                           compress.annot = "ZIP_RA",
                            array.name = NULL,
                            genome.build = NULL,
                            diagnostics.filename = "createDataFile.diagnostics.RData",
@@ -219,7 +222,8 @@ createDataFile <- function(path=".",
         ## don't need n.samples since we will use append later
         ## get storage mode of samples
         storage.mode <- ifelse(is.character(scan.annotation$scanID), "character", "integer")
-        genofile <- .createGds(snp.annotation, filename, variables, precision, compress,
+        genofile <- .createGds(snp.annotation, filename, variables, precision,
+                               compress, compress.geno, compress.annot,
                                sample.storage=storage.mode)
     } else if (file.type == "ncdf") {
         if (any(is.na(as.integer(scan.annotation$scanID)))) {

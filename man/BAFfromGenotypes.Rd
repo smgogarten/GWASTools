@@ -13,7 +13,7 @@ BAFfromGenotypes(intenData, genoData,
                  call.method = c("by.plate", "by.study"), 
                  plate.name = "plate", 
                  block.size = 5000, 
-	         precision="single", compress="ZIP.max",
+	         precision="single", compress="ZIP_RA",
                  verbose = TRUE)
 }
 \arguments{

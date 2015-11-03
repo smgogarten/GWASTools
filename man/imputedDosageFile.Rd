@@ -15,7 +15,8 @@ imputedDosageFile(input.files, filename, chromosome,
                   file.type=c("gds", "ncdf"),
                   snp.annot.filename="dosage.snp.RData",
                   scan.annot.filename="dosage.scan.RData",
-                  compress="ZIP.max", 
+                  compress="ZIP_RA:8M", 
+		  compress.annot="ZIP_RA",
                   genotypeDim="snp,scan",
                   scan.df=NULL,
                   snp.exclude=NULL,
@@ -61,7 +62,12 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
   \item{snp.annot.filename}{Output .RData file for storing a \code{\link{SnpAnnotationDataFrame}}.}
   \item{scan.annot.filename}{Output .RData file for storing a
     \code{\link{ScanAnnotationDataFrame}}.}
-  \item{compress}{compression method for GDS nodes, can be "", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"}
+\item{compress}{The compression level for dosage variables in a GDS file (see
+\code{\link{add.gdsn}} for options.}
+
+\item{compress.annot}{The compression level for annotation variables in a GDS file (see
+\code{\link{add.gdsn}} for options.}
+
   \item{genotypeDim}{character string specifying genotype dimensions of gds file. Either "snp,scan" or "scan,snp"}
   \item{scan.df}{data frame specifying which samples to include in the output GDS files, with optional scanIDs already assigned. See details.}
   \item{snp.exclude}{vector of integers specifying which SNPs to exclude from the GDS file.}
@@ -138,8 +144,8 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
                       input.type="IMPUTE2", input.dosage=FALSE, na.logfile=logfile)
 
 geno <- getGenotype(genoData)
-getVariable(genoData, "alleleA")
-getVariable(genoData, "alleleB")
+getAlleleA(genoData)
+getAlleleB(genoData)
 
 log <- read.table(logfile)
 head(log)

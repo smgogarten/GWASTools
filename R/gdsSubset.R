@@ -6,7 +6,7 @@ gdsSubset <- function(parent.gds,
                       sample.include=NULL,
                       snp.include=NULL,
                       sub.storage=NULL,
-                      compress="ZIP.max",
+                      compress="ZIP_RA",
                       block.size=5000,
                       verbose=TRUE){
 

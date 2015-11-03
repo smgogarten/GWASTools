@@ -111,7 +111,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
 
 convertNcdfGds <- function(ncdf.filename, gds.filename,
 	snp.annot = NULL, precision="single",
-        compress = "ZIP.max", verbose = TRUE)
+        compress = "ZIP_RA", verbose = TRUE)
 {
 	# check
 	stopifnot(is.character(ncdf.filename))

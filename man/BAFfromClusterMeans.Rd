@@ -10,7 +10,7 @@
 \usage{
 BAFfromClusterMeans(intenData, filename, file.type = c("gds", "ncdf"),
                     clusterMeanVars = c("tAA","tAB","tBB","rAA","rAB","rBB"),
-	            precision="single", compress="ZIP.max",
+	            precision="single", compress="ZIP_RA",
                     verbose = TRUE)
 }
 \arguments{

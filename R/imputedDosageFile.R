@@ -75,7 +75,7 @@
 
 
 .createGdsDosage <- function(snp.df, scan.df, filename, genotypeDim, miss.val, precision="single",
-                             compress="ZIP.max") {
+                             compress.annot="ZIP_RA") {
 
   # redefine precision for gds
   precision <- ifelse(precision == "double", "float64",
@@ -84,8 +84,8 @@
   # create GDS
   gfile <- createfn.gds(filename)
 
-  add.gdsn(gfile, "snp.id", snp.df$snpID, compress=compress, closezip=TRUE)
-  add.gdsn(gfile, "sample.id", scan.df$scanID, compress=compress, closezip=TRUE)
+  add.gdsn(gfile, "snp.id", snp.df$snpID, compress=compress.annot, closezip=TRUE)
+  add.gdsn(gfile, "sample.id", scan.df$scanID, compress=compress.annot, closezip=TRUE)
 
   n <- add.gdsn(gfile, name="description")
   put.attr.gdsn(n, "FileFormat", "IMPUTED_DOSAGE")
@@ -151,6 +151,24 @@
   put.var.ncdf(x, "alleleB", snpAnnot$alleleB)
 }
 
+.compressDosage <- function(x, compress) {
+    compression.gdsn(index.gdsn(x, "genotype"), compress=compress)
+}
+
+.close <- function(x, ...) UseMethod(".close", x)
+.close.gds.class <- function(x, verbose) {
+    vars <- ls.gdsn(x)
+    vars <- vars[!grepl("^snp", vars)] # snp nodes already done
+    for (v in vars) readmode.gdsn(index.gdsn(x, v))
+    sync.gds(x)
+
+    ## close and cleanup
+    filename <- x$filename
+    closefn.gds(x)
+    cleanup.gds(filename, verbose=verbose)
+}
+.close.ncdf <- function(x, ...) close.ncdf(x)
+
 
 imputedDosageFile <- function(input.files, filename, chromosome,
                              input.type=c("IMPUTE2", "BEAGLE", "MaCH"),
@@ -159,7 +177,8 @@ imputedDosageFile <- function(input.files, filename, chromosome,
                              file.type=c("gds", "ncdf"),
                              snp.annot.filename="dosage.snp.RData",
                              scan.annot.filename="dosage.scan.RData",
-                             compress="ZIP.max",
+                             compress="ZIP_RA:8M",
+                             compress.annot="ZIP_RA",
                              genotypeDim="snp,scan",
                              scan.df=NULL,
                              snp.exclude=NULL,
@@ -179,9 +198,6 @@ imputedDosageFile <- function(input.files, filename, chromosome,
 
   ## get file type
   file.type <- match.arg(file.type)
-
-  # check compress
-  if (!(compress %in% c("", "ZIP", "ZIP.fast", "ZIP.default", "ZIP.max"))) stop("compress must be one of ZIP, ZIP.fast, ZIP.default, ZIP.max")
 
   # check snp,scan and filetype
   if (genotypeDim != "snp,scan" & file.type == "ncdf") stop("ncdf files must be snp,scan")
@@ -245,20 +261,18 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   if (output.type == "dosage") {
     precision <- "single"
     miss.val <- -1
-    if (file.type == "gds") {
-        gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress)
-    } else if (file.type == "ncdf") {
-        gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
-    }
   } else if (output.type == "genotype") {
     precision <- "bit2"
     if (file.type == "gds") {
       miss.val <- 3
-      gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress)
     } else if (file.type == "ncdf") {
       miss.val <- -1
-      gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
     }
+  }
+  if (file.type == "gds") {
+      gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress.annot)
+  } else if (file.type == "ncdf") {
+      gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
   }
   
 
@@ -502,7 +516,7 @@ imputedDosageFile <- function(input.files, filename, chromosome,
       # loop over samples to add them. Lots of indices here:
       # i_dos tracks the location in the dosage array
       # i_samp finds the location in the gds file/scan.df
-      # i_snp matches the ordering of snps in the dosage array to the ordering of snps in the gdsf ile
+      # i_snp matches the ordering of snps in the dosage array to the ordering of snps in the gds file
       for (i_dos in 1:length(samp.block)) {
 
         # this sample
@@ -560,6 +574,12 @@ imputedDosageFile <- function(input.files, filename, chromosome,
     .addDosage(gfile, dos.samp, start=start, count=count)
   }
 
+  ## # compress (if gds)
+  ## if (file.type == "gds" & compress != "") {
+  ##     if (verbose) message("Compressing...")
+  ##     .compressDosage(gfile, compress)
+  ## }
+  
   # set up annotation
   #samples$scanID <- 1:nrow(samples) ## this will need to change.
   #if ("sex" %in% names(samples)) names(samples)[names(samples) %in% "sex"] <- "sex.sample"
@@ -584,15 +604,23 @@ imputedDosageFile <- function(input.files, filename, chromosome,
 
   # add variable data
   if (verbose) message("Writing annotation...")
-  .addSnpVars(gfile, snpAnnot, compress)
-
-  # close file
-  .close(gfile, verbose=verbose)
+  .addSnpVars(gfile, snpAnnot, compress.annot)
 
   # save annotation
   save(snpAnnot, file=snp.annot.filename)
   save(scanAnnot, file=scan.annot.filename)
 
+  # compress (if gds)
+  if (file.type == "gds" & compress != "") {
+      if (verbose) message("Compressing...")
+      closefn.gds(gfile)
+      gfile <- openfn.gds(filename, readonly=FALSE)
+      .compressDosage(gfile, compress)
+  }
+  
+  # close file
+  .close(gfile, verbose=verbose)
+  
   return(invisible(NULL))
 }
 

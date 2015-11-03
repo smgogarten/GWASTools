@@ -48,7 +48,7 @@ BAFfromGenotypes <- function(
 		call.method = c("by.plate", "by.study"),
 		plate.name = "plate",
 		block.size = 5000, 
-                precision = "single", compress = "ZIP.max",
+                precision = "single", compress = "ZIP_RA",
 		verbose = TRUE) {
 				
   # check that dimensions of intenData and genoData are equal

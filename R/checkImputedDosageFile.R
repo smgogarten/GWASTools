@@ -20,6 +20,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
   
   # arguments: input type (impute2, beagle, mach), probs or dosages
   input.type <- match.arg(input.type)
+  output.type <- match.arg(output.type)
   
   # determine number of SNPs and samples
   if (verbose) message("Determining number of SNPs and samples...")

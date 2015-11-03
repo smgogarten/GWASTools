@@ -36,7 +36,7 @@ test_check_beagle <- function() {
         imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
-                         verbose=FALSE)
+                         verbose=FALSE, compress="")
         
         gds <- GdsGenotypeReader(gdsfile)
         scanAnnot <- getobj(scanfile)
@@ -137,7 +137,7 @@ test_check_beagle_missing <- function() {
       imputedDosageFile(input.files=c(files[i], markfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
-                       verbose=FALSE)
+                       verbose=FALSE, compress="")
       
       gds <- GdsGenotypeReader(gdsfile)
       scanAnnot <- getobj(scanfile)
@@ -232,7 +232,7 @@ test_check_beagle_subset <- function() {
                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
-                       snp.id.start=snp.id.start, verbose=FALSE)
+                       snp.id.start=snp.id.start, verbose=FALSE, compress="")
       
       scanAnnot <- getobj(scanfile)
       snpAnnot <- getobj(snpfile)
@@ -347,7 +347,7 @@ test_check_mach <- function() {
         imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                          input.type="MaCH", input.dosage=inputs[i], block.size=b,
                          snp.annot.filename=snpfile, scan.annot.filename=scanfile,
-                         genotypeDim=genoDim, verbose=FALSE)
+                         genotypeDim=genoDim, verbose=FALSE, compress="")
         
         gds <- GdsGenotypeReader(gdsfile)
         scanAnnot <- getobj(scanfile)
@@ -453,7 +453,7 @@ test_check_mach_missing <- function() {
       imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
-                       genotypeDim=genoDim, verbose=FALSE)
+                       genotypeDim=genoDim, verbose=FALSE, compress="")
       
       gds <- GdsGenotypeReader(gdsfile)
       scanAnnot <- getobj(scanfile)
@@ -560,7 +560,7 @@ test_check_mach_subset <- function() {
                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                        scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
-                       snp.id.start=snp.id.start, verbose=FALSE)
+                       snp.id.start=snp.id.start, verbose=FALSE, compress="")
       
       
       scanAnnot <- getobj(scanfile)
@@ -672,7 +672,7 @@ test_check_impute2 <- function() {
       imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                        input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                        snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
-                       verbose=FALSE)
+                       verbose=FALSE, compress="")
       
 
       gds <- GdsGenotypeReader(gdsfile)
@@ -764,7 +764,7 @@ test_check_impute2_missing <- function() {
     imputedDosageFile(input.files=c(probfile, sampfile), filename=gdsfile, file.type="gds", chromosome=22,
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile, genotypeDim=genoDim,
-                     verbose=FALSE)
+                     verbose=FALSE, compress="")
     
     
     gds <- GdsGenotypeReader(gdsfile)
@@ -859,7 +859,7 @@ test_check_impute2_subset <- function() {
                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
                      snp.annot.filename=snpfile, scan.annot.filename=scanfile,
                      scan.df=scan.df, snp.exclude=i_snp_rm, genotypeDim=genoDim,
-                     snp.id.start=snp.id.start, verbose=FALSE)
+                     snp.id.start=snp.id.start, verbose=FALSE, compress="")
     
     scanAnnot <- getobj(scanfile)
     snpAnnot <- getobj(snpfile)

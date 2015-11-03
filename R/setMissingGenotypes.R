@@ -4,7 +4,7 @@ setMissingGenotypes <- function(
         regions, # data frame with regions
         file.type = c("gds", "ncdf"),
 	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
-        compress = "ZIP.max",
+        compress = "ZIP_RA",
         verbose=TRUE) {
 
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))

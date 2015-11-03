@@ -9,7 +9,7 @@
 
 \usage{
 setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
-                    sample.include=NULL, compress="ZIP.max", verbose=TRUE)
+                    sample.include=NULL, compress="ZIP_RA", verbose=TRUE)
 }
 
 \arguments{
@@ -20,8 +20,7 @@ setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
   "whole.chrom"}.}
   \item{file.type}{The type of \code{parent.file} and \code{new.file} ("gds" or "ncdf")}
   \item{sample.include}{Vector of sampleIDs to include in \code{new.file}}
-  \item{compress}{the compression format for the GDS file, one of "",
-      "ZIP", "ZIP.fast", "ZIP.default", or "ZIP.max"}
+  \item{compress}{The compression level for variables in a GDS file (see \code{\link{add.gdsn}} for options.}
   \item{verbose}{Logical value specifying whether to show progress information.}
 }
 
