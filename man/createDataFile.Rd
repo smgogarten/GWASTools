@@ -22,7 +22,7 @@ createDataFile(path=".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
                sep.type, skip.num, col.total, col.nums, scan.name.in.file,
 	       allele.coding=c("AB", "nucleotide"),
-	       precision="single", compress="ZIP_RA:8M", compress.geno="", compress.annot="ZIP_RA",
+	       precision="single", compress="ZIP_RA:8M", compress.geno="ZIP_RA", compress.annot="ZIP_RA",
 	       array.name=NULL, genome.build=NULL,
                diagnostics.filename="createDataFile.diagnostics.RData",
                verbose=TRUE)
@@ -121,7 +121,7 @@ checkIntensityFile(path=".", filename, file.type=c("gds", "ncdf"),
 \code{\link{add.gdsn}} for options.}
 
 \item{compress.geno}{The compression level for genotypes in a GDS file (see
-\code{\link{add.gdsn}} for options. Genotypes are stored in 2 bits so the default is no compression.}
+\code{\link{add.gdsn}} for options.}
 
 \item{compress.annot}{The compression level for annotation variables in a GDS file (see
 \code{\link{add.gdsn}} for options.}
