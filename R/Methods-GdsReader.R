@@ -4,14 +4,17 @@
 GdsReader <- function(filename) {
   if (missing(filename)) stop("filename is required")
   if (is(filename, 'gds.class')) {
+    input.gds <- TRUE
     handler <- filename
     filename <- handler$filename
   } else {
+    input.gds <- FALSE
     if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
     handler <- openfn.gds(filename)
   }
   new("GdsReader", filename=filename, handler=handler)
 }
+
 
 setValidity("GdsReader",
             function(object) {

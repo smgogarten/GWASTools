@@ -8,6 +8,7 @@ GdsGenotypeReader <- function(filename, genotypeDim, genotypeVar, snpIDvar, scan
   
   # GdsReader does not have ... in its argument
   #tmpobj <- new("GdsReader", GdsReader(filename))
+  input.gds <- is(filename, 'gds.class')
   tmpobj <- GdsReader(filename)
   
   # automatic checking for genotypeDim:
@@ -32,8 +33,12 @@ GdsGenotypeReader <- function(filename, genotypeDim, genotypeVar, snpIDvar, scan
   # problem: if filename is a gds, it is wrong to close it
   # close(tmpobj) # in case it fails the validity method, close and reopen
   
-  new("GdsGenotypeReader", tmpobj, genotypeDim=genotypeDim, genotypeVar=genotypeVar,
-      snpIDvar=snpIDvar, scanIDvar=scanIDvar, ...)
+  #tryCatch(new("GdsReader", filename=filename, handler=handler),
+  #         error=function(e) if (!input.gds) closefn.gds(handler))
+  tryCatch(new("GdsGenotypeReader", tmpobj, genotypeDim=genotypeDim, genotypeVar=genotypeVar,
+      snpIDvar=snpIDvar, scanIDvar=scanIDvar, ...),
+      error=function(e) {if (!input.gds) close(tmpobj)
+        stop(e)})
 }
 
 setValidity("GdsGenotypeReader",

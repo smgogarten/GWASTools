@@ -2,7 +2,13 @@
 
 GdsIntensityReader <- function(filename, ...) {
   if (missing(filename)) stop("filename is required")
-  new("GdsIntensityReader", GdsReader(filename), ...)
+  
+  input.gds <- is(filename, 'gds.class')
+  tmpobj <- GdsReader(filename)
+  
+  tryCatch(new("GdsIntensityReader", tmpobj, ...),
+           error=function(e) {if (!input.gds) close(tmpobj)
+             stop(e)})
 }
 
 setValidity("GdsIntensityReader",

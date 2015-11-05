@@ -308,3 +308,43 @@ test_GdsGenotypeReader_IDs <- function() {
   checkException(getGenotypeSelection(obj, snp=1, snpID=1))
   checkException(getGenotypeSelection(obj, scan=1, scanID=1))
 }
+
+test_GdsGenotypeReader_error <- function() {
+  
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  snp <- 1:260
+  chrom <- rep(1:26, each=10)
+  pos <- rep(1001:1026, 10)
+  a <- rep("A", 260)
+  b <- rep("G", 260)
+  alleles <- paste(a, b, sep="/")
+  samp <- 1231:1235
+  nsnp <- length(snp)
+  nsamp <- length(samp)
+  geno <- matrix(sample(0:3, nsnp*nsamp, replace=TRUE),
+                 nrow=nsnp, ncol=nsamp)
+  add.gdsn(gds, "snp.id", snp)
+  add.gdsn(gds, "snp.chromosome", chrom)
+  add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", alleles)
+  add.gdsn(gds, "sample.id", samp)
+  add.gdsn(gds, "genotype", geno, storage="bit2")
+  closefn.gds(gds)
+  
+  obj <- GdsGenotypeReader(file)
+  close(obj)
+  
+  checkException(GdsGenotypeReader(file, positionVar="pos"))
+  # make sure it can be opened
+  obj <- GdsGenotypeReader(file)
+  close(obj)
+  
+  # now check that it's not closed when there is an error and a gds object is passed
+  gds <- openfn.gds(file)
+  checkException(GdsGenotypeReader(gds, positionVar="pos"))
+  obj <- GdsGenotypeReader(gds)
+  
+  close(obj)
+  unlink(file)
+}

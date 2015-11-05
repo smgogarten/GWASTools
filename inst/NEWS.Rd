@@ -631,4 +631,9 @@
     \item Use ZIP_RA as default compression in GDS files for faster access to compressed data
   }   
 }
+\section{Changes in version 1.17.7}{
+  \itemize{
+    \item add error handling to close GdsGenotypeReader and GdsIntensityReader gds files if they fail the validity method check
+  }   
+}
 

@@ -72,3 +72,24 @@ test_GdsIntensityReader <- function() {
   ## checkException(GdsIntensityReader(file))
   ## unlink(file)
 }
+
+test_GdsIntensityReader_error <- function() {
+  
+  gdsfile <- .makeTestFile()
+  # make sure it can be opened
+  obj <- GdsIntensityReader(gdsfile)
+  close(obj)
+  
+  checkException(GdsIntensityReader(gdsfile, positionVar="pos"))
+  # make sure it can be opened
+  obj <- GdsIntensityReader(gdsfile)
+  close(obj)
+  
+  # now check that it's not closed when there is an error and a gds object is passed
+  gds <- openfn.gds(gdsfile)
+  checkException(GdsIntensityReader(gds, positionVar="pos"))
+  obj <- GdsIntensityReader(gds)
+  
+  close(obj)
+  unlink(gdsfile)
+}
