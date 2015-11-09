@@ -161,14 +161,14 @@ test_dupDosageCorAcrossDatasets <- function() {
   snp.equal <- out.equal$snp
   samp.equal <- out.equal$samps
 
-  # dosage r2 should be 1 or NA
-  checkEquals(snp.equal$dosageR2[!is.na(snp.equal$dosageR2)],
-              rep(1,sum(!is.na(snp.equal$dosageR2))))
-  checkTrue(max(snp.equal$nsamp.dosageR2)<=nrow(samp.equal))
+  # dosage correlation (r) should be 1 or NA
+  checkEquals(snp.equal$dosageR[!is.na(snp.equal$dosageR)],
+              rep(1,sum(!is.na(snp.equal$dosageR))))
+  checkTrue(max(snp.equal$nsamp.dosageR)<=nrow(samp.equal))
 
-  checkEquals(samp.equal$dosageR2[!is.na(samp.equal$dosageR2)],
-              rep(1,sum(!is.na(samp.equal$dosageR2))))
-  checkTrue(max(samp.equal$nsnp.dosageR2)<=nrow(snp.equal))  
+  checkEquals(samp.equal$dosageR[!is.na(samp.equal$dosageR)],
+              rep(1,sum(!is.na(samp.equal$dosageR))))
+  checkTrue(max(samp.equal$nsnp.dosageR)<=nrow(snp.equal))  
 
   # check exception - no matching samples
   message("\nComparing no matching samples\n")  
@@ -207,7 +207,7 @@ test_dupDosageCorAcrossDatasets <- function() {
   # check there are 9 sample dup pairs
   checkEquals(nrow(samp.diff), 9)  
   
-  # check output r2 values to manual calculations
+  # check output r values to manual calculations
   # use .dosCorSelectGenotype function to get genoData1 and genoData2 in the same snp and sample order
 
   message("\tselecting genotypes from genoData1")
@@ -249,15 +249,15 @@ test_dupDosageCorAcrossDatasets <- function() {
   # loop over SNPs
   for (i in 1:nrow(snp.diff)){
     r <- cor(geno1.srt[i,], geno2.srt[i,],use="pairwise.complete.obs")
-    r2 <- r*r
-    checkEquals(r2, snp.diff$dosageR2[i])
+    # r2 <- r*r
+    checkEquals(r, snp.diff$dosageR[i])
   }
 
   # loop over samples
   for (i in 1:nrow(samp.diff)){
     r <- cor(geno1.srt[,i], geno2.srt[,i],use="pairwise.complete.obs")
-    r2 <- r*r
-    checkEquals(r2, samp.diff$dosageR2[i])
+    # r2 <- r*r
+    checkEquals(r, samp.diff$dosageR[i])
   }
 
   # unlink tempfile

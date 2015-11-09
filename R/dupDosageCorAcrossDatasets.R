@@ -1,4 +1,4 @@
-## Function to calculate squared correlation (r2) between allelic dosages, both by scan and by SNP
+## Function to calculate correlation between allelic dosages, both by scan and by SNP
 ## Allows for comparison between imputed datasets, or between imputed and observed -- i.e., where one or more of the datasets contains continuous dosage [0,2] rather than discrete allele counts {0,1,2}
 
 ## Modeled off of GWAS Tools function 'duplicateDiscordanceAcrossDatasets'
@@ -18,6 +18,8 @@
 
 # TO ADD - warning message that strand flips at strand ambiguous SNPs will NOT be detected; recommend excluding strand ambiguous SNPs from the comparison
 # alternatively, could try to do something smart like calcluate allele frequency and switch where counted allele is clearly different at A/T or C/G SNPs
+
+# 11/5/15 -- updated to return r (correlation) rather than r2
 
 ######################
 ## Internal functions
@@ -140,11 +142,11 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
   # adjust for potentially different allele A in second dataset
   geno2.matx[swapAB,] <- 2-geno2.matx[swapAB,]
 
-  #### calculate r2 by snp
-  message("\nCalculating r2 by SNP\n")
+  #### calculate r by snp
+  message("\nCalculating correlation by SNP\n")
 
   # also keep track of how many samples went into calculation
-  snps$dosageR2 <- snps$nsamp.dosageR2 <- NA
+  snps$dosageR <- snps$nsamp.dosageR <- NA
 
   last.row <- 0
   nblocks <- ceiling(nsnps / snp.block.size)
@@ -158,7 +160,7 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
     r.block <- diag(cor(t(geno1.matx[idx,,drop=FALSE]),
                          t(geno2.matx[idx,,drop=FALSE]),
                          use="pairwise.complete.obs"))
-    r2.block <- r.block * r.block
+    # r2.block <- r.block * r.block
 
     ## add how many samples went into calculation
     nonmiss.geno1 <- !is.na(geno1.matx[idx,,drop=FALSE])
@@ -167,21 +169,21 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
     ngeno1 <- rowSums(nonmiss.geno1)
     ngeno2 <- rowSums(nonmiss.geno2)
     # both geno1 and geno2 need to have non-missing data for
-    # that sample to be used in calculating r2
+    # that sample to be used in calculating r
     # resorting to apply
     dt <- matrix(data=c(ngeno1, ngeno2), nrow=length(idx), ncol=2)
     ncalc <- apply(dt,1,min)
 
-    snps$dosageR2[idx] <- r2.block
-    snps$nsamp.dosageR2[idx] <- ncalc
+    snps$dosageR[idx] <- r.block
+    snps$nsamp.dosageR[idx] <- ncalc
     last.row <- max(idx)
     # print(last.row)
   }
 
-  #### calculate r2 by sample
-  message("\nCalculating r2 by sample\n")
+  #### calculate r by sample
+  message("\nCalculating correlation by sample\n")
   last.row <- 0
-  samps$dosageR2 <- samps$nsnp.dosageR2 <- NA
+  samps$dosageR <- samps$nsnp.dosageR <- NA
   nblocks <- ceiling(nsamps / scan.block.size)
   for (i in 1:nblocks) {
     if(verbose){message("Block ",i," of ", nblocks)}
@@ -193,7 +195,7 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
     r.block <- diag(cor(geno1.matx[,idx,drop=FALSE],
                         geno2.matx[,idx,drop=FALSE],
                         use="pairwise.complete.obs"))
-    r2.block <- r.block * r.block
+    # r2.block <- r.block * r.block
 
     ## add how many snps went into calculation
     nonmiss.geno1 <- !is.na(geno1.matx[,idx,drop=FALSE])
@@ -202,13 +204,13 @@ dupDosageCorAcrossDatasets <- function(genoData1, genoData2,
     ngeno1 <- colSums(nonmiss.geno1)
     ngeno2 <- colSums(nonmiss.geno2)
     # both geno1 and geno2 need to have non-missing data for
-    # that snps to be used in calculating r2
+    # that snps to be used in calculating r
     # resorting to apply
     dt <- matrix(data=c(ngeno1, ngeno2), nrow=length(idx), ncol=2)
     ncalc <- apply(dt,1,min)
 
-    samps$dosageR2[idx] <- r2.block
-    samps$nsnp.dosageR2[idx] <- ncalc
+    samps$dosageR[idx] <- r.block
+    samps$nsnp.dosageR[idx] <- ncalc
     last.row <- max(idx)
     #print(last.row)
   }

@@ -7,7 +7,7 @@
 \description{
   These functions compare genotypes in pairs of duplicate scans of the same sample
   across multiple datasets. 'duplicateDiscordanceAcrossDatasets' finds the number of discordant genotypes both by scan and by SNP.
-  'dupDosageCorAcrossDatasets' calculates squared correlation (r2) between allelic dosages both by scan and by SNP, allowing for
+  'dupDosageCorAcrossDatasets' calculates correlations between allelic dosages both by scan and by SNP, allowing for
   comparision between imputed datasets or between imputed and observed -
   i.e., where one or more of the datasets contains continuous dosage [0,2] rather than discrete allele counts \{0,1,2\}.
 }
@@ -91,7 +91,8 @@ dupDosageCorAcrossDatasets(genoData1, genoData2,
   \code{one.pair.per.subj=FALSE}, discordances will be calculated
   pair-wise for all possible cross-dataset pairs for each subject.
 
-  \code{dupDosageCorAcrossDatasets} calculates squared dosage correlation both
+  \code{dupDosageCorAcrossDatasets} calculates dosage correlation
+  (Pearson correlation coefficient) both
 by scan and by SNP. Note it only allows for one pair of duplicate scans
 per sample.  For this function only, \code{genoData1} and
 \code{genoData2} must have been created with
@@ -186,24 +187,24 @@ instances would be unaffected: r may be negative but r2 will be positive.
   \item{positivePredictiveValue}{Positive predictive value}
   \item{negativePredictiveValue}{Negative predictive value}
 
-
-  \code{dupDosageCorAcrossDatasets} returns a list with two data
+\code{dupDosageCorAcrossDatasets} returns a list with two data
   frames:
 
-  The data.frame "snps" contains the by-SNP r2 values with the
+The data.frame "snps" contains the by-SNP correlation (r) values with the
   SNP annotation columns listed above as well as:
-  \item{nsamp.dosageR2}{number of samples in r2 calculation (i.e., non
-  missing data in both genoData1 and genoData2)}
-  \item{dosageR2}{squared dosage correlation}
-
-    The data.frame "samps" contains the by-sample r2 values with the
+  \item{nsamp.dosageR}{number of samples in r calculation (i.e., non
+    missing data in both genoData1 and genoData2)}
+  
+  \item{dosageR}{dosage correlation}
+  
+The data.frame "samps" contains the by-sample r values with the
     following columns:
     \item{subjectID}{subject-level identifier for duplicate sample pair}
     \item{scanID1}{scanID from genoData1}
     \item{scanID2}{scanID from genoData2}
-  \item{nsnp.dosageR2}{number of SNPs in r2 calculation (i.e., non
+  \item{nsnp.dosageR}{number of SNPs in r calculation (i.e., non
   missing data in both genoData1 and genoData2)}
-    \item{dosageR2}{squared dosage correlation}
+    \item{dosageR}{dosage correlation}
 
   If no duplicate scans or no common SNPs are found, these functions issue a warning
   message and return \code{NULL}.
