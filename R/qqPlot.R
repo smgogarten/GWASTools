@@ -52,10 +52,10 @@ qqPlot <- function(pval, truncate = FALSE, ylim=NULL, thinThreshold=NULL, ci=TRU
        xlab = expression(paste(-log[10], "(expected P)")), ...)
   # upper and lower have already been subset
   if (ci){
-    upper <- qbeta(0.025, a, rev(a))
-    lower <- qbeta(0.975, a, rev(a))
+    upper <- qbeta(0.025, a[ind], rev(a)[ind])
+    lower <- qbeta(0.975, a[ind], rev(a)[ind])
 
-    polygon(-log10(c(b[ind], rev(b[ind]))), -log10(c(upper[ind], rev(lower[ind]))), density=NA, col="gray")
+    polygon(-log10(c(b[ind], rev(b[ind]))), -log10(c(upper, rev(lower))), density=NA, col="gray")
   }
   points(x[ind], pval[ind], pch = char, ...)  
   abline(0,1,col="red")  
