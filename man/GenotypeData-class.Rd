@@ -261,7 +261,7 @@ data(illuminaSnpADF)
 data(illuminaScanADF)
 # need to rebuild old SNP annotation object to get allele methods
 snpAnnot <- SnpAnnotationDataFrame(pData(illuminaSnpADF))
-genoData <-  GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
+genoData <- GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=illuminaScanADF)
 
 # dimensions
 nsnp(genoData)
@@ -297,19 +297,19 @@ close(genoData)
 #--------------------------------------
 # Chicken has 38 autosomes, Z, and W.  Male is ZZ, female is ZW.
 # Define sex chromosomes as X=Z and Y=W.
-ncfile <- tempfile()
+gdsfile <- tempfile()
 simulateGenotypeMatrix(n.snps=10, n.chromosomes=40, n.samples=5,
-                       ncdf.filename=ncfile)
-nc <- NcdfGenotypeReader(ncfile, autosomeCode=1:38L,
+                       filename=gdsfile, file.type="gds")
+gds <- GdsGenotypeReader(gdsfile, autosomeCode=1:38L,
                          XchromCode=39L, YchromCode=40L,
                          XYchromCode=41L, MchromCode=42L)
-table(getChromosome(nc))
-table(getChromosome(nc, char=TRUE))
+table(getChromosome(gds))
+table(getChromosome(gds, char=TRUE))
 
 # SNP annotation
-snpdf <- data.frame(snpID=getSnpID(nc),
-                    chromosome=getChromosome(nc),
-                    position=getPosition(nc))
+snpdf <- data.frame(snpID=getSnpID(gds),
+                    chromosome=getChromosome(gds),
+                    position=getPosition(gds))
 snpAnnot <- SnpAnnotationDataFrame(snpdf, autosomeCode=1:38L,
                          XchromCode=39L, YchromCode=40L,
                          XYchromCode=41L, MchromCode=42L)
@@ -326,7 +326,7 @@ varMetadata(scanAnnot)[,"labelDescription"] <-
   c("unique integer ID",
     "sex coded as M=female and F=male")
 
-genoData <- GenotypeData(nc, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
+genoData <- GenotypeData(gds, snpAnnot=snpAnnot, scanAnnot=scanAnnot)
 afreq <- alleleFrequency(genoData)
 # frequency of Z chromosome in females ("M") and males ("F")
 afreq[snpAnnot$chromosome == 39, c("M","F")]
@@ -334,7 +334,7 @@ afreq[snpAnnot$chromosome == 39, c("M","F")]
 afreq[snpAnnot$chromosome == 40, c("M","F")]
 
 close(genoData)
-unlink(ncfile)
+unlink(gdsfile)
 }
 
 \keyword{methods}

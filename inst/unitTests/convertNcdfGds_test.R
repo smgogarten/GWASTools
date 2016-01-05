@@ -1,7 +1,7 @@
 test_convertNcdfGds <- function() {
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
+                         n.samples=20, filename=ncfile, file.type="ncdf")
   nc.orig <- NcdfGenotypeReader(ncfile)
 
   scanID <- getScanID(nc.orig)
@@ -36,7 +36,7 @@ test_convertNcdfGds <- function() {
 test_convertNcdfGds_intensity <- function() {
   ncfile <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
+                         n.samples=20, filename=ncfile, file.type="ncdf")
   nc.orig <- NcdfIntensityReader(ncfile)
 
   snpID <- getSnpID(nc.orig)
@@ -60,17 +60,15 @@ test_convertNcdfGds_intensity <- function() {
 }
 
 test_convertGdsNcdf <- function() {
-  ncfile <- tempfile()
-  simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
-
   gdsfile <- tempfile()
-  convertNcdfGds(ncfile, gdsfile)
-  ncfile2 <- tempfile()
-  convertGdsNcdf(gdsfile, ncfile2)
+  simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
+                         n.samples=20, filename=gdsfile, file.type="gds")
 
-  nc.orig <- NcdfGenotypeReader(ncfile)
-  nc.new <- NcdfGenotypeReader(ncfile2)
+  ncfile <- tempfile()
+  convertGdsNcdf(gdsfile, ncfile)
+
+  nc.orig <- GdsGenotypeReader(gdsfile)
+  nc.new <- NcdfGenotypeReader(ncfile)
   checkEquals(getScanID(nc.orig), getScanID(nc.new))
   checkEquals(getSnpID(nc.orig), getSnpID(nc.new))
   checkEquals(getChromosome(nc.orig), getChromosome(nc.new))
@@ -79,57 +77,50 @@ test_convertGdsNcdf <- function() {
 
   close(nc.orig)
   close(nc.new)
-  file.remove(ncfile, gdsfile, ncfile2)
+  file.remove(ncfile, gdsfile)
 }
 
 test_convertGdsNcdf_transpose <- function() {
-  ncfile <- tempfile()
-  simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
-
   gdsfile <- tempfile()
-  convertNcdfGds(ncfile, gdsfile)
-  SNPRelate::snpgdsTranspose(gdsfile)
-  ncfile2 <- tempfile()
-  convertGdsNcdf(gdsfile, ncfile2)
+  simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
+                         n.samples=20, filename=gdsfile, file.type="gds")
 
-  nc.orig <- NcdfGenotypeReader(ncfile)
-  nc.new <- NcdfGenotypeReader(ncfile2)
-  checkEquals(getGenotype(nc.orig), getGenotype(nc.new))
+  SNPRelate::snpgdsTranspose(gdsfile)
+  ncfile <- tempfile()
+  convertGdsNcdf(gdsfile, ncfile)
+
   gds.orig <- GdsGenotypeReader(gdsfile)
+  nc.new <- NcdfGenotypeReader(ncfile)
   checkEquals(getGenotype(gds.orig), getGenotype(nc.new))
 
-  close(nc.orig)
   close(nc.new)
   close(gds.orig)
-  file.remove(ncfile, gdsfile, ncfile2)
+  file.remove(ncfile, gdsfile)
 }
 
 test_convertGdsNcdf_intensity <- function() {
-  ncfile <- tempfile()
-  simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
-
   gdsfile <- tempfile()
-  convertNcdfGds(ncfile, gdsfile)
-  ncfile2 <- tempfile()
-  convertGdsNcdf(gdsfile, ncfile2)
+  simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
+                         n.samples=20, filename=gdsfile, file.type="gds")
 
-  nc.orig <- NcdfIntensityReader(ncfile)
-  nc.new <- NcdfIntensityReader(ncfile2)
+  ncfile <- tempfile()
+  convertGdsNcdf(gdsfile, ncfile)
+
+  nc.orig <- GdsIntensityReader(gdsfile)
+  nc.new <- NcdfIntensityReader(ncfile)
   checkEquals(getQuality(nc.orig), getQuality(nc.new))
   checkEquals(getX(nc.orig), getX(nc.new))
   checkEquals(getY(nc.orig), getY(nc.new))
 
   close(nc.orig)
   close(nc.new)
-  file.remove(ncfile, gdsfile, ncfile2)
+  file.remove(ncfile, gdsfile)
 }
 
 test_checkNcdfGds <- function() {
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
+                         n.samples=20, filename=ncfile, file.type="ncdf")
 
   nc.orig <- NcdfGenotypeReader(ncfile)
   snpID <- getSnpID(nc.orig)
@@ -144,11 +135,11 @@ test_checkNcdfGds <- function() {
   checkTrue(checkNcdfGds(ncfile, gdsfile))
 
   # change ncdf file
-  nc.new <- open.ncdf(ncfile, write=TRUE)
-  geno <- get.var.ncdf(nc.new, "genotype")
+  nc.new <- nc_open(ncfile, write=TRUE)
+  geno <- ncvar_get(nc.new, "genotype")
   geno[geno == 1] <- 2
-  put.var.ncdf(nc.new, "genotype", geno)
-  close.ncdf(nc.new)
+  ncvar_put(nc.new, "genotype", geno)
+  nc_close(nc.new)
 
   checkTrue(!checkNcdfGds(ncfile, gdsfile))
 
@@ -158,7 +149,7 @@ test_checkNcdfGds <- function() {
 test_convertNcdfGds_chromCodes <- function() {
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=40, n.samples=5,
-                         ncdf.filename=ncfile)
+                         filename=ncfile, file.type="ncdf")
   nc <- NcdfGenotypeReader(ncfile)
 
   # SNP annotation

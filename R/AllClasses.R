@@ -92,10 +92,10 @@ setClassUnion("ScanAnnotationReader", c("ScanAnnotationDataFrame",
 # NcdfReader
 # Wrapper for the ncdf library - holds ncdf file handler
 # ncdf is S3 class, so create S4 virtualization
-setOldClass("ncdf")
+setOldClass("ncdf4")
 setClass("NcdfReader",
          representation(filename = "character",
-                        handler = "ncdf"))
+                        handler = "ncdf4"))
 
 # NcdfGenotypeReader
 # Reads genotype data stored in netCDF format

@@ -168,13 +168,13 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     map.df <- map.alt[match(snpID, map.alt$snpID),
                       c("chromosome", "rsID", "position")]
   }
-  snp.ncdf <- paste(map.df$chromosome, map.df$rsID, map.df$position)
+  snp.gd <- paste(map.df$chromosome, map.df$rsID, map.df$position)
 
-  mismatch.plink <- setdiff(snp.plink, snp.ncdf)
-  mismatch.ncdf <- setdiff(snp.ncdf, snp.plink)
-  if (length(c(mismatch.plink, mismatch.ncdf)) > 0 ) {
+  mismatch.plink <- setdiff(snp.plink, snp.gd)
+  mismatch.gd <- setdiff(snp.gd, snp.plink)
+  if (length(c(mismatch.plink, mismatch.gd)) > 0 ) {
     p.df <- cbind("file"=rep("pedFile", length(mismatch.plink)), "snp"=mismatch.plink)
-    n.df <- cbind("file"=rep("genoData", length(mismatch.ncdf)), "snp"=mismatch.ncdf)
+    n.df <- cbind("file"=rep("genoData", length(mismatch.gd)), "snp"=mismatch.gd)
     mismatch <- rbind(p.df, n.df)
     writeLines("SNPs are not identical", con)
     write.table(mismatch, con, quote=FALSE, col.names=FALSE, row.names=FALSE)
@@ -183,7 +183,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
     writeLines("OK", con)
   }
 
-  snp.match <- match(snp.plink, snp.ncdf)
+  snp.match <- match(snp.plink, snp.gd)
 
   # sample data
   scan.df <- .getPlinkFam(genoData, family.col, individual.col, father.col, mother.col, phenotype.col)
@@ -300,6 +300,9 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
                         ncdfXchromCode=23, ncdfXYchromCode=24, ncdfYchromCode=25,
                         ncdfMchromCode=26, ncdfUchromCode=27,
                         pedMissingCode=0, verbose=TRUE) {
+    
+    .Deprecated("snpgdsBED2GDS", msg="'plinkToNcdf' is deprecated. \nUse 'snpgdsBED2GDS' in package 'SNPRelate' instead.")
+    
   # read map file to get SNP annotation
   map <- read.table(mapFile, as.is=TRUE, comment.char="")
   names(map)[1:4] <- c("chromosome", "rsID", "mapdist", "position")
@@ -425,7 +428,7 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
     nA[geno %in% c("BB")] <- 0
 
     # add genotype to netCDF
-    put.var.ncdf(nc, "genotype", vals=nA, start=c(1,line), count=c(nsnp,1))
+    ncvar_put(nc, "genotype", vals=nA, start=c(1,line), count=c(nsnp,1))
 
   }
 
@@ -441,9 +444,9 @@ plinkToNcdf <- function(pedFile, mapFile, nSamples,
     scanID <- as.integer(individ[1:line])
   }
   # add scanID to netCDF
-  put.var.ncdf(nc, "sampleID", vals=scanID, start=1, count=line)
+  ncvar_put(nc, "sampleID", vals=scanID, start=1, count=line)
 
-  close.ncdf(nc)
+  .close(nc)
 
   # save scan annotation as ScanAnnotationDataFrame
   scan.df <- data.frame(individ, family, father, mother, sex, phenotype, stringsAsFactors=FALSE)

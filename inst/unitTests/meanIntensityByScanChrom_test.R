@@ -2,8 +2,8 @@ test_meanIntensityByScanChrom <- function() {
   # simulate data
   ncfile <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
-  nc <- NcdfIntensityReader(ncfile)
+                         n.samples=20, filename=ncfile)
+  nc <- GdsIntensityReader(ncfile)
   intenData <- IntensityData(nc)
   scanID <- getScanID(intenData)
   chrom <- getChromosome(intenData, char=TRUE)

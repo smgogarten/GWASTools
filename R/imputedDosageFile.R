@@ -74,101 +74,6 @@
 }
 
 
-.createGdsDosage <- function(snp.df, scan.df, filename, genotypeDim, miss.val, precision="single",
-                             compress.annot="ZIP_RA") {
-
-  # redefine precision for gds
-  precision <- ifelse(precision == "double", "float64",
-                      ifelse(precision == "single", "float32", precision))
-
-  # create GDS
-  gfile <- createfn.gds(filename)
-
-  add.gdsn(gfile, "snp.id", snp.df$snpID, compress=compress.annot, closezip=TRUE)
-  add.gdsn(gfile, "sample.id", scan.df$scanID, compress=compress.annot, closezip=TRUE)
-
-  n <- add.gdsn(gfile, name="description")
-  put.attr.gdsn(n, "FileFormat", "IMPUTED_DOSAGE")
-
-  geno.valdim <- switch(genotypeDim,
-                        "snp,scan"=c(length(snp.df$snpID), length(scan.df$scanID)),
-                        "scan,snp"=c(length(scan.df$scanID), length(snp.df$snpID)))
-  gGeno <- add.gdsn(gfile, "genotype", valdim=geno.valdim, storage=precision)
-
-  geno.order <- switch(genotypeDim,
-                       "snp,scan"="snp.order",
-                       "scan,snp"="sample.order")
-  put.attr.gdsn(gGeno, geno.order)
-  put.attr.gdsn(gGeno, "missing.value", miss.val)
-
-  sync.gds(gfile)
-  gfile
-}
-
-.createNcdfDosage <- function(snp.df, scan.df, filename, miss.val, precision="single") {
-  # define dimensions
-  snpdim <- dim.def.ncdf("snp", "count", snp.df$snpID)
-  sampledim <- dim.def.ncdf("sample", "count", scan.df$scanID, unlim=TRUE)
-  chardim <- dim.def.ncdf("nchar", "", 1)
-
-  # define variables
-  varID <- var.def.ncdf("sampleID", "id", dim=sampledim, missval=0, prec="integer")
-  varpos <- var.def.ncdf("position", "bases", dim=snpdim, missval=-1, prec="integer")
-  varchr <- var.def.ncdf("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
-  varA <- var.def.ncdf("alleleA", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
-  varB <- var.def.ncdf("alleleB", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
-  vargeno <- var.def.ncdf("genotype", "A_allele_dosage", dim=list(snpdim,sampledim), missval=miss.val, prec=precision)
-
-  # create the NetCDF file
-  nc <- create.ncdf(filename, list(varID, varpos, varchr, varA, varB, vargeno))
-
-  put.var.ncdf(nc, varID, scan.df$scanID)
-
-  nc
-}
-
-
-.addDosage <- function(x, ...) UseMethod(".addDosage", x)
-.addDosage.gds.class <- function(x, dosage, start, count) {
-    write.gdsn(index.gdsn(x, "genotype"), dosage, start=start, count=count)
-}
-
-.addDosage.ncdf <- function(x, dosage, start, count) {
-    put.var.ncdf(x, "genotype", dosage, start=start, count=count)
-}
-
-.addSnpVars <- function(x, ...) UseMethod(".addSnpVars", x)
-.addSnpVars.gds.class <- function(x, snpAnnot, compress) {
-  add.gdsn(x, "snp.chromosome", snpAnnot$chromosome, compress=compress, closezip=TRUE)
-  add.gdsn(x, "snp.position", snpAnnot$position, compress=compress, closezip=TRUE)
-  add.gdsn(x, "snp.allele", paste(snpAnnot$alleleA, snpAnnot$alleleB, sep="/"), compress=compress, closezip=TRUE)
-
-}
-.addSnpVars.ncdf <- function(x, snpAnnot, ...) {
-  put.var.ncdf(x, "position", snpAnnot$position)
-  put.var.ncdf(x, "chromosome", snpAnnot$chromosome)
-  put.var.ncdf(x, "alleleA", snpAnnot$alleleA)
-  put.var.ncdf(x, "alleleB", snpAnnot$alleleB)
-}
-
-.compressDosage <- function(x, compress) {
-    compression.gdsn(index.gdsn(x, "genotype"), compress=compress)
-}
-
-.close <- function(x, ...) UseMethod(".close", x)
-.close.gds.class <- function(x, verbose) {
-    vars <- ls.gdsn(x)
-    vars <- vars[!grepl("^snp", vars)] # snp nodes already done
-    for (v in vars) readmode.gdsn(index.gdsn(x, v))
-    sync.gds(x)
-
-    ## close and cleanup
-    filename <- x$filename
-    closefn.gds(x)
-    cleanup.gds(filename, verbose=verbose)
-}
-.close.ncdf <- function(x, ...) close.ncdf(x)
-
 
 imputedDosageFile <- function(input.files, filename, chromosome,
                              input.type=c("IMPUTE2", "BEAGLE", "MaCH"),
@@ -613,8 +518,7 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   # compress (if gds)
   if (file.type == "gds" & compress != "") {
       if (verbose) message("Compressing...")
-      closefn.gds(gfile)
-      gfile <- openfn.gds(filename, readonly=FALSE)
+      gfile <- .reopenGds(gfile)
       .compressDosage(gfile, compress)
   }
   

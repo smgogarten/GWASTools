@@ -14,6 +14,8 @@
 \alias{assocTestCPH}
 \alias{assocTestFisherExact}
 \alias{gwasExactHW}
+\alias{ncdfSubset}
+\alias{ncdfSubsetCheck}
 
 \title{Defunct Functions in Package \sQuote{GWASTools}}
 
@@ -40,5 +42,7 @@
     \item{\code{assocTestCPH}: \code{\link{assocCoxPH}}}
     \item{\code{assocTestFisherExact}: \code{\link{batchFisherTest}}}
     \item{\code{gwasExactHW}: \code{\link{exactHWE}}}
+    \item{\code{ncdfSubset}: \code{\link{gdsSubset}}}
+    \item{\code{ncdfSubsetCheck}: \code{\link{gdsSubsetCheck}}}
   }   
 }

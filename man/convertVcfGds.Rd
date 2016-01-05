@@ -2,7 +2,8 @@
 \alias{convertVcfGds}
 \title{Conversion from VCF to GDS}
 \description{
-	Extract SNP data from a VCF file
+	Extract SNP data from a VCF file. 
+	This function is deprecated, use \code{\link[SNPRelate]{snpgdsVCF2GDS}} instead.
 }
 \usage{
 convertVcfGds(vcf.filename, gds.filename, nblock=1024, compress="ZIP_RA",

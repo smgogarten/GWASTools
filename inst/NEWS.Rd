@@ -636,9 +636,14 @@
     \item add error handling to close GdsGenotypeReader and GdsIntensityReader gds files if they fail the validity method check
   }   
 }
-\section{Changes in version 1.17.9}{
+\section{Changes in version 1.17.8}{
   \itemize{
     \item do not compute qbeta for all points in qqPlot if thinning
   }   
 }
-
+\section{Changes in version 1.17.9}{
+  \itemize{
+    \item Replace ncdf with ncdf4
+    \item Deprecate plinkToNcdf and convertVcfGds (use SNPRelate functions instead)
+  }   
+}

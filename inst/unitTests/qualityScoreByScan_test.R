@@ -2,8 +2,8 @@ test_qualityScoreByScan <- function() {
   # simulate data
   intenfile <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=intenfile)
-  intennc <- NcdfIntensityReader(intenfile)
+                         n.samples=20, filename=intenfile)
+  intennc <- GdsIntensityReader(intenfile)
   scanID <- 1:20
   sex <- c(rep("M", 10), rep("F", 10))
   scandf <- data.frame(scanID=scanID, sex=sex)
@@ -12,8 +12,8 @@ test_qualityScoreByScan <- function() {
   
   genofile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=genofile)
-  genonc <- NcdfGenotypeReader(genofile)
+                         n.samples=20, filename=genofile)
+  genonc <- GdsGenotypeReader(genofile)
   genoData <- GenotypeData(genonc, scanAnnot=scanAnnot)
 
   # expected results

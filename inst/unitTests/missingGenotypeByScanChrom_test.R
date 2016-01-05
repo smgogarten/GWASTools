@@ -2,8 +2,8 @@ test_missingGenotypeByScanChrom <- function() {
   # simulate data
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
-  nc <- NcdfGenotypeReader(ncfile)
+                         n.samples=20, filename=ncfile)
+  nc <- GdsGenotypeReader(ncfile)
   scanID <- 1:20
   sex <- c(rep("M", 10), rep("F", 10))
   scandf <- data.frame(scanID=scanID, sex=sex)

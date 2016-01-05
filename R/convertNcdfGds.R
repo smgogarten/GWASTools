@@ -90,7 +90,7 @@ convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
 	}
 
 	# close files
-	close.ncdf(ncfile)
+	.close(ncfile)
         closefn.gds(gdsobj)
 
 	if (verbose) message(date(), "\tend convertGdsNcdf.\n")
@@ -121,10 +121,10 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	if (verbose) message(date(), "\tbegin convertNcdfGds ...\n")
 
 	# open netCDF
-	nc <- open.ncdf(ncdf.filename)
-        snpID <- nc$dim$snp$vals
-        chromosome <- get.var.ncdf(nc, "chromosome")
-        position <- get.var.ncdf(nc, "position")
+	nc <- NcdfReader(ncdf.filename)
+        snpID <- getVariable(nc, "snp")
+        chromosome <- getVariable(nc, "chromosome")
+        position <- getVariable(nc, "position")
 	if (!is.null(snp.annot)) {
                 stopifnot(allequal(snp.annot$snpID, snpID))
                 stopifnot(allequal(snp.annot$chromosome, chromosome))
@@ -136,19 +136,13 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 
 	# create GDS file
 	if (verbose) message(date(), "\tCreating GDS file ...\n")
-        variables <- setdiff(names(nc$var), c("sampleID", "chromosome", "position"))
+        variables <- setdiff(getVariableNames(nc), c("sampleID", "chromosome", "position"))
 	gfile <- .createGds(snp.annotation, gds.filename, variables,
                             precision, compress=compress)
 
         # add chromosome codes
 	if (!is.null(snp.annot)) {
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.start", min(autosomeCode(snp.annot)))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.end", max(autosomeCode(snp.annot)))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "X", XchromCode(snp.annot))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "XY", XYchromCode(snp.annot))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "Y", YchromCode(snp.annot))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "M", MchromCode(snp.annot))
-                put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(snp.annot))
+            .addChromosomeAttributes(gfile, snp.annot)
 	}
 
 	# sync file
@@ -158,12 +152,12 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 		message(date(), "\tAdding sample data...\n")
 
 	# add samples
-        sample.id <- get.var.ncdf(nc, "sampleID")
+        sample.id <- getVariable(nc, "sampleID")
 
 	for (i in 1:length(sample.id)) {
                 dat <- list()
                 for (v in variables) {
-                    dat[[v]] <- get.var.ncdf(nc, v, start=c(1, i), count=c(-1, 1))
+                    dat[[v]] <- getVariable(nc, v, start=c(1, i), count=c(-1, 1))
                 }
                 .addData(gfile, variables, dat, sample.id[i])
 		if (verbose & (i %% 100 == 0))
@@ -174,9 +168,8 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	sync.gds(gfile)
 
 	# close files
-	closefn.gds(gfile)
-	close.ncdf(nc)
-        cleanup.gds(gds.filename, verbose=verbose)
+	close(nc)
+        .close(gfile)
 
 	if (verbose)
 		message(date(), "\tend convertNcdfGds.\n")
@@ -202,22 +195,21 @@ checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 
 	if (verbose) message(date(), "\tbegin checkNcdfGds ...\n")
 
-	nc <- open.ncdf(ncdf.filename)
-	gfile <- openfn.gds(gds.filename)
+	nc <- NcdfGenotypeReader(ncdf.filename)
+	gfile <- GdsGenotypeReader(gds.filename)
 
-	gdsgeno <- index.gdsn(gfile, "genotype")
-	if (is.null(gdsgeno)) {
+	if (!hasVariable(gfile, "genotype")) {
 		message("No genotype exists in the CoreArray GDS file.")
                 return(FALSE)
               }
-	despgeno <- objdesp.gdsn(gdsgeno)
-	if (length(despgeno$dim) != 2) {
+	if (length(getDimension(gfile, "genotype")) != 2) {
 		message("The dimension of genotype data in the CoreArray GDS file is not correct.")
                 return(FALSE)
               }
 
 	# # of samples
-	if (nc$dim$sample$len != despgeno$dim[2]) {
+        nscan <- length(getScanID(nc))
+	if (nscan != length(getScanID(gfile))) {
 		message("The numbers of samples are not equal!")
                 return(FALSE)
               }
@@ -225,7 +217,8 @@ checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 		if (verbose) message("The numbers of samples are equal\n")
 
 	# # of snps
-	if (nc$dim$snp$len != despgeno$dim[1]) {
+        nsnp <- length(getSnpID(nc))
+	if (nsnp != length(getSnpID(gfile))) {
 		message("The numbers of snps are not equal!")
                 return(FALSE)
               }
@@ -234,54 +227,21 @@ checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 
 	# checking block by block
 	if (verbose) message(date(), "\tChecking in the sample order ...\n")
-	for (i in 1:nc$dim$sample$len)
+	for (i in 1:nscan)
 	{
-		gN <- get.var.ncdf(nc, "genotype", start=c(1, i), count=c(-1, 1))
-		gG <- read.gdsn(gdsgeno, start=c(1, i), count=c(-1, 1))
-		gG[gG==3] <- -1
-		if (sum(gN != gG) > 0) {
+		gN <- getGenotype(nc, snp=c(1,-1), scan=c(i,1))
+		gG <- getGenotype(gfile, snp=c(1,-1), scan=c(i,1))
+		if (!allequal(gN, gG)) {
 			message(sprintf("The %dth sample error!", i))
                         return(FALSE)
                       }
 		if (i %% 500 == 0)
 			if (verbose) message(date(), "\t", i, "OK!\n")
-	}
-
-	# checking block by block
-	if (verbose) message(date(), "\tChecking in the snp order ...\n")
-	breaks <- 5000
-	bkNum <- nc$dim$snp$len %/% breaks
-	bkEnd <- nc$dim$snp$len %% breaks
-	sm <- 0
-	if (bkNum > 0)
-	{
-		for (i in 1:bkNum)
-		{
-			gN <- get.var.ncdf(nc, "genotype", start=c((i-1)*breaks+1, 1), count=c(breaks, -1))
-			gG <- read.gdsn(gdsgeno, start=c((i-1)*breaks+1, 1), count=c(breaks, -1))
-			gG[gG==3] <- -1
-			if (sum(gN != gG) > 0) {
-				message(sprintf("The %dth - %dth snps error!", (i-1)*breaks+1, i*breaks))
-                                return(FALSE)
-                              }
-			if (i%%10 == 0)
-				if (verbose) message(date(), "\t", i*breaks, "OK!\n")
-		}
-	}
-	if (bkEnd > 0)
-	{
-		gN <- get.var.ncdf(nc, "genotype", start=c(bkNum*breaks+1, 1), count=c(bkEnd, -1))
-		gG <- read.gdsn(gdsgeno, start=c(bkNum*breaks+1, 1), count=c(bkEnd, -1))
-		gG[gG==3] <- -1
-		if (sum(gN != gG) > 0) {
-			message(sprintf("The %dth - %dth snps error!", bkNum*breaks+1, bkNum*breaks+bkEnd))
-                        return(FALSE)
-                      }
-	}
+	}	
 
 	if (verbose) message("OK!!!\n")
-	closefn.gds(gfile)
-	close.ncdf(nc)
+	close(gfile)
+	close(nc)
 	return(TRUE)
 }
 

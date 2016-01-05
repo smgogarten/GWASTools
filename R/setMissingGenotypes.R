@@ -5,6 +5,7 @@ setMissingGenotypes <- function(
         file.type = c("gds", "ncdf"),
 	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
         compress = "ZIP_RA",
+        copy.attributes = TRUE,
         verbose=TRUE) {
 
   stopifnot(all(c("scanID", "chromosome", "left.base", "right.base", "whole.chrom") %in% names(regions)))
@@ -40,17 +41,12 @@ setMissingGenotypes <- function(
           snp.annotation$alleleB <- getAlleleB(old)
       }
       gfile <- .createGds(snp.annotation, new.file, "genotype", compress=compress)
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.start", min(autosomeCode(old)))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "autosome.end", max(autosomeCode(old)))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "X", XchromCode(old))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "XY", XYchromCode(old))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "Y", YchromCode(old))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "M", MchromCode(old))
-      put.attr.gdsn(index.gdsn(gfile, "snp.chromosome"), "MT", MchromCode(old))
+      if (copy.attributes) .addChromosomeAttributes(gfile, old)
   } else if (file.type == "ncdf") {
-      gfile <- .createNcdf(snp.annotation, new.file, "genotype", length(sample.include))
-      att.put.ncdf(gfile, 0, "array_name", getAttribute(old, "array_name")) 
-      att.put.ncdf(gfile, 0, "genome_build", getAttribute(old, "genome_build"))
+      gfile <- .createNcdf(snp.annotation, new.file, "genotype",
+                           length(sample.include),
+                           array.name=getAttribute(old, "array_name"),
+                           genome.build=getAttribute(old, "genome_build"))
   }
 
   ind.old <- which(scanID %in% sample.include)

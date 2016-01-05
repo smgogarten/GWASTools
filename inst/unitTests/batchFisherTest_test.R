@@ -310,8 +310,8 @@ test_batchFisherTest <- function() {
   # simulate data - autosomes only
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=22,
-                           n.samples=20, ncdf.filename=ncfile)
-  nc <- NcdfGenotypeReader(ncfile)
+                           n.samples=20, filename=ncfile)
+  nc <- GdsGenotypeReader(ncfile)
 
   # run tests
   check2batches(nc)
@@ -329,8 +329,8 @@ test_batchFisherTest <- function() {
   # simulate data - 26 chroms
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                           n.samples=20, ncdf.filename=ncfile)
-  nc <- NcdfGenotypeReader(ncfile)
+                           n.samples=20, filename=ncfile)
+  nc <- GdsGenotypeReader(ncfile)
 
   # run tests
   checkAuto(nc)

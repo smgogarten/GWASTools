@@ -12,6 +12,9 @@
 convertVcfGds <- function(vcf.filename, gds.filename, nblock=1024, compress="ZIP_RA",
 	verbose=TRUE)
 {
+
+    .Deprecated("snpgdsVCF2GDS", msg="'convertVcfGds' is deprecated. \nUse 'snpgdsVCF2GDS' in package 'SNPRelate' instead.")
+    
 	# check
 	stopifnot(is.character(vcf.filename))
 	stopifnot(is.character(gds.filename))

@@ -2,7 +2,7 @@ test_IntensityData <- function() {
   # simulate data
   ncfile <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=ncfile)
+                         n.samples=20, filename=ncfile, file.type="ncdf")
   nc <- NcdfIntensityReader(ncfile)
   scanID <- getScanID(nc)
   sex <- c(rep("M", 10), rep("F", 10))

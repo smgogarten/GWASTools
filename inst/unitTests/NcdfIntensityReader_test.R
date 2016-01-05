@@ -1,7 +1,7 @@
 test_NcdfIntensityReader <- function() {  
   file <- tempfile()
   simulateIntensityMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=file)
+                         n.samples=20, filename=file, file.type="ncdf")
   obj <- NcdfIntensityReader(file)
   
   x <- getX(obj)
@@ -52,20 +52,20 @@ test_NcdfIntensityReader <- function() {
   close(obj)  
 
   # check exception with incorrect dimensions
-  dim1 <- dim.def.ncdf("dim1", "count", 1:10)
-  var1 <- var.def.ncdf("var1", "count", dim=dim1, missval=-1)
+  dim1 <- ncdim_def("dim1", "count", 1:10)
+  var1 <- ncvar_def("var1", "count", dim=dim1, missval=-1)
   file <- tempfile()
-  nc <- create.ncdf(file, var1)
-  close.ncdf(nc)
+  nc <- nc_create(file, var1)
+  nc_close(nc)
   checkException(NcdfIntensityReader(file))
   unlink(file)
   
   # check exception with incorrect variable names
-  snp <- dim.def.ncdf("snp", "count", 1:10)
-  sampleID <- var.def.ncdf("sampleID", "count", dim=snp, missval=-1)
+  snp <- ncdim_def("snp", "count", 1:10)
+  sampleID <- ncvar_def("sampleID", "count", dim=snp, missval=-1)
   file <- tempfile()
-  nc <- create.ncdf(file, sampleID)
-  close.ncdf(nc)
+  nc <- nc_create(file, sampleID)
+  nc_close(nc)
   checkException(NcdfIntensityReader(file))
   unlink(file)
 }

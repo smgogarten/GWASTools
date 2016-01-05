@@ -85,7 +85,7 @@ test_createNcdf <- function() {
   x <- GWASTools:::.createNcdf(annot, file, variables=vars, n.samples=nsamp,
               precision="single", array.name=arrname,
               genome.build=build)
-  close.ncdf(x)
+  nc_close(x)
 
   nc <- NcdfIntensityReader(file)
   checkEquals(nsamp, nscan(nc))

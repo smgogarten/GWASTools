@@ -19,7 +19,7 @@
 \title{Class NcdfReader}
 
 \description{
-  The NcdfReader class is a wrapper for the \pkg{\link{ncdf}} library
+  The NcdfReader class is a wrapper for the \pkg{\link[=ncdf4-package]{ncdf4}} library
   that provides an interface for reading NetCDF files.
 }
 
@@ -61,7 +61,7 @@
       The result is a vector, matrix, or array, depending on the number
       of dimensions in the returned values and the value of \code{drop}.
       Missing values (specified by a "missing_value" attribute, see
-      \code{\link{set.missval.ncdf}}) are represented as \code{NA}.
+      \code{\link{ncvar_change_missval}}) are represented as \code{NA}.
       If the variable is not found in the NetCDF file, returns \code{NULL}.
     }
     \item{}{
@@ -114,7 +114,7 @@
 
 \author{Stephanie Gogarten}
 
-\seealso{\pkg{\link{ncdf}}, \code{\link{NcdfGenotypeReader}},
+\seealso{\pkg{\link[=ncdf4-package]{ncdf4}}, \code{\link{NcdfGenotypeReader}},
   \code{\link{NcdfIntensityReader}}
 }
 

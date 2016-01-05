@@ -9,7 +9,8 @@
 
 \usage{
 setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
-                    sample.include=NULL, compress="ZIP_RA", verbose=TRUE)
+                    sample.include=NULL, compress="ZIP_RA", 
+                    copy.attributes=TRUE, verbose=TRUE)
 }
 
 \arguments{
@@ -20,7 +21,8 @@ setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
   "whole.chrom"}.}
   \item{file.type}{The type of \code{parent.file} and \code{new.file} ("gds" or "ncdf")}
   \item{sample.include}{Vector of sampleIDs to include in \code{new.file}}
-  \item{compress}{The compression level for variables in a GDS file (see \code{\link{add.gdsn}} for options.}
+  \item{compress}{The compression level for variables in a GDS file (see \code{\link{add.gdsn}} for options).}
+  \item{copy.attributes}{Logical value specifying whether to copy chromosome attributes to the new file.}
   \item{verbose}{Logical value specifying whether to show progress information.}
 }
 
@@ -39,7 +41,7 @@ setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
 
 \author{Stephanie Gogarten}
 
-\seealso{\code{\link{ncdfSubset}}, \code{\link{gdsSubset}}, \code{\link{anomSegStats}} for
+\seealso{\code{\link{gdsSubset}}, \code{\link{anomSegStats}} for
   chromosome anomaly regions
 }
 

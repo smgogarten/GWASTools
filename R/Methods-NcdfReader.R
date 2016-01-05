@@ -4,7 +4,7 @@
 NcdfReader <- function(filename) {
   if (missing(filename)) stop("filename is required")
   if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
-  handler <- open.ncdf(filename, readunlim=FALSE)
+  handler <- nc_open(filename, readunlim=FALSE)
   new("NcdfReader", filename=filename, handler=handler)
 }
 
@@ -20,15 +20,13 @@ setValidity("NcdfReader",
 setMethod("open",
     signature(con = "NcdfReader"),
     function (con, ...) {
-      con@handler <- open.ncdf(con@filename, readunlim=FALSE, ...)
+      con@handler <- nc_open(con@filename, readunlim=FALSE, ...)
     })
 
 setMethod("close",
     signature(con = "NcdfReader"),
     function (con, ...) {
-      x <- close.ncdf(con@handler, ...)
-      # override printing of integer file id by close.ncdf
-      return(invisible(x))
+      x <- nc_close(con@handler, ...)
     })
 
 setMethod("show",
@@ -98,12 +96,7 @@ setMethod("getVariable",
             if (missing(count)) count <- NA
 
             # get variable from netcdf
-            var <- get.var.ncdf(object@handler, varname, start, count)
-
-            # bug in ncdf 1.6.* - sometimes missing values are not converted to NA
-            # convert all missing values to NA
-            missVal <- object@handler$var[[varname]]$missval
-            var[var == missVal] <- NA
+            var <- ncvar_get(object@handler, varname, start, count)
 
             # 1D variables are returned as arrays - convert to vector
             if (is(var, "array") & length(dim(var)) == 1) {
@@ -129,5 +122,5 @@ setMethod("getAttribute",
             if (missing(varname)) {
               varname <- 0
             }
-            att.get.ncdf(object@handler, varname, attname)$value
+            ncatt_get(object@handler, varname, attname)$value
           })

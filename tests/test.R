@@ -1,4 +1,4 @@
 library(GWASdata)
-library(ncdf)
+library(ncdf4)
 library(gdsfmt)
 BiocGenerics:::testPackage("GWASTools", pattern=".*_test\\.R$")

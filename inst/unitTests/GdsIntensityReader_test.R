@@ -53,24 +53,6 @@ test_GdsIntensityReader <- function() {
   close(obj)
 
   unlink(gdsfile)
-
-  ## # check exception with incorrect dimensions
-  ## dim1 <- dim.def.ncdf("dim1", "count", 1:10)
-  ## var1 <- var.def.ncdf("var1", "count", dim=dim1, missval=-1)
-  ## file <- tempfile()
-  ## nc <- create.ncdf(file, var1)
-  ## close.ncdf(nc)
-  ## checkException(GdsIntensityReader(file))
-  ## unlink(file)
-
-  ## # check exception with incorrect variable names
-  ## snp <- dim.def.ncdf("snp", "count", 1:10)
-  ## sampleID <- var.def.ncdf("sampleID", "count", dim=snp, missval=-1)
-  ## file <- tempfile()
-  ## nc <- create.ncdf(file, sampleID)
-  ## close.ncdf(nc)
-  ## checkException(GdsIntensityReader(file))
-  ## unlink(file)
 }
 
 test_GdsIntensityReader_error <- function() {

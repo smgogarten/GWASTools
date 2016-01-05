@@ -95,7 +95,7 @@ Please see
   more information on the ped and map files. 
 }
 \author{Stephanie Gogarten, Tushar Bhangale}
-\seealso{\code{\link{plinkToNcdf}}}
+\seealso{\code{\link[SNPRelate]{snpgdsBED2GDS}}}
 \examples{
 library(GWASdata)
 ncfile <- system.file("extdata", "illumina_geno.nc", package="GWASdata")

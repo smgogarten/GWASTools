@@ -5,6 +5,7 @@
 \description{
 \code{plinkToNcdf} creates a netCDF file and scan and SNP annotation
 objects from a set of ped and map files.
+	This function is deprecated, use \code{\link[SNPRelate]{snpgdsBED2GDS}} instead.
 }
 \usage{
 plinkToNcdf(pedFile, mapFile, nSamples,

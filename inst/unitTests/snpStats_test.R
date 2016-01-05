@@ -1,8 +1,8 @@
 test_asSnpMatrix <- function() {
   ncfile <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=2,
-                         n.samples=5, ncdf.filename=ncfile)
-  nc <- NcdfGenotypeReader(ncfile)
+                         n.samples=5, filename=ncfile)
+  nc <- GdsGenotypeReader(ncfile)
   scanID <- getScanID(nc)
   subjID <- paste("A", scanID, sep="")
   scandf <- data.frame(scanID=scanID, subjID=subjID,

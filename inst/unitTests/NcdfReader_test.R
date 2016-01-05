@@ -1,7 +1,7 @@
 test_NcdfReader <- function() {
   file <- tempfile()
   simulateGenotypeMatrix(n.snps=10, n.chromosomes=26,
-                         n.samples=20, ncdf.filename=file)
+                         n.samples=20, filename=file, file.type="ncdf")
   obj <- NcdfReader(file)
   checkTrue(hasVariable(obj, "genotype"))
   checkTrue(hasCoordVariable(obj, "snp"))

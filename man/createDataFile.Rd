@@ -212,7 +212,7 @@ A list of diagnostics with the following components is returned. Each vector has
 \author{
 Stephanie Gogarten, Cathy Laurie
 }
-\seealso{\pkg{\link{gdsfmt}}, \pkg{\link{ncdf}}
+\seealso{\pkg{\link{gdsfmt}}, \pkg{\link[=ncdf4-package]{ncdf4}}
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

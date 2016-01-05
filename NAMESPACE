@@ -3,7 +3,7 @@ import(Biobase)
 import(DBI)
 import(RSQLite)
 import(gdsfmt)
-import(ncdf)
+import(ncdf4)
 importFrom(GWASExactHW, HWExact)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
 importFrom(survival, Surv, coxph) # used in assocCoxPH
