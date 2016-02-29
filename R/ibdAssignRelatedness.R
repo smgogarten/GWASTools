@@ -132,3 +132,11 @@ ibdAssignRelatednessKing <- function(
   return(asnmt)
   
 }
+
+
+kingIBS0FSCI <- function(freq, alpha = 0.01){
+	FS <- GWASTools::relationsMeanVar$FullSibs	
+	k0lim <- as.vector(FS$mean[1] + sqrt(FS$cov[1,1]) %o% qnorm(c(0.5, alpha/2, 1-alpha/2)))
+	val <- mean(2*freq^2*(1-freq)^2, na.rm=TRUE)
+	return(setNames(val*k0lim, c("Est", "LL", "UL")))
+}

@@ -125,7 +125,7 @@ BAFfromGenotypes <- function(
 
 			# check to ensure there are no NAs in TC matrix
 			# TC[is.na(TC)] # should be no entries			# WHAT IF THERE ARE NAs?
-			TC[is.na(TC)] <- F						# ADDED
+			TC[is.na(TC)] <- FALSE						# ADDED
 
 			# calculate and store B allele frequencies
 			# ensure only loading for those samples on the current plate

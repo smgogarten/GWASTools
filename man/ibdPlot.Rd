@@ -3,6 +3,7 @@
 \alias{ibdAreasDraw}
 \alias{ibdAssignRelatedness}
 \alias{ibdAssignRelatednessKing}
+\alias{kingIBS0FSCI}
 
 \title{
 Plot theoretical and observed identity by descent values and assign relationships
@@ -15,7 +16,8 @@ Plot theoretical and observed identity by descent values and assign relationship
   \code{ibdAreasDraw} overlays relationship areas for IBD analysis on
   the plot.
   \code{ibdAssignRelatedness} identifies observed relatives.
-  \code{ibdAssignRelatedness} identifies observed relatives using the kinship coefficients and IBS0 estimates from the KING model.
+  \code{ibdAssignRelatednessKing} identifies observed relatives using the kinship coefficients and IBS0 estimates from the KING model.
+  \code{kingIBS0FSCI} returns a confidence interval for expected IBS0 for full siblings.
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,6 +37,8 @@ ibdAssignRelatedness(k0, k1, alpha=0.05, m=0.04, po.w=0.1, po.h=0.1,
 ibdAssignRelatednessKing(ibs0, kc, cut.kc.dup=1/(2^(3/2)),
                          cut.kc.fs=1/(2^(5/2)), cut.kc.deg2=1/(2^(7/2)),
                          cut.kc.deg3=1/(2^(9/2)), cut.ibs0.err=0.003)
+
+kingIBS0FSCI(freq, alpha=0.01)
 }
 
 
@@ -86,6 +90,8 @@ ibdAssignRelatednessKing(ibs0, kc, cut.kc.dup=1/(2^(3/2)),
 \item{cut.kc.deg3}{Kinship coefficient threshold for dividing third degree relatives and unrelated.}
 \item{cut.ibs0.err}{IBS0 threshold for dividing parent-offsprings pairs from other relatives. Should be 0, but is usually slightly higher due to genotyping errors.}
 
+\item{freq}{vector of allele frequencies at the variants used in the KING analysis}
+
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,6 +122,18 @@ with analyzing observed relationships.
 
 \code{ibdAssignRelatednessKing} identifies relatives based on their (ibs0, kc) coordinates (KING model).
 
+\code{kingIBS0FSCI} uses allele frequencies to find the confidence interval for expected IBS0 for full siblings.
+We condition on the three possible IBD states:  IBD0, IBD1, or IBD2; but \eqn{P(AA, aa | IBD1) = P(AA, aa | IBD2) = 0}.
+
+\deqn{
+P(IBS0 | FS)
+= P(AA, aa | FS) + P(aa, AA | FS)
+= P(AA, aa | IBD0)P(IBD0) + P(aa, AA | IBD0)P(IBD0)
+= p^2*q^2*k0 + q^2*p^2*k0
+= 2*p^2*q^2*k0
+}
+
+Knowing a pair's value of k0 and the allele frequencies at each variant, we can get an estimate of \eqn{P(IBS0 | FS)} by averaging across all the markers used in the analysis.  Siblings have k0 = 0.25 on average.
 }
 
 \value{
@@ -124,6 +142,7 @@ with analyzing observed relationships.
   "Deg2"=second degree, "Deg3"=third degree, "U"=unrelated, and
   "Q"=unknown.
   
+  \code{kingIBS0FSCI} returns a vector with 3 values: the point estimate, the lower bound of the CI, the upper bound of the CI
 }
 
 \references{
@@ -132,7 +151,7 @@ with analyzing observed relationships.
   Manichaikul, A., Mychaleckyj J.C., Rich S.S., Daly K., Sale M., and Chen W.M., Robust relationship inference in genome-wide association studies, Bioinformatics (2010), 26(22), 2867-2873.
 }
 
-\author{Cathy Laurie, Cecelia Laurie, and Adrienne Stilp}
+\author{Cathy Laurie, Cecelia Laurie, Adrienne Stilp, Matthew Conomos}
 
 \seealso{
   \code{\link{relationsMeanVar}},
@@ -152,6 +171,26 @@ obs.rel <- ibdAssignRelatedness(k0, k1)
 kc <- c(0.5, 0.25, 0.25, 0.125, 0.063, 0)
 ibs0 <- c(0, 0, 0.25, 0.5, 0.75, 1)
 obs.rel.king <- ibdAssignRelatednessKing(ibs0, kc)
+
+library(SNPRelate)
+library(GWASdata)
+gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
+gds <- snpgdsOpen(gdsfile)
+ibd <- snpgdsIBDKING(gds)
+ibd <- snpgdsIBDSelection(ibd, kinship.cutoff=1/32)
+snpgdsClose(gds)
+
+gds <- GdsGenotypeReader(gdsfile)
+data(illuminaScanADF)
+genoData <- GenotypeData(gds, scanAnnot=illuminaScanADF)
+freq <- alleleFrequency(genoData)
+close(genoData)
+
+fs <- kingIBS0FSCI(freq[,"MAF"])
+plot(ibd$IBS0, ibd$kinship)
+abline(v=fs)
+obs.rel.king <- ibdAssignRelatednessKing(ibd$IBS0, ibd$kinship, 
+                                         cut.ibs0.err=fs["LL"])
 }
 
 

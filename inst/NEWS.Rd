@@ -647,3 +647,8 @@
     \item Deprecate plinkToNcdf and convertVcfGds (use SNPRelate functions instead)
   }   
 }
+\section{Changes in version 1.17.9}{
+  \itemize{
+    \item Add function kingIBS0FSCI to define expected IBS0 spread of full siblings based on allele frequency.
+  }   
+}

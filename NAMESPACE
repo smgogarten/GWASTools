@@ -90,6 +90,7 @@ export(
     ibdPlot,
     imputedDosageFile,
     intensityOutliersPlot,
+    kingIBS0FSCI,
     manhattanPlot,
     meanIntensityByScanChrom,
     meanSdByChromWindow,
