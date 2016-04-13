@@ -29,6 +29,8 @@ NOTE:  Using this option causes the output to be very large that may be slow to 
 \code{genoData} must contain the scan annotation variable "sex".
 Chromosome index: 1..22 autosomes, 23 X, 24 XY, 25 Y, 26 mtDNA, 27
 missing.
+
+If a trio has one parent missing, Mendelian errors are still calculated for the available pair. In other words, "trio" here also inludes duos.
 }
 
 \value{
