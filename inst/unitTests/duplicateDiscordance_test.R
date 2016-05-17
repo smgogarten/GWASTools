@@ -51,7 +51,7 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
-  checkIdentical(disc[[1]]$correlation, snpcor.exp)
+  checkEquals(disc[[1]]$correlation, snpcor.exp)
   checkEquals(disc[[2]]$b, b.subj.exp)
   checkEquals(disc[[3]]$b, b.corr.exp)
 
@@ -92,7 +92,7 @@ test_duplicateDiscordance <- function() {
   checkIdentical(disc[[1]]$n.disc.subj, subj.disc.exp)
   checkIdentical(disc[[1]]$discordant, tot.disc.exp)
   checkIdentical(disc[[1]]$npair, npair.exp)
-  checkIdentical(disc[[1]]$correlation, snpcor.exp)
+  checkEquals(disc[[1]]$correlation, snpcor.exp)
   
   
   # exclude some scans

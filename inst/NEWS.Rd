@@ -652,3 +652,8 @@
     \item Add function kingIBS0FSCI to define expected IBS0 spread of full siblings based on allele frequency.
   }   
 }
+\section{Changes in version 1.19.1}{
+  \itemize{
+    \item Speed up corr.by.snp in duplicateDiscordance.
+  }   
+}

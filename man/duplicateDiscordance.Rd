@@ -9,7 +9,7 @@ duplicateDiscordance(genoData, subjName.col,
                      one.pair.per.subj=TRUE, corr.by.snp=FALSE,
                      minor.allele.only=FALSE, allele.freq=NULL,
                      scan.exclude=NULL, snp.exclude=NULL,
-                     verbose=TRUE)
+                     snp.block.size=5000, verbose=TRUE)
 }
 \arguments{
 \item{genoData}{\code{\link{GenotypeData}} object} 
@@ -27,6 +27,7 @@ duplicateDiscordance(genoData, subjName.col,
 \item{scan.exclude}{An integer vector containing the ids of scans to be
   excluded. }
 \item{snp.exclude}{An integer vector containing the ids of SNPs to be excluded.}
+\item{snp.block.size}{Integer block size for SNPs if \code{corr.by.snp=TRUE}.}
 \item{verbose}{Logical value specifying whether to show progress information.} 
 }
 \details{
@@ -49,7 +50,7 @@ duplicateDiscordance(genoData, subjName.col,
   column "correlation" with the correlation between duplicate subjects.
   For this calculation, the first two samples per subject are selected.
 }
-\author{Tushar Bhangale, Cathy Laurie, Stephanie Gogarten}
+\author{Tushar Bhangale, Cathy Laurie, Stephanie Gogarten, Sarah Nelson}
 
 \seealso{\code{\link{GenotypeData}},
   \code{\link{duplicateDiscordanceAcrossDatasets}},

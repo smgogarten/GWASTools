@@ -9,6 +9,7 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
                                  allele.freq = NULL,
                                  scan.exclude = NULL,
                                  snp.exclude = NULL,
+                                 snp.block.size=5000, # for by-snp correlation
                                  verbose = TRUE) {
   
   # check that column with subject IDs is included in genoData
@@ -50,7 +51,7 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
 
   ids <- list()
   for (i in 1:length(dups)) {
-    ids[[i]] <- sample.annotation[ is.element(sample.annotation[,"subjID"], dups[i]), "scanID" ]
+    ids[[i]] <- sample.annotation[is.element(sample.annotation[,"subjID"], dups[i]), "scanID" ]
     # if one pair per subj, randomly select two samples
     if (one.pair.per.subj) {
       ids[[i]] <- sort(sample(ids[[i]], 2))
@@ -156,7 +157,11 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
   
   # correlation by SNP
   if (corr.by.snp) {
-    # make 2 vectors with one sample from each subject
+
+    message("calculating dosage correlation by SNP, in blocks of ",
+            prettyNum(snp.block.size, big.mark=","), " SNPs")
+    
+    # make 2 vectors with one sample from each subject (returns index)
     scan1 <- rep(NA,length(ids))
     scan2 <- rep(NA,length(ids))
     for (k in 1:(length(ids))) {
@@ -165,32 +170,75 @@ duplicateDiscordance <- function(genoData, # object of type GenotypeData
       scan2[k] <- idk[2]
     }
 
-    corr.snp <- rep(NA,nsnp)
-    for (s in 1:nsnp) {    
-      # get genotype for all samples for this snp
-      dat <- getGenotype(genoData, snp=c(index[s], 1), scan=c(1,-1))
-      # subset genotype with each sample vector
-      geno1 <- dat[scan1]
-      geno2 <- dat[scan2]
-      # check for minor allele
-      if (minor.allele.only) {
-        ok <- !is.na(major.genotype[s]) & (geno1 != major.genotype[s] | geno2 != major.genotype[s])
-        geno1 <- geno1[ok]
-        geno2 <- geno2[ok]
-      }
-      # remove pairs with NA in either vector
-      nna <- !is.na(geno1) & !is.na(geno2)
-      geno1 <- geno1[nna]
-      geno2 <- geno2[nna]
-      # check for no variation in one of the vectors - correlation not defined in this case
-      if (length(unique(geno1)) == 1 | length(unique(geno2)) == 1) {
-        corr.snp[s] <- NA
-      } else {
-        # get correlation between 2 genotype vectors
-        corr.snp[s] <- cor(geno1, geno2)
-      }
-    }
+    # make 2 matrices with one sample from each subject
+    # each has all (selected) snp genotypes
+    snpID.get <- snpID[index]
+    geno1.matx <- .dosCorSelectGenotype(genoData, scanIDs=scanID[scan1], snpIDs=snpID.get)
+    geno2.matx <- .dosCorSelectGenotype(genoData, scanIDs=scanID[scan2], snpIDs=snpID.get)
 
+    # check snp order
+    if(!allequal(rownames(geno1.matx), rownames(geno2.matx))) {
+      stop("genotype matrices differ in SNP dimension")}
+
+    # check sample order
+    subj1 <- sample.annotation$subjID[match(colnames(geno1.matx), sample.annotation$scanID)]
+    subj2 <- sample.annotation$subjID[match(colnames(geno2.matx), sample.annotation$scanID)]       
+    if(!allequal(subj1, subj2)) stop("genotype matrices differ in sample dimension")
+
+    # if ignoring major homozygous genotypes, set to missing where *both* samps are maj hom. 
+    if (minor.allele.only) {    
+        a.maj <- ifelse(major.genotype %in% 2, TRUE, FALSE)
+
+        stopifnot(nsnp == nrow(geno1.matx))
+        nscan <- length(ids)
+        
+        # index the matrices
+        # make matrix of logical for a.maj at every genotype
+        a.maj.matx <- matrix(rep(a.maj, nscan), nrow=nsnp)
+
+        # make matrix where TRUE when both samps are major homozygous for AA
+        bothAA <- a.maj.matx & geno1.matx %in% 2 & geno2.matx %in% 2
+
+        # make matrix where TRUE when both samps are major homozygous for BB
+        bothBB <- !a.maj.matx & geno1.matx %in% 0 & geno2.matx %in% 0
+
+        # matrix of logical where TRUE when genotypes at that index should be NA
+        bothHom <- bothAA | bothBB
+
+        geno1.matx[bothHom] <- NA
+        geno2.matx[bothHom] <- NA        
+
+        ### this syntax sets to missing any major homozygous genotype:
+        ## geno1.matx[a.maj, ][geno1.matx[a.maj, ] %in% 2] <- NA
+        ## geno1.matx[!a.maj, ][geno1.matx[!a.maj, ] %in% 0] <- NA
+        ## geno2.matx[a.maj, ][geno2.matx[a.maj, ] %in% 2] <- NA
+        ## geno2.matx[!a.maj, ][geno2.matx[!a.maj, ] %in% 0] <- NA
+      }
+
+        # look through blocks of snps
+        corr.snp <- rep(NA,nsnp)
+        last.row <- 0
+        nblocks <- ceiling(nsnp / snp.block.size)
+        for (i in 1:nblocks) {
+
+          if(verbose){message("Block ",i," of ", nblocks)}
+
+          idx <- (1:snp.block.size) + (i - 1) * snp.block.size
+
+          # account for where there may be less snps in the block than the block size,
+          # i.e., for final block
+          if(i %in% max(nblocks)) {idx <- (last.row+1):nsnp}
+
+          # suppressWarnings will avoid the warning messages where variance SD is 0
+          r.block <- suppressWarnings(diag(cor(t(geno1.matx[idx,,drop=FALSE]),
+                                             t(geno2.matx[idx,,drop=FALSE]),
+                                             use="pairwise.complete.obs")))
+
+          corr.snp[idx] <- r.block
+          last.row <- max(idx)
+
+      }
+    
     snp.res$correlation <- corr.snp
   }
 
