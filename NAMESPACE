@@ -1,3 +1,6 @@
+import(graphics)
+import(stats)
+import(utils)
 import(methods)
 import(Biobase)
 import(DBI)
