@@ -104,8 +104,6 @@ export(
     minorAlleleDetectionAccuracy,
     missingGenotypeByScanChrom,
     missingGenotypeBySnpSex,
-    ncdfSubset,
-    ncdfSubsetCheck,
     pedigreeCheck,
     pedigreeDeleteDuplicates,
     pedigreeMaxUnrelated,

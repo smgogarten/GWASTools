@@ -23,7 +23,7 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   setMissingGenotypes.R imputedDosageFile.R checkImputedDosageFile.R
   gdsSubset.R gdsSubsetCheck.R
   plinkUtils.R snpStats.R vcfWrite.R
-  convertNcdfGds.R convertVcfGds.R
+  convertNcdfGds.R 
   BAFfromClusterMeans.R BAFfromGenotypes.R
   genoClusterPlot.R genoClusterPlotByBatch.R 
   chromIntensityPlot.R pseudoautoIntensityPlot.R intensityOutliersPlot.R 

@@ -16,6 +16,8 @@
 \alias{gwasExactHW}
 \alias{ncdfSubset}
 \alias{ncdfSubsetCheck}
+\alias{plinkToNcdf}
+\alias{convertVcfGds}
 
 \title{Defunct Functions in Package \sQuote{GWASTools}}
 
@@ -44,5 +46,7 @@
     \item{\code{gwasExactHW}: \code{\link{exactHWE}}}
     \item{\code{ncdfSubset}: \code{\link{gdsSubset}}}
     \item{\code{ncdfSubsetCheck}: \code{\link{gdsSubsetCheck}}}
+    \item{\code{plinkToNcdf}: \code{\link[SNPRelate]{snpgdsBED2GDS}}}
+    \item{\code{convertVcfGds}: \code{\link[SNPRelate]{snpgdsVCF2GDS}}}
   }   
 }
