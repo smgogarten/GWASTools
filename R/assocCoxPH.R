@@ -75,7 +75,7 @@ assocCoxPH <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID", "chr", "n.events", "effect.allele", "EAF", "MAF", "filter",
+    nv <- c("snpID", "chr", "n", "n.events", "effect.allele", "EAF", "MAF", "filter",
             "Est", "SE", "z.Stat", "z.pval")
     if (!is.null(ivar)) nv <- c(nv, "GxE.Stat", "GxE.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
@@ -123,6 +123,7 @@ assocCoxPH <- function(genoData,
         mono <- .monomorphic(geno, dat[[event]], "logistic")
 
         ## sample size
+        res[bidx, "n"] <- rowSums(!is.na(geno))
         ne <- rowSums(!is.na(geno[,as.logical(dat[[event]])]))
         res[bidx, "n.events"] <- ne
         
