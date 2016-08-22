@@ -115,7 +115,7 @@ test_beagle_ncdf <- function() {
   for (b in blocks) {
     for (i in 1:2) {
       imputedDosageFile(input.files=c(files[i], markfile), filename=ncfile, file.type="ncdf", chromosome=22,
-                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b,
+                        input.type="BEAGLE", input.dosage=inputs[i], block.size=b, genotypeDim="snp,scan",
                         snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
       nc <- NcdfGenotypeReader(ncfile)
@@ -168,7 +168,7 @@ test_mach_ncdf <- function() {
   for (b in blocks) {
     for (i in 1:2) {
       imputedDosageFile(input.files=c(files[i], markfile, posfile), filename=ncfile, file.type="ncdf", chromosome=22,
-                        input.type="MaCH", input.dosage=inputs[i], block.size=b,
+                        input.type="MaCH", input.dosage=inputs[i], block.size=b, genotypeDim="snp,scan",
                         snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
       nc <- NcdfGenotypeReader(ncfile)
@@ -220,7 +220,7 @@ test_impute2_ncdf <- function() {
   blocks <- c(5000, 10, 32)
   for (b in blocks) {
     imputedDosageFile(input.files=c(probfile, sampfile), filename=ncfile, file.type="ncdf", chromosome=22,
-                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b,
+                      input.type="IMPUTE2", input.dosage=FALSE, block.size=b, genotypeDim="snp,scan",
                       snp.annot.filename=snpfile, scan.annot.filename=scanfile)
 
     nc <- NcdfGenotypeReader(ncfile)

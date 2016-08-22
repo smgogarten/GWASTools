@@ -15,9 +15,9 @@ imputedDosageFile(input.files, filename, chromosome,
                   file.type=c("gds", "ncdf"),
                   snp.annot.filename="dosage.snp.RData",
                   scan.annot.filename="dosage.scan.RData",
-                  compress="ZIP_RA:8M", 
-		  compress.annot="ZIP_RA",
-                  genotypeDim="snp,scan",
+		  compress="LZMA_RA:1M",
+                  compress.annot="LZMA_RA",
+                  genotypeDim="scan,snp",
                   scan.df=NULL,
                   snp.exclude=NULL,
                   snp.id.start=1,
@@ -68,7 +68,7 @@ checkImputedDosageFile(genoData, snpAnnot, scanAnnot,
 \item{compress.annot}{The compression level for annotation variables in a GDS file (see
 \code{\link{add.gdsn}} for options.}
 
-  \item{genotypeDim}{character string specifying genotype dimensions of gds file. Either "snp,scan" or "scan,snp"}
+  \item{genotypeDim}{character string specifying genotype dimensions of output file. Either "snp,scan" or "scan,snp". "scan,snp" is usually much faster to create for GDS files, but "snp,scan" is required for NetCDF files.}
   \item{scan.df}{data frame specifying which samples to include in the output GDS files, with optional scanIDs already assigned. See details.}
   \item{snp.exclude}{vector of integers specifying which SNPs to exclude from the GDS file.}
   \item{snp.id.start}{Starting index for snpID.}
