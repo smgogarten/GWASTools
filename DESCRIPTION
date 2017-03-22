@@ -45,4 +45,3 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreeCheck.R pedigreeDeleteDuplicates.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
-  defunct.R
