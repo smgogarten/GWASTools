@@ -4,7 +4,7 @@ setMissingGenotypes <- function(
         regions, # data frame with regions
         file.type = c("gds", "ncdf"),
 	sample.include=NULL,	# vector of sampleIDs for samples to include in new.file
-        compress = "ZIP_RA",
+        compress = "LZMA_RA",
         copy.attributes = TRUE,
         verbose=TRUE) {
 

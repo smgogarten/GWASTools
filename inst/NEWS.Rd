@@ -657,3 +657,9 @@
     \item Speed up corr.by.snp in duplicateDiscordance.
   }   
 }
+\section{Changes in version 1.21.1}{
+  \itemize{
+    \item Replace ZIP_RA with LZMA_RA for GDS compression. 
+    \item Default is no compression for genotypes.
+  }   
+}

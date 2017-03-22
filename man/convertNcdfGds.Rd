@@ -17,7 +17,7 @@
 
 \usage{
 convertNcdfGds(ncdf.filename, gds.filename, snp.annot = NULL,
-  precision = "single", compress = "ZIP_RA", verbose = TRUE)
+  precision = "single", compress = "LZMA_RA", verbose = TRUE)
 
 convertGdsNcdf(gds.filename, ncdf.filename,
   precision = "single", verbose = TRUE)

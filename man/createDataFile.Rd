@@ -22,14 +22,14 @@ createDataFile(path=".", filename, file.type=c("gds", "ncdf"),
                variables="genotype", snp.annotation, scan.annotation,
                sep.type, skip.num, col.total, col.nums, scan.name.in.file,
 	       allele.coding=c("AB", "nucleotide"),
-	       precision="single", compress="ZIP_RA:8M", compress.geno="ZIP_RA", compress.annot="ZIP_RA",
+	       precision="single", compress="LZMA_RA:1M", compress.geno="", compress.annot="LZMA_RA",
 	       array.name=NULL, genome.build=NULL,
                diagnostics.filename="createDataFile.diagnostics.RData",
                verbose=TRUE)
 
 createAffyIntensityFile(path=".",  filename, file.type=c("gds", "ncdf"),
                         snp.annotation, scan.annotation,
-	                precision="single", compress="ZIP_RA:8M", compress.annot="ZIP_RA",
+	                precision="single", compress="LZMA_RA:1M", compress.annot="LZMA_RA",
 	                array.name=NULL, genome.build=NULL,
                  	diagnostics.filename="createAffyIntensityFile.diagnostics.RData",
                  	verbose=TRUE)

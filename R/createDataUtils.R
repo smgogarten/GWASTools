@@ -45,7 +45,7 @@
 }
 
 .createGds <- function(snp.annotation, filename, variables, precision="single",
-                       compress="ZIP_RA:8M", compress.geno="", compress.annot="ZIP_RA",
+                       compress="LZMA_RA:1M", compress.geno="", compress.annot="LZMA_RA",
                        sample.storage="integer", var.data=NULL) {
 
     ## define precision for gds
@@ -167,7 +167,7 @@
 
 
 .createGdsDosage <- function(snp.df, scan.df, filename, genotypeDim, miss.val, precision="single",
-                             compress.annot="ZIP_RA") {
+                             compress.annot="LZMA_RA") {
 
   # redefine precision for gds
   precision <- ifelse(precision == "double", "float64",

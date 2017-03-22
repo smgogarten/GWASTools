@@ -9,7 +9,7 @@
 
 \usage{
 setMissingGenotypes(parent.file, new.file, regions, file.type=c("gds", "ncdf"),
-                    sample.include=NULL, compress="ZIP_RA", 
+                    sample.include=NULL, compress="LZMA_RA", 
                     copy.attributes=TRUE, verbose=TRUE)
 }
 

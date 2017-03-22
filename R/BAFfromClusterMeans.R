@@ -2,7 +2,7 @@
 BAFfromClusterMeans <- function(intenData,
                                 filename, file.type=c("gds", "ncdf"),
                                 clusterMeanVars = c("tAA","tAB","tBB","rAA","rAB","rBB"),
-                                precision = "single", compress = "ZIP_RA",
+                                precision = "single", compress = "LZMA_RA:1M",
                                 verbose = TRUE)
 {
   # check that cluster means are in intenData
