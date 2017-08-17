@@ -2,9 +2,13 @@
 
 # constructor
 NcdfReader <- function(filename) {
+  if (!(requireNamespace("ncdf4"))) {
+    stop("please install ncdf4 to work with NetCDF files")
+  }
+    
   if (missing(filename)) stop("filename is required")
   if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
-  handler <- nc_open(filename, readunlim=FALSE)
+  handler <- ncdf4::nc_open(filename, readunlim=FALSE)
   new("NcdfReader", filename=filename, handler=handler)
 }
 
@@ -20,13 +24,13 @@ setValidity("NcdfReader",
 setMethod("open",
     signature(con = "NcdfReader"),
     function (con, ...) {
-      con@handler <- nc_open(con@filename, readunlim=FALSE, ...)
+      con@handler <- ncdf4::nc_open(con@filename, readunlim=FALSE, ...)
     })
 
 setMethod("close",
     signature(con = "NcdfReader"),
     function (con, ...) {
-      x <- nc_close(con@handler, ...)
+      x <- ncdf4::nc_close(con@handler, ...)
     })
 
 setMethod("show",
@@ -96,7 +100,7 @@ setMethod("getVariable",
             if (missing(count)) count <- NA
 
             # get variable from netcdf
-            var <- ncvar_get(object@handler, varname, start, count)
+            var <- ncdf4::ncvar_get(object@handler, varname, start, count)
 
             # 1D variables are returned as arrays - convert to vector
             if (is(var, "array") & length(dim(var)) == 1) {
@@ -122,5 +126,5 @@ setMethod("getAttribute",
             if (missing(varname)) {
               varname <- 0
             }
-            ncatt_get(object@handler, varname, attname)$value
+            ncdf4::ncatt_get(object@handler, varname, attname)$value
           })

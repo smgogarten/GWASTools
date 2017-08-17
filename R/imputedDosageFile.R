@@ -177,6 +177,9 @@ imputedDosageFile <- function(input.files, filename, chromosome,
   if (file.type == "gds") {
       gfile <- .createGdsDosage(snp.df, scan.df, filename, genotypeDim, miss.val, precision, compress.annot)
   } else if (file.type == "ncdf") {
+      if (!(requireNamespace("ncdf4"))) {
+        stop("please install ncdf4 to work with NetCDF files")
+      }
       gfile <- .createNcdfDosage(snp.df, scan.df, filename, miss.val, precision)
   }
   

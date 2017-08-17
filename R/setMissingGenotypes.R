@@ -16,6 +16,9 @@ setMissingGenotypes <- function(
   if (file.type == "gds") {
       old <- GdsGenotypeReader(parent.file)
   } else if (file.type == "ncdf") {
+      if (!(requireNamespace("ncdf4"))) {
+          stop("please install ncdf4 to work with NetCDF files")
+      }
       old <- NcdfGenotypeReader(parent.file)
   }
 

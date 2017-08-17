@@ -6,41 +6,41 @@
 
     ## Create the netCDF file and load snp annotation
     ## Define dimensions
-    snpdim <- ncdim_def("snp","count", snp.annotation$snpID)
-    sampledim <- ncdim_def("sample","count",1:n.samples, unlim=TRUE)
+    snpdim <- ncdf4::ncdim_def("snp","count", snp.annotation$snpID)
+    sampledim <- ncdf4::ncdim_def("sample","count",1:n.samples, unlim=TRUE)
 
     ## Define variables
-    varlist <- list("sampleID"=ncvar_def("sampleID", "id", dim=sampledim, missval=0, prec="integer"),
-                    "position"=ncvar_def("position", "bases", dim=snpdim, missval=-1, prec="integer"),
-                    "chromosome"=ncvar_def("chromosome", "id", dim=snpdim, missval=-1, prec="integer"))
+    varlist <- list("sampleID"=ncdf4::ncvar_def("sampleID", "id", dim=sampledim, missval=0, prec="integer"),
+                    "position"=ncdf4::ncvar_def("position", "bases", dim=snpdim, missval=-1, prec="integer"),
+                    "chromosome"=ncdf4::ncvar_def("chromosome", "id", dim=snpdim, missval=-1, prec="integer"))
     if ("genotype" %in% variables) {
-        varlist[["genotype"]] <- ncvar_def("genotype", "num_A_alleles", dim=list(snpdim,sampledim), missval=-1, prec="byte")
+        varlist[["genotype"]] <- ncdf4::ncvar_def("genotype", "num_A_alleles", dim=list(snpdim,sampledim), missval=-1, prec="byte")
     }
     for (v in setdiff(variables, "genotype")) {
         units <- ifelse(v == "quality", "score", "intensity")
-        varlist[[v]] <- ncvar_def(v, units, dim=list(snpdim, sampledim), missval=-9999, prec=precision)
+        varlist[[v]] <- ncdf4::ncvar_def(v, units, dim=list(snpdim, sampledim), missval=-9999, prec=precision)
     }
 
     ## Create the netCDF file
-    genofile <- nc_create(filename, varlist)
+    genofile <- ncdf4::nc_create(filename, varlist)
 
     ## Add position data
-    ncvar_put(genofile, varlist[["position"]], snp.annotation$position)
-    ncvar_put(genofile, varlist[["chromosome"]], snp.annotation$chromosome)
+    ncdf4::ncvar_put(genofile, varlist[["position"]], snp.annotation$position)
+    ncdf4::ncvar_put(genofile, varlist[["chromosome"]], snp.annotation$chromosome)
 
     ## Add any other variable data
     if (!is.null(var.data)) {
         stopifnot(all(names(var.data) %in% c("sampleID", variables)))
         for (v in names(var.data)) {
-            ncvar_put(genofile, varlist[[v]], var.data[[v]])
+            ncdf4::ncvar_put(genofile, varlist[[v]], var.data[[v]])
         }
     }
 
     ## Add attributes
-    if (!is.null(array.name)) ncatt_put( genofile, 0, "array_name", array.name )
-    if (!is.null(genome.build)) ncatt_put( genofile, 0, "genome_build", genome.build )
+    if (!is.null(array.name)) ncdf4::ncatt_put( genofile, 0, "array_name", array.name )
+    if (!is.null(genome.build)) ncdf4::ncatt_put( genofile, 0, "genome_build", genome.build )
 
-    nc_sync(genofile)
+    ncdf4::nc_sync(genofile)
     genofile
 }
 
@@ -129,11 +129,11 @@
 }
 
 .addData.ncdf4 <- function(x, vars, dat, sample.id, sample.index) {
-    ncvar_put(x, "sampleID", vals=sample.id, start=sample.index, count=1)
+    ncdf4::ncvar_put(x, "sampleID", vals=sample.id, start=sample.index, count=1)
     for (v in vars) {
         ## set missing code for genotype
         if (v == "genotype") dat[[v]][is.na(dat[[v]])] <- -1
-        ncvar_put(x, v, vals=dat[[v]], start=c(1,sample.index), count=c(-1,1))
+        ncdf4::ncvar_put(x, v, vals=dat[[v]], start=c(1,sample.index), count=c(-1,1))
     }
 }
 
@@ -146,7 +146,7 @@
 
 .addDataBySnp.ncdf4 <- function(x, vars, dat, snp.start, snp.count) {
     for (v in vars) {
-        ncvar_put(x, v, vals=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
+        ncdf4::ncvar_put(x, v, vals=dat[[v]], start=c(snp.start,1), count=c(snp.count,-1))
     }
 }
 
@@ -162,7 +162,7 @@
     closefn.gds(x)
     cleanup.gds(filename, verbose=verbose)
 }
-.close.ncdf4 <- function(x, ...) nc_close(x)
+.close.ncdf4 <- function(x, ...) ncdf4::nc_close(x)
 
 
 
@@ -199,22 +199,22 @@
 
 .createNcdfDosage <- function(snp.df, scan.df, filename, miss.val, precision="single") {
   # define dimensions
-  snpdim <- ncdim_def("snp", "count", snp.df$snpID)
-  sampledim <- ncdim_def("sample", "count", scan.df$scanID, unlim=TRUE)
-  chardim <- ncdim_def("nchar", "", 1)
+  snpdim <- ncdf4::ncdim_def("snp", "count", snp.df$snpID)
+  sampledim <- ncdf4::ncdim_def("sample", "count", scan.df$scanID, unlim=TRUE)
+  chardim <- ncdf4::ncdim_def("nchar", "", 1)
 
   # define variables
-  varID <- ncvar_def("sampleID", "id", dim=sampledim, missval=0, prec="integer")
-  varpos <- ncvar_def("position", "bases", dim=snpdim, missval=-1, prec="integer")
-  varchr <- ncvar_def("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
-  varA <- ncvar_def("alleleA", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
-  varB <- ncvar_def("alleleB", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
-  vargeno <- ncvar_def("genotype", "A_allele_dosage", dim=list(snpdim,sampledim), missval=miss.val, prec=precision)
+  varID <- ncdf4::ncvar_def("sampleID", "id", dim=sampledim, missval=0, prec="integer")
+  varpos <- ncdf4::ncvar_def("position", "bases", dim=snpdim, missval=-1, prec="integer")
+  varchr <- ncdf4::ncvar_def("chromosome", "id", dim=snpdim, missval=-1, prec="integer")
+  varA <- ncdf4::ncvar_def("alleleA", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
+  varB <- ncdf4::ncvar_def("alleleB", "allele", dim=list(chardim,snpdim), missval="0", prec="char")
+  vargeno <- ncdf4::ncvar_def("genotype", "A_allele_dosage", dim=list(snpdim,sampledim), missval=miss.val, prec=precision)
 
   # create the NetCDF file
-  nc <- nc_create(filename, list(varID, varpos, varchr, varA, varB, vargeno))
+  nc <- ncdf4::nc_create(filename, list(varID, varpos, varchr, varA, varB, vargeno))
 
-  ncvar_put(nc, varID, scan.df$scanID)
+  ncdf4::ncvar_put(nc, varID, scan.df$scanID)
 
   nc
 }
@@ -226,7 +226,7 @@
 }
 
 .addDosage.ncdf4 <- function(x, dosage, start, count) {
-    ncvar_put(x, "genotype", dosage, start=start, count=count)
+    ncdf4::ncvar_put(x, "genotype", dosage, start=start, count=count)
 }
 
 .addSnpVars <- function(x, ...) UseMethod(".addSnpVars", x)
@@ -237,10 +237,10 @@
 
 }
 .addSnpVars.ncdf4 <- function(x, snpAnnot, ...) {
-  ncvar_put(x, "position", snpAnnot$position)
-  ncvar_put(x, "chromosome", snpAnnot$chromosome)
-  ncvar_put(x, "alleleA", snpAnnot$alleleA)
-  ncvar_put(x, "alleleB", snpAnnot$alleleB)
+  ncdf4::ncvar_put(x, "position", snpAnnot$position)
+  ncdf4::ncvar_put(x, "chromosome", snpAnnot$chromosome)
+  ncdf4::ncvar_put(x, "alleleA", snpAnnot$alleleA)
+  ncdf4::ncvar_put(x, "alleleB", snpAnnot$alleleB)
 }
 
 .reopenGds <- function(x) {

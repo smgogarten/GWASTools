@@ -663,3 +663,8 @@
     \item Default is no compression for genotypes.
   }   
 }
+\section{Changes in version 1.23.1}{
+  \itemize{
+    \item Move ncdf4 from Imports to Suggests. Users who wish to use NetCDF files instead of GDS will have to install the ncdf4 package separately. This change eliminates the requirement to install the NetCDF library on Linux machines for users who plan to use GDS only.
+  }   
+}

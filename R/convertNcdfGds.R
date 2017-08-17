@@ -17,6 +17,10 @@
 convertGdsNcdf <- function(gds.filename, ncdf.filename, precision = "single",
                            verbose = TRUE)
 {
+        if (!(requireNamespace("ncdf4"))) {
+            stop("please install ncdf4 to work with NetCDF files")
+        }
+        
 	# check
 	stopifnot(is.character(gds.filename))
 	stopifnot(is.character(ncdf.filename))
@@ -113,6 +117,10 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 	snp.annot = NULL, precision="single",
         compress = "LZMA_RA", verbose = TRUE)
 {
+        if (!(requireNamespace("ncdf4"))) {
+            stop("please install ncdf4 to work with NetCDF files")
+        }
+        
 	# check
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
@@ -190,6 +198,10 @@ convertNcdfGds <- function(ncdf.filename, gds.filename,
 
 checkNcdfGds <- function(ncdf.filename, gds.filename, verbose = TRUE)
 {
+        if (!(requireNamespace("ncdf4"))) {
+            stop("please install ncdf4 to work with NetCDF files")
+        }
+        
 	stopifnot(is.character(ncdf.filename))
 	stopifnot(is.character(gds.filename))
 

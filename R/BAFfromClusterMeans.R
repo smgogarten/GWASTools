@@ -31,6 +31,9 @@ BAFfromClusterMeans <- function(intenData,
   if (file.type == "gds") {
       genofile <- .createGds(snp.annotation, filename, variables, precision, compress)
   } else if (file.type == "ncdf") {
+      if (!(requireNamespace("ncdf4"))) {
+          stop("please install ncdf4 to work with NetCDF files")
+      }
       genofile <- .createNcdf(snp.annotation, filename, variables, nscan(intenData),
                               precision)
   }

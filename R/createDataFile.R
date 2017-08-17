@@ -117,6 +117,9 @@ createDataFile <- function(path=".",
                                compress, compress.geno, compress.annot,
                                sample.storage=storage.mode)
     } else if (file.type == "ncdf") {
+        if (!(requireNamespace("ncdf4"))) {
+            stop("please install ncdf4 to work with NetCDF files")
+        }
         if (any(is.na(as.integer(scan.annotation$scanID)))) {
             stop("integer scanID required for ncdf files")
         }

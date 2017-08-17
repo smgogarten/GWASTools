@@ -47,6 +47,9 @@ simulateGenotypeMatrix <- function(n.snps=10,
         nc <- .createGds(snp.annotation, filename, variables="genotype",
                          var.data=var.data)
     } else if (file.type == "ncdf") {
+        if (!(requireNamespace("ncdf4"))) {
+            stop("please install ncdf4 to work with NetCDF files")
+        }
         var.data <- list(sampleID=sampleID, genotype=geno)
         nc <- .createNcdf(snp.annotation, filename, variables="genotype",
                           n.samples=length(sampleID), var.data=var.data)
