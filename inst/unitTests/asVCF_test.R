@@ -126,6 +126,16 @@ test_ref.allele <- function() {
     checkIdentical(as.character(unlist(alt(vcf))), c("G","A","G"))
 }
 
+test_rowRanges <- function() {
+    require(VariantAnnotation)
+    genoData <- .testGenoData(5,3)
+    snp <- getSnpAnnotation(genoData)
+    snp$id <- c("rs1", NA, "rs3", NA, "rs5")
+    genoData <- GenotypeData(genoData@data, snpAnnot=snp, scanAnnot=genoData@scanAnnot)
+    vcf <- genoDataAsVCF(genoData, id.col="id")
+    checkIdentical(c("rs1", "2:2_A/G", "rs3", "4:4_A/G", "rs5"), rownames(vcf))
+}
+
 ## convert vcf to gds and return GenotypeData object
 .vcf2gds <- function(vcffile, gdsfile) {
     require(SNPRelate)
@@ -155,7 +165,7 @@ test_snprelate <- function() {
     newgds <- tempfile()
     newGenoData <- .vcf2gds(newfile, newgds)
     checkIdentical(getGenotype(newGenoData), getGenotype(genoData))
-    checkIdentical(pData(newGenoData@snpAnnot), pData(genoData@snpAnnot))
+    checkIdentical(pData(newGenoData@snpAnnot)[,1:5], pData(genoData@snpAnnot)[,1:5])
     checkIdentical(getScanID(newGenoData), getScanID(genoData))
     close(genoData)
     close(newGenoData)
@@ -168,12 +178,10 @@ test_VA <- function() {
     gdsfile <- tempfile()
     genoData <- .vcf2gds(origfile, gdsfile)
     newvcf <- genoDataAsVCF(genoData, id.col="rsID")
-    chk <- setdiff(rownames(newvcf), "")
-    newvcf <- newvcf[chk]
 
     origvcf <- readVcf(origfile, "hg18",
                        param=ScanVcfParam(geno="GT", info=NA))
-    origvcf <- origvcf[chk]
+    origvcf <- origvcf[rownames(newvcf)]
     
     checkIdentical(geno(newvcf)$GT == "0/0", geno(origvcf)$GT == "0|0")
     checkIdentical(geno(newvcf)$GT == "1/1", geno(origvcf)$GT == "1|1")

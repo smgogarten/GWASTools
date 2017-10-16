@@ -16,18 +16,7 @@
     filter
 }
 
-.makeRowRanges <- function(x, id.col) {
-    ## fixed fields
-    chrom <- getChromosome(x, char=TRUE)
-    pos <- getPosition(x)
-    id <- getSnpVariable(x, id.col)
-    ## check for missing values in id
-    id <- as.character(id)
-### FIXME: this could generate a position string like readVcf() for NAs.
-    GenomicRanges::GRanges(chrom, IRanges::IRanges(pos, width=1L, names=id))
-}
-
-.makeFixed <- function(x, ref.allele, qual.col, filter.cols) {
+.refalt <- function(x, ref.allele) {
     if (!is.null(ref.allele)) {
         stopifnot(length(ref.allele) == nsnp(x))
         stopifnot(all(ref.allele %in% c("A", "B")))
@@ -39,8 +28,27 @@
         ref <- getAlleleA(x)
         alt <- getAlleleB(x)
     }
-    ref <- Biostrings::DNAStringSet(ref)
-    alt <- Biostrings::DNAStringSetList(as.list(alt))
+    list(ref=ref, alt=alt)
+}
+
+.makeRowRanges <- function(x, id.col, ref.allele) {
+    ## fixed fields
+    chrom <- getChromosome(x, char=TRUE)
+    pos <- getPosition(x)
+    id <- getSnpVariable(x, id.col)
+    ## check for missing values in id
+    id <- as.character(id)
+    missing <- is.na(id) | id %in% c("", ".")
+    alleles <- .refalt(x, ref.allele)
+    id[missing] <- sprintf("%s:%d_%s/%s", chrom[missing], pos[missing],
+                           alleles$ref[missing], alleles$alt[missing])
+    GenomicRanges::GRanges(chrom, IRanges::IRanges(pos, width=1L, names=id))
+}
+
+.makeFixed <- function(x, ref.allele, qual.col, filter.cols) {
+    alleles <- .refalt(x, ref.allele)
+    ref <- Biostrings::DNAStringSet(alleles$ref)
+    alt <- Biostrings::DNAStringSetList(as.list(alleles$alt))
     if (is.null(qual.col)) {
         qual <- rep(NA_real_, nsnp(x))
     } else {
@@ -111,7 +119,7 @@ genoDataAsVCF <- function(genoData, sample.col="scanID",
         stop("please install VariantAnnotation")
     }
 
-    rowRanges <- .makeRowRanges(genoData, id.col)
+    rowRanges <- .makeRowRanges(genoData, id.col, ref.allele)
     fixed <- .makeFixed(genoData, ref.allele, qual.col, filter.cols)
     info <- .makeInfo(genoData, info.cols)
 
