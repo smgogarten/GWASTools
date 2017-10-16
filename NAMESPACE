@@ -121,6 +121,7 @@ export(
     snpCorrelationPlot,
     vcfCheck,
     vcfWrite,
+    genoDataAsVCF,
     allequal,
     getobj,
     saveas,

@@ -1,12 +1,20 @@
 \name{vcfWrite}
 \alias{vcfWrite}
 \alias{vcfCheck}
+\alias{genoDataAsVCF}
 \title{Utility to write VCF file}
 \description{
-\code{vcfWrite} creates a VCF file from a \code{\link{GenotypeData}}
+\code{genoDataAsVCF} creates a \code{\link[VariantAnnotation]{VCF}} object.
+
+\code{vcfWrite} writes a VCF file from a \code{\link{GenotypeData}}
 object.
 }
 \usage{
+genoDataAsVCF(genoData, sample.col="scanID",
+              id.col="snpID", qual.col=NULL, filter.cols=NULL,
+              info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
+              scan.order=NULL, ref.allele=NULL)
+
 vcfWrite(genoData, vcf.file="out.vcf", sample.col="scanID",
          id.col="snpID", qual.col=NULL, filter.cols=NULL,
          info.cols=NULL, scan.exclude=NULL, snp.exclude=NULL,
@@ -42,7 +50,7 @@ vcfCheck(genoData, vcf.file, sample.col="scanID",
 	Lunter G, Marth GT, Sherry ST, McVean G, Durbin R; 1000 Genomes Project Analysis Group.
 	Bioinformatics. 2011 Aug 1;27(15):2156-8. Epub 2011 Jun 7.
 }
-\author{Stephanie Gogarten}
+\author{Stephanie Gogarten, Michael Lawrence}
 \seealso{\code{\link[SNPRelate]{snpgdsVCF2GDS}}}
 \examples{
 library(GWASdata)
@@ -51,6 +59,9 @@ gdsfile <- system.file("extdata", "illumina_geno.gds", package="GWASdata")
 data(illuminaSnpADF, illuminaScanADF)
 genoData <- GenotypeData(GdsGenotypeReader(gdsfile),
   scanAnnot=illuminaScanADF, snpAnnot=illuminaSnpADF)
+vcf <- genoDataAsVCF(genoData, id.col="rsID")
+vcf
+
 vcffile <- tempfile()
 vcfWrite(genoData, vcffile, id.col="rsID", info.cols="IntensityOnly")
 vcf <- readVcf(vcffile, "hg18")

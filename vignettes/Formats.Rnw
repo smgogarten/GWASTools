@@ -283,6 +283,8 @@ with the function \Rcode{plinkWrite}.
 
 A \Rcode{GenotypeData} object can be written to VCF
 with the function \Rcode{vcfWrite}.
+\Rcode{genoDataAsVCF} converts a \Rcode{GenotypeData} object to
+a \Rcode{VCF} object for use with the \Rpackage{VariantAnnotation} package.
 
 \subsection{snpStats}
 
