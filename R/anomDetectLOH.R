@@ -102,7 +102,7 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
     temp.segment<-segment(temp.smooth,alpha=alpha,sbdry=sbdry,p.method="h",min.width=min.width,nperm=nperm,undo.splits="sdundo",undo.SD=1,verbose=as.integer(verbose))
     segments<-temp.segment$out
     if(dim(segments)[1]<1) next
-    segments$ID<-as.integer(rep(snum,length(segments$ID)))
+    segments$ID<-rep(snum,length(segments$ID))
     #$loc.start and $loc.end are indices of snp
     names(segments)<-c("scanID","chrom","left","right","num.mark","seg.mean")
 

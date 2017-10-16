@@ -10,7 +10,7 @@ medianSdOverAutosomes <- function(sd.by.scan.chrom.window)
 {
   isd <- sd.by.scan.chrom.window
 
-  snums<-as.integer(rownames(isd[[1]]))
+  snums<-rownames(isd[[1]])
   # include autosomes only
   isd.df.sub <- isd[names(isd) %in% 1:22] #
   # get median sd for autosomes. one value per sample
