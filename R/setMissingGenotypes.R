@@ -43,7 +43,8 @@ setMissingGenotypes <- function(
           snp.annotation$alleleA <- getAlleleA(old)
           snp.annotation$alleleB <- getAlleleB(old)
       }
-      gfile <- .createGds(snp.annotation, new.file, "genotype", compress=compress)
+      storage.mode <- if (is.character(scanID)) "character" else "integer"
+      gfile <- .createGds(snp.annotation, new.file, "genotype", compress=compress, sample.storage=storage.mode)
       if (copy.attributes) .addChromosomeAttributes(gfile, old)
   } else if (file.type == "ncdf") {
       gfile <- .createNcdf(snp.annotation, new.file, "genotype",

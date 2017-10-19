@@ -47,3 +47,16 @@ test_gds <- function() {
   
   file.remove(gdsfile)
 }
+
+test_character_scanID <- function() {
+    gdsfile <- SNPRelate::snpgdsExampleFileName()
+    gds <- GdsGenotypeReader(gdsfile)
+    scanID <- getScanID(gds)
+    close(gds)
+    reg.null <- as.data.frame(matrix(nrow=0, ncol=5, dimnames=list(NULL, c("scanID", "chromosome", "left.base", "right.base", "whole.chrom"))))
+    newfile <- tempfile()
+    setMissingGenotypes(gdsfile, newfile, reg.null, file.type="gds", sample.include=scanID[1:5], verbose=FALSE)
+    gds.new <- GdsGenotypeReader(newfile)
+    checkEquals(scanID[1:5], getScanID(gds.new))
+    file.remove(newfile)
+}
