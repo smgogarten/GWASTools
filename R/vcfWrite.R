@@ -161,19 +161,18 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
 }
 
 
-
 vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
                      scan.exclude=NULL, snp.exclude=NULL,
                      block.size=1000, verbose=TRUE) {
 
-    # check for samp identifier
+    ## check for samp identifier
     stopifnot(hasScanVariable(genoData, sample.col))
-    # make 2 col df with samp identifier and scanID (may be equivalent)
+    ## make 2 col df with samp identifier and scanID (may be equivalent)
     samp.id.dat <- getScanVariable(genoData, c(sample.col, "scanID"))
 
-    # check for snp identifier 
+    ## check for snp identifier 
     stopifnot(hasSnpVariable(genoData, id.col))
-    # make 2 col df with snp identifier and snpID (may be equivalent)        
+    ## make 2 col df with snp identifier and snpID (may be equivalent)        
     snp.id.dat <- getSnpVariable(genoData, c(id.col, "snpID"))
     
     alleleA <- getAlleleA(genoData)
@@ -181,8 +180,8 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
     ## get vectors of expected snpIDs and scanIDs based on exclude args
     ## note we're allowing for VCF to have more data than genoData
     if (!is.null(scan.exclude)) {
-      if(verbose){message("Excluding ", prettyNum(length(scan.exclude), big.mark=","),
-                          " genoData samples from check")}
+      message("Excluding ", prettyNum(length(scan.exclude), big.mark=","),
+              " genoData samples from check")
       scan.include <- setdiff(getScanID(genoData), scan.exclude)
     } else {
       scan.include <- getScanID(genoData)
@@ -211,11 +210,10 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         }
     }
     ncol <- length(header)
-    samples <- header[10:ncol]
-    samples.full.vcf <- samples
+    samples.full.vcf <- header[10:ncol]
 
-    ## give warning if there are samples in VCF and not genoData
-    vcf.samp.only <- setdiff(samples, samp.id.dat[,sample.col])
+    ## relay if there are samples in VCF and not genoData
+    vcf.samp.only <- setdiff(samples.full.vcf, samp.id.dat[,sample.col])
     if(length(vcf.samp.only) > 0){
       message("Note VCF has ", prettyNum(length(vcf.samp.only), big.mark=","),
               " sample(s) not present in genoData;\n these will be excluded from the check")
@@ -225,7 +223,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
     ## after applying exclude lists
     ## ...given common scenario where vcfCheck is run following vcfWrite,
     ## and the two functions are given the same exclude lists
-    samp.id.dat$vcf <- samp.id.dat[, sample.col] %in% samples
+    samp.id.dat$vcf <- samp.id.dat[, sample.col] %in% samples.full.vcf
     if(sum(with(samp.id.dat, vcf & !include)) > 0){
       message("Note after applying exclude argument, VCF contains additional genoData samples")
     }
@@ -234,7 +232,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
     ## get list
     tmp.vcf.include <- with(samp.id.dat, samp.id.dat[vcf & include, sample.col])
     ## get in order of VCF file
-    samp.vcf.include <- samples[samples %in% tmp.vcf.include]
+    samp.vcf.include <- samples.full.vcf[samples.full.vcf %in% tmp.vcf.include]
     
     ## check if samples are in same order - give warning in diff order
     if(!allequal(samp.vcf.include, samp.id.dat[samp.id.dat$include, sample.col])) {
@@ -249,7 +247,8 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         ref.vcf <- geno.vcf[,4]
         geno.vcf <- geno.vcf[,10:ncol]
 
-        ## create df of VCF snp ID and ref allele
+        ## create df of VCF snp ID and ref allele to facilitate
+        ## subsequent subsetting of ref allele to match checked SNPs
         ref.dat <- data.frame(var=id, ref=ref.vcf)
 
         ## take the first 3 characters - GT field for diploid genotypes
@@ -270,16 +269,18 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         vcf.snp.only <- setdiff(id, snp.id.dat[,id.col])
 
         ## create snp id vector for subsetting VCF to genoData SNPs
-        if(length(vcf.snp.only) > 0 & verbose){
-          message("Note VCF block has ", prettyNum(length(vcf.snp.only), big.mark=","),
+        if(length(vcf.snp.only) > 0{
+          if(verbose){
+            message("Note VCF block has ", prettyNum(length(vcf.snp.only), big.mark=","),
               " SNP(s) not present in genoData;\n these will be excluded from the check")
+          }
           id <- id[id %in% snp.id.dat[,id.col]]          
         }
 
         ## create samp id vector for subsetting VCF
         ## extra samps were already reported before 'while' loop,
         ## so do this silently
-        if(length(vcf.samp.only) > 0 & verbose) {
+        if(length(vcf.samp.only) > 0) {
           samples <- samples.full.vcf[samples.full.vcf %in% samp.id.dat[,sample.col]]
         }
 
@@ -297,7 +298,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         ## remove excluded snps and samples from this block
         geno.vcf <- geno.vcf[snp.block.include, samp.vcf.include]
 
-        ## only continue if there are snps left to check
+        ## only continue if there are snps left to check after exclusions
         if(nrow(geno.vcf) > 0) {
 
             ## get list of snpIDs to check in this block
@@ -320,6 +321,8 @@ x
             geno.orig[allele.switch,] <- 2 - geno.orig[allele.switch,]
 
             # matrix of all genos - made to be in same order snp and sample-wise
+            # consider adding more verbose error messag, i.e. hinting to where
+            # discrepancies are/start
             stopifnot(allequal(geno.vcf, geno.orig))
 
             count <- nrow(geno.vcf)
