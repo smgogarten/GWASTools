@@ -303,9 +303,10 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
 
             ## get list of snpIDs to check in this block
             ## could this be done by matching snp.id.dat to geno.vcf rownames?
+            ## yes, but coerce to character so it's not used as index
             snp.block.sel <- snp.id.dat[, id.col] %in% snp.block.include
             snpID.block.include <- snp.id.dat[snp.block.sel, "snpID"]
-x
+
             ## get VCF ref allele for snps in this block
             ref.block <- ref.dat$ref[match(snp.block.include, ref.dat$var)]
 

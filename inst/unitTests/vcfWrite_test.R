@@ -91,6 +91,10 @@ test_scan.exclude <- function() {
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(1:3, c(1,3,5))))
     unlink(newfile)
+
+    # add vcfCheck test for scan include
+    # can check whether function gives error
+    # also check for epxeted msgs: capture.output, type=message
 }
 
 test_snp.exclude <- function() {
@@ -101,6 +105,8 @@ test_snp.exclude <- function() {
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(c(1,3,5), 1:3)))
     unlink(newfile)
+
+    # add vcfCheck
 }
 
 test_both.exclude <- function() {
@@ -250,3 +256,7 @@ test_vcfCheck_subset <- function() {
     vcfCheck(genoData, newfile)
     unlink(newfile)
 }
+
+# add vcfCheck test where genotype is perturbed - should actually be diff
+# make sure i'm checking for snp and scan order diffs
+# check for msgs when VCF has more data than genoData
