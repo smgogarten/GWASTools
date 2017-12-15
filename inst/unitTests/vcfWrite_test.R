@@ -85,16 +85,22 @@ test_setInfo <- function() {
 
 test_scan.exclude <- function() {
     require(VariantAnnotation)
+    # make test genoData with 3 snps, 5 scans
     genoData <- .testGenoData(3,5)
     newfile <- tempfile()
+    # write out VCF excluding scanIDs 2 and 4
     vcfWrite(genoData, newfile, scan.exclude=c(2,4))
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(1:3, c(1,3,5))))
+
+    # check scan exclusion argument of vcfCheck
+    vcfCheck(genoData, newfile, scan.exclude=c(2,4), block.size=1)
+    
     unlink(newfile)
 
     # add vcfCheck test for scan include
     # can check whether function gives error
-    # also check for epxeted msgs: capture.output, type=message
+    # also check for expected msgs: capture.output, type=message
 }
 
 test_snp.exclude <- function() {
