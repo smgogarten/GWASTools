@@ -294,7 +294,7 @@ mendelErr <- function(genoData,
       trio <- mendel.list[[famidx]][[childidx]]
 
       # if fields have been converted to factor,
-      # convert back to chracter
+      # convert back to character
       i <- sapply(trio, is.factor)
       trio[i] <- lapply(trio[i], as.character)      
 
@@ -412,7 +412,7 @@ mendelErr <- function(genoData,
       }
       Ind <- Ind + 1
     }
-  }else{
+  } else {
     trios <- NULL
   }
 
