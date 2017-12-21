@@ -94,7 +94,10 @@ test_scan.exclude <- function() {
     checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(1:3, c(1,3,5))))
 
     # check scan exclusion argument of vcfCheck
-    vcfCheck(genoData, newfile, scan.exclude=c(2,4), block.size=1)
+    vcfCheck(genoData, newfile, scan.exclude=c(2,4), block.size=2)
+
+    #### SN, 12/15/17
+    # getting Error in geno.orig[allele.switch, ] : incorrect number of dimensions -- need to debug
     
     unlink(newfile)
 

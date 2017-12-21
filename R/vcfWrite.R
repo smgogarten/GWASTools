@@ -244,7 +244,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         geno.vcf <- matrix(x, ncol=ncol, byrow=TRUE)
         id <- geno.vcf[,3]
         ref.vcf <- geno.vcf[,4]
-        geno.vcf <- geno.vcf[,10:ncol]
+        geno.vcf <- geno.vcf[, 10:ncol, drop=FALSE]
 
         ## create df of VCF snp ID and ref allele to facilitate
         ## subsequent subsetting of ref allele to match checked SNPs
@@ -283,7 +283,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
 
         ## subset block to snps and samples to be checked, i.e.
         ## those overlapping with genoData and not in exclude lists
-        geno.vcf <- geno.vcf[snp.block.incl, samp.vcf.incl]
+        geno.vcf <- geno.vcf[snp.block.incl, samp.vcf.incl, drop=FALSE]
 
         ## only continue if there are snps left to check after exclusions
         if(nrow(geno.vcf) > 0) {
