@@ -138,6 +138,11 @@ mendelListAsDataFrame <- function(mendel.list)
 	}
         names(rv) <- NULL
 	rv <- do.call(rbind, rv)
+
+        # if any fields were converted to factor, return to character
+        i <- sapply(rv, is.factor)
+        rv[i] <- lapply(rv[i], as.character)
+        
         return(rv)
 }
 
@@ -288,6 +293,11 @@ mendelErr <- function(genoData,
       # get the trios for this family-child pair
       trio <- mendel.list[[famidx]][[childidx]]
 
+      # if fields have been converted to factor,
+      # convert back to character
+      i <- sapply(trio, is.factor)
+      trio[i] <- lapply(trio[i], as.character)      
+
       if(error.by.snp){
         # indicators for SNPs checked and  errors
         check.ind <- rep(FALSE, length(snp$check.cnt))
@@ -300,7 +310,8 @@ mendelErr <- function(genoData,
         rtrio <- trio[i, ]
 
         # genotype of offspring
-        gchild <- getGenotype(genoData, snp=c(1,-1), scan=c(which(sampleID == rtrio$offspring), 1))
+        gchild <- getGenotype(genoData, snp=c(1,-1),
+                              scan=c(which(sampleID == rtrio$offspring), 1))
         gchild[is.na(gchild)] <- -1
         gchild <- gchild + 1
         if (!is.null(snp.exclude)){
@@ -308,8 +319,9 @@ mendelErr <- function(genoData,
         }
 
         # genotype of father
-        if (rtrio$father > 0){
-          gfather <- getGenotype(genoData, snp=c(1,-1), scan=c(which(sampleID == rtrio$father), 1))
+        if (rtrio$father != -1){
+          gfather <- getGenotype(genoData, snp=c(1,-1),
+                                 scan=c(which(sampleID == rtrio$father), 1))
           gfather[is.na(gfather)] <- -1
           gfather <- gfather + 1
           if (!is.null(snp.exclude)){
@@ -320,8 +332,9 @@ mendelErr <- function(genoData,
         }
 
         # genotype of mother
-        if (rtrio$mother > 0){
-          gmother <- getGenotype(genoData, snp=c(1,-1), scan=c(which(sampleID == rtrio$mother), 1))
+        if (rtrio$mother != -1 ){
+          gmother <- getGenotype(genoData, snp=c(1,-1),
+                                 scan=c(which(sampleID == rtrio$mother), 1))
           gmother[is.na(gmother)] <- -1
           gmother <- gmother + 1
           if (!is.null(snp.exclude)){
@@ -346,7 +359,8 @@ mendelErr <- function(genoData,
         # updating trio
         # total error counts and summary info
         r <- data.frame(fam.id = familyid, child.id = childid,
-                        child.scanID = rtrio$offspring, father.scanID = rtrio$father, mother.scanID = rtrio$mother,
+                        child.scanID = rtrio$offspring, father.scanID = rtrio$father,
+                        mother.scanID = rtrio$mother,
                         Men.err.cnt = sum(m==1 & chr.men), Men.cnt = sum(m>0 & chr.men),
                         mtDNA.err = sum(m==1 & chr.m), mtDNA.cnt = sum(m>0 & chr.m),
                         stringsAsFactors = FALSE)
@@ -366,7 +380,6 @@ mendelErr <- function(genoData,
         }
       } # end samples loop
 
-
       # update family-child snp info
       if(error.by.snp){
         snp$check.cnt <- snp$check.cnt + ifelse(check.ind,1,0)
@@ -377,6 +390,7 @@ mendelErr <- function(genoData,
       }
     } # end child (subject) loop
   } # end family loop
+  
   names(all.trios) <- NULL
   all.trios <- do.call(rbind, all.trios)
 
@@ -386,7 +400,8 @@ mendelErr <- function(genoData,
     d <- paste(all.trios$fam.id, all.trios$child.id)
     # get unique family-child pairs
     id <- unique(d)
-    trios <- all.trios[1:length(id), !(names(all.trios) %in% c("child.scanID", "father.scanID", "mother.scanID"))]
+    trios <- all.trios[1:length(id), !(names(all.trios) %in%
+                                       c("child.scanID", "father.scanID", "mother.scanID"))]
     n <- dim(trios)[2]; Ind <- 1
     for (i in id){
       ti <- all.trios[d==i,]
@@ -397,7 +412,7 @@ mendelErr <- function(genoData,
       }
       Ind <- Ind + 1
     }
-  }else{
+  } else {
     trios <- NULL
   }
 
