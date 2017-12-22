@@ -93,7 +93,7 @@ mendelList <- function(familyid,
 
             # add offspring/father/mother trio to the results for this child
             crv[[paste(childindex, fatindex, motindex)]] <-
-              data.frame(offspring=res[1], father=res[2], mother=res[3])
+              data.frame(offspring=res[1], father=res[2], mother=res[3], stringsAsFactors=FALSE)
           }
         }
       }
