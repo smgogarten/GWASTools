@@ -305,8 +305,10 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
             ## compare alleleA and identify switches (i.e., diff allele being counted)
             ref.orig <- alleleA[match(rownames(geno.vcf), snp.id.dat[, id.col])]
             allele.switch <- ref.orig != ref.block
-            ## convert to count same allele, where alleleA/REF differs
-            geno.orig[allele.switch,] <- 2 - geno.orig[allele.switch,]
+            if(sum(allele.switch) > 0) {
+              ## convert to count same allele, where alleleA/REF differs
+              geno.orig[allele.switch,] <- 2 - geno.orig[allele.switch,]
+             }
 
             ## now we have matrices of all genos,
             ## made to be in same order snp and sample-wise
