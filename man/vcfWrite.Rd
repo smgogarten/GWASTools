@@ -26,7 +26,7 @@ vcfWrite(genoData, vcf.file="out.vcf", sample.col="scanID",
 
 vcfCheck(genoData, vcf.file,
          sample.col="scanID", id.col="snpID",
-         scan.exclude=NULL, snp.exclude=NULL
+         scan.exclude=NULL, snp.exclude=NULL,
          block.size=1000, verbose=TRUE)
 }
 \arguments{
