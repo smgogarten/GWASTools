@@ -216,7 +216,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
     vcf.samp.only <- setdiff(samp.allvcf, samp.id.dat[,sample.col])
     if(length(vcf.samp.only) > 0){
       message("Note VCF has ", prettyNum(length(vcf.samp.only), big.mark=","),
-              " sample(s) not present in genoData;\n these will be excluded from the check")
+              " sample(s) not present in genoData;\nthese will be excluded from the check")
     }
 
     ## check if VCF includes more genoData samps than are retained
@@ -234,8 +234,9 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
                                  with(samp.id.dat, samp.id.dat[vcf & include, sample.col])]
     
     ## check if samples are in same order - give warning in diff order
-    if(!allequal(samp.vcf.incl, samp.id.dat[samp.id.dat$include, sample.col])) {
-      warning("Note, sample order in VCF differs from genoData")
+    if(!allequal(as.character(samp.vcf.incl),
+                 as.character(samp.id.dat[samp.id.dat$include, sample.col]))) {
+      message("Note, sample order in VCF differs from genoData")
     }
 
     ## reads VCF file block.size lines at a time
@@ -268,7 +269,7 @@ vcfCheck <- function(genoData, vcf.file, sample.col="scanID", id.col="snpID",
         vcf.snp.only <- setdiff(id, snp.id.dat[,id.col])
         if(length(vcf.snp.only) > 0 & verbose) {
             message("Note VCF block has ", prettyNum(length(vcf.snp.only), big.mark=","),
-              " SNP(s) not present in genoData;\n these will be excluded from the check")
+              " SNP(s) not present in genoData;\nthese will be excluded from the check")
         }
 
         ## get vector of snps to check
