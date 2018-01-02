@@ -74,6 +74,7 @@ test_setInfo <- function() {
                       alleleB=rep("G", nsnp),
                       stringsAsFactors=FALSE)
     samp <- data.frame(scanID=1:nsamp)
+
     mgr <- MatrixGenotypeReader(matrix(2, nrow=nsnp, ncol=nsamp),
                                 snpID=snp$snpID,
                                 chromosome=snp$chromosome,
@@ -85,11 +86,23 @@ test_setInfo <- function() {
 
 test_scan.exclude <- function() {
     require(VariantAnnotation)
+    # make test genoData with 3 snps, 5 scans
     genoData <- .testGenoData(3,5)
     newfile <- tempfile()
+    # write out VCF excluding scanIDs 2 and 4
     vcfWrite(genoData, newfile, scan.exclude=c(2,4))
     vcf <- readVcf(newfile, "hg18")
-    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(1:3, c(1,3,5))))
+    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3,
+                                        dimnames=list(1:3, c(1,3,5))))
+
+    # check scan exclusion argument of vcfCheck
+    msg <- capture.output(vcfCheck(genoData, newfile, scan.exclude=c(2,4)),
+                          type="message")
+
+    # check for expected messages
+    checkIdentical("Excluding 2 genoData samples from check", msg[1])
+    checkIdentical("Checked 3 SNPs", msg[2])    
+    
     unlink(newfile)
 }
 
@@ -99,8 +112,18 @@ test_snp.exclude <- function() {
     newfile <- tempfile()
     vcfWrite(genoData, newfile, snp.exclude=c(2,4))
     vcf <- readVcf(newfile, "hg18")
-    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(c(1,3,5), 1:3)))
-    unlink(newfile)
+    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3,
+                                        dimnames=list(c(1,3,5), 1:3)))
+
+    # check snp exclusion argument of vcfCheck
+    msg <- capture.output(vcfCheck(genoData, newfile, snp.exclude=c(2,4)),
+                          type="message")
+
+    # check for expected messages
+    checkIdentical("Excluding 2 genoData SNPs from check", msg[1])
+    checkIdentical("Checked 3 SNPs", msg[2])
+    
+    unlink(newfile)    
 }
 
 test_both.exclude <- function() {
@@ -109,7 +132,19 @@ test_both.exclude <- function() {
     newfile <- tempfile()
     vcfWrite(genoData, newfile, scan.exclude=1, snp.exclude=1)
     vcf <- readVcf(newfile, "hg18")
-    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3, dimnames=list(2:4, 2:4)))
+    checkIdentical(geno(vcf)$GT, matrix("0/0", nrow=3, ncol=3,
+                                        dimnames=list(2:4, 2:4)))
+
+    # check exclusion arguments of vcfCheck
+    msg <- capture.output(vcfCheck(genoData, newfile,
+                                   scan.exclude=1, snp.exclude=1),
+                          type="message")
+    
+    # check for expected messages
+    checkIdentical("Excluding 1 genoData samples from check", msg[1])
+    checkIdentical("Excluding 1 genoData SNPs from check", msg[2])    
+    checkIdentical("Checked 3 SNPs", msg[3])
+    
     unlink(newfile)
 }
 
@@ -143,6 +178,16 @@ test_scan.order <- function() {
     vcfWrite(genoData, newfile, scan.order=5:1, scan.exclude=2)
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(colnames(vcf), as.character(c(5,4,3,1)))
+
+    # check vcfCheck message for different scan order
+    msg <- capture.output(vcfCheck(genoData, newfile, scan.exclude=2),
+                          type="message")
+
+    # check for expected messages
+    checkIdentical("Excluding 1 genoData samples from check", msg[1])
+    checkIdentical("Note, sample order in VCF differs from genoData", msg[2])    
+    checkIdentical("Checked 3 SNPs", msg[3])    
+
     unlink(newfile)
 }
 
@@ -156,17 +201,27 @@ test_ref.allele <- function() {
     checkIdentical(as.character(ref(vcf)), rep("A", 3))
     checkIdentical(as.character(unlist(alt(vcf))), rep("G", 3))
 
+    msg <- capture.output(vcfCheck(genoData, newfile), type="message")
+    checkIdentical("Checked 3 SNPs", msg)
+
     vcfWrite(genoData, newfile, ref=rep("B", 3))
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix("1/1", nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
     checkIdentical(as.character(ref(vcf)), rep("G", 3))
     checkIdentical(as.character(unlist(alt(vcf))), rep("A", 3))
 
+    msg <- capture.output(vcfCheck(genoData, newfile), type="message")
+    checkIdentical("Checked 3 SNPs", msg)
+    
     vcfWrite(genoData, newfile, ref=c("A","B","A"))
     vcf <- readVcf(newfile, "hg18")
     checkIdentical(geno(vcf)$GT, matrix(c("0/0", "1/1", "0/0"), nrow=3, ncol=2, dimnames=list(1:3, 1:2)))
     checkIdentical(as.character(ref(vcf)), c("A","G","A"))
     checkIdentical(as.character(unlist(alt(vcf))), c("G","A","G"))
+
+    msg <- capture.output(vcfCheck(genoData, newfile), type="message")
+    checkIdentical("Checked 3 SNPs", msg)    
+    
     unlink(newfile)
 }
 
@@ -247,6 +302,95 @@ test_vcfCheck_subset <- function() {
     genoData <- .testGenoData(5,5)
     newfile <- tempfile()
     vcfWrite(genoData, newfile, snp.exclude=c(2,4), scan.order=c(4,3,5,1))
-    vcfCheck(genoData, newfile)
+    vcfCheck(genoData, newfile, snp.exclude=c(2,4), scan.exclude=2)
+    unlink(newfile)
+}
+
+# vcfCheck test where genotype is perturbed - actually different
+
+test_vcfCheck_discrepant <- function() {
+    genoData <- .testGenoData(5,3)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile)
+
+    # change genotypes in genoData
+    geno.diff <- getGenotypeSelection(genoData, snp=1:5, scan=1:3)
+    geno.diff[2:2] <- 1
+
+    diffMatx <- MatrixGenotypeReader(genotype=geno.diff,
+                                     snpID=1:5, scanID=1:3,
+                                     chromosome=getChromosome(genoData),
+                                     position=getPosition(genoData))
+
+    genoDiff <- GenotypeData(diffMatx, scanAnnot=getScanAnnotation(genoData),
+                             snpAnnot=getSnpAnnotation(genoData))
+
+    # confirm vcfCheck generates an error
+    checkException(vcfCheck(genoDiff, newfile), silent=TRUE)
+
+    # check error message
+    msg <- geterrmessage()
+    checkIdentical("Error in vcfCheck(genoDiff, newfile) : \n  genoData and VCF are not equal, starting at VCF variant ID 2\n", msg)
+
+    unlink(newfile)
+
+}
+
+# check for msgs when VCF has more samples than genoData
+test_vcfCheck_extSamps <- function() {
+    genoData <- .testGenoData(5,5)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile)
+
+    # subset genoData
+    geno.mini <- getGenotypeSelection(genoData, snp=1:5, scan=1:3)
+
+    miniMatx <- MatrixGenotypeReader(genotype=geno.mini,
+                                     snpID=1:5, scanID=1:3,
+                                     chromosome=getChromosome(genoData),
+                                     position=getPosition(genoData))
+
+    # subset scan annot
+    scanAnnot <- getScanAnnotation(genoData)
+    scanMini <- scanAnnot[getScanID(scanAnnot) %in% 1:3,]
+
+    genoMini <- GenotypeData(miniMatx, scanAnnot=scanMini,
+                             snpAnnot=getSnpAnnotation(genoData))
+
+    msg <- capture.output(vcfCheck(genoMini, newfile), type="message")
+    checkIdentical("Note VCF has 2 sample(s) not present in genoData;", msg[1])
+    checkIdentical("these will be excluded from the check", msg[2])
+    checkIdentical("Checked 5 SNPs", msg[3])
+
+    unlink(newfile)
+}
+
+# check for msgs when VCF has more snps than genoData
+test_vcfCheck_extSamps <- function() {
+    genoData <- .testGenoData(5,5)
+    newfile <- tempfile()
+    vcfWrite(genoData, newfile)
+
+    # subset genoData
+    geno.mini <- getGenotypeSelection(genoData, snp=1:3, scan=1:5)
+
+    miniMatx <- MatrixGenotypeReader(genotype=geno.mini,
+                                     snpID=1:3, scanID=1:5,
+                                     chromosome=getChromosome(genoData)[1:3],
+                                     position=getPosition(genoData)[1:3])
+
+    # subset np annot
+    snpAnnot <- getSnpAnnotation(genoData)
+    snpMini <- snpAnnot[getSnpID(snpAnnot) %in% 1:3,]
+
+    genoMini <- GenotypeData(miniMatx, scanAnnot=getScanAnnotation(genoData),
+                             snpAnnot=snpMini)
+
+    msg <- capture.output(vcfCheck(genoMini, newfile), type="message")
+    checkIdentical("Note VCF block has 2 SNP(s) not present in genoData;", msg[1])
+    checkIdentical("these will be excluded from the check", msg[2])
+    checkIdentical("Note after applying exclude argument, VCF block contains additional genoData SNPs", msg[3])
+    checkIdentical("Checked 3 SNPs", msg[4])
+
     unlink(newfile)
 }
