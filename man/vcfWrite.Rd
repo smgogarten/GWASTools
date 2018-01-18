@@ -4,7 +4,7 @@
 \alias{genoDataAsVCF}
 \title{Utility to write VCF file}
 \description{
-\code{genoDataAsVCF} creates a \code{\link[VariantAnnotation]{VCF}} object.
+\code{genoDataAsVCF} creates a \code{\link[VariantAnnotation]{VCF-class}} object.
 
 \code{vcfWrite} writes a VCF file from a \code{\link{GenotypeData}}
 object.

@@ -63,7 +63,7 @@ checkNcdfGds(ncdf.filename, gds.filename, verbose = TRUE)
 
 \author{Xiuwen Zheng, Stephanie Gogarten}
 
-\seealso{\pkg{\link[gdsfmt]{gdsfmt}},  \pkg{\link[ncdf4]{ncdf4-package}}
+\seealso{\pkg{\link{gdsfmt}},  \pkg{\link[ncdf4]{ncdf4-package}}
 }
 
 \examples{
