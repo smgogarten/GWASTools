@@ -281,3 +281,12 @@ setClass("IntensityData",
                         scanAnnot = "ScanAnnotationReader"),
          prototype(snpAnnot = NULL,
                    scanAnnot = NULL))
+
+# Iterator class
+setClass("GenotypeIterator", contains="GenotypeData",
+         slots=c(snpFilter="list",
+                 lastFilter="environment")) # allow pass-by-reference for this slot
+
+# Block iterator
+setClass("GenotypeBlockIterator", contains="GenotypeIterator",
+         slots=c(snpBlock="integer")) # number of snps

@@ -1,10 +1,10 @@
 Package: GWASTools
-Version: 1.27.0
+Version: 1.27.1
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
 Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos, Cecelia Laurie, Michael Lawrence, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Jess Shen, Rohit Swarnkar, Adrienne Stilp, Sarah Nelson
-Maintainer: Stephanie M. Gogarten <sdmorris@uw.edu>, Adrienne Stilp <amstilp@uw.edu>
+Maintainer: Stephanie M. Gogarten <sdmorris@uw.edu>
 Depends: Biobase
 Imports: graphics, stats, utils, methods, gdsfmt, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, logistf, quantsmooth
 Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation
@@ -17,24 +17,24 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   Methods-GdsReader.R Methods-GdsGenotypeReader.R Methods-GdsIntensityReader.R
   Methods-NcdfReader.R Methods-NcdfGenotypeReader.R Methods-NcdfIntensityReader.R
   Methods-MatrixGenotypeReader.R
-  Methods-GenotypeData.R Methods-IntensityData.R
+  Methods-GenotypeData.R Methods-IntensityData.R Methods-Iterator.R
   createDataUtils.R
   createDataFile.R createAffyIntensityFile.R checkGenotypeFile.R checkIntensityFile.R
   setMissingGenotypes.R imputedDosageFile.R checkImputedDosageFile.R
   gdsSubset.R gdsSubsetCheck.R
   plinkUtils.R snpStats.R vcfWrite.R asVCF.R
-  convertNcdfGds.R 
+  convertNcdfGds.R
   BAFfromClusterMeans.R BAFfromGenotypes.R
-  genoClusterPlot.R genoClusterPlotByBatch.R 
-  chromIntensityPlot.R pseudoautoIntensityPlot.R intensityOutliersPlot.R 
+  genoClusterPlot.R genoClusterPlotByBatch.R
+  chromIntensityPlot.R pseudoautoIntensityPlot.R intensityOutliersPlot.R
   sdByScanChromWindow.R medianSdOverAutosomes.R meanSdByChromWindow.R findBAFvariance.R
   anomSegmentBAF.R anomFilterBAF.R anomDetectBAF.R
   LOHfind.R LOHselectAnoms.R anomDetectLOH.R
   anomSegStats.R anomStatsPlot.R anomIdentifyLowQuality.R
   alleleFrequency.R apartSnpSelection.R
-  hetByScanChrom.R hetBySnpSex.R 
+  hetByScanChrom.R hetBySnpSex.R
   missingGenotypeByScanChrom.R missingGenotypeBySnpSex.R
-  meanIntensityByScanChrom.R 
+  meanIntensityByScanChrom.R
   qualityScoreByScan.R qualityScoreBySnp.R
   batchChisqTest.R batchFisherTest.R
   duplicateDiscordanceAcrossDatasets.R dupDosageCorAcrossDatasets.R
