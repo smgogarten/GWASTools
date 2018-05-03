@@ -53,3 +53,8 @@ setGeneric("YchromCode", function(object) standardGeneric("YchromCode"))
 setGeneric("XYchromCode", function(object) standardGeneric("XYchromCode"))
 setGeneric("MchromCode", function(object) standardGeneric("MchromCode"))
 
+setGeneric("snpFilter", function(x) standardGeneric("snpFilter"))
+setGeneric("lastFilter", function(x) standardGeneric("lastFilter"))
+setGeneric("lastFilter<-", function(x, value) standardGeneric("lastFilter<-"))
+setGeneric("currentFilter", function(x) standardGeneric("currentFilter"))
+setGeneric("iterateFilter", function(x) standardGeneric("iterateFilter"))

@@ -28,7 +28,9 @@ exportClasses(
     GdsIntensityReader,
     MatrixGenotypeReader,
     GenotypeData,
-    IntensityData
+    IntensityData,
+    GenotypeIterator,
+    GenotypeBlockIterator
 )
 
 export(
@@ -46,6 +48,8 @@ export(
     MatrixGenotypeReader,
     GenotypeData,
     IntensityData,
+    GenotypeIterator,
+    GenotypeBlockIterator,
 
     ## Ordinary functions (i.e. not generic):
     alleleFrequency,
@@ -182,6 +186,10 @@ exportMethods(
     YchromCode,
     XYchromCode,
     MchromCode,
+    snpFilter,
+    lastFilter, "lastFilter<-",
+    iterateFilter,
+    currentFilter,
 
     ## Methods associated with generic functions defined somewhere else:
     open, close, show
