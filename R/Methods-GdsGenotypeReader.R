@@ -111,16 +111,16 @@ setMethod("getVariable",
               if (missing(index)) {
                   callNextMethod(object, varname, ...)
               } else {
-                  dim <- getDimension(object, varname)
-                  if (is.list(index)) {
-                      sel <- list()
-                      for (i in 1:length(index)) {
-                          sel[[i]] <- .logicalIndex(index[[i]], dim[i])
-                      }
-                  } else {
-                      sel <- .logicalIndex(index, dim)
-                  }
-                  callNextMethod(object, varname, sel=sel, ...)
+                  ## dim <- getDimension(object, varname)
+                  ## if (is.list(index)) {
+                  ##     sel <- list()
+                  ##     for (i in 1:length(index)) {
+                  ##         sel[[i]] <- .logicalIndex(index[[i]], dim[i])
+                  ##     }
+                  ## } else {
+                  ##     sel <- .logicalIndex(index, dim)
+                  ## }
+                  callNextMethod(object, varname, sel=index, ...)
               }                    
           })
 
@@ -283,6 +283,11 @@ setMethod("getGenotypeSelection",
               
               if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
               if (is.null(scan)) scan <- rep(TRUE, nscan(object))
+
+              if (order == "file") {
+                  if (!is.logical(snp)) snp <- sort(snp)
+                  if (!is.logical(scan)) scan <- sort(scan)
+              }
               
               ## check if we need to switch snp/scan here for a transposed genotype file
               if (object@genotypeDim == "scan,snp") {
@@ -296,7 +301,7 @@ setMethod("getGenotypeSelection",
 
               if (use.names) var <- .addNamesGds(object, var, snp, scan)
 
-              if (order == "selection") var <- .orderBySelection(object, var, snp, scan)
+              #if (order == "selection") var <- .orderBySelection(object, var, snp, scan)
               
               if (drop) var <- drop(var)
               
