@@ -275,6 +275,10 @@ test_GdsGenotypeReader_index <- function() {
   checkIdentical(geno[c(3,1,5), c(2,1)],
                  getGenotypeSelection(obj, snp=c(3,1,5), scan=c(2,1), order="selection"))
   
+  ## check selection with ID
+  checkIdentical(geno[c(3,1,5), c(2,1)],
+                 getGenotypeSelection(obj, snpID=c(3,1,5), scanID=samp[c(2,1)], order="selection"))
+  
   close(obj)
   unlink(file)
 }

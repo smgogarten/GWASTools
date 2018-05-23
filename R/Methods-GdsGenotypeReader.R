@@ -274,11 +274,11 @@ setMethod("getGenotypeSelection",
 
               if (!is.null(snpID)) {
                   if (!is.null(snp)) stop("cannot specify both snp and snpID")
-                  snp <- getSnpID(object) %in% snpID
+                  snp <- match(snpID, getSnpID(object))
               }
               if (!is.null(scanID)) {
                   if (!is.null(scan)) stop("cannot specify both scan and scanID")
-                  scan <- getScanID(object) %in% scanID
+                  scan <- match(scanID, getScanID(object))
               }
               
               if (is.null(snp)) snp <- rep(TRUE, nsnp(object))
