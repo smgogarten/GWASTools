@@ -9,6 +9,7 @@ Depends: Biobase
 Imports: graphics, stats, utils, methods, gdsfmt, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, logistf, quantsmooth
 Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation
 License: Artistic-2.0
+URL: https://github.com/smgogarten/GWASTools
 LazyData: yes
 biocViews: SNP, GeneticVariability, QualityControl, Microarray
 Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
