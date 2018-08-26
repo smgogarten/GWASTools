@@ -22,6 +22,8 @@
 \alias{snpFilter,GenotypeIterator-method}
 \alias{currentFilter}
 \alias{currentFilter,GenotypeIterator-method}
+\alias{resetIterator}
+\alias{resetIterator,GenotypeIterator-method}
 
 \title{Class GenotypeIterator}
 
@@ -51,6 +53,16 @@
 
 \section{Accessors}{
   \describe{
+    \item{}{\code{iterateFilter(x)}: Advance the filter to the next block, range, or set of ranges. Returns \code{TRUE} while there are still variants left to be read, \code{FALSE} if the end of iteration is reached.
+    }
+    \item{}{\code{lastFilter(x)}, \code{lastFilter(x)<- value}: Get or set the last filter index from the previous call to \code{iterateFilter}.
+    }
+    \item{}{\code{snpFilter(x)}: Get the list of SNP indices.
+    }
+    \item{}{\code{currentFilter(x)}: Get the indices of SNPs selected in the current iteration.
+    }
+    \item{}{\code{resetIterator(x)}: Set the filter to the first block (the same SNPs that are selected when the iterator object is created).
+    }
     \item{}{
       \code{getSnpID(object, ...)}: A unique integer vector of snp
       IDs. 

@@ -190,6 +190,7 @@ exportMethods(
     lastFilter, "lastFilter<-",
     iterateFilter,
     currentFilter,
+    resetIterator,
 
     ## Methods associated with generic functions defined somewhere else:
     open, close, show

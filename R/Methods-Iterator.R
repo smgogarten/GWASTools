@@ -68,6 +68,13 @@ setMethod("iterateFilter",
               }
           })
 
+setMethod("resetIterator",
+          "GenotypeIterator",
+          function(x) {
+              ## set filter to the first element
+              lastFilter(x) <- 1
+          })
+
 setMethod("getSnpID",
           "GenotypeIterator",
           function(object, ...) {

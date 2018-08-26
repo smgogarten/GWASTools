@@ -116,3 +116,18 @@ test_iterator_snpInclude_largeblock <- function() {
   close(obj)
   unlink(file)
 }
+
+test_iterator_reset <- function() {
+  file <- .testfile()
+
+  gdsobj <- GdsGenotypeReader(file)
+  obj <- GenotypeData(gdsobj)
+  it <- GenotypeBlockIterator(obj, snpBlock=100)
+  while(iterateFilter(it)) {}
+  resetIterator(it)
+  checkEquals(length(getSnpID(it)), 100)
+  
+  close(obj)
+  unlink(file)
+}
+
