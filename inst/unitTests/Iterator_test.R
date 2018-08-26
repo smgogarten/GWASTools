@@ -82,3 +82,37 @@ test_iterator_largeblock <- function() {
   close(obj)
   unlink(file)
 }
+
+
+test_iterator_snpInclude <- function() {
+  file <- .testfile()
+
+  gdsobj <- GdsGenotypeReader(file)
+  obj <- GenotypeData(gdsobj)
+  it <- GenotypeBlockIterator(obj, snpBlock=100, snpInclude=101:250)
+  checkEquals(101:200, currentFilter(it))
+  checkEquals(101:200, getSnpID(it))
+  checkTrue(iterateFilter(it))
+  checkEquals(201:250, currentFilter(it))
+  checkEquals(201:250, getSnpID(it))
+  checkTrue(!iterateFilter(it))
+  
+  close(obj)
+  unlink(file)
+}
+
+
+
+test_iterator_snpInclude_largeblock <- function() {
+  file <- .testfile()
+
+  gdsobj <- GdsGenotypeReader(file)
+  obj <- GenotypeData(gdsobj)
+  it <- GenotypeBlockIterator(obj, snpBlock=1000, snpInclude=101:250)
+  checkEquals(101:250, currentFilter(it))
+  checkEquals(101:250, getSnpID(it))
+  checkTrue(!iterateFilter(it))
+  
+  close(obj)
+  unlink(file)
+}

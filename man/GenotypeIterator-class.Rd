@@ -38,11 +38,13 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GenotypeBlockIterator(genoData, snpBlock=10000}: Returns a \code{GenotypeBlockIterator} object with the filter set to the first block.
+      \code{GenotypeBlockIterator(genoData, snpBlock=10000, snpInclude=NULL}: Returns a \code{GenotypeBlockIterator} object with the filter set to the first block.
 
       \code{genoData} is a \code{\link{GenotypeData}} object.
 
       \code{snpBlock} is an integer specifying the number of SNPs in an iteration block.
+
+      \code{snpInclude} is a vector of snpIDs to include in the filter. If \code{NULL} (default), all SNPs are included.
     }
   }
 }

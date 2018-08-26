@@ -673,4 +673,9 @@
     \item Add a function to coerce a GenotypeData object to a VCF object for use with VariantAnnotation.
   }   
 }
+\section{Changes in version 1.27.1}{
+  \itemize{
+    \item Add GenotypeIterator and GenotypeBlockIterator classes. These classes allow returning blocks of SNPs with each call to iterateFilter.
+  }   
+}
 

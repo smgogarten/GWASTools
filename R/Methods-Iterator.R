@@ -10,12 +10,17 @@ GenotypeIterator <- function(genoData, snpFilter) {
 }
 
 
-GenotypeBlockIterator <- function(genoData, snpBlock=10000) {
-    if (snpBlock > nsnp(genoData)) {
-        snpBlock <- nsnp(genoData)
+GenotypeBlockIterator <- function(genoData, snpBlock=10000, snpInclude=NULL) {
+    snps <- 1:nsnp(genoData)
+    if (!is.null(snpInclude)) {
+        snps <- which(getSnpID(genoData) %in% snpInclude)
+    }
+    
+    if (snpBlock > length(snps)) {
+        snpBlock <- length(snps)
     }
 
-    snpFilter <- split(1:nsnp(genoData), ceiling((1:nsnp(genoData))/snpBlock))
+    snpFilter <- split(snps, ceiling((1:length(snps))/snpBlock))
 
     genoData <- GenotypeIterator(genoData, snpFilter)
     class(genoData) <- "GenotypeBlockIterator"
