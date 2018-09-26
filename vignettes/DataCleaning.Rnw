@@ -70,7 +70,7 @@ the \Rcode{GdsGenotypeReader} and \Rcode{GdsIntensityReader} classes.
 These classes are built on top of the \Rpackage{gdsfmt} package and provide access
 to a standard set of variables defined for GWAS data.  NetCDF files
 can be accessed with the equivalent classes \Rcode{NcdfGenotypeReader}
-and \Rcode{NcdfIntensityReader}, which are built on top of the \Rpackage{ncdf} package.
+and \Rcode{NcdfIntensityReader}, which are built on top of the \Rpackage{ncdf4} package.
 The union classes \Rcode{GenotypeReader} and \Rcode{IntensityReader}
 allow the \Rpackage{GWASTools} functions to use either storage format
 interchangeably.
