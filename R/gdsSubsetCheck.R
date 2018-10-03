@@ -3,12 +3,13 @@ gdsSubsetCheck <- function(parent.gds,
                            sample.include=NULL,
                            snp.include=NULL,
                            sub.storage=NULL,
-                           verbose=TRUE) {
+                           verbose=TRUE,
+                           allow.fork=FALSE) {
   
   # this assumes that sample.id is the only 1D sample variable in the GDS
   
-  gds <- openfn.gds(parent.gds)
-  gds.sub <- openfn.gds(sub.gds)
+  gds <- openfn.gds(parent.gds, allow.fork)
+  gds.sub <- openfn.gds(sub.gds, allow.fork)
   
   # check sampleID
   sampID.parent <- read.gdsn(index.gdsn(gds, "sample.id"))

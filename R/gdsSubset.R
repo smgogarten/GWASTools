@@ -8,10 +8,11 @@ gdsSubset <- function(parent.gds,
                       sub.storage=NULL,
                       compress="LZMA_RA",
                       block.size=5000,
-                      verbose=TRUE){
+                      verbose=TRUE,
+                      allow.fork=FALSE){
 
   # this function only works for gds files having up to two dimensions, named "snp" and "sample"
-  gds <- openfn.gds(parent.gds)
+  gds <- openfn.gds(parent.gds, allow.fork)
 
   # check that sample.include are all elements of sample.id
   sampID <- read.gdsn(index.gdsn(gds, "sample.id"))
