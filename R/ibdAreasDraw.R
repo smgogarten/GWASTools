@@ -33,7 +33,7 @@ ibdAreasDraw <- function(
       for(a in ang){
         p1<-h[1]*cos(a) ;p2<-h[2]*sin(a)
         tp<-t(p1*eg.vec[,1]+p2*eg.vec[,2]+mean.vec2)
-        pts<-rbind(pts,tp)
+        pts<-bind_rows(pts,tp)
       }
       points(pts, type="l", lwd=rel.lwd, col=xcol[2])
 

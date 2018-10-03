@@ -125,7 +125,7 @@ There may be additional problems not investigated because of the current problem
             if(length(wf>1)) wff<-paste(sel[wf],collapse=";")           
             mofa[k,]<-c(fm,id,wmm,wff)
           }
-         mofa.all<-rbind(mofa.all,mofa)
+         mofa.all<-bind_rows(mofa.all,mofa)
         }
 
      # one unknown parent NOTE fa and mo indicate known parent IDs
@@ -134,7 +134,7 @@ There may be additional problems not investigated because of the current problem
          unkr<-sel[unk]
          unkf<-rep(fm,length(unkr))
          unkk<-data.frame("row.num"=unkr, "family"=unkf,stringsAsFactors=FALSE)
-         unkp<-rbind(unkp,unkk)
+         unkp<-bind_rows(unkp,unkk)
        }
 
        ## checking that there are individ entries for any mother or father ids
@@ -157,7 +157,7 @@ There may be additional problems not investigated because of the current problem
                  s$parentID[k]<-pedigree[rw,s$no_individ_entry[k]]
               }
            }              
-            ss<-rbind(ss,s)
+            ss<-bind_rows(ss,s)
          }
    
         # one person families
@@ -176,7 +176,7 @@ There may be additional problems not investigated because of the current problem
              chk<-all(length(unique(tmp$mother))==1 & length(unique(tmp$father))==1 & length(unique(tmp$sex))==1)
              dp<-data.frame("family"=fm,"individ"=ui[j],"copies"=nrow(tmp),stringsAsFactors=FALSE)
              if(chk==TRUE) dp$match<-TRUE else dp$match<-FALSE
-             dup<-rbind(dup,dp)
+             dup<-bind_rows(dup,dp)
           }
           
      } # end of family loop
@@ -221,7 +221,7 @@ There may be additional problems not investigated because of the current problem
          if(sum(wF)!=0) {
            minds<-ind[wF,]
            tmp<-data.frame("family"=rep(fm,nrow(minds)),"individ"=minds$individ,stringsAsFactors=FALSE)
-           badsex<-rbind(badsex,tmp)
+           badsex<-bind_rows(badsex,tmp)
          }
          fa<-!is.element(ped$father,0)
          indsel<-is.element(ped$individ,ped$father[fa])
@@ -230,7 +230,7 @@ There may be additional problems not investigated because of the current problem
          if(sum(wM)!=0) {
            minds<-ind[wM,]
            tmp<-data.frame("family"=rep(fm,nrow(minds)),"individ"=minds$individ, stringsAsFactors=FALSE)
-           badsex<-rbind(badsex,tmp)
+           badsex<-bind_rows(badsex,tmp)
          }
      
   ##Testing for impossible relationships
@@ -316,7 +316,7 @@ There may be additional problems not investigated because of the current problem
 				 sf<-rep(counter,length(clus))
 				 newsf<-data.frame(f,sf,clus,stringsAsFactors=FALSE)
                          names(newsf)<-c("family","subfamily","individ")
-				 subfams<-rbind(subfams,newsf)
+				 subfams<-bind_rows(subfams,newsf)
 		  } 
 		 
        } # end family loop       

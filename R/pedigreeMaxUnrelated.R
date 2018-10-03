@@ -97,7 +97,7 @@ pedigreeMaxUnrelated<-function(pedigree,pref=NULL){
     for(ii in 1:length(uct)){
        kt<-uct[ii]
        sel<-is.element(mu[,2],kt)
-       mu2<-rbind(mu2,mu[sel,])
+       mu2<-bind_rows(mu2,mu[sel,])
     }
     mud<-data.frame(mu2)
     X<-mud[!is.element(mud$ct,c(0,1)),]
@@ -208,7 +208,7 @@ for (i in 1:un){
 
    if(sum(x$selset==1)==1){
        fam.id<-u[i];Individ<-x$individ[x$selset==1];mx<-data.frame(fam.id,Individ)
-       max.ids<-rbind(max.ids,mx);next
+       max.ids<-bind_rows(max.ids,mx);next
    }
    if(sum(x$selset==1)==0) next
 
@@ -228,7 +228,7 @@ for (i in 1:un){
    q<-Y[!is.element(Y$father,0),c("individ","father")]
    names(p)<-c("offspring","parent")
    names(q)<-c("offspring","parent")
-   po<-rbind(p,q)
+   po<-bind_rows(p,q)
 
   #find adjacency matrix
    n<-nrow(Y)
@@ -252,7 +252,7 @@ for (i in 1:un){
   fam.id<-rep(u[i],ms)
   Individ<-msetid
   mx<-data.frame(fam.id,Individ,stringsAsFactors=FALSE)
-  max.ids<-rbind(max.ids, mx)
+  max.ids<-bind_rows(max.ids, mx)
 }   # end fam loop
   names(max.ids)<-c("family","Individ")
   return(max.ids)

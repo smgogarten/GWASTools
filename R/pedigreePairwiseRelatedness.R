@@ -142,7 +142,7 @@ pedigreePairwiseRelatedness<-
 	q<-Y[!is.element(Y$father,0),c("individ","father")]
 	names(p)<-c("offspring","parent")
 	names(q)<-c("offspring","parent")
-	po<-rbind(p,q)
+	po<-bind_rows(p,q)
 	
 	#find adjacency matrix
 	n<-dim(Y)[1]
@@ -179,7 +179,7 @@ pedigreePairwiseRelatedness<-
 	         inbprs$Individ1[w1[[j]]]<-ui[j]
 	         inbprs$Individ2[w2[[j]]]<-ui[j]  
            }
-           inbred.kc<-rbind(inbred.kc,inbprs)
+           inbred.kc<-bind_rows(inbred.kc,inbprs)
            next
       }
 	
@@ -204,10 +204,10 @@ pedigreePairwiseRelatedness<-
 	   z<-Y[is.element(Y$individ,pp[,k]),c("mother","father")]
 	   mu<-length(unique(z$mother))
 	   if(mu==1) zq<-z$father else zq<-z$mother
-	   if(length(unique(zq))==1) {FS<-rbind(FS,pp[,k]);next} 
+	   if(length(unique(zq))==1) {FS<-bind_rows(FS,pp[,k]);next} 
 	   
 	   p12<-paste(zq[1],zq[2]); p21<-paste(zq[2],zq[1])
-	   if (is.element(p12,punr) | is.element(p21,punr)) HS<-rbind(HS,pp[,k]) else HSr<-rbind(HSr,pp[,k])  
+	   if (is.element(p12,punr) | is.element(p21,punr)) HS<-bind_rows(HS,pp[,k]) else HSr<-bind_rows(HSr,pp[,k])  
 	   } 
 	  } } #end of building up FS,HS,HSr
 	
@@ -228,7 +228,7 @@ pedigreePairwiseRelatedness<-
 	  au<-c(rep(au1,length(c2)),rep(au2,length(c1)))
 	  nn<-c(c2,c1)
 	  temp<-cbind(au,nn)
-	  avF<-rbind(avF,temp) }
+	  avF<-bind_rows(avF,temp) }
 	 } #end of full avuncular
 	
 	#half Avuncular
@@ -257,11 +257,11 @@ pedigreePairwiseRelatedness<-
 	   au<-c(rep(au1,length(cc2)),rep(au2,length(cc1)))
 	   nn<-c(cc2,cc1)
 	   temp<-cbind(au,nn)
-	   avH<-rbind(avH,temp)
+	   avH<-bind_rows(avH,temp)
 	   auo<-c(rep(au1,length(co2)),rep(au2,length(co1)))
 	   nno<-c(co2,co1)
 	   tempo<-cbind(auo,nno)
-	   avO<-rbind(avO,tempo)
+	   avO<-bind_rows(avO,tempo)
 	 } }#end of half avuncular with some identification of 'other' avuncular
 	
 	#Other avuncular
@@ -275,7 +275,7 @@ pedigreePairwiseRelatedness<-
 	  au<-c(rep(au1,length(c2)),rep(au2,length(c1)))
 	  nn<-c(c2,c1)
 	  temp<-cbind(au,nn) 
-	  avO<-rbind(avO,temp)}
+	  avO<-bind_rows(avO,temp)}
 	 } #end of other avuncular
 	
 	###GRANDPARENT/GRANDCHILD
@@ -288,7 +288,7 @@ pedigreePairwiseRelatedness<-
 	for(j in 1:length(wpar)){ 
 	 cww<-which(A2[,wpar[j]]==1) #identify grandchildren of a given grandparent
 	temp<-cbind(rep(wpar[j],length(cww)),cww)
-	gpgc<-rbind(gpgc,temp) }
+	gpgc<-bind_rows(gpgc,temp) }
 	 }
 	
 	###COUSINS
@@ -343,13 +343,13 @@ pedigreePairwiseRelatedness<-
 	   wu<-which(is.element(rpar,pu)) 
 	   woth<-setdiff(1:4,wu)  #which parent combinations are related somehow 
 	   if(length(wu)==3){
-		 if(is.element(rpar[woth],fs)) {fcous<-rbind(fcous,pp[,K]);next}  #first cousins since one combo is full sib
-		 if(is.element(rpar[woth],hs)){hfcous<-rbind(hfcous,pp[,K]);next}}
+		 if(is.element(rpar[woth],fs)) {fcous<-bind_rows(fcous,pp[,K]);next}  #first cousins since one combo is full sib
+		 if(is.element(rpar[woth],hs)){hfcous<-bind_rows(hfcous,pp[,K]);next}}
 	
 	   if(length(wu)==2){
-		 if(all(is.element(rpar[woth],fs))) {dfcous<-rbind(dfcous,pp[,K]);next}}
+		 if(all(is.element(rpar[woth],fs))) {dfcous<-bind_rows(dfcous,pp[,K]);next}}
 	
-		 ocous<-rbind(ocous,pp[,K]) 
+		 ocous<-bind_rows(ocous,pp[,K]) 
 	 } #end of loop on K
 	  }#end of loop on j 
 	 }#end of if (length(wpar ..)
@@ -366,7 +366,7 @@ pedigreePairwiseRelatedness<-
 		M<-Y$mother[HSr[kk,]];F<-Y$father[HSr[kk,]]
 	   m1<-M[1];m2<-M[2];f1<-F[1];f2<-F[2]
 	   if(m1==m2) {chk1<-paste(f1,f2);chk2<-paste(f2,f1)} else {chk1<-paste(m1,m2);chk2<-paste(f1,f2)}
-	   if(is.element(chk1,FSpr) | is.element(chk2,FSpr)) {kklist<-c(kklist,kk) ;hsfc<-rbind(hsfc,HSr[kk,]) } 
+	   if(is.element(chk1,FSpr) | is.element(chk2,FSpr)) {kklist<-c(kklist,kk) ;hsfc<-bind_rows(hsfc,HSr[kk,]) } 
 	}#end loop
 	
 	#Delete these specially identified half sibs from the HSr list
@@ -476,7 +476,7 @@ pedigreePairwiseRelatedness<-
       relprs<-grand(relprs,x)
 
 	#add onto previous family
-	relativeprs<-rbind(relativeprs,relprs)
+	relativeprs<-bind_rows(relativeprs,relprs)
     } #end of family loop
 
 

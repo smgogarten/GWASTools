@@ -86,7 +86,7 @@ anomSegmentBAF<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
     #$loc.start and $loc.end are indices of snp/indices of intid
 
     names(tmp)<-c("scanID","chromosome","left.index","right.index","num.mark","seg.mean")
-    anoms<-rbind(anoms,tmp)
+    anoms<-bind_rows(anoms,tmp)
   } #end loop on samples
 
   

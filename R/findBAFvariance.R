@@ -32,7 +32,7 @@ findBAFvariance <- function(sd.by.chrom.window, sd.by.scan.chrom.window,
              val > sd.threshold*sdev+m) {
             bc <- bc+1
             if(bc==1) { 
-              res <- rbind(res, c(samp, chromosomes[s], bc, sex[n]))
+              res <- bind_rows(res, c(samp, chromosomes[s], bc, sex[n]))
               r <- r+1
             } else {
               res[r,3] <- bc
@@ -60,7 +60,7 @@ findBAFvariance <- function(sd.by.chrom.window, sd.by.scan.chrom.window,
                val > sd.threshold*sdf+mf) {
               bc <- bc+1
               if(bc==1) { 
-                res <- rbind(res, c(samp, "X", bc, sex[n]))
+                res <- bind_rows(res, c(samp, "X", bc, sex[n]))
                 r <- r+1
               } else {
                 res[r,3] <- bc
@@ -71,7 +71,7 @@ findBAFvariance <- function(sd.by.chrom.window, sd.by.scan.chrom.window,
                val > sd.threshold*sdm+mm) { 
               bc <- bc+1
               if(bc==1) { 
-                res <- rbind(res, c(samp, "X", bc, sex[n]))
+                res <- bind_rows(res, c(samp, "X", bc, sex[n]))
                 r <- r+1
               } else {
                 res[r,3] <- bc

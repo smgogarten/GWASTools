@@ -34,10 +34,10 @@ for(j in 1:n1) {
   right<-max(segs$right[ind])
   tmp<-data.frame(left,right)
   names(tmp)<-c("left","right")
-  an.comb<-rbind(an.comb,tmp)   }
+  an.comb<-bind_rows(an.comb,tmp)   }
 ws<-setdiff(w,mod.ind)
 an.nomod<-segs[ws,c("left","right")]
-tmp2<-rbind(an.nomod,an.comb)
+tmp2<-bind_rows(an.nomod,an.comb)
 flag<-1;out<-list(flag,tmp2)
 names(out)<-c("flag","anoms")
 return(out)   } #end function mmerge
@@ -67,7 +67,7 @@ tmpdown<-NULL
 flag<-FALSE
 if(length(wup)!=0) { if(resup$flag==1) flag<-TRUE}
 if(length(wdown)!=0) { if (resdown$flag==1) flag<-TRUE}
- out<-rbind(rest,tmpup,tmpdown)
+ out<-bind_rows(rest,tmpup,tmpdown)
 out<-out[order(out$left),]
 rout<-list(out,flag)
 names(rout)<-c("newsegs","flag")
@@ -144,7 +144,7 @@ for(i in 1:dim(RUNS)[1]) {
    if(over<=0)next  #no overlap
      tp<-data.frame(mxL,mnR)
      names(tp)<-c("left","right")
-     runsegs<-rbind(runsegs,tp)    
+     runsegs<-bind_rows(runsegs,tp)    
   } 
 }
 

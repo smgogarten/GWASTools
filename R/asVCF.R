@@ -6,7 +6,7 @@
     for (c in filter.cols) {
         filter[filt.df[[c]]] <- paste(filter[filt.df[[c]]], c, sep=";")
     }
-    meta <- do.call(rbind,
+    meta <- do.call(bind_rows,
                     lapply(filter.cols, function(c) {
                         S4Vectors::DataFrame(ID=c, Description=.getMetadata(x, c))
                     }))
@@ -71,7 +71,7 @@
 
     type.map <- c(integer="Integer", numeric="Float", character="String",
                   factor="String", logical="Flag")
-    meta <- do.call(rbind,
+    meta <- do.call(bind_rows,
                     lapply(info.cols, function(c) {
                         S4Vectors::DataFrame(ID=c,
                                              Number=if(is.logical(info.df[[c]])) 0 else 1L,

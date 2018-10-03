@@ -98,7 +98,7 @@ mendelList <- function(familyid,
         }
       }
       names(crv) <- NULL
-      crv <- do.call(rbind, crv)
+      crv <- do.call(bind_rows, crv)
       # add this child's results to the family's
       if (!is.null(crv)){
         # name is offspring ID
@@ -137,7 +137,7 @@ mendelListAsDataFrame <- function(mendel.list)
             rv[[paste(famidx, childidx)]] <- mendel.list[[famidx]][[childidx]]
 	}
         names(rv) <- NULL
-	rv <- do.call(rbind, rv)
+	rv <- do.call(bind_rows, rv)
 
         # if any fields were converted to factor, return to character
         i <- sapply(rv, is.factor)
@@ -392,7 +392,7 @@ mendelErr <- function(genoData,
   } # end family loop
   
   names(all.trios) <- NULL
-  all.trios <- do.call(rbind, all.trios)
+  all.trios <- do.call(bind_rows, all.trios)
 
   # trios, average values for duplicate samples
   if(verbose) message("Averaging over duplicate trios...")

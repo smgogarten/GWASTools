@@ -161,7 +161,7 @@ if(annum!=0){
 N<-length(LF)
 for(j in 1:N){ eleft<-LF[j];eright<-RT[j]
  outrun<-.LOHruns(index,geno,eleft,eright,run.size,inter.size)  #looking for runs in regions outside anoms
- RUNS<-rbind(RUNS,outrun)  }  #RUNS$right and $left are snp indices
+ RUNS<-bind_rows(RUNS,outrun)  }  #RUNS$right and $left are snp indices
 #################### find base info ########
 if(is.null(RUNS)) { 
 base<-.LOHbase(ansch,index,lrr,min.lrr.num)
@@ -184,7 +184,7 @@ RUNS$chrom<-ch
 ##  'non.anom' region excludes BAF anomalies and homoz runs (since these are potential anoms)####
 anoms1<-ansch[,c("left","right")]
 anoms2<-RUNS[,c("left","right")]
-anoms<-rbind(anoms1,anoms2)
+anoms<-bind_rows(anoms1,anoms2)
 anoms<-anoms[order(anoms$left),]
 base<-.LOHbase(anoms,index,lrr,min.lrr.num)
 base$num.runs<-num.runs
