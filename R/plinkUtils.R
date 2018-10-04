@@ -175,7 +175,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   if (length(c(mismatch.plink, mismatch.gd)) > 0 ) {
     p.df <- cbind("file"=rep("pedFile", length(mismatch.plink)), "snp"=mismatch.plink)
     n.df <- cbind("file"=rep("genoData", length(mismatch.gd)), "snp"=mismatch.gd)
-    mismatch <- bind_rows(p.df, n.df)
+    mismatch <- rbind(p.df, n.df)
     writeLines("SNPs are not identical", con)
     write.table(mismatch, con, quote=FALSE, col.names=FALSE, row.names=FALSE)
     retval <- FALSE

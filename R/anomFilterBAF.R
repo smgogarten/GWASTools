@@ -204,7 +204,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
              new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,TRUE,stringsAsFactors=FALSE)
              names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
 
-             merged.anoms<-bind_rows(merged.anoms,new)
+             merged.anoms<-rbind(merged.anoms,new)
 
           }
         }
@@ -400,7 +400,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
              new<-data.frame(snum,ch,new.left,new.right,new.num.mark,new.seg.mean,new.sdfac,sx,TRUE,stringsAsFactors=FALSE)
              names(new)<-c("scanID","chrom","left","right","num.mark","seg.mean","sd.fac","sex","merge")
 
-             merged.anoms<-bind_rows(merged.anoms,new)
+             merged.anoms<-rbind(merged.anoms,new)
 
           }
         }
@@ -410,7 +410,7 @@ frac.used<-an$num.mark/(an$right-an$left+1)
    if(length(del.merge)!=0){
       tmp<-an[-del.merge,names(merged.anoms)]
 
-      out<-bind_rows(tmp,merged.anoms)
+      out<-rbind(tmp,merged.anoms)
       out<-out[order(out$left),]
    } else out<-an
 
@@ -470,7 +470,7 @@ for(I in 1:dim(anoms)[1]){
   w<-frac>frac.thresh | pct<low.frac.used
   if(ct< ct.thresh |!w){
      an$old.left<-an$left; an$old.right<-an$right
-     anoms.rev<-bind_rows(anoms.rev,an)
+     anoms.rev<-rbind(anoms.rev,an)
      next
   }
   who<-!whm
@@ -486,7 +486,7 @@ for(I in 1:dim(anoms)[1]){
   rlen<-length(r0)
   if(rlen==1){  # keep original if only one value    
      an$old.left<-an$left; an$old.right<-an$right
-     anoms.rev<-bind_rows(anoms.rev,an)
+     anoms.rev<-rbind(anoms.rev,an)
      next  
   }
 
@@ -533,14 +533,14 @@ nvals<-new.rle[[2]]
 nlens<-new.rle[[1]]  ##indicates how many of original runs to put together
 if(length(nvals)==1){ #all now classified as undesirable or as desirable = no change
    an$old.left<-an$left; an$old.right<-an$right
-   anoms.rev<-bind_rows(anoms.rev,an)
+   anoms.rev<-rbind(anoms.rev,an)
    next  
  }
  
 newt<-which(nvals==0) #newt could be empty if originally there were no long het/miss runs
 if(length(newt)==0){     
     an$old.left<-an$left; an$old.right<-an$right
-    anoms.rev<-bind_rows(anoms.rev,an)
+    anoms.rev<-rbind(anoms.rev,an)
     next  
  }
  
@@ -559,7 +559,7 @@ right<-c(right,in.pos[ind+1+nlens[k]]-1)} else {right<-c(right,length(index))}}
 ## if splits into more than one run, leave as the original 
 if(length(right)==0|length(left)==0|length(right)>1|length(left)>1){
      an$old.left<-an$left; an$old.right<-an$right
-     anoms.rev<-bind_rows(anoms.rev,an)
+     anoms.rev<-rbind(anoms.rev,an)
      next  
    }
 
@@ -567,7 +567,7 @@ if(length(right)==0|length(left)==0|length(right)>1|length(left)>1){
 
 an$old.left<-an$left;an$old.right<-an$right
 an$left<-index[left];an$right<-index[right] 
-anoms.rev<-bind_rows(anoms.rev,an)
+anoms.rev<-rbind(anoms.rev,an)
  } #end loop on anomalies
 return(anoms.rev)
  }
@@ -774,13 +774,13 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
     normi<-data.frame(snum,base.mean,base.sd,braw.base.med,chr.ct)
     names(normi)<-c("scanID","base.mean","base.sd","base.baf.med","chr.ct")
 
-    normal.info<-bind_rows(normal.info,normi)
+    normal.info<-rbind(normal.info,normi)
 
 
     an$sd.fac<-sd.fac
     an$sex<-sex[sindex]
 
-    anoms2<-bind_rows(anoms2,an)
+    anoms2<-rbind(anoms2,an)
 
     ##an is segment/sd.fac info for the given sample
     ## base.mean and base.sd are for the given sample
@@ -806,7 +806,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       tp<-data.frame(snum,ch,nsegs)
       names(tp)<-c("scanID","chrom","num.segs")
 
-      an.seg.info<-bind_rows(an.seg.info,tp) 
+      an.seg.info<-rbind(an.seg.info,tp) 
 
 ## cent-span code insert here
       centL<-centromere$left.base[centromere$chrom==ch]
@@ -874,8 +874,8 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
               t2<-(s2|s3) & s1
 
               if(!t1 & !t2) anch<-anrest   #delete both failed
-              if(t1 & !t2) anch<-bind_rows(anrest,tmp[,names(anch)]) # delete one fail, keep other OK
-              if(!t1 & t2) anch<-bind_rows(anrest,tmp2[,names(anch)])
+              if(t1 & !t2) anch<-rbind(anrest,tmp[,names(anch)]) # delete one fail, keep other OK
+              if(!t1 & t2) anch<-rbind(anrest,tmp2[,names(anch)])
               if(t1&t2){ # check same type and similar baf.dev (width)
 
                # gain, loss, neutral
@@ -902,7 +902,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
                 q2<-relerr<=dev.sim.thresh
 
                 if(!q | !q2) { # keep each piece separate
-                  anch<-bind_rows(anrest,tmp[,names(anch)],tmp2[,names(anch)])
+                  anch<-rbind(anrest,tmp[,names(anch)],tmp2[,names(anch)])
                 }
                # note at this stage, anch hasn't changed
               }
@@ -960,13 +960,13 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       filin<-union(s,d.keep)
       fil<-tst.rev[filin,]
 
-      an3.fil<-bind_rows(an3.fil,fil) #becomes filtered anoms for current sample
+      an3.fil<-rbind(an3.fil,fil) #becomes filtered anoms for current sample
     }#end ch loop
 
 
-    anoms.fil<-bind_rows(anoms.fil,an3.fil)
+    anoms.fil<-rbind(anoms.fil,an3.fil)
 
-    seg.info<-bind_rows(seg.info,an.seg.info)
+    seg.info<-rbind(seg.info,an.seg.info)
 
   } #end of sample loop
   anoms2<-anoms2[order(anoms2$scanID,anoms2$chrom,anoms2$left),] #raw annotated
@@ -992,7 +992,7 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       an.XY$homodel.adjust<-NA
       an.XY$left.base<-getPosition(intenData, index=an.XY$left)
       an.XY$right.base<-getPosition(intenData, index=an.XY$right)} else an.XY<-NULL
-    anoms.fil<-bind_rows(anoms.fil,an.XY)
+    anoms.fil<-rbind(anoms.fil,an.XY)
     an.seg.info<-NULL
     s<-unique(tmp$scanID)
     for(snum in s){ 
@@ -1000,9 +1000,9 @@ anomFilterBAF<-function(intenData, genoData, segments, snp.ids,
       ns<-dim(an)[1]
       tt<-data.frame(snum,XYchromCode(intenData),ns)
       names(tt)<-c("scanID","chrom","num.segs")
-      an.seg.info<-bind_rows(an.seg.info,tt)
+      an.seg.info<-rbind(an.seg.info,tt)
     }
-    seg.info<-bind_rows(seg.info,an.seg.info)
+    seg.info<-rbind(seg.info,an.seg.info)
   }
 
 
