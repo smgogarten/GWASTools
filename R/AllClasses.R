@@ -150,6 +150,7 @@ setClass("MatrixGenotypeReader",
 setOldClass("gds.class")
 setClass("GdsReader",
          representation(filename = "character",
+                        allow.fork = "logical",
                         handler = "gds.class"))
 
 # GdsGenotypeReader
