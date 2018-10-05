@@ -11,7 +11,7 @@ GdsReader <- function(filename, allow.fork=FALSE) {
   } else {
     input.gds <- FALSE
     if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
-    handler <- openfn.gds(filename, allow.fork)
+    handler <- openfn.gds(filename=filename, allow.fork=allow.fork)
   }
   new("GdsReader", filename=filename, allow.fork=allow.fork, handler=handler)
 }
