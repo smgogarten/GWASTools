@@ -8,7 +8,7 @@
     }
     meta <- do.call(rbind,
                     lapply(filter.cols, function(c) {
-                        S4Vectors::DataFrame(ID=c, Description=.getMetadata(x, c))
+                        S4Vectors::DataFrame(Description=.getMetadata(x, c), row.names=c)
                     }))
     filter <- sub("^;", "", filter)
     filter[filter == ""] <- "PASS"
@@ -57,7 +57,7 @@
     if (is.null(filter.cols)) {
         filter <- rep(NA_character_, nsnp(x))
     } else {
-        filter <- .setFilter(x, filter.cols)
+        filter <- .makeFilter(x, filter.cols)
     }
     S4Vectors::DataFrame(REF=ref, ALT=alt, QUAL=qual, FILTER=filter)
 }
@@ -73,10 +73,10 @@
                   factor="String", logical="Flag")
     meta <- do.call(rbind,
                     lapply(info.cols, function(c) {
-                        S4Vectors::DataFrame(ID=c,
-                                             Number=if(is.logical(info.df[[c]])) 0 else 1L,
+                        S4Vectors::DataFrame(Number=if(is.logical(info.df[[c]])) 0 else 1L,
                                              Type=unname(type.map[class(info.df[[c]])]),
-                                             Description=.getMetadata(x, c))
+                                             Description=.getMetadata(x, c),
+                                             row.names=c)
                     }))
 
     S4Vectors::metadata(info.df)$header <- meta
@@ -133,11 +133,11 @@ genoDataAsVCF <- function(genoData, sample.col="scanID",
     format.meta <- S4Vectors::DataFrame(Number=1L, Type="String",
                                         Description="Genotype", row.names="GT")
     info.meta <- S4Vectors::metadata(info)$header
-    filt.meta <- attr(fixed$FILT, "header")
-    header <- VariantAnnotation::VCFHeader(samples=samples[scan.index],
-                        header=IRanges::DataFrameList(FILTER=filt.meta,
-                                             INFO=info.meta,
-                                             FORMAT=format.meta))
+    filt.meta <- attr(fixed$FILTER, "header")
+    header <- VariantAnnotation::VCFHeader(samples=samples[scan.index])
+    VariantAnnotation::geno(header) <- format.meta
+    if (!is.null(info.meta)) VariantAnnotation::info(header) <- info.meta
+    if (!is.null(filt.meta)) VariantAnnotation::fixed(header) <- IRanges::DataFrameList(FILTER=filt.meta)
     
     vcf <- VariantAnnotation::VCF(rowRanges=rowRanges, colData=colData,
                                   exptData=list(header=header),
