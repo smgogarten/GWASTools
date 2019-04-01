@@ -112,7 +112,7 @@
     }
     \item{}{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, 
-                        order=c("file", "selection"), transpose=FALSE, ...)}: 
+                        transpose=FALSE, ...)}: 
       Extracts genotype values (number of A alleles).  
       \code{snp} and \code{scan} indicate which elements to return along the snp and
       scan dimensions.  They must be integer vectors of the form (start,
@@ -122,17 +122,18 @@
       If \code{drop=TRUE}, the result is coerced to the lowest possible dimension.
       If \code{use.names=TRUE}, names of the resulting vector or matrix are set to the SNP and scan IDs.
       Missing values are represented as \code{NA}. 
-      If \code{order=="file"}, genotypes are returned in the order they are stored in the file.  If \code{order="selection"}, the order of SNPs and scans will match the index selection provided in \code{snp} and \code{scan} respectively.
       Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
     \item{}{
       \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, 
-                                 drop=TRUE, use.names=TRUE, transpose=FALSE, ...)}:
+        drop=TRUE, use.names=TRUE,
+	order=c("file", "selection"), transpose=FALSE, ...)}:
       Extracts genotype values (number of A alleles).
       \code{snp} and \code{scan} may be integer or logical vectors indicating which elements 
       to return along the snp and scan dimensions.  
       \code{snpID} and \code{scanID} allow section by values of snpID and scanID.
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
+      If \code{order=="file"}, genotypes are returned in the order they are stored in the file.  If \code{order="selection"}, the order of SNPs and scans will match the index selection provided in \code{snp} and \code{scan} respectively.
       Other arguments are identical to \code{getGenotype}.
     }
     \item{}{

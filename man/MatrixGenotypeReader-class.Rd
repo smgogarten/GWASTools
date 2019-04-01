@@ -104,6 +104,7 @@
       to return along the snp and scan dimensions.  
       \code{snpID} and \code{scanID} allow section by values of snpID and scanID.
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
+      If \code{order=="file"}, genotypes are returned in the order they are stored in the object.  If \code{order="selection"}, the order of SNPs and scans will match the index selection provided in \code{snp} and \code{scan} respectively.
       Other arguments are identical to \code{getGenotype}.
     }
      \item{}{
