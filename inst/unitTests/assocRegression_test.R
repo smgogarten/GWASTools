@@ -1,7 +1,7 @@
 library(logistf)
 
 test_geneAction <- function() {
-    geno <- matrix(sample(c(0,1,2,NA), 100, replace=TRUE), nrow=10, ncol=10)
+    set.seed(100); geno <- matrix(sample(c(0,1,2,NA), 100, replace=TRUE), nrow=10, ncol=10)
     checkEquals(geno, GWASTools:::.transformGenotype(geno, "additive"))
     
     dom <- GWASTools:::.transformGenotype(geno, "dominant")
@@ -31,11 +31,12 @@ test_monomorphic <- function() {
 .regModelData <- function(type=c("logistic", "linear", "poisson"), nsamp=100) {
     type <- match.arg(type)
     data.frame(outcome=switch(type,
-                   logistic=rbinom(nsamp,1,0.4),
-                   linear=rnorm(nsamp, mean=10, sd=2),
-                   poisson=c(sample(1:20, 80, replace=TRUE), sample(21:40, 20, replace=TRUE))),
-               covar=sample(letters[1:3], nsamp, replace=TRUE),
-               genotype=sample(c(0,1,2), nsamp, replace=TRUE))
+                   logistic={set.seed(101); rbinom(nsamp,1,0.4)},
+                   linear={set.seed(102); rnorm(nsamp, mean=10, sd=2)},
+                   poisson=c({set.seed(103); sample(1:20, 80, replace=TRUE)},
+                             {set.seed(104); sample(21:40, 20, replace=TRUE)})),
+               covar={set.seed(105); sample(letters[1:3], nsamp, replace=TRUE)},
+               genotype={set.seed(106); sample(c(0,1,2), nsamp, replace=TRUE)})
 }
 
 test_runReg_linear <- function() {
@@ -137,7 +138,7 @@ test_runReg_GxE <- function() {
     checkEquals(as.numeric(t(x) %*% solve(vcov(fit)[joint,joint]) %*% x),
                 tmp["Joint.Stat"], checkNames=FALSE)
     
-    dat$covar <- sample(letters[1:2], nrow(dat), replace=TRUE)
+    set.seed(107); dat$covar <- sample(letters[1:2], nrow(dat), replace=TRUE)
     tmp <- GWASTools:::.runRegression(mod, dat, "linear",
                                       CI=0.95, robust=FALSE, LRtest=FALSE)
     checkIdentical(names(tmp), gxe.cols)
@@ -194,18 +195,19 @@ test_runFirth_PPL <- function() {
     } else {
         chromosome <- rep(as.integer(chromosome), nsnp)
     }
-    geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
+    set.seed(108); geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
     geno[1,] <- 0 ## make one monomorphic
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
                                 chromosome=chromosome,
                                 position=1:nsnp)
 
+    set.seed(109); sex <- sample(c("M","F"), nsamp, replace=TRUE)
+    set.seed(110); age <- round(rnorm(nsamp, mean=40, sd=10))
+    set.seed(111); site <- sample(letters[1:3], nsamp, replace=TRUE)
+    set.seed(112); status <- rbinom(nsamp,1,0.4)
+    set.seed(113); trait <- rnorm(nsamp, mean=10, sd=2)
     scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
-      sex=sample(c("M","F"), nsamp, replace=TRUE),
-      age=round(rnorm(nsamp, mean=40, sd=10)),
-      site=sample(letters[1:3], nsamp, replace=TRUE),   
-      status=rbinom(nsamp,1,0.4),
-      trait=rnorm(nsamp, mean=10, sd=2)))
+      sex, age, site, status, trait))
 
     GenotypeData(mgr, scanAnnot=scanAnnot)
 }
@@ -251,7 +253,7 @@ test_logistic <- function() {
     covar <- c("age","sex")
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    set.seed(114); scan.exclude <- sample(getScanID(genoData), 10)
 
     assoc <- assocRegression(genoData,
                           outcome = outcome,
@@ -267,7 +269,7 @@ test_linear <- function() {
     covar <- c("age","sex")
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    set.seed(115); scan.exclude <- sample(getScanID(genoData), 10)
 
     assoc <- assocRegression(genoData,
                           outcome = outcome,
@@ -300,7 +302,7 @@ test_firth <- function() {
     PPLtest <- TRUE
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    set.seed(116); scan.exclude <- sample(getScanID(genoData), 10)
 
     assoc <- assocRegression(genoData,
                           outcome = outcome,
@@ -362,7 +364,7 @@ test_sampleSize <- function() {
     covar <- c("age","sex","site")
 
     genoData <- .regGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    set.seed(117); scan.exclude <- sample(getScanID(genoData), 10)
 
     assoc <- assocRegression(genoData,
                           outcome = outcome,

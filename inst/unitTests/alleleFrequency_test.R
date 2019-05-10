@@ -125,15 +125,16 @@ test_alleleFrequency <- function() {
 
 .testData <- function(chromosome, nsamp=100) {
     nsnp <- length(chromosome)
-    geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
+    set.seed(1); geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
     geno[1,] <- 1 # at least one snp all non-missing
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
                                 chromosome=as.integer(chromosome),
                                 position=1:nsnp)
 
+    set.seed(2); sex <- sample(c("M","F",NA), nsamp, replace=TRUE)
+    set.seed(3); trait <- rnorm(nsamp, mean=10, sd=2)
     scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
-                                         sex=sample(c("M","F",NA), nsamp, replace=TRUE),
-                                         trait=rnorm(nsamp, mean=10, sd=2),
+                                         sex, trait,
                                          stringsAsFactors=FALSE))
 
     GenotypeData(mgr, scanAnnot=scanAnnot)
