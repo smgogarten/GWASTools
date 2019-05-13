@@ -25,6 +25,7 @@ test_MatrixGenotypeReader <- function() {
   checkEquals(geno, getGenotype(mgr, use.names=TRUE))
   checkEquals(geno[2:10, 5:6], getGenotype(mgr, snp=c(2,9), scan=c(5,2), use.names=TRUE))
   checkEquals(geno[2:10, 5:6], getGenotypeSelection(mgr, snp=2:10, scan=5:6, use.names=TRUE))
+  checkEquals(geno[c(5,3,2), c(7,4)], getGenotypeSelection(mgr, snp=c(5,3,2), scan=c(7,4), use.names=TRUE, order="selection"))
   
   checkException(MatrixGenotypeReader(genotype=geno, snpID=snpID, chromosome=chrom, position=pos, scanID=scanID[1:10]))
 }

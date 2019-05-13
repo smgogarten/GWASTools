@@ -1,10 +1,11 @@
 library(survival)
 
 .cphModelData <- function(nsamp=100) {
-    data.frame(event=rbinom(nsamp,1,0.4),
-               time.to.event=rnorm(nsamp,mean=100,sd=10),
-               covar=sample(letters[1:3], nsamp, replace=TRUE),
-               genotype=sample(c(0,1,2), nsamp, replace=TRUE))
+    set.seed(10); event <- rbinom(nsamp,1,0.4)
+    set.seed(11); time.to.event <- rnorm(nsamp,mean=100,sd=10)
+    set.seed(12); covar <- sample(letters[1:3], nsamp, replace=TRUE)
+    set.seed(13); genotype <- sample(c(0,1,2), nsamp, replace=TRUE)
+    data.frame(event, time.to.event, covar, genotype)
 }
 
 test_runCPH <- function() {
@@ -29,18 +30,19 @@ test_runCPH_GxE <- function() {
 
 
 .cphGenoData <- function(nsnp=100, nsamp=50, Xchrom=TRUE) {
-    geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
+    set.seed(14); geno <- matrix(sample(c(0,1,2,NA), nsnp*nsamp, replace=TRUE), nrow=nsnp, ncol=nsamp)
     geno[1,] <- 0 ## make one monomorphic
     if (Xchrom) chr <- rep(c(1L,23L), each=nsnp/2) else chr <- rep(1L, nsnp)
     mgr <- MatrixGenotypeReader(geno, snpID=1:nsnp, scanID=1:nsamp,
                                 chromosome=chr, position=1:nsnp)
 
+    set.seed(15); sex <- sample(c("M","F"), nsamp, replace=TRUE)
+    set.seed(16); age <- round(rnorm(nsamp, mean=40, sd=10))
+    set.seed(17); site <- sample(letters[1:3], nsamp, replace=TRUE)
+    set.seed(18); event <- rbinom(nsamp,1,0.4)
+    set.seed(19); time.to.event <- rnorm(nsamp,mean=100,sd=10)
     scanAnnot <- ScanAnnotationDataFrame(data.frame(scanID=1:nsamp,
-      sex=sample(c("M","F"), nsamp, replace=TRUE),
-      age=round(rnorm(nsamp, mean=40, sd=10)),
-      site=sample(letters[1:3], nsamp, replace=TRUE),
-      event=rbinom(nsamp,1,0.4),
-      time.to.event=rnorm(nsamp,mean=100,sd=10)))
+      sex, age, site, event, time.to.event))
 
     GenotypeData(mgr, scanAnnot=scanAnnot)
 }
@@ -52,7 +54,7 @@ test_CPH <- function() {
     covar <- c("age","sex","site")
     
     genoData <- .cphGenoData()
-    scan.exclude <- sample(getScanID(genoData), 10)
+    set.seed(20); scan.exclude <- sample(getScanID(genoData), 10)
 
     assoc <- assocCoxPH(genoData,
                        event,

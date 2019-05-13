@@ -65,7 +65,7 @@ pseudoautosomal, and mitochondrial).
 
 The Network Common Data Form (NetCDF, \href{http://www.unidata.ucar.edu/software/netcdf/}{http://www.unidata.ucar.edu/software/netcdf/}) allows array-oriented data to be
 stored on disk with fast access to subsets of the data in R using the
-\Rpackage{ncdf} package.  The \Rcode{NcdfReader} class provides an S4
+\Rpackage{ncdf4} package.  The \Rcode{NcdfReader} class provides an S4
 wrapper for \Rcode{ncdf} objects.  \Rcode{NcdfGenotypeReader} and
 \Rcode{NcdfIntensityReader} extend \Rcode{NcdfReader} with
 methods specific to genotype and intensity data.

@@ -16,11 +16,11 @@ test_makeFilter <- function() {
 
     f <- GWASTools:::.makeFilter(genoData, c("filt1", "filt2"))
     checkTrue(all(f == c("filt1;filt2", "filt1", "PASS")))
-    checkEquals(attributes(f)$header, DataFrame(ID=c("filt1", "filt2"), Description=c("filter 1", "filter 2")))
+    checkEquals(attributes(f)$header, DataFrame(Description=c("filter 1", "filter 2"), row.names=c("filt1", "filt2")))
 
     f <- GWASTools:::.makeFilter(genoData, c("filt1"))
     checkTrue(all(f == c("filt1", "filt1", "PASS")))
-    checkEquals(attributes(f)$header, DataFrame(ID=c("filt1"), Description=c("filter 1")))
+    checkEquals(attributes(f)$header, DataFrame(Description=c("filter 1"), row.names=c("filt1")))
 
     f <- GWASTools:::.makeFilter(genoData, NULL)
     checkTrue(all(f == rep("PASS", 3)))
@@ -48,13 +48,14 @@ test_makeInfo <- function() {
 
     i <- GWASTools:::.makeInfo(genoData, paste0("id", 1:5))
     checkTrue(all(all(DataFrame(snp[,4:8]) == i)))
-    checkEquals(metadata(i)$header, DataFrame(ID=paste0("id",1:5), Number=c(0,1,1,0,1),
+    checkEquals(metadata(i)$header, DataFrame(Number=c(0,1,1,0,1),
                                               Type=c("Flag", "String", "Integer", "Flag", "Float"),
-                                              Description=paste("id",1:5)))
+                                              Description=paste("id",1:5),
+                                              row.names=paste0("id",1:5)))
 
     i <- GWASTools:::.makeInfo(genoData, "id1")
     checkTrue(all(all(DataFrame(snp[,4,drop=FALSE]) == i)))
-    checkEquals(metadata(i)$header, DataFrame(ID="id1", Number=0, Type="Flag", Description="id 1"))
+    checkEquals(metadata(i)$header, DataFrame(Number=0, Type="Flag", Description="id 1", row.names="id1"))
 
     i <- GWASTools:::.makeInfo(genoData, NULL)
     checkEquals(i, DataFrame(matrix(nrow=3, ncol=0)))
@@ -147,7 +148,13 @@ test_rowRanges <- function() {
                       alleleA=getAlleleA(gds),
                       alleleB=getAlleleB(gds),
                       rsID=getVariable(gds, "snp.rs.id"),
+                      qual=getVariable(gds, "snp.annot/qual"),
+                      info="A",
                       stringsAsFactors=FALSE)
+    filt <- getVariable(gds, "snp.annot/filter")
+    for (v in unique(filt)) {
+        snp[[v]] <- filt %in% v
+    }
     samp <- data.frame(scanID=getScanID(gds),
                        stringsAsFactors=FALSE)
     GenotypeData(gds, snpAnnot=SnpAnnotationDataFrame(snp),
@@ -160,7 +167,7 @@ test_snprelate <- function() {
     gdsfile <- tempfile()
     genoData <- .vcf2gds(origfile, gdsfile)
     newfile <- tempfile()
-    vcf <- genoDataAsVCF(genoData, id.col="rsID")
+    vcf <- genoDataAsVCF(genoData, id.col="rsID", qual.col="qual", filter.cols=c("PASS", "q10"), info.cols="info")
     writeVcf(vcf, newfile)
     newgds <- tempfile()
     newGenoData <- .vcf2gds(newfile, newgds)
