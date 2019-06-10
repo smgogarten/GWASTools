@@ -47,14 +47,14 @@ test_makeInfo <- function() {
     genoData <- GenotypeData(mgr, snpAnnot=snpAnnot)
 
     i <- GWASTools:::.makeInfo(genoData, paste0("id", 1:5))
-    checkTrue(all(all(DataFrame(snp[,4:8]) == i)))
+    checkEquals(DataFrame(snp[,4:8]), i, check.attributes=FALSE)
     checkEquals(metadata(i)$header, DataFrame(Number=c(0,1,1,0,1),
                                               Type=c("Flag", "String", "Integer", "Flag", "Float"),
                                               Description=paste("id",1:5),
                                               row.names=paste0("id",1:5)))
 
     i <- GWASTools:::.makeInfo(genoData, "id1")
-    checkTrue(all(all(DataFrame(snp[,4,drop=FALSE]) == i)))
+    checkEquals(DataFrame(snp[,4,drop=FALSE]), i, check.attributes=FALSE)
     checkEquals(metadata(i)$header, DataFrame(Number=0, Type="Flag", Description="id 1", row.names="id1"))
 
     i <- GWASTools:::.makeInfo(genoData, NULL)
