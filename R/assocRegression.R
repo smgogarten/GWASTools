@@ -320,7 +320,7 @@ assocRegression <- function(genoData,
         for (i in midx) {
             mdat <- cbind(dat, genotype=geno[i,])
             mdat <- mdat[complete.cases(mdat),]
-            if (model.type %in% c("linear", "logistic")) {
+            if (model.type %in% c("linear", "logistic", "poisson")) {
                 tmp <- .runRegression(model.string, mdat, model.type, CI, robust, LRtest)
             } else if (model.type == "firth") {
                 tmp <- .runFirth(model.string, mdat, CI, PPLtest, geno.index)
