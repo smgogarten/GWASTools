@@ -207,7 +207,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
       scan <- c(1, -1)
       
       dosage.geno <- getGenotype(genoData, snp=snp, scan=scan)
-      if (class(dosage.geno) != "matrix") dosage.geno <- matrix(dosage.geno, ncol=nscan(genoData))
+      if (!is.matrix(dosage.geno)) dosage.geno <- matrix(dosage.geno, ncol=nscan(genoData))
       
       if (!isTRUE(all.equal(dosage.geno, dosage, tolerance=tolerance))) stop(paste("Dosage not equal in original SNPs", cnt, "-", min(nsnp, cnt + block.size)))
 
