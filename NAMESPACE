@@ -6,7 +6,6 @@ import(Biobase)
 import(DBI)
 import(RSQLite)
 import(gdsfmt)
-import(tidyverse)
 #import(ncdf4) # moved to Suggests
 importFrom(GWASExactHW, HWExact)
 importFrom(DNAcopy, getbdry, CNA, smooth.CNA, segment)
@@ -15,6 +14,7 @@ importFrom(sandwich, vcovHC, vcovHC.default) # used in assocRegression
 importFrom(lmtest, lrtest, lrtest.default) # used in assocRegression
 importFrom(logistf, logistf) # used in assocRegression
 importFrom(quantsmooth, paintCytobands, lengthChromosome) # used to plot ideograms
+importFrom(dplyr, bind_rows)
 
 exportClasses(
     SnpAnnotationDataFrame,
