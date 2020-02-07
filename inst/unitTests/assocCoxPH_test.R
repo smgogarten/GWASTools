@@ -25,7 +25,7 @@ test_runCPH_GxE <- function() {
     mod <- "surv ~ covar + covar:genotype + genotype"
     tmp <- GWASTools:::.runCPH(mod, dat, "event", "time.to.event")
     checkTrue(all(c("GxE.Stat", "GxE.pval") %in% names(tmp)))
-    checkTrue(all(!is.na(tmp)))
+    checkTrue(!is.na(tmp["GxE.Stat"]))
 }
 
 
@@ -90,8 +90,9 @@ test_GxE <- function() {
                        event,
                        time.to.event,
                        covar = covar,
-                       ivar = ivar)
-    checkTrue(!all(is.na(assoc$Est)))
+                       ivar = ivar,
+                       LRtest = TRUE)
+    checkTrue(!all(is.na(assoc$GxE.Stat)))
 }
 
 test_filter <- function() {
@@ -122,4 +123,7 @@ test_LR <- function() {
                        covar = covar,
                        LRtest = TRUE)
     checkTrue(all(c("LR.Stat", "LR.pval") %in% names(assoc)))
+    checkTrue(!all(is.na(assoc$LR.Stat)))
+    # check that LR is generated for some tests where Wald had a warning
+    checkTrue(!all(is.na(assoc$Wald.Stat) & is.na(assoc$LR.Stat)))
 }

@@ -12,6 +12,7 @@ assocCoxPH(genoData,
            ivar = NULL,
            strata = NULL,
            scan.exclude = NULL,
+           LRtest = FALSE,
            effectAllele = c("minor", "alleleA"),
            snpStart = NULL,
            snpEnd = NULL,
@@ -39,7 +40,7 @@ assocCoxPH(genoData,
   \item{strata}{a vector of names of variables to stratify on for a
     stratified analysis}
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
-
+  \item{LRtest}{logical for whether to perform Likelihood Ratio Tests in addition to Wald tests (which are always performed).}
   \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample (\code{effectAllele="minor"}) or the allele returned by \code{getAlleleA(genoData)}  (\code{effectAllele="alleleA"}). If the minor allele is alleleB for a given SNP, the difference between these two options will be a sign change for the beta estimate.}
 
   \item{snpStart}{index of the first SNP to analyze, defaults to first SNP}
@@ -73,16 +74,20 @@ a data.frame with some or all of the following columns:
   \item{effect.allele}{which allele ("A" or "B") is the effect allele}
   \item{EAF}{effect allele frequency}
   \item{MAF}{minor allele frequency}
-  \item{filter}{\code{TRUE} if SNP passes the MAF filter (\code{2*MAF*(1-MAF)*n.events > 75})}
+  \item{maf.filter}{\code{TRUE} if SNP passes the MAF filter (\code{2*MAF*(1-MAF)*n.events > 75})}
   \item{Est}{beta estimate for genotype}
   \item{SE}{standard error of beta estimate for the genotype}
-  \item{z.Stat}{z statistic for association}
-  \item{z.pval}{p-value for association}
+  \item{Wald.Stat}{chi-squared test statistic for association}
+  \item{Wald.pval}{p-value for association}
+  \item{LR.Stat}{likelihood ratio test statistic for association}
+  \item{LR.pval}{p-value for association}
+  \item{GxE.Est}{beta estimate for the genotype*ivar interaction parameter (\code{NA} if this parameter is a factor with >2 levels)}
+  \item{GxE.SE}{standard error of beta estimate for the genotype*ivar interaction parameter}
   \item{GxE.Stat}{Likelihood ratio test statistic for the genotype*ivar interaction parameter}
   \item{GxE.pval}{p-value for the likelihood ratio test statistic}
 }
 
-\author{Cathy Laurie, Matthew Conomos, Stephanie Gogarten}
+\author{Cathy Laurie, Matthew Conomos, Stephanie Gogarten, David Levine}
 
 \seealso{\code{\link{GenotypeData}}, \code{\link{coxph}}}
 

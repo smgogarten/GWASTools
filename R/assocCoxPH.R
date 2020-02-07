@@ -9,6 +9,51 @@
 ##
 ## 3. If an interaction term is specified, the Beta and standard error are retrieved from mod which is the full model
 
+.coxLR <- function(surv, mod, model.string, ..model.data..) {
+    # if testing genotype only return overall likelihood ratio computed by coxph
+    if(length(coef(mod))==1) {
+        sumcph  <- summary(mod)
+        LR.Stat <- sumcph$logtest[1]
+        LR.pval <- 1 - pchisq(LR.Stat, 1)
+    } else {
+        # if covariates, create reduced model without genotype and compare with 
+        terms  <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+        model2 <- as.formula(paste(terms[!grepl("genotype", terms, fixed=TRUE)], collapse=" + "))
+        # be sure to remove scans that have missing genotypes from the reduced model
+        # so can properly compare with same samples sizes in anova() call below
+        genotype <- NULL # hack to use subset arg below
+        mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
+        resLR  <- anova(mod,mod2)               
+        LR.Stat <- resLR[["Chisq"]][2]
+        LR.pval <- resLR[["P(>|Chi|)"]][2]
+        ## explicit computation code if even needed
+        ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
+        ## LR.pval <- 1-pchisq(LR.Stat,1)     
+    }
+    c(LR.Stat=LR.Stat, LR.pval=LR.pval)
+}
+
+## GxE
+# use index of interaction term from "mod", the full model, to (a) drop the interaction term in "mod3" in order to
+# calculate the LR p-value of the GxE term and (b) retrieve Est and SE for the interaction term from "mod"
+.coxGxE <- function(surv, mod, model.string, ..model.data..) {
+    GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
+    if (length(GxE.idx) == 0) return(NULL)
+    terms   <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+    model3  <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
+    mod3    <- coxph(model3, data=..model.data..)
+    lr      <- -2*(mod3$loglik[2] - mod$loglik[2])
+    pval    <- 1-pchisq(lr, 1)
+    if (length(GxE.idx) == 1) {
+        GxE.Est <- unname(coef(mod)[GxE.idx])
+        GxE.SE  <- sqrt(vcov(mod)[GxE.idx,GxE.idx])
+        ret <- c(GxE.Est=GxE.Est, GxE.SE=GxE.SE, GxE.Stat=lr, GxE.pval=pval)
+    } else {
+        ret <- c(GxE.Est=NA, GxE.SE=NA, GxE.Stat=lr, GxE.pval=pval)
+    }
+    ret
+}
+
 .runCPH <- function(model.string, ..model.data.., event, time.to.event, LRtest=FALSE) {
     tryCatch(
     {
@@ -22,43 +67,12 @@
         ret <- c(Est=Est, SE=SE, resWald[c("Wald.Stat", "Wald.pval")])
 
         if (LRtest) {
-          # if testing genotype only return overall likelihood ratio computed by coxph
-          if(length(coef(mod))==1) {
-            sumcph  <- summary(mod)
-            LR.Stat <- sumcph$logtest[1]
-            LR.pval <- 1 - pchisq(LR.Stat, 1)
-          } else {
-            # if covariates, create reduced model without genotype and compare with 
-            terms  <- unlist(strsplit(model.string, " + ", fixed=TRUE))
-            model2 <- as.formula(paste(terms[!grepl("genotype", terms, fixed=TRUE)], collapse=" + "))
-            # be sure to remove scans that have missing genotypes from the reduced model
-            # so can properly compare with same samples sizes in anova() call below
-            mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
-            resLR  <- anova(mod,mod2)               
-            LR.Stat <- resLR[["Chisq"]][2]
-            LR.pval <- resLR[["P(>|Chi|)"]][2]
-            ## explicit computation code if even needed
-            ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
-            ## LR.pval <- 1-pchisq(LR.Stat,1)     
-          }
-          ret <- c(Est=Est, SE=SE, Wald.Stat=resWald["Wald.Stat"], Wald.pval=resWald["Wald.pval"], LR.Stat=LR.Stat, LR.pval=LR.pval)
+            lrtest <- .coxLR(surv, mod, model.string, ..model.data..)
+            ret <- c(ret, lrtest)
         }
-        ret
         
-        ## GxE
-        # use index of interaction term from "mod", the full model, to (a) drop the interaction term in "mod3" in order to
-        # calculate the LR p-value of the GxE term and (b) retrieve Est and SE for the interaction term from "mod"
-        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
-        if (length(GxE.idx) > 0) {
-            terms   <- unlist(strsplit(model.string, " + ", fixed=TRUE))
-            model3  <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
-            mod3    <- coxph(model3, data=..model.data..)
-            lr      <- -2*(mod3$loglik[2] - mod$loglik[2])
-            pval    <- 1-pchisq(lr, 1)
-            GxE.Est <- unname(coef(mod)[GxE.idx])
-            GxE.SE  <- sqrt(vcov(mod)[GxE.idx,GxE.idx])
-            ret     <- c(ret, GxE.Est=GxE.Est, GxE.SE=GxE.SE, GxE.Stat=lr, GxE.pval=pval)
-        }
+        gxe <- .coxGxE(surv, mod, model.string, ..model.data..)
+        ret <- c(ret, gxe)
         ret
     }, # matches tryCatch {
     warning=function(w) {
@@ -68,50 +82,20 @@
         # mod, Est, or SE has state in this block
         mod  <- coxph(model.formula, data=..model.data..)
         if (!LRtest) {
-           # we assume only LR test will be valid, so if not set return NA 
-           ret <- NA
+            # we assume only LR test will be valid, so if not set return NA 
+            ret <- NA
         } else {
-           Est  <- unname(coef(mod)["genotype"])
-           cov  <- vcov(mod)["genotype","genotype"]
-           SE   <- sqrt(vcov(mod)["genotype","genotype"])
-           # if testing genotype only return overall likelihood ratio computed by coxph
-           if(length(coef(mod))==1) {
-             sumcph  <- summary(mod)
-             LR.Stat <- sumcph$logtest[1]
-             LR.pval <- 1 - pchisq(LR.Stat, 1)
-           } else {
-             # if covariates, create reduced model without genotype and compare with 
-             terms  <- unlist(strsplit(model.string, " + ", fixed=TRUE))
-             model2 <- as.formula(paste(terms[!grepl("genotype", terms, fixed=TRUE)], collapse=" + "))
-             # be sure to remove scans that have missing genotypes from the reduced model
-             # so can properly compare with same samples sizes in anova() call below
-             mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
-             resLR  <- anova(mod,mod2)               
-             LR.Stat <- resLR[["Chisq"]][2]
-             LR.pval <- resLR[["P(>|Chi|)"]][2]
-             ## explicit computation code if even needed
-             ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
-             ## LR.pval <- 1-pchisq(LR.Stat,1)     
-          }
-          ret <- c(Est=Est, SE=SE, Wald.Stat=NA, Wald.pval=NA, LR.Stat=LR.Stat, LR.pval=LR.pval)
-        }
-        ret
+            print("hi") 
+            Est  <- unname(coef(mod)["genotype"])
+            SE   <- sqrt(vcov(mod)["genotype","genotype"])
+            lrtest <- .coxLR(surv, mod, model.string, ..model.data..)
+            print(lrtest)
+            ret <- c(Est=Est, SE=SE, Wald.Stat=NA, Wald.pval=NA, lrtest)
 
-        ## GxE
-        # use index of interaction term from "mod", the full model, to (a) drop the interaction term in "mod3" in order to
-        # calculate the LR p-value of the GxE term and (b) retrieve Est and SE for the interaction term from "mod"
-        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
-        if (length(GxE.idx) > 0) {
-            terms   <- unlist(strsplit(model.string, " + ", fixed=TRUE))
-            model3  <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
-            mod3    <- coxph(model3, data=..model.data..)
-            lr      <- -2*(mod3$loglik[2] - mod$loglik[2])
-            pval    <- 1-pchisq(lr, 1)
-            GxE.Est <- unname(coef(mod)[GxE.idx])
-            GxE.SE  <- sqrt(vcov(mod)[GxE.idx,GxE.idx])
-            ret     <- c(ret, GxE.Est=GxE.Est, GxE.SE=GxE.SE, GxE.Stat=lr, GxE.pval=pval)
+            gxe <- .coxGxE(surv, mod, model.string, ..model.data..)
+            ret <- c(ret, gxe)
+            ret
         }
-        ret
         
     }, # matches warning=function(w) {
     error=function(e) NA
