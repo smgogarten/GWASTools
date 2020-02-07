@@ -1,28 +1,122 @@
-.runCPH <- function(model.string, model.data, event, time.to.event) {
-    tryCatch({
-        surv <- Surv(time=model.data[[time.to.event]], event=model.data[[event]])
+## 1. To use an GxE interaction term, you MUST specify the E variable with covars AND ivar.
+##    This is because the notation used is G:E which does not add E to the model, whereas G*E does add G to the model
+##    G is assumed by default with any interaction term
+##
+## 2. The code below is set up so that "mod" is the full model, including the genotype, covariates and the
+##    interaction term if one is specified and (a) mod2 is a reduced model with no genotype term in order
+##    to calculate the LR p-value for the genotype and (b) mod3 is a reduced model with no interaction term
+##    in order to calculate the LR p-value for the interaction term
+##
+## 3. If an interaction term is specified, the Beta and standard error are retrieved from mod which is the full model
+
+.runCPH <- function(model.string, ..model.data.., event, time.to.event, LRtest=FALSE) {
+    tryCatch(
+    {
+        surv <- Surv(time=..model.data..[[time.to.event]], event=..model.data..[[event]])
         model.formula <- as.formula(model.string)
-        mod <- coxph(model.formula, data=model.data)
-        Est <- unname(coef(mod)["genotype"])
-        SE <- sqrt(vcov(mod)["genotype","genotype"])
-        z <- Est/SE
-        pval <- 1 - pchisq(z^2, 1)
-        ret <- c(Est=Est, SE=SE, z.Stat=z, z.pval=pval)
-        
-        ## GxE
-        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
-        if (length(GxE.idx) > 0) {
-            terms <- unlist(strsplit(model.string, " + ", fixed=TRUE))
-            model2 <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
-            mod2 <- coxph(model2, data=model.data)
-            lr <- -2*(mod2$loglik[2] - mod$loglik[2])
-            pval <- 1-pchisq(lr, 1)
-            ret <- c(ret, GxE.Stat=lr, GxE.pval=pval)
+        mod  <- coxph(model.formula, data=..model.data..)
+        Est  <- unname(coef(mod)["genotype"])
+        cov  <- vcov(mod)["genotype","genotype"]
+        SE   <- sqrt(vcov(mod)["genotype","genotype"])
+        resWald <- .waldTest(Est, cov)
+        ret <- c(Est=Est, SE=SE, resWald[c("Wald.Stat", "Wald.pval")])
+
+        if (LRtest) {
+          # if testing genotype only return overall likelihood ratio computed by coxph
+          if(length(coef(mod))==1) {
+            sumcph  <- summary(mod)
+            LR.Stat <- sumcph$logtest[1]
+            LR.pval <- 1 - pchisq(LR.Stat, 1)
+          } else {
+            # if covariates, create reduced model without genotype and compare with 
+            terms  <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+            model2 <- as.formula(paste(terms[!grepl("genotype", terms, fixed=TRUE)], collapse=" + "))
+            # be sure to remove scans that have missing genotypes from the reduced model
+            # so can properly compare with same samples sizes in anova() call below
+            mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
+            resLR  <- anova(mod,mod2)               
+            LR.Stat <- resLR[["Chisq"]][2]
+            LR.pval <- resLR[["P(>|Chi|)"]][2]
+            ## explicit computation code if even needed
+            ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
+            ## LR.pval <- 1-pchisq(LR.Stat,1)     
+          }
+          ret <- c(Est=Est, SE=SE, Wald.Stat=resWald["Wald.Stat"], Wald.pval=resWald["Wald.pval"], LR.Stat=LR.Stat, LR.pval=LR.pval)
         }
         ret
-    }, warning=function(w) NA, error=function(e) NA)
-}
+        
+        ## GxE
+        # use index of interaction term from "mod", the full model, to (a) drop the interaction term in "mod3" in order to
+        # calculate the LR p-value of the GxE term and (b) retrieve Est and SE for the interaction term from "mod"
+        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
+        if (length(GxE.idx) > 0) {
+            terms   <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+            model3  <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
+            mod3    <- coxph(model3, data=..model.data..)
+            lr      <- -2*(mod3$loglik[2] - mod$loglik[2])
+            pval    <- 1-pchisq(lr, 1)
+            GxE.Est <- unname(coef(mod)[GxE.idx])
+            GxE.SE  <- sqrt(vcov(mod)[GxE.idx,GxE.idx])
+            ret     <- c(ret, GxE.Est=GxE.Est, GxE.SE=GxE.SE, GxE.Stat=lr, GxE.pval=pval)
+        }
+        ret
+    }, # matches tryCatch {
+    warning=function(w) {
+        # should have been sent here from "mod  <- coxph(model.formula, data=..model.data..)" above assume
+        # we would not have the case where "mod  <- coxph(" passes, but "mod2  <- coxph(" from LR test fails
+        # need to run the test that had the exception again, but this time outside of tryCatch since none of
+        # mod, Est, or SE has state in this block
+        mod  <- coxph(model.formula, data=..model.data..)
+        if (!LRtest) {
+           # we assume only LR test will be valid, so if not set return NA 
+           ret <- NA
+        } else {
+           Est  <- unname(coef(mod)["genotype"])
+           cov  <- vcov(mod)["genotype","genotype"]
+           SE   <- sqrt(vcov(mod)["genotype","genotype"])
+           # if testing genotype only return overall likelihood ratio computed by coxph
+           if(length(coef(mod))==1) {
+             sumcph  <- summary(mod)
+             LR.Stat <- sumcph$logtest[1]
+             LR.pval <- 1 - pchisq(LR.Stat, 1)
+           } else {
+             # if covariates, create reduced model without genotype and compare with 
+             terms  <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+             model2 <- as.formula(paste(terms[!grepl("genotype", terms, fixed=TRUE)], collapse=" + "))
+             # be sure to remove scans that have missing genotypes from the reduced model
+             # so can properly compare with same samples sizes in anova() call below
+             mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
+             resLR  <- anova(mod,mod2)               
+             LR.Stat <- resLR[["Chisq"]][2]
+             LR.pval <- resLR[["P(>|Chi|)"]][2]
+             ## explicit computation code if even needed
+             ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
+             ## LR.pval <- 1-pchisq(LR.Stat,1)     
+          }
+          ret <- c(Est=Est, SE=SE, Wald.Stat=NA, Wald.pval=NA, LR.Stat=LR.Stat, LR.pval=LR.pval)
+        }
+        ret
 
+        ## GxE
+        # use index of interaction term from "mod", the full model, to (a) drop the interaction term in "mod3" in order to
+        # calculate the LR p-value of the GxE term and (b) retrieve Est and SE for the interaction term from "mod"
+        GxE.idx <- grep(":genotype", names(coef(mod)), fixed=TRUE)
+        if (length(GxE.idx) > 0) {
+            terms   <- unlist(strsplit(model.string, " + ", fixed=TRUE))
+            model3  <- as.formula(paste(terms[!grepl(":genotype", terms, fixed=TRUE)], collapse=" + "))
+            mod3    <- coxph(model3, data=..model.data..)
+            lr      <- -2*(mod3$loglik[2] - mod$loglik[2])
+            pval    <- 1-pchisq(lr, 1)
+            GxE.Est <- unname(coef(mod)[GxE.idx])
+            GxE.SE  <- sqrt(vcov(mod)[GxE.idx,GxE.idx])
+            ret     <- c(ret, GxE.Est=GxE.Est, GxE.SE=GxE.SE, GxE.Stat=lr, GxE.pval=pval)
+        }
+        ret
+        
+    }, # matches warning=function(w) {
+    error=function(e) NA
+    ) # matches tryCatch (
+}
 
 assocCoxPH <- function(genoData,
                        event,
@@ -32,6 +126,7 @@ assocCoxPH <- function(genoData,
                        ivar = NULL,
                        strata = NULL,
                        scan.exclude = NULL,
+                       LRtest = FALSE,
                        effectAllele = c("minor", "alleleA"),
                        snpStart = NULL,
                        snpEnd = NULL,
@@ -60,11 +155,10 @@ assocCoxPH <- function(genoData,
     dat <- .modelData(genoData, chr, event, c(time.to.event, covar, strata), ivar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
-    dat <- dat[keep,]
+    dat <- dat[keep,,drop=FALSE]
     if (!is.null(ivar)) ivar <- paste0(ivar, ":genotype")
     if (!is.null(strata)) strata <- paste0("strata(", paste(strata, collapse=","), ")")
     model.string <- paste("surv ~", paste(c(covar, ivar, strata, "genotype"), collapse=" + "))
-
 
     ## sample size, assuming no missing genotypes
     n <- nrow(dat)
@@ -75,9 +169,10 @@ assocCoxPH <- function(genoData,
     nblocks <- ceiling(nsnp.seg/block.size)
 
     ## set up results matrix
-    nv <- c("snpID", "chr", "n", "n.events", "effect.allele", "EAF", "MAF", "filter",
-            "Est", "SE", "z.Stat", "z.pval")
-    if (!is.null(ivar)) nv <- c(nv, "GxE.Stat", "GxE.pval")
+    nv <- c("snpID", "chr", "n", "n.events", "effect.allele", "EAF", "MAF", "maf.filter",
+            "Est", "SE", "Wald.Stat", "Wald.pval")
+    if (LRtest) nv <- c(nv, "LR.Stat", "LR.pval")
+    if (!is.null(ivar)) nv <- c(nv, "GxE.Est", "GxE.SE", "GxE.Stat", "GxE.pval")
     res <- matrix(NA, nrow=nsnp.seg, ncol=length(nv), dimnames=list(NULL, nv))
     reg.cols <- which(colnames(res) == "Est"):ncol(res)
 
@@ -120,7 +215,7 @@ assocCoxPH <- function(genoData,
         geno <- .transformGenotype(geno, gene.action)
         
         ## check for monomorphic SNPs
-        mono <- .monomorphic(geno, dat[[event]], "logistic")
+        mono <- .monomorphic(geno, dat[[event]], "survival")
 
         ## sample size
         res[bidx, "n"] <- rowSums(!is.na(geno))
@@ -131,14 +226,14 @@ assocCoxPH <- function(genoData,
         ## calculate MAF with male dosage=2, even for X chrom
         maf2 <- 0.5*rowMeans(geno, na.rm=TRUE)
         maf2 <- pmin(maf2, 1-maf2)
-        res[bidx, "filter"] <- 2*maf2*(1-maf2)*ne > 75
+        res[bidx, "maf.filter"] <- 2*maf2*(1-maf2)*ne > 75
         
         ## loop through SNPs in block
         midx <- (1:nsnp.block)[!mono]
         for (i in midx) {
             mdat <- cbind(dat, genotype=geno[i,])
             mdat <- mdat[complete.cases(mdat),]            
-            tmp <- .runCPH(model.string, mdat, event, time.to.event)
+            tmp <- .runCPH(model.string, mdat, event, time.to.event, LRtest)
             res[bidx[i], reg.cols] <- tmp
         }
         
@@ -149,7 +244,7 @@ assocCoxPH <- function(genoData,
     ## results data frame
     res <- as.data.frame(res)
     res$snpID <- getSnpID(genoData, index=snpStart:snpEnd)
-    res$filter <- as.logical(res$filter)
+    res$maf.filter <- as.logical(res$maf.filter)
 
     ## convert effect.allele coding back to A/B
     res$effect.allele[res$effect.allele == 1] <- "A"

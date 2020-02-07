@@ -12,19 +12,19 @@ test_runCPH <- function() {
     dat <- .cphModelData()
     mod <- "surv ~ covar + genotype"
     tmp <- GWASTools:::.runCPH(mod, dat, "event", "time.to.event")
-    checkIdentical(names(tmp), c("Est", "SE", "z.Stat", "z.pval"))
+    checkIdentical(names(tmp), c("Est", "SE", "Wald.Stat", "Wald.pval"))
     checkTrue(all(!is.na(tmp)))
 
     surv <- Surv(dat$time.to.event, dat$event)
     cph <- coxph(as.formula(mod), data=dat)
-    checkEquals(summary(cph)$coef["genotype",-2], tmp, checkNames=FALSE)
+    checkEquals(summary(cph)$coef["genotype",c(1,3,5)], tmp[c(1,2,4)], checkNames=FALSE)
 }
 
 test_runCPH_GxE <- function() {
     dat <- .cphModelData()
     mod <- "surv ~ covar + covar:genotype + genotype"
     tmp <- GWASTools:::.runCPH(mod, dat, "event", "time.to.event")
-    checkIdentical(names(tmp), c("Est", "SE", "z.Stat", "z.pval", "GxE.Stat", "GxE.pval"))
+    checkTrue(all(c("GxE.Stat", "GxE.pval") %in% names(tmp)))
     checkTrue(all(!is.na(tmp)))
 }
 
@@ -106,5 +106,20 @@ test_filter <- function() {
                        time.to.event,
                        covar = covar)
     
-    checkEquals(with(assoc, 2*MAF*(1-MAF)*n.events > 75), assoc$filter)
+    checkEquals(with(assoc, 2*MAF*(1-MAF)*n.events > 75), assoc$maf.filter)
+}
+
+test_LR <- function() {
+    event <- "event"
+    time.to.event <- "time.to.event"
+    covar <- c("age","sex","site")
+    
+    genoData <- .cphGenoData()
+
+    assoc <- assocCoxPH(genoData,
+                       event,
+                       time.to.event,
+                       covar = covar,
+                       LRtest = TRUE)
+    checkTrue(all(c("LR.Stat", "LR.pval") %in% names(assoc)))
 }
