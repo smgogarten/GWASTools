@@ -9,7 +9,7 @@ GdsGenotypeReader <- function(filename, genotypeDim, genotypeVar, snpIDvar, scan
   # GdsReader does not have ... in its argument
   #tmpobj <- new("GdsReader", GdsReader(filename))
   input.gds <- is(filename, 'gds.class')
-  tmpobj <- GdsReader(filename, allow.fork)
+  tmpobj <- GdsReader(filename, allow.fork=allow.fork)
   
   # automatic checking for genotypeDim:
   snpDim <- getDimension(tmpobj, snpIDvar)
