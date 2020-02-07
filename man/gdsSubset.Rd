@@ -16,12 +16,14 @@ gdsSubset(parent.gds, sub.gds,
           sub.storage=NULL,
           compress="LZMA_RA",
           block.size=5000,
-          verbose=TRUE)
+          verbose=TRUE,
+          allow.fork=FALSE)
 
 gdsSubsetCheck(parent.gds, sub.gds,
                sample.include=NULL, snp.include=NULL,
                sub.storage=NULL,
-               verbose=TRUE)
+               verbose=TRUE,
+               allow.fork=FALSE)
 }
 
 \arguments{
@@ -33,7 +35,7 @@ gdsSubsetCheck(parent.gds, sub.gds,
   \item{compress}{The compression level for variables in a GDS file (see \code{\link{add.gdsn}} for options.}
   \item{block.size}{for GDS files stored with scan,snp dimensions, the number of SNPs to read from the parent file at a time. Ignored for snp,scan dimensions.}
   \item{verbose}{Logical value specifying whether to show progress information.}
-
+  \item{allow.fork}{Logical value specifying whether to enable multiple forks to access the gds file simultaneously.}
 }
 
 \details{

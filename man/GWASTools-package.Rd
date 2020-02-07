@@ -6,8 +6,7 @@
 
 \description{
   This package contains tools for facilitating cleaning (quality control
-  and quality assurance) and analysis of GWAS data.  This version was
-  forked by Daniel E. Weeks, and contains some modifications.
+  and quality assurance) and analysis of GWAS data.
 }
 
 \details{

@@ -40,7 +40,7 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GdsIntensityReader(filename)}:
+      \code{GdsIntensityReader(filename, allow.fork=FALSE, ...)}:
 
       \code{filename} must be the path to a GDS file.  The GDS
       file must contain the following variables:
@@ -68,6 +68,9 @@
 	\item 'LogRRatio': Log R Ratio
       }
 
+      \code{allow.fork} is a logical to enable multiple forks to access
+      the gds file simultaneously.
+  
       The \code{GdsIntensityReader} constructor creates and returns a
       GdsIntensityReader instance pointing to this file.
     }

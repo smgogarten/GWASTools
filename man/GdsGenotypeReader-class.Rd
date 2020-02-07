@@ -34,7 +34,7 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GdsGenotypeReader(filename, genotypeDim)}:
+      \code{GdsGenotypeReader(filename, genotypeDim, allow.fork=FALSE, ...)}:
       
       \code{filename} must be the path to a GDS file or a gds object.  
       The GDS file must contain the following variables:
@@ -48,7 +48,7 @@
 	must be the number of A alleles : 2=AA, 1=AB, 0=BB.
 
       }
-        
+      
       The optional variable "snp.allele" stores the A and B alleles in a
       character vector with format "A/B".
       
@@ -59,6 +59,9 @@
 
       The constructor automatically detects whether the GDS file is in \code{snp x scan} or \code{scan x snp} order using the dimensions of \code{snp.id} and \code{sample.id}. In the case of GDS files with equal SNP and scan dimensions, \code{genotypeDim} is a required input to the function and can take values \code{"snp,scan"} or \code{"scan,snp"}.
 
+      \code{allow.fork} is a logical to enable multiple forks to access
+      the gds file simultaneously.
+  
       The \code{GdsGenotypeReader} constructor creates and returns a
       GdsGenotypeReader instance pointing to this file.
     }
