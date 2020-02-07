@@ -7,7 +7,7 @@ Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos
 Maintainer: Stephanie M. Gogarten <sdmorris@uw.edu>
 Depends: Biobase
 Imports: graphics, stats, utils, methods, gdsfmt, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, logistf, quantsmooth, dplyr
-Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation
+Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation, parallel
 License: Artistic-2.0
 URL: https://github.com/smgogarten/GWASTools
 LazyData: yes

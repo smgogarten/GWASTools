@@ -114,3 +114,19 @@ test_GdsReader_drop <- function() {
   close(obj)
   unlink(file)
 }
+
+
+test_GdsReader_fork <- function() {
+  showfile.gds(closeall=TRUE)
+  file <- tempfile()
+  gds <- createfn.gds(file)
+  add.gdsn(gds, "var1", 1:10)
+  closefn.gds(gds)
+
+  obj <- GdsReader(file, allow.fork=TRUE)
+  tmp <- mclapply(list(1,2), function(x) x*getVariable(obj, "var1"),  mc.preschedule=FALSE)
+  checkEquals(tmp, list(1:10, seq(2,20,2)))
+  
+  close(obj)
+  unlink(file)
+}
