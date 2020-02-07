@@ -1,10 +1,10 @@
 # Methods for GdsIntensityReader
 
-GdsIntensityReader <- function(filename, ...) {
+GdsIntensityReader <- function(filename, allow.fork=FALSE, ...) {
   if (missing(filename)) stop("filename is required")
   
   input.gds <- is(filename, 'gds.class')
-  tmpobj <- GdsReader(filename)
+  tmpobj <- GdsReader(filename, allow.fork=allow.fork)
   
   tryCatch(new("GdsIntensityReader", tmpobj, ...),
            error=function(e) {if (!input.gds) close(tmpobj)

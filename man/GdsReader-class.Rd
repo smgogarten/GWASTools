@@ -22,10 +22,13 @@
 \section{Constructor}{
   \describe{
     \item{}{
-      \code{GdsReader(filename, ...)}:
+      \code{GdsReader(filename, allow.fork=FALSE)}:
 
       \code{filename} must be the path to a GDS file or an already opened 
       gds object.
+
+      \code{allow.fork} is a logical to enable multiple forks to access
+      the gds file simultaneously.
 
       The \code{GdsReader} constructor creates and returns a
       GdsReader instance pointing to this file.

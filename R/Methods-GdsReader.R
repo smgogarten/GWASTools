@@ -1,7 +1,7 @@
 # Methods for GdsReader
 
 # constructor
-GdsReader <- function(filename) {
+GdsReader <- function(filename, allow.fork=FALSE) {
   if (missing(filename)) stop("filename is required")
   if (is(filename, 'gds.class')) {
     input.gds <- TRUE
@@ -10,7 +10,7 @@ GdsReader <- function(filename) {
   } else {
     input.gds <- FALSE
     if (!file.exists(filename)) stop("Error in opening file ", filename, ": no such file or directory")
-    handler <- openfn.gds(filename)
+    handler <- openfn.gds(filename=filename, allow.fork=allow.fork)
   }
   new("GdsReader", filename=filename, handler=handler)
 }
@@ -27,8 +27,8 @@ setValidity("GdsReader",
 
 setMethod("open",
     signature(con = "GdsReader"),
-    function (con) {
-      con@handler <- openfn.gds(con@filename)
+    function (con, ...) {
+      con@handler <- openfn.gds(con@filename, ...)
     })
 
 setMethod("close",
