@@ -11,6 +11,7 @@ assocCoxPH(genoData,
            covar = NULL,
            ivar = NULL,
            strata = NULL,
+           cluster = NULL,
            scan.exclude = NULL,
            LRtest = FALSE,
            effectAllele = c("minor", "alleleA"),
@@ -39,6 +40,7 @@ assocCoxPH(genoData,
   \item{ivar}{the name of the variable in \code{covar} to include as an interaction with genotype}
   \item{strata}{a vector of names of variables to stratify on for a
     stratified analysis}
+  \item{cluster}{the name of a column (in the scan annotation of \code{genoData}) which clusters the observations for robust variance. See \code{\link[survival]{cluster}}}.
   \item{scan.exclude}{a vector of scanIDs for scans to exclude}
   \item{LRtest}{logical for whether to perform Likelihood Ratio Tests in addition to Wald tests (which are always performed).}
   \item{effectAllele}{whether the effects should be returned in terms of the minor allele for the tested sample (\code{effectAllele="minor"}) or the allele returned by \code{getAlleleA(genoData)}  (\code{effectAllele="alleleA"}). If the minor allele is alleleB for a given SNP, the difference between these two options will be a sign change for the beta estimate.}

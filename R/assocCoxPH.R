@@ -109,6 +109,7 @@ assocCoxPH <- function(genoData,
                        covar = NULL,
                        ivar = NULL,
                        strata = NULL,
+                       cluster = NULL,
                        scan.exclude = NULL,
                        LRtest = FALSE,
                        effectAllele = c("minor", "alleleA"),
@@ -136,13 +137,14 @@ assocCoxPH <- function(genoData,
 
     ## read in outcome and covariate data
     if (verbose) message("Reading in Phenotype and Covariate Data...")
-    dat <- .modelData(genoData, chr, event, c(time.to.event, covar, strata), ivar)
+    dat <- .modelData(genoData, chr, event, c(time.to.event, covar, strata, cluster), ivar)
     ## identify samples with any missing data
     keep <- keep & complete.cases(dat)
     dat <- dat[keep,,drop=FALSE]
     if (!is.null(ivar)) ivar <- paste0(ivar, ":genotype")
     if (!is.null(strata)) strata <- paste0("strata(", paste(strata, collapse=","), ")")
-    model.string <- paste("surv ~", paste(c(covar, ivar, strata, "genotype"), collapse=" + "))
+    if (!is.null(cluster)) cluster <- paste0("cluster(", paste(cluster, collapse=","), ")")
+    model.string <- paste("surv ~", paste(c(covar, ivar, strata, cluster, "genotype"), collapse=" + "))
 
     ## sample size, assuming no missing genotypes
     n <- nrow(dat)

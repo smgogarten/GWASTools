@@ -79,6 +79,21 @@ test_strata <- function() {
     checkTrue(!all(is.na(assoc$Est)))
 }
 
+test_cluster <- function() {
+    event <- "event"
+    time.to.event <- "time.to.event"
+    covar <- "age"
+    cluster <- "site"
+    
+    genoData <- .cphGenoData()
+    assoc <- assocCoxPH(genoData,
+                       event,
+                       time.to.event,
+                       covar = covar,
+                       cluster = cluster)
+    checkTrue(!all(is.na(assoc$Est)))
+}
+
 test_GxE <- function() {
     event <- "event"
     time.to.event <- "time.to.event"
