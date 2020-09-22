@@ -150,7 +150,7 @@ test_runReg_GxE <- function() {
     
 test_runFirth <- function() {
     mod <- "outcome ~ covar + genotype"
-    dat <- .regModelData()
+    dat <- .regModelData(type="logistic")
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=FALSE)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval"))
     fm <- logistf(as.formula(mod), data=dat, pl=FALSE)
@@ -164,7 +164,7 @@ test_runFirth <- function() {
 
 test_runFirth_CI <- function() {
     mod <- "outcome ~ covar + genotype"
-    dat <- .regModelData(type="linear")
+    dat <- .regModelData(type="logistic")
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=FALSE)
     checkEquals(GWASTools:::.CI(tmp["Est"], tmp["SE"], 0.95),
                 tmp[c("LL", "UL")], checkNames=FALSE)
@@ -176,7 +176,7 @@ test_runFirth_CI <- function() {
 
 test_runFirth_PPL <- function() {
     mod <- "outcome ~ covar + genotype"
-    dat <- .regModelData()
+    dat <- .regModelData(type="logistic")
     ind <- which(colnames(model.matrix(as.formula(mod), dat)) == "genotype")
     tmp <- GWASTools:::.runFirth(mod, dat, CI=0.95, PPLtest=TRUE, geno.index=ind)
     checkIdentical(names(tmp), c("Est", "SE", "LL", "UL", "Wald.Stat", "Wald.pval",
