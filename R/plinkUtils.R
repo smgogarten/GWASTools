@@ -149,7 +149,7 @@ plinkCheck <- function(genoData, pedFile, logFile="plinkCheck.txt",
   # check SNPs
   if (verbose) message("Checking SNPs against map file")
   writeLines("Checking SNPs against map file...", con)
-  map <- read.table(mapfile, as.is=TRUE, comment.char="")
+  map <- fread(mapfile, stringsAsFactors=FALSE, data.table=FALSE)
   if (ncol(map) > 3) map <- map[,c(1,2,4)] # skip map distance
   names(map) <- c("chromosome", "rsID", "position")
   # convert chromosome to integer (PLINK coding)

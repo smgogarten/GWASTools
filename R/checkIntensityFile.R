@@ -106,7 +106,7 @@ checkIntensityFile <- function(path=".",
     ## specify intensity variables to check
     qvars <- c("X", "Y", "rawX", "rawY", "R", "Theta", "BAlleleFreq", "LogRRatio")
     varin <- names(col.nums)
-    if(affy.inten==TRUE) varin <- c(varin, "X","Y")
+    if(affy.inten) varin <- c(varin, "X","Y")
     qvars <- qvars[is.element(qvars, varin)]
     m <- length(qvars)
 
@@ -132,7 +132,7 @@ checkIntensityFile <- function(path=".",
             
             ##read in the file for one sample and keep columns of interest; skip to next file if there is a read error (using function "try")
             if(scan.name.in.file==-1) {skip.num <- skip.num-1; head<-TRUE} else  {head<-FALSE}
-            dat <- try(read.table(files[i], header=head, sep=sep.type, comment.char="", skip=skip.num, colClasses=cc))
+            dat <- try(fread(files[i], header=head, sep=sep.type, skip=skip.num, colClasses=cc, data.table=FALSE))
             if (inherits(dat, "try-error")) { read.file[i] <- 0; message(paste("error reading file",i)); next; k <- k+1 } 		
             read.file[i] <- 1 
             ## get sample name from column heading for Affy
@@ -197,6 +197,7 @@ checkIntensityFile <- function(path=".",
             ## For Affy, intensity files have two rows per snp
         } else {
             ## Get the intensity data
+            ## must use read.table instead of fread to filter comment lines with "#"
             dat <- try(read.table(files[i], sep="\t", header=TRUE, colClasses=c("character","double")))
             if (inherits(dat, "try-error")) { read.file[i] <- 0; message(paste("error reading intensity file",i)); next }
             read.file[i] <- 1	
