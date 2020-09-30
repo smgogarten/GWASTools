@@ -24,7 +24,7 @@ for(i in unique(snp.chrom)) {w<-snp.chrom==i& snp$eligible
   m<-sum(w)
   tmp<-data.frame(i,m)
   names(tmp)<-c("chromosome","marker.length")
-  ch.marker.info<-bind_rows(ch.marker.info,tmp)
+  ch.marker.info<-rbinddt(ch.marker.info,tmp)
   }
 #############
 del<-seg.info$chromosome!=XYchromCode(snp)
@@ -56,7 +56,7 @@ for(snum in smp){
  tch<-length(which(nums$num.segs>1))
   tmp<-data.frame(snum,nsX,mfX,mfach,mfauto,anseg,tch,fac.all,bfsd)
   names(tmp)<-c("scanID","chrX.num.segs","chrX.fac","max.autosome","max.auto.fac","max.auto.num.segs","num.ch.segd","fac.all.auto","med.sd")
- sampchr<-bind_rows(sampchr,tmp)
+ sampchr<-rbinddt(sampchr,tmp)
 }
 return(sampchr)
 } #end function
@@ -89,7 +89,7 @@ if(sum(chbfseg)!=0){bad.auto<-samp.info[chbfseg,]
 bad.auto$type<-"auto.seg"} else bad.auto<-NULL
 if(sum(chbfboth)!=0) {bad.both<-samp.info[chbfboth,]
 bad.both$type<-"both.sd.seg"} else bad.both<-NULL
-bad<-bind_rows(bad.sd,bad.sng,bad.sngX,bad.auto,bad.both)
+bad<-rbinddt(bad.sd,bad.sng,bad.sngX,bad.auto,bad.both)
 if(!is.null(bad)) bad<-bad[order(bad$scanID),]
 return(bad)
  }# end function

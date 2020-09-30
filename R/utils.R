@@ -48,3 +48,7 @@ readWriteFirst <- function (filein, fileout, n)
 	close(outcon)
 }
 
+# faster rbind using data.table
+rbinddt <- function(...) {
+    as.data.frame(rbindlist(list(...)))
+}

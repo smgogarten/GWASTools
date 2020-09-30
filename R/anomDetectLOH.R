@@ -128,9 +128,9 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       RUNS.snch<-out$RUNS
       segs.snch<-out$segments
 
-      LOH.base.info<-bind_rows(LOH.base.info,base.snch)
-      LOH.segments<-bind_rows(LOH.segments,segs.snch)
-      LOH.raw<-bind_rows(LOH.raw,RUNS.snch)
+      LOH.base.info<-rbinddt(LOH.base.info,base.snch)
+      LOH.segments<-rbinddt(LOH.segments,segs.snch)
+      LOH.raw<-rbinddt(LOH.raw,RUNS.snch)
 
       #### BEGIN filtering process  #############
   
@@ -161,8 +161,8 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
         RUNS.snch$chrom.nonanom.mean<-NA
         RUNS.snch$chrom.nonanom.sd<-NA
         RUNS.snch$sex<-sex[sindex] 
-        LOH.raw.adjusted<-bind_rows(LOH.raw.adjusted,RUNS.snch)
-        LOH.filtered<-bind_rows(LOH.filtered,RUNS.snch)
+        LOH.raw.adjusted<-rbinddt(LOH.raw.adjusted,RUNS.snch)
+        LOH.filtered<-rbinddt(LOH.filtered,RUNS.snch)
         next
       }
   
@@ -200,11 +200,11 @@ anomDetectLOH<-function(intenData, genoData, scan.ids, chrom.ids, snp.ids,
       if(!is.null(raw.adj)) raw.adj$sex<-sex[sindex]  
       filtered<-outt$filtered
       if(!is.null(filtered)) filtered$sex<-sex[sindex] 
-      LOH.raw.adjusted<-bind_rows(LOH.raw.adjusted,raw.adj)
-      LOH.filtered<-bind_rows(LOH.filtered, filtered)
+      LOH.raw.adjusted<-rbinddt(LOH.raw.adjusted,raw.adj)
+      LOH.filtered<-rbinddt(LOH.filtered, filtered)
       if(outt$merge.flag){
         tmp<-data.frame(snum,ch);names(tmp)<-c("scanID","chrom")
-        LOH.merge<-bind_rows(LOH.merge,tmp)
+        LOH.merge<-rbinddt(LOH.merge,tmp)
       }
 
     } #end chrom loop
