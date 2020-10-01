@@ -120,7 +120,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
       nas <- arrayInd(which(is.na(dosage.geno)), dim(dosage.geno))
       if (!is.null(na.logfile) & nrow(nas) > 0){
         chk <- data.frame(scanID=getScanID(genoData)[nas[, 2]], snpID=getSnpID(genoData)[i_snp - 1 + nas[, 1]])
-        write.table(chk, file=na.logfile, append=T, quote=F, sep="\t", col.names=F, row.names=F)
+        fwrite(chk, file=na.logfile, append=TRUE, quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
       }
       
       cnt <- cnt + block.size
@@ -215,7 +215,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
       nas <- arrayInd(which(is.na(dosage.geno)), dim(dosage.geno))
       if (!is.null(na.logfile) & nrow(nas) > 0){
         chk <- data.frame(scanID=getScanID(genoData)[nas[, 2]], snpID=getSnpID(genoData)[i_snp - 1 + nas[, 1]])
-        write.table(chk, file=na.logfile, append=T, quote=F, sep="\t", col.names=F, row.names=F)
+        fwrite(chk, file=na.logfile, append=TRUE, quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
       }
       
       cnt <- cnt + block.size
@@ -301,7 +301,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
         nas <- which(is.na(dosage.geno))
         if (!is.null(na.logfile) & length(nas) > 0){
           chk <- data.frame(scanID=getScanID(genoData)[i_samp], snpID=getSnpID(genoData)[nas])
-          write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
+          fwrite(chk, file=na.logfile, append=TRUE, quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
         }
         cnt <- cnt+1
       }
@@ -322,7 +322,7 @@ checkImputedDosageFile <- function(genoData, snpAnnot, scanAnnot,
     # write to the logfile
     chk <- data.frame(scanID=getScanID(genoData)[i_gds], snpID=getSnpID(genoData))
     if (!is.null(na.logfile) & nrow(chk) > 0) {
-      write.table(chk, file=na.logfile, append=T, row.names=F, col.names=F, quote=F, sep="\t")
+      fwrite(chk, file=na.logfile, append=TRUE, quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
     }
   }
   

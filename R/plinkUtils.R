@@ -91,7 +91,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
   #######################################################
   # Creating map file
   map.df <- .getPlinkMap(genoData, rs.col, mapdist.col)
-  write.table(map.df,mapfile,quote=FALSE,row.names=FALSE,col.names=FALSE,sep="\t")
+  fwrite(map.df, mapfile, quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
   # free memory
   rm(map.df)
 
@@ -121,7 +121,7 @@ plinkWrite <- function(genoData, pedFile="testPlink",
     # exclude scans
     keep <- !(scanID[i:(i+bsize-1)] %in% scan.exclude)
     rdf <- rdf[keep,,drop=FALSE]
-    write.table(rdf, pedfile, quote=FALSE, row.names=FALSE, col.names=FALSE, append=app)
+    fwrite(rdf, pedfile, append=app, quote=FALSE, sep=" ", row.names=FALSE, col.names=FALSE)
     app <- TRUE
     i <- i + bsize
   }

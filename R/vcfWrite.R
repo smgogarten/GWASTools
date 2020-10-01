@@ -130,6 +130,9 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
     hdr <- paste(c("#CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT",
                    samples[scan.index]), collapse="\t")
     writeLines(hdr, con)
+    
+    ## fwrite cannot write to an open connection
+    close(con)
 
     ## write genotypes in blocks
     nblocks <- ceiling(nsnp(genoData) / block.size)
@@ -151,13 +154,10 @@ vcfWrite <- function(genoData, vcf.file="out.vcf", sample.col="scanID",
             geno[geno == 0] <- "1/1"
 
             out <- cbind(fixed[(start:end)[snp.index[start:end]],,drop=FALSE], geno)
-            write.table(out, con, sep="\t", col.names=FALSE, row.names=FALSE,
-                        quote=FALSE)
+            fwrite(out, vcf.file, append=TRUE, quote=FALSE, sep="\t",
+                   row.names=FALSE, col.names=FALSE)
         }
     }
-
-    ## close output file
-    close(con)
 }
 
 

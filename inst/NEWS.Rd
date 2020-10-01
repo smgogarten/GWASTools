@@ -678,4 +678,9 @@
     \item Add GenotypeIterator and GenotypeBlockIterator classes. These classes allow returning blocks of SNPs with each call to iterateFilter.
   }   
 }
+\section{Changes in version 1.35.2}{
+  \itemize{
+    \item Replace read.table and write.table with much faster data.table::fread and data.table::fwrite in functions that convert to and from text. The exception is createAffyIntensityFile and checkIntensityFile(affy.inten=TRUE), which still use read.table to preserve the behavior of removing lines commented with the "#" character.
+  }
+}
 
