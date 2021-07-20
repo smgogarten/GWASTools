@@ -39,12 +39,12 @@ test_meanIntensityByScanChrom <- function() {
               "mean.X"=mn.X, "sd.X"=sd.X, "mean.Y"=mn.Y, "sd.Y"=sd.Y)
 
   res <- meanIntensityByScanChrom(intenData)
-  checkIdentical(exp, res)
+  checkEquals(exp, res)
 
   # one var only
   exp <- list("mean.X"=mn.X, "sd.X"=sd.X)
   res <- meanIntensityByScanChrom(intenData, vars="X")
-  checkIdentical(exp, res)
+  checkEquals(exp, res)
 
   # snp.exclude
   snpID <- getSnpID(intenData)
@@ -63,7 +63,7 @@ test_meanIntensityByScanChrom <- function() {
               "mean.X"=mn.X, "sd.X"=sd.X, "mean.Y"=mn.Y, "sd.Y"=sd.Y)
 
   res <- meanIntensityByScanChrom(intenData, snp.exclude=snp.exclude)
-  checkIdentical(exp, res)
+  checkEquals(exp, res)
 
   close(intenData)                    
   file.remove(ncfile)
