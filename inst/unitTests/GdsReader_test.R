@@ -124,7 +124,7 @@ test_GdsReader_fork <- function() {
   closefn.gds(gds)
 
   obj <- GdsReader(file, allow.fork=TRUE)
-  tmp <- mclapply(list(1,2), function(x) x*getVariable(obj, "var1"),  mc.preschedule=FALSE)
+  tmp <- parallel::mclapply(list(1,2), function(x) x*getVariable(obj, "var1"),  mc.preschedule=FALSE)
   checkEquals(tmp, list(1:10, seq(2,20,2)))
   
   close(obj)

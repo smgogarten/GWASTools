@@ -381,7 +381,7 @@ test_GdsGenotypeReader_fork <- function() {
   closefn.gds(gds)
   
   obj <- GdsGenotypeReader(file, allow.fork=TRUE)
-  tmp <- mclapply(list(1,2), function(x) x*getSnpID(obj),  mc.preschedule=FALSE)
+  tmp <- parallel::mclapply(list(1,2), function(x) x*getSnpID(obj),  mc.preschedule=FALSE)
   checkEquals(tmp, list(1:260, seq(2,260*2,2)))
   
   close(obj)
