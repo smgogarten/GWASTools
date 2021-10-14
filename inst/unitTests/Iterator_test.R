@@ -5,6 +5,7 @@
   snp <- 1:260
   chrom <- rep(1:26, each=10)
   pos <- rep(1001:1026, 10)
+  all <- rep("A/T", 260)
   samp <- 1231:1235
   nsnp <- length(snp)
   nsamp <- length(samp)
@@ -13,6 +14,7 @@
   add.gdsn(gds, "snp.id", snp)
   add.gdsn(gds, "snp.chromosome", chrom)
   add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", all)
   add.gdsn(gds, "sample.id", samp)
   add.gdsn(gds, "genotype", geno, storage="bit2")
   closefn.gds(gds)

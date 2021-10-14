@@ -126,20 +126,28 @@ setMethod("getAlleleA",
           signature(object = "GenotypeData"),
           function(object, ...) {
             if (hasSnpAnnotation(object)) {
-              getAlleleA(object@snpAnnot, ...)
+              al <- suppressWarnings(getAlleleA(object@snpAnnot, ...))
             } else {
-              NULL
+              al <- NULL
             }
+            if (is.null(al) & is(object@data, "GdsGenotypeReader")) {
+              al <- getAlleleA(object@data, ...)
+            }
+            return(al)
           })
 
 setMethod("getAlleleB",
           signature(object = "GenotypeData"),
           function(object, ...) {
             if (hasSnpAnnotation(object)) {
-              getAlleleB(object@snpAnnot, ...)
+              al <- suppressWarnings(getAlleleB(object@snpAnnot, ...))
             } else {
-              NULL
+              al <- NULL
             }
+            if (is.null(al) & is(object@data, "GdsGenotypeReader")) {
+              al <- getAlleleB(object@data, ...)
+            }
+            return(al)
           })
 
 setMethod("getScanID",

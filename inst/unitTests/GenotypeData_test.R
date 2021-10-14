@@ -76,6 +76,7 @@ test_GenotypeData_Gds <- function() {
   snp <- 1:260
   chrom <- rep(1:26, each=10)
   pos <- rep(1001:1026, 10)
+  all <- rep("A/T", 10)
   samp <- 1231:1235
   nsnp <- length(snp)
   nsamp <- length(samp)
@@ -84,6 +85,7 @@ test_GenotypeData_Gds <- function() {
   add.gdsn(gds, "snp.id", snp)
   add.gdsn(gds, "snp.chromosome", chrom)
   add.gdsn(gds, "snp.position", pos)
+  add.gdsn(gds, "snp.allele", all)
   add.gdsn(gds, "sample.id", samp)
   add.gdsn(gds, "genotype", geno, storage="bit2")
   closefn.gds(gds)
@@ -98,6 +100,8 @@ test_GenotypeData_Gds <- function() {
   checkIdentical(chrom, getChromosome(obj))
   checkIdentical(pos, getPosition(obj))
   checkIdentical(samp, getScanID(obj))
+  checkIdentical(rep("A",10), getAlleleA(obj))
+  checkIdentical(rep("T",10), getAlleleB(obj))
 
   close(obj)
   unlink(file)
