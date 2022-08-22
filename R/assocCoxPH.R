@@ -25,7 +25,10 @@
         mod2   <- coxph(model2, data=..model.data.., subset=(!is.na(genotype)))
         resLR  <- anova(mod,mod2)               
         LR.Stat <- resLR[["Chisq"]][2]
-        LR.pval <- resLR[["P(>|Chi|)"]][2]
+        # name of column changed in R 4.2.1
+        p.col.names <- c("P(>|Chi|)", "Pr(>|Chi|)")
+        p.col <- intersect(names(resLR), p.col.names)
+        LR.pval <- resLR[[p.col]][2]
         ## explicit computation code if even needed
         ## LR.Stat <- -2*(mod2$loglik[2] - mod$loglik[2])
         ## LR.pval <- 1-pchisq(LR.Stat,1)     
