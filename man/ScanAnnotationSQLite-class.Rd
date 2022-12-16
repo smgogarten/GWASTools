@@ -27,8 +27,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{ScanAnnotationSQLite(dbpath)}:
 
       \code{dbpath} is the path to a SQLite database with tables
@@ -61,35 +61,35 @@
   In the code snippets below, \code{object} is a ScanAnnotationSQLite
   object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{open(object)}: Opens a connection to the database.
     }
-    \item{}{
+    \item{
       \code{close(object)}: Closes the database connection.
     }
-    \item{}{
+    \item{
       \code{nscan(object)}: The number of scans in the database.
     }
-    \item{}{
+    \item{
       \code{getScanID(object, index, condition)}: A unique vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.    The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE sex='M'").
     }
-    \item{}{
+    \item{
       \code{getSex(object, index, condition)}: A character vector of sex, with values 'M'
       or 'F'.    The optional \code{index} is a logical or
       integer vector specifying elements to extract.  The optional
       \code{condition} is a character string with an SQL clause used to
       select data.
     }
-    \item{}{
+    \item{
       \code{hasSex(object)}: Returns \code{TRUE} if the column 'sex' is present in
       \code{object}. 
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, index, condition)}: A vector of the
       column \code{varname}.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  The optional
@@ -98,32 +98,32 @@
       Returns \code{NULL} if
       \code{varname} is not found in \code{object}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a column in \code{object}, \code{FALSE} if not.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{getAnnotation(object)}: Returns all annotation variables
       as a data frame.
     }
-    \item{}{
+    \item{
       \code{getMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame.
     }
-    \item{}{
+    \item{
       \code{getQuery(object, statement)}: Returns result of the SQL
       query \code{statement}.
     }
-    \item{}{
+    \item{
       \code{writeAnnotation(object, value, append=FALSE,
 	overwrite=TRUE)}: Writes \code{value} to the scan annotation
       table.  \code{value} must be a data.frame containing a column "scanID".
     }
-    \item{}{
+    \item{
       \code{writeMetadata(object, value, append=FALSE,
 	overwrite=TRUE)}: Writes \code{value} to the metadata table.
       \code{value} should be a data.frame containing 

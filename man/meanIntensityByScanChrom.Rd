@@ -1,6 +1,6 @@
 \name{meanIntensityByScanChrom}
 \alias{meanIntensityByScanChrom}
-\title{Calculate Means \& Standard Deviations of Intensities}
+\title{Calculate Means and Standard Deviations of Intensities}
 \description{
 Function to calculate the mean and standard deviation of the intensity for each chromosome for each scan.
 }

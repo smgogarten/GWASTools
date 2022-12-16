@@ -34,8 +34,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{SnpAnnotationSQLite(dbpath)}:
 
       \code{dbpath} is the path to a SQLite database with tables
@@ -71,24 +71,24 @@
   In the code snippets below, \code{object} is a SnpAnnotationSQLite
   object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{open(object)}: Opens a connection to the database.
     }
-    \item{}{
+    \item{
       \code{close(object)}: Closes the database connection.
     }
-    \item{}{
+    \item{
       \code{nsnp(object)}: The number of SNPs in the database.
     }
-    \item{}{
+    \item{
       \code{getSnpID(object, index, condition)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.    The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE chromosome=1").
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, condition, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  The optional
@@ -99,26 +99,26 @@
       (1:22,X,XY,Y,M,U).  "U" stands for "Unknown" and is the value
       given to any chromosome code not falling in the other categories.
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index, condition)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.    The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE chromosome=1").
     }
-    \item{}{
+    \item{
       \code{getAlleleA(object, index)}: A character vector of A alleles.
       The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE chromosome=1").
     }
-    \item{}{
+    \item{
       \code{getAlleleB(object, index)}: A character vector of B alleles.
       The optional
       \code{condition} is a character string with an SQL clause used to
       select data (e.g., "LIMIT 10", "WHERE chromosome=1").
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, index, condition)}: A vector of the
       column \code{varname}.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  The optional
@@ -127,55 +127,55 @@
       Returns \code{NULL} if
       \code{varname} is not found in \code{object}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a column in \code{object}, \code{FALSE} if not.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{getAnnotation(object)}: Returns all annotation variables
       as a data frame.
     }
-    \item{}{
+    \item{
       \code{getMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame.
     }
-    \item{}{
+    \item{
       \code{getQuery(object, statement)}: Returns result of the SQL
       query \code{statement}.
     }
-    \item{}{
+    \item{
       \code{writeAnnotation(object, value, append=FALSE,
 	overwrite=TRUE)}: Writes \code{value} to the SNP annotation
       table.  \code{value} must be a data.frame containing columns
       "snpID", "chromosome", and "position".
     }
-    \item{}{
+    \item{
       \code{writeMetadata(object, value, append=FALSE,
 	overwrite=TRUE)}: Writes \code{value} to the metadata table.
       \code{value} should be a data.frame containing
        columns "varname" and "description".
      }
-     \item{}{
+     \item{
        \code{autosomeCode(object)}: Returns the integer codes for the
        autosomes.
      }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for 
        mitochondrial SNPs.
      }

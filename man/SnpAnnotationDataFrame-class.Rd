@@ -32,8 +32,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{SnpAnnotationDataFrame(data, metadata)}:
 
       \code{data} must be a data.frame containing the SNP annotation.
@@ -63,13 +63,13 @@
   In the code snippets below, \code{object} is a SnpAnnotationDataFrame
   object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -78,22 +78,22 @@
       (1:22,X,XY,Y,M,U).  "U" stands for "Unknown" and is the value
       given to any chromosome code not falling in the other categories.
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getAlleleA(object, index)}: A character vector of A alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getAlleleB(object, index)}: A character vector of B alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, index)}: A vector of the
       column \code{varname}.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -101,60 +101,60 @@
       Returns \code{NULL} if
       \code{varname} is not found in \code{object}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a column in \code{object}, \code{FALSE} if not.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{getAnnotation(object)}: Returns all annotation variables
       as a data frame.
     }
-    \item{}{
+    \item{
       \code{getMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame.
     }
     
     Inherited methods from
     \code{\link{AnnotatedDataFrame}}:
-    \item{}{
+    \item{
       \code{varLabels(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{pData(object)}: Returns all annotation variables
       as a data frame, or sets the annotation variables with
       \code{pData(object) <- df}.
     }
-    \item{}{
+    \item{
       \code{varMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame, or sets the metadata with
       \code{varMetadata(object) <- df}.
     }
-    \item{}{
+    \item{
       The operators \code{[}, \code{$}, and \code{[[} work just as they do in
       standard data frames, for both retrieval and assignment.
     }
-     \item{}{
+     \item{
        \code{autosomeCode(object)}: Returns the integer codes for the
        autosomes.
      }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for 
        mitochondrial SNPs.
      }

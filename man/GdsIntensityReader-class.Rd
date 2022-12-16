@@ -38,8 +38,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{GdsIntensityReader(filename, allow.fork=FALSE, ...)}:
 
       \code{filename} must be the path to a GDS file.  The GDS
@@ -89,19 +89,19 @@
 
       See \code{\link{GdsReader}} for additional methods.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{nsnp(object)}: The number of SNPs in the GDS file.
     }
-    \item{}{
+    \item{
       \code{nscan(object)}: The number of scans in the GDS file.
     }
-    \item{}{
+    \item{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -110,67 +110,67 @@
       (1:22,X,XY,Y,M,U).  "U" stands for "Unknown" and is the value
       given to any chromosome code not falling in the other categories.
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getQuality(object, snp, scan, drop=TRUE)}: Extracts quality scores.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{hasQuality(object)}:
       Returns \code{TRUE} if the GDS file contains a variable 'quality'.
     }
-    \item{}{
+    \item{
       \code{getX(object, snp, scan, drop=TRUE)}: Extracts X intensity.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{hasX(object)}:
       Returns \code{TRUE} if the GDS file contains a variable 'X'.
     }
-    \item{}{
+    \item{
       \code{getY(object, snp, scan, drop=TRUE)}: Extracts Y intensity.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{hasY(object)}:
       Returns \code{TRUE} if the GDS file contains a variable 'Y'.
     }
-    \item{}{
+    \item{
       \code{getBAlleleFreq(object, snp, scan, drop=TRUE)}: Extracts B allele frequency.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{hasBAlleleFreq(object)}:
       Returns \code{TRUE} if the GDS file contains a variable 'BAlleleFreq'.
     }
-    \item{}{
+    \item{
       \code{getLogRRatio(object, snp, scan, drop=TRUE)}: Extracts Log R Ratio.
       The result is a vector or matrix, depending on the number
       of dimensions in the returned values and the value of \code{drop}.  Missing values are
       represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{hasLogRRatio(object)}:
       Returns \code{TRUE} if the GDS file contains a variable 'LogRRatio'.
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, snp, scan, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.
       The result is a vector or matrix, depending on the number
@@ -178,23 +178,23 @@
       represented as \code{NA}.  If the variable is not found in the GDS
       file, returns \code{NULL}.
     }
-     \item{}{
+     \item{
        \code{autosomeCode(object)}: Returns the integer codes for the
        autosomes.
      }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for
        mitochondrial SNPs.
      }

@@ -29,8 +29,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{NcdfGenotypeReader(filename)}:
       
       \code{filename} must be the path to a NetCDF file.  The NetCDF
@@ -63,19 +63,19 @@
       
       See \code{\link{NcdfReader}} for additional methods.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{nsnp(object)}: The number of SNPs in the NetCDF file.
     }
-    \item{}{
+    \item{
       \code{nscan(object)}: The number of scans in the NetCDF file.
     }
-    \item{}{
+    \item{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -84,17 +84,17 @@
       (1:22,X,XY,Y,M,U).  "U" stands for "Unknown" and is the value
       given to any chromosome code not falling in the other categories.
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, ...)}:
       Extracts genotype values (number of A alleles).  
       \code{snp} and \code{scan} indicate which elements to return along the snp and
@@ -106,28 +106,28 @@
       If \code{use.names=TRUE} and the result is a matrix, dimnames are set to the SNP and scan IDs.
       Missing values are represented as \code{NA}.
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, ...)}: Extracts the
       contents of the variable \code{varname}. If the variable is not found in the NetCDF
       file, returns \code{NULL}.
     }
-     \item{}{
+     \item{
        \code{autosomeCode(object)}: Returns the integer codes for the
        autosomes.
      }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for 
        mitochondrial SNPs.
      }

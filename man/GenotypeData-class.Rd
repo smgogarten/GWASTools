@@ -56,8 +56,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{GenotypeData(data, snpAnnot=NULL, scanAnnot=NULL)}:
 
       \code{data} must be an \code{\link{NcdfGenotypeReader}}, \code{\link{GdsGenotypeReader}}, or \code{\link{MatrixGenotypeReader}} object.
@@ -78,19 +78,19 @@
 \section{Accessors}{
   In the code snippets below, \code{object} is a GenotypeData object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{nsnp(object)}: The number of SNPs in the data.
     }
-    \item{}{
+    \item{
       \code{nscan(object)}: The number of scans in the data.
     }
-    \item{}{
+    \item{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -98,36 +98,36 @@
       If \code{char=TRUE}, returns a character vector with elements in
       (1:22,X,XY,Y,M,U).
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getAlleleA(object, index)}: A character vector of A alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getAlleleB(object, index)}: A character vector of B alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getSex(object, index)}: A character vector of sex, with values 'M'
       or 'F'.    The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{hasSex(object)}: Returns \code{TRUE} if the column 'sex' is present in
       \code{object}.
     }
-    \item{}{
+    \item{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), char=FALSE, sort=TRUE, drop=TRUE, use.names=FALSE, ...)}: 
       Extracts genotype values (number of A alleles).  
       \code{snp} and \code{scan} indicate which elements to return along the snp and
@@ -141,7 +141,7 @@
       returned as characters of the form "A/B".  If \code{sort=TRUE},
       alleles are lexographically sorted ("G/T" instead of "T/G").
     }
-    \item{}{
+    \item{
       \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, 
                                  char=FALSE, sort=TRUE, drop=TRUE, use.names=TRUE, ...)}:
       May be used only if the data slot contains a
@@ -153,82 +153,82 @@
       Unlike \code{getGenotype}, the values requested need not be in contiguous blocks.
       Other arguments are identical to \code{getGenotype}.
     }
-    \item{}{
+    \item{
       \code{getSnpVariable(object, varname, index)}: Returns the snp
       annotation variable \code{varname}.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getSnpVariableNames(object)}: Returns a character vector
       with the names of the columns in the snp annotation.
     }
-    \item{}{
+    \item{
       \code{hasSnpVariable(object, varname)}: Returns \code{TRUE} if the
       variable \code{varname} is present in the snp annotation.
     }
-    \item{}{
+    \item{
       \code{getScanVariable(object, varname, index)}: Returns the scan
       annotation variable \code{varname}.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.
     }
-    \item{}{
+    \item{
       \code{getScanVariableNames(object)}: Returns a character vector
       with the names of the columns in the scan annotation.
     }
-    \item{}{
+    \item{
       \code{hasScanVariable(object, varname)}: Returns \code{TRUE} if the
       variable \code{varname} is present in the scan annotation.
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, drop=TRUE, ...)}: Extracts the
       contents of the variable \code{varname} from the data.
       If \code{drop=TRUE}, the result is coerced to the lowest possible dimension.
       Missing values are represented as \code{NA}.  
       If the variable is not found, returns \code{NULL}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       the data contains contains \code{varname}, \code{FALSE} if not.
     }
-    \item{}{
+    \item{
       \code{getSnpAnnotation(object)}: Returns the snp annotation.
     }
-    \item{}{
+    \item{
       \code{hasSnpAnnotation(object)}: Returns \code{TRUE} if the snp
       annotation slot is not \code{NULL}.
     }
-    \item{}{
+    \item{
       \code{getScanAnnotation(object)}: Returns the scan annotation.
     }
-    \item{}{
+    \item{
       \code{hasScanAnnotation(object)}: Returns \code{TRUE} if the scan
       annotation slot is not \code{NULL}.
     }
-    \item{}{
+    \item{
       \code{open(object)}: Opens a connection to the data.
     }
-    \item{}{
+    \item{
       \code{close(object)}: Closes the data connection.
     }
-     \item{}{
+     \item{
        \code{autosomeCode(object)}: Returns the integer codes for the
        autosomes.
      }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for
        mitochondrial SNPs.
      }

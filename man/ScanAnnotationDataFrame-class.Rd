@@ -26,8 +26,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{ScanAnnotationDataFrame(data, metadata)}:
 
       \code{data} must be a data.frame containing the scan annotation.
@@ -55,22 +55,22 @@
   In the code snippets below, \code{object} is a ScanAnnotationDataFrame
   object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{getScanID(object, index)}: A unique vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getSex(object, index)}: A character vector of sex, with values 'M'
       or 'F'.    The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{hasSex(object)}: Returns \code{TRUE} if the column 'sex' is present in
       \code{object}. 
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, index)}: A vector of the
       column \code{varname}.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -78,40 +78,40 @@
       Returns \code{NULL} if
       \code{varname} is not found in \code{object}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a column in \code{object}, \code{FALSE} if not.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{getAnnotation(object)}: Returns all annotation variables
       as a data frame.
     }
-    \item{}{
+    \item{
       \code{getMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame.
     }
     
     Inherited methods from
     \code{\link{AnnotatedDataFrame}}:
-    \item{}{
+    \item{
       \code{varLabels(object)}: Returns a character vector with
       the names of all columns in \code{object}.
     }
-    \item{}{
+    \item{
       \code{pData(object)}: Returns all annotation variables
       as a data frame, or sets the annotation variables with
       \code{pData(object) <- df}.
     }
-    \item{}{
+    \item{
       \code{varMetadata(object)}: Returns metadata describing the
       annotation variables as a data frame, or sets the metadata with
       \code{varMetadata(object) <- df}.
     }
-    \item{}{
+    \item{
       The operators \code{$} and \code{[} work just as they do in
       standard data frames, for both retrieval and assignment.
     }

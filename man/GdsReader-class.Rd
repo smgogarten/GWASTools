@@ -20,8 +20,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{GdsReader(filename, allow.fork=FALSE)}:
 
       \code{filename} must be the path to a GDS file or an already opened 
@@ -39,8 +39,8 @@
 \section{Accessors}{
   In the code snippets below, \code{object} is a GdsReader object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{getVariable(object, varname, start, count, sel=NULL, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.     
       \itemize{
@@ -65,23 +65,23 @@
       \code{\link{put.attr.gdsn}}) are represented as \code{NA}.
       If the variable is not found in the GDS file, returns \code{NULL}.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns names of variables in the
       GDS file.
     }
-    \item{}{
+    \item{
       \code{getDimension(object, varname)}: Returns dimension
       for GDS variable \code{varname}.
     }
-    \item{}{
+    \item{
       \code{getNodeDescription(object, varname)}: Returns description for GDS variable \code{varname}.
     }
-    \item{}{
+    \item{
       \code{getAttribute(object, attname, varname)}: Returns the
       attribute \code{attname} associated with the variable
       \code{varname}.
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a variable in the GDS file.
     }
@@ -91,14 +91,14 @@
 \section{Standard Generic Methods}{
   In the code snippets below, \code{object} is a GdsReader object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{open(object)}: Opens a connection to a GDS file.
     }
-    \item{}{
+    \item{
       \code{close(object)}: Closes the connection to a GDS file.
     }
-    \item{}{
+    \item{
       \code{show(object)}: Summarizes the contents of a GDS file.
     }
   }

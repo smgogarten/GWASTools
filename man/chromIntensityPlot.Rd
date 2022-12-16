@@ -35,7 +35,7 @@ chromIntensityPlot(intenData, scan.ids, chrom.ids,
   include scanID, sex, and chromosome.}
   \item{info}{ A character vector containing extra information to include in the main title. }
   \item{abln}{A vector of values that is of length \code{2*length(scan.ids)}.  Each pair of entries specifies where vertical lines will be drawn in each plot.
-This is especially useful when drawing the start \& end breakpoints for anomalies, for example. 
+This is especially useful when drawing the start and end breakpoints for anomalies, for example. 
 Use -1 as one pair value for plots that warrant only one line. By default, no lines will be drawn. }
   \item{horizln}{ A vector containing the y-axis values at which a horizontal line will be drawn in B Allele Frequency plots.}
   \item{colorGenotypes}{A logical value specifying whether to color-code

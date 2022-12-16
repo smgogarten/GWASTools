@@ -24,8 +24,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{NcdfReader(filename)}:
 
       \code{filename} must be the path to a NetCDF file.
@@ -39,8 +39,8 @@
 \section{Accessors}{
   In the code snippets below, \code{object} is a NcdfReader object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{getVariable(object, varname, start, count, drop=TRUE)}: Returns the
       contents of the variable \code{varname}.     
       \itemize{
@@ -64,31 +64,31 @@
       \code{\link[ncdf4]{ncvar_change_missval}}) are represented as \code{NA}.
       If the variable is not found in the NetCDF file, returns \code{NULL}.
     }
-    \item{}{
+    \item{
       \code{getVariableNames(object)}: Returns names of variables in the
       NetCDF file.
     }
-    \item{}{
+    \item{
       \code{getDimension(object, varname)}: Returns dimension
       for NetCDF variable \code{varname}.
     }
-    \item{}{
+    \item{
       \code{getDimensionNames(object, varname)}: Returns names of
       dimensions in the NetCDF file.  If \code{varname} is provided, returns
       dimension names for NetCDF variable \code{varname}.
     }
-    \item{}{
+    \item{
       \code{getAttribute(object, attname, varname)}: Returns the
       attribute \code{attname} associated with the variable
       \code{varname}.  If \code{varname} is not specified, \code{attname}
       is assumed to be a global attribute.
       }
-    \item{}{
+    \item{
       \code{hasCoordVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a coordinate variable (a variable with the same
       name as a dimension).
     }
-    \item{}{
+    \item{
       \code{hasVariable(object, varname)}: Returns \code{TRUE} if
       \code{varname} is a variable in the NetCDF file (including
       coordinate variables).
@@ -99,14 +99,14 @@
 \section{Standard Generic Methods}{
   In the code snippets below, \code{object} is a NcdfReader object.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{open(object)}: Opens a connection to a NetCDF file.
     }
-    \item{}{
+    \item{
       \code{close(object)}: Closes the connection to a NetCDF file.
     }
-    \item{}{
+    \item{
       \code{show(object)}: Summarizes the contents of a NetCDF file.
     }
   }

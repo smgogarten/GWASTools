@@ -32,8 +32,8 @@
 }
 
 \section{Constructor}{
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{GdsGenotypeReader(filename, genotypeDim, allow.fork=FALSE, ...)}:
       
       \code{filename} must be the path to a GDS file or a gds object.  
@@ -72,19 +72,19 @@
   In the code snippets below, \code{object} is a GdsGenotypeReader object.     
       See \code{\link{GdsReader}} for additional methods.
 
-  \describe{
-    \item{}{
+  \itemize{
+    \item{
       \code{nsnp(object)}: The number of SNPs in the GDS file.
     }
-    \item{}{
+    \item{
       \code{nscan(object)}: The number of scans in the GDS file.
     }
-    \item{}{
+    \item{
       \code{getSnpID(object, index)}: A unique integer vector of snp
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getChromosome(object, index, char=FALSE)}: A vector of
       chromosomes.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.
@@ -93,27 +93,27 @@
       (1:22,X,XY,Y,M,U).  "U" stands for "Unknown" and is the value
       given to any chromosome code not falling in the other categories.
     }
-    \item{}{
+    \item{
       \code{getPosition(object, index)}: An integer vector of base pair
       positions.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getAlleleA(object, index)}: A character vector of A alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getAlleleB(object, index)}: A character vector of B alleles.
       The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getScanID(object, index)}: A unique integer vector of scan
       IDs.  The optional \code{index} is a logical or
       integer vector specifying elements to extract.  
     }
-    \item{}{
+    \item{
       \code{getGenotype(object, snp=c(1,-1), scan=c(1,-1), drop=TRUE, use.names=FALSE, 
                         transpose=FALSE, ...)}: 
       Extracts genotype values (number of A alleles).  
@@ -127,7 +127,7 @@
       Missing values are represented as \code{NA}. 
       Genotypes are returned in SNP x scan order if transpose=FALSE, otherwise they are returned in scan x SNP order.
     }
-    \item{}{
+    \item{
       \code{getGenotypeSelection(object, snp=NULL, scan=NULL, snpID=NULL, scanID=NULL, 
         drop=TRUE, use.names=TRUE,
 	order=c("file", "selection"), transpose=FALSE, ...)}:
@@ -139,7 +139,7 @@
       If \code{order=="file"}, genotypes are returned in the order they are stored in the file.  If \code{order="selection"}, the order of SNPs and scans will match the index selection provided in \code{snp} and \code{scan} respectively.
       Other arguments are identical to \code{getGenotype}.
     }
-    \item{}{
+    \item{
       \code{getVariable(object, varname, index, drop=TRUE, ...)}: Extracts the
       contents of the variable \code{varname}.    
       The optional \code{index} is a logical or
@@ -148,19 +148,19 @@
       Missing values are represented as \code{NA}.  
       If the variable is not found, returns \code{NULL}.
     }
-     \item{}{
+     \item{
        \code{XchromCode(object)}: Returns the integer code for the X
        chromosome.
      }
-     \item{}{
+     \item{
        \code{XYchromCode(object)}: Returns the integer code for the
        pseudoautosomal region.
      }
-     \item{}{
+     \item{
        \code{YchromCode(object)}: Returns the integer code for the Y
        chromosome.
      }
-     \item{}{
+     \item{
        \code{MchromCode(object)}: Returns the integer code for 
        mitochondrial SNPs.
      }
