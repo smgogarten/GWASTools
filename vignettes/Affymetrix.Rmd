@@ -401,8 +401,8 @@ We calculate the BAlleleFrequency and LogRRatio values for each sample by SNP
 and write these values to a data file by calling the function
 `BAFfromGenotypes`. We will also select "by.study" as the call method, so all 3
 samples have their genotype clusters called together. In normal usage, we
-recommend calling Affymetrix genotypes "by.plate" (in which case the `
-plate.name` argument is passed to the function). For more detail regarding the
+recommend calling Affymetrix genotypes "by.plate" (in which case the `plate.name`
+argument is passed to the function). For more detail regarding the
 `BAFfromGenotypes` function, please see the function documentation. After the
 function is complete, we will look at a few values to ensure the file was
 created successfully.
