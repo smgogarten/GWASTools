@@ -1,12 +1,12 @@
 ---
 title: "Preparing Affymetrix Data"
 author:
-  - name: "GENEVA"
-    affiliation: "Coordinating Center Department of Biostatistics University of Washington"
+  - name: "GENEVA Coordinating Center"
+    affiliation: "Department of Biostatistics, University of Washington"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 package: GWASTools
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Preparing Affymetrix Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
