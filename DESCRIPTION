@@ -3,11 +3,28 @@ Version: 1.45.0
 Type: Package
 Title: Tools for Genome Wide Association Studies
 Description: Classes for storing very large GWAS data sets and annotation, and functions for GWAS data cleaning and analysis.
-Author: Stephanie M. Gogarten, Cathy Laurie, Tushar Bhangale, Matthew P. Conomos, Cecelia Laurie, Michael Lawrence, Caitlin McHugh, Ian Painter, Xiuwen Zheng, Jess Shen, Rohit Swarnkar, Adrienne Stilp, Sarah Nelson, David Levine
-Maintainer: Stephanie M. Gogarten <sdmorris@uw.edu>
+Authors@R: c(
+  person("Stephanie M.", "Gogarten", role = "aut"),
+  person("Cathy", "Laurie", role = "aut"),
+  person("Tushar", "Bhangale", role = "aut"),
+  person("Matthew P.", "Conomos", role = "aut"),
+  person("Cecelia", "Laurie", role = "aut"),
+  person("Michael", "Lawrence", role = "aut"),
+  person("Caitlin", "McHugh", role = "aut"),
+  person("Ian", "Painter", role = "aut"),
+  person("Xiuwen", "Zheng", role = "aut"),
+  person("Jess", "Shen", role = "aut"),
+  person("Rohit", "Swarnkar", role = "aut"),
+  person("Adrienne", "Stilp", role = "aut"),
+  person("Sarah", "Nelson", role = "aut"),
+  person("David", "Levine", role = "aut"),
+  person("Sonali", "Kumari", role = "ctb",
+    comment = "Converted vignettes from Sweave to RMarkdown / HTML."),
+  person("Stephanie M.", "Gogarten",
+    email = "sdmorris@uw.edu", role = "cre"))
 Depends: Biobase
 Imports: graphics, stats, utils, methods, gdsfmt, DBI, RSQLite, GWASExactHW, DNAcopy, survival, sandwich, lmtest, logistf, quantsmooth, data.table
-Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation, parallel
+Suggests: ncdf4, GWASdata, BiocGenerics, RUnit, Biostrings, GenomicRanges, IRanges, SNPRelate, snpStats, S4Vectors, VariantAnnotation, parallel, BiocStyle, knitr
 License: Artistic-2.0
 URL: https://github.com/smgogarten/GWASTools
 LazyData: yes
@@ -46,3 +63,4 @@ Collate: utils.R AllGenerics.R AllClasses.R genotypeToCharacter.R
   pedigreeCheck.R pedigreeDeleteDuplicates.R
   pedigreePairwiseRelatedness.R pedigreeMaxUnrelated.R
   simulateGenotypeMatrix.R simulateIntensityMatrix.R
+VignetteBuilder: knitr
