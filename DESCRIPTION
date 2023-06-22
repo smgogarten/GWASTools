@@ -18,6 +18,8 @@ Authors@R: c(
   person("Adrienne", "Stilp", role = "aut"),
   person("Sarah", "Nelson", role = "aut"),
   person("David", "Levine", role = "aut"),
+  person("Sonali", "Kumari", role = "ctb",
+    comment = "Converted vignettes from Sweave to RMarkdown / HTML."),
   person("Stephanie M.", "Gogarten",
     email = "sdmorris@uw.edu", role = "cre"))
 Depends: Biobase

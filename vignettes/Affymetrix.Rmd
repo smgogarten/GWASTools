@@ -3,6 +3,8 @@ title: "Preparing Affymetrix Data"
 author:
   - name: "GENEVA Coordinating Center"
     affiliation: "Department of Biostatistics, University of Washington"
+  - name: "Sonali Kumari"
+    affiliation: "Vignette translation from Sweave to R Markdown / HTML"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 package: GWASTools
 vignette: >
